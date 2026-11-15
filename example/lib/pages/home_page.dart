@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
     if (isWide) {
       return Scaffold(
-        body: Row(
+        body: AntFlex(
           children: [
             _buildSidebar(theme),
             AntDivider(type: AntDividerType.vertical, spacing: 1, color: theme.dividerColor),
@@ -47,18 +47,19 @@ class _HomePageState extends State<HomePage> {
   /// 左侧导航栏 — 分组标题 + 组件列表
   /// [asDrawer] 为 true 时不固定宽度（由 Drawer 决定），点击项后自动关闭抽屉
   Widget _buildSidebar(ThemeData theme, {bool asDrawer = false}) {
-    final sidebar = Column(
+    final sidebar = AntFlex(
+      vertical: true,
       children: [
         // Logo 区
         Container(
           height: 64,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           alignment: Alignment.centerLeft,
-          child: Row(
+          child: AntFlex(
+            gap: const AntFlexGap.all(10),
             children: [
               Icon(Icons.widgets_outlined,
                   color: theme.colorScheme.primary, size: 28),
-              const SizedBox(width: 10),
               Flexible(
                 child: Text(
                   'antd-flutter',
@@ -135,8 +136,9 @@ class _HomePageState extends State<HomePage> {
     final selected = _selected;
     return ColoredBox(
       color: theme.colorScheme.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: AntFlex(
+        vertical: true,
+        align: AntFlexAlign.stretch,
         children: [
           // 顶栏（窄屏由 AppBar 代替）
           if (showHeader)
@@ -173,7 +175,8 @@ class _HomePageState extends State<HomePage> {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
+        child: AntFlex(
+          vertical: true,
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(

@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：6 / 111**
+**总体：7 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -69,12 +69,12 @@ void main() {
 | FloatButton | ✅ | 悬浮按钮 + FloatButtonGroup(trigger/placement) + FloatButtonBackTop + badge 角标 |
 | NoticeBar 📱 | ✅ | 通告栏，滚动/多行/可关闭/5种语义颜色/3种形状/边框模式 |
 
-### 布局 — 1/9 完成
+### 布局 — 2/9 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
 | Divider | ✅ | 水平/垂直/solid/dashed/dotted/带文字/orientation/orientationMargin/plain |
-| Flex | 📋 | 对齐 antd Flex API |
+| Flex | ✅ | vertical/wrap/justify/align/gap(small/middle/large/all/only)/mainAxisSize |
 | Grid | 📋 | Row/Col 24 栅格 + 响应式断点 |
 | Layout | 📋 | Sider/Header/Content/Footer 组合 |
 | Space | 📋 | 方向/大小/对齐/wrap |
