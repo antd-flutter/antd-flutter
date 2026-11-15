@@ -1,0 +1,24 @@
+name: antd_theme_example
+description: Example app for antd_theme package.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_theme:
+    path: ../
+
+# 本地开发时覆盖传递依赖（antd_theme → antd_tokens/antd_color hosted 约束）
+dependency_overrides:
+  antd_color:
+    path: ../../antd_color
+  antd_tokens:
+    path: ../../antd_tokens
+
+flutter:
+  uses-material-design: true

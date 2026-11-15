@@ -1,0 +1,17 @@
+name: antd_color_example
+description: Example app for antd_color package.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_color:
+    path: ../
+
+flutter:
+  uses-material-design: true
