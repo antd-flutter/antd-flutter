@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'button_page.dart';
 import 'float_button_page.dart';
 import 'icon_page.dart';
+import 'notice_bar_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -23,6 +24,8 @@ class ComponentPage extends StatelessWidget {
         return const FloatButtonPage();
       case 'icon':
         return const IconPage();
+      case 'notice_bar':
+        return const NoticeBarPage();
       case 'typography':
         return const TypographyPage();
       default:

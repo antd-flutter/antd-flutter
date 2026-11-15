@@ -57,9 +57,9 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：4 / 111**
+**总体：5 / 111**
 
-### 通用 — 4/5 完成
+### 通用 — 5/5 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -67,7 +67,7 @@ void main() {
 | Icon | ✅ | [antd_icons_flutter](https://pub.dev/packages/antd_icons_flutter) — 698 TTF（outlined/filled）+ 150 twotone SVG |
 | Typography | ✅ | Title(h1-h5) / Paragraph / Text / Link + copyable / editable / ellipsis / mark / delete |
 | FloatButton | ✅ | 悬浮按钮 + FloatButtonGroup(trigger/placement) + FloatButtonBackTop + badge 角标 |
-| NoticeBar 📱 | 📋 | 通告栏，滚动/静态/可关闭 |
+| NoticeBar 📱 | ✅ | 通告栏，滚动/多行/可关闭/5种语义颜色/3种形状/边框模式 |
 
 ### 布局 — 0/9 完成
 

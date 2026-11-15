@@ -1,3 +1,11 @@
+## 0.4.0-beta.1
+
+新增 NoticeBar 通告栏组件。
+
+- AntNoticeBar：通告栏，支持 content 超长自动横向滚动（delay/speed）、color 语义颜色（normal/alert/error/info/success）、closeable 可关闭、icon 自定义左侧图标、extra 右侧操作区、wrap 多行展示、shape 形状（rectangular/neutral/rounded）、bordered 边框模式（block/full/none）、onClick/onClose 事件
+- Widget test：25 个测试用例全量通过
+- Example demo 页：10 个展示区块
+
 ## 0.3.0-beta.1
 
 新增 FloatButton 悬浮按钮组件。
