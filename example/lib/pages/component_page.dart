@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'button_page.dart';
+import 'float_button_page.dart';
 import 'icon_page.dart';
 import 'typography_page.dart';
 
@@ -18,6 +19,8 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'button':
         return const ButtonPage();
+      case 'float_button':
+        return const FloatButtonPage();
       case 'icon':
         return const IconPage();
       case 'typography':

@@ -1,3 +1,13 @@
+## 0.3.0-beta.1
+
+新增 FloatButton 悬浮按钮组件。
+
+- AntFloatButton：悬浮按钮，支持 type(normal/primary)、shape(circle/square)、icon、content、href、disabled、badge(角标 count/dot)、tooltip、onClick
+- AntFloatButtonGroup：悬浮按钮组，支持 trigger(click/hover) 展开/收起、placement(top/bottom/left/right) 方位、shape(circle/square)、closeIcon、AnimatedSize 展开动画
+- AntFloatButtonBackTop：回到顶部，支持 visibilityHeight 显示阈值、duration 滚动时长、onClick、scrollController、AnimatedOpacity 显隐动画
+- Widget test：21 个测试用例全量通过
+- Example demo 页：11 个展示区块
+
 ## 0.2.0-beta.1
 
 新增 Typography 排版组件。

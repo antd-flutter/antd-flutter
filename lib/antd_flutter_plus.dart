@@ -30,3 +30,5 @@ export 'src/components/general/button/ant_button.dart';
 export 'src/components/general/button/ant_button_types.dart';
 export 'src/components/general/typography/ant_typography.dart';
 export 'src/components/general/typography/ant_typography_types.dart';
+export 'src/components/general/float_button/ant_float_button.dart';
+export 'src/components/general/float_button/ant_float_button_types.dart';
