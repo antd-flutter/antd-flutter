@@ -28,3 +28,5 @@ export 'package:antd_icons_flutter/antd_icons_flutter.dart';
 // L4 组件层 — 通用
 export 'src/components/general/button/ant_button.dart';
 export 'src/components/general/button/ant_button_types.dart';
+export 'src/components/general/typography/ant_typography.dart';
+export 'src/components/general/typography/ant_typography_types.dart';

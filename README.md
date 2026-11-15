@@ -57,15 +57,15 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：2 / 111**
+**总体：3 / 111**
 
-### 通用 — 2/5 完成
+### 通用 — 3/5 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
 | Button | ✅ | primary/default/dashed/text/link + danger + loading + icon + block |
 | Icon | ✅ | [antd_icons_flutter](https://pub.dev/packages/antd_icons_flutter) — 698 TTF（outlined/filled）+ 150 twotone SVG |
-| Typography | 📋 | Title / Paragraph / Text + copyable / ellipsis |
+| Typography | ✅ | Title(h1-h5) / Paragraph / Text / Link + copyable / editable / ellipsis / mark / delete |
 | FloatButton | 📋 | 悬浮按钮 + FloatButtonGroup |
 | NoticeBar 📱 | 📋 | 通告栏，滚动/静态/可关闭 |
 

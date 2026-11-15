@@ -1,3 +1,15 @@
+## 0.2.0-beta.1
+
+新增 Typography 排版组件。
+
+- AntTypography 排版基类：支持 ellipsis 省略（tooltip/expandable）、copyable 可复制、editable 可编辑、mark 标记、delete 删除线、underline 下划线、disabled 禁用、type（secondary/success/warning/danger）
+- AntTitle（h1-h5）：五级标题，字号/行高与 Ant Design token 对齐
+- AntParagraph：段落，支持 ellipsis 省略与 expandable 展开/收起
+- AntText：文本，支持 secondary/success/warning/danger 类型
+- AntLink：链接，支持 href 与 hover 下划线
+- Widget test：37 个测试用例全量通过
+- Example demo 页：10 个展示区块
+
 ## 0.1.0-beta.1
 
 首个 beta 版本。

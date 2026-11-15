@@ -4,6 +4,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'button_page.dart';
+import 'icon_page.dart';
+import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
   const ComponentPage({super.key, required this.snakeName});
@@ -16,6 +18,10 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'button':
         return const ButtonPage();
+      case 'icon':
+        return const IconPage();
+      case 'typography':
+        return const TypographyPage();
       default:
         return _PlaceholderPage(snakeName: snakeName);
     }
