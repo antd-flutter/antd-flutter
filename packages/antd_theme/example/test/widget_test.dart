@@ -1,0 +1,15 @@
+// antd_theme 示例应用冒烟测试。
+
+import 'package:antd_theme_example/main.dart';
+// ignore: deprecated_member_use
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('AntdThemeExampleApp 可正常构建渲染', (tester) async {
+    await tester.pumpWidget(const AntdThemeExampleApp());
+    await tester.pump();
+
+    expect(find.byType(MaterialApp), findsOneWidget);
+  });
+}

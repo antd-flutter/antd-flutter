@@ -4,17 +4,19 @@ packages:
   antd_color:
     dependency: "direct main"
     description:
-      path: "../antd_color"
-      relative: true
-    source: path
-    version: "0.1.0"
+      name: antd_color
+      sha256: "9a7c9ad4ed284f29d806da5ddd08c0784d9a1f2301b363df2356423e8ab131b2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0-beta.1"
   antd_tokens:
     dependency: "direct main"
     description:
-      path: "../antd_tokens"
-      relative: true
-    source: path
-    version: "0.1.0"
+      name: antd_tokens
+      sha256: "9983c0cc96db51c1db7e6f6d09965abc74e66225fd5d9ecfe1ab25fbb092965f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0-beta.1"
   async:
     dependency: transitive
     description:

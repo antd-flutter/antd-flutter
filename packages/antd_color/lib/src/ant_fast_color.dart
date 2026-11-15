@@ -114,6 +114,11 @@ class AntFastColor {
     _v = other._v;
   }
 
+  /// 便捷工厂：自动判断输入类型，等同于 [AntFastColor.of]。
+  ///
+  /// 允许直接使用 `AntFastColor('#1677ff')` 简化语义。
+  factory AntFastColor(Object input) => AntFastColor.of(input);
+
   /// 通用工厂：自动判断输入类型。
   factory AntFastColor.of(Object input) {
     if (input is AntFastColor) return AntFastColor.fromColor(input);
