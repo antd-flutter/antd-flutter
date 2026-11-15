@@ -34,3 +34,7 @@ export 'src/components/general/float_button/ant_float_button.dart';
 export 'src/components/general/float_button/ant_float_button_types.dart';
 export 'src/components/general/notice_bar/ant_notice_bar.dart';
 export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
+
+// L4 组件层 — 布局
+export 'src/components/layout/divider/ant_divider.dart';
+export 'src/components/layout/divider/ant_divider_types.dart';

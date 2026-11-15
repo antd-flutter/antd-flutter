@@ -1,6 +1,7 @@
 /// 官网首页 — antd 风格：宽屏左侧分组导航 + 右侧内容区，窄屏抽屉导航
 library;
 
+import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import '../data/nav_data.dart';
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
         body: Row(
           children: [
             _buildSidebar(theme),
-            VerticalDivider(width: 1, color: theme.dividerColor),
+            AntDivider(type: AntDividerType.vertical, spacing: 1, color: theme.dividerColor),
             Expanded(child: _buildContent(theme, showHeader: true)),
           ],
         ),
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        Divider(height: 1, color: theme.dividerColor),
+        AntDivider(spacing: 1, color: theme.dividerColor),
         // 导航列表
         Expanded(
           child: ListView(
