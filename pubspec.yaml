@@ -1,6 +1,6 @@
-name: antd_flutter
+name: antd_flutter_plus
 description: Ant Design v6 Flutter components library. A Flutter implementation of Ant Design with Design Token system.
-version: 0.1.0
+version: 0.1.0-beta.1
 homepage: https://antd-flutter.github.io/antd-flutter/
 repository: https://github.com/antd-flutter/antd-flutter
 issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
@@ -21,11 +21,11 @@ dependencies:
   flutter_screenutil: ^5.9.3
 
   # L2/L3 子包（发布后自动从 pub.dev 解析）
-  antd_color: ^0.1.0
-  antd_tokens: ^0.1.0
-  antd_theme: ^0.1.0
+  antd_color: ^0.1.0-beta.1
+  antd_tokens: ^0.1.0-beta.1
+  antd_theme: ^0.1.0-beta.1
+  antd_icons_flutter: ^1.0.0
 
-# 本地开发时使用 path 覆盖；发布前移除本段并确保子包已发布
 dependency_overrides:
   antd_color:
     path: packages/antd_color
@@ -33,6 +33,8 @@ dependency_overrides:
     path: packages/antd_tokens
   antd_theme:
     path: packages/antd_theme
+  antd_icons_flutter:
+    path: packages/antd_icons_flutter
 
 dev_dependencies:
   flutter_test:

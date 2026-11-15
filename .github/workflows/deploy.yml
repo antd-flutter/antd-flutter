@@ -35,10 +35,24 @@ jobs:
         working-directory: example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/
 
+      - name: Install icons gallery dependencies
+        working-directory: packages/antd_icons_flutter/example
+        run: flutter pub get
+
+      - name: Build icons gallery (release)
+        working-directory: packages/antd_icons_flutter/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/icons/
+
+      - name: Merge sites into Pages artifact
+        run: |
+          mkdir -p site/icons
+          cp -r example/build/web/* site/
+          cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: example/build/web
+          path: site
 
   deploy:
     name: Deploy

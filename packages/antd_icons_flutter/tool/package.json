@@ -1,0 +1,11 @@
+{
+  "name": "antd-icons-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generate AntIcons TTF font + TwoTone SVG assets + Dart constants from @ant-design/icons-svg",
+  "dependencies": {
+    "svgicons2svgfont": "^10.0.0",
+    "svg2ttf": "^6.0.3"
+  }
+}

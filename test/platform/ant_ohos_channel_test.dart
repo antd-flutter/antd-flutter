@@ -1,4 +1,4 @@
-import 'package:antd_flutter/src/platform/ant_ohos_channel.dart';
+import 'package:antd_flutter_plus/src/platform/ant_ohos_channel.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

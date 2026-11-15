@@ -1,12 +1,32 @@
-/// 组件展示占位页 — Phase 0 骨架，后续各组件逐步填充
+/// 组件展示页 — 根据 snakeName 路由到对应组件演示页
 library;
 
 import 'package:flutter/material.dart';
 
-class ComponentPage extends StatelessWidget {
-  const ComponentPage({super.key, required this.title});
+import 'button_page.dart';
 
-  final String title;
+class ComponentPage extends StatelessWidget {
+  const ComponentPage({super.key, required this.snakeName});
+
+  /// 组件蛇形名（如 "button"），用于路由
+  final String snakeName;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (snakeName) {
+      case 'button':
+        return const ButtonPage();
+      default:
+        return _PlaceholderPage(snakeName: snakeName);
+    }
+  }
+}
+
+/// 未实现组件的占位页
+class _PlaceholderPage extends StatelessWidget {
+  const _PlaceholderPage({required this.snakeName});
+
+  final String snakeName;
 
   @override
   Widget build(BuildContext context) {
@@ -15,20 +35,12 @@ class ComponentPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.construction_outlined,
-            size: 64,
-            color: theme.colorScheme.outline,
-          ),
+          Icon(Icons.construction_outlined, size: 64, color: theme.colorScheme.outline),
           const SizedBox(height: 16),
-          Text(title, style: theme.textTheme.headlineSmall),
+          Text(snakeName, style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
-          Text(
-            '该组件正在开发中，敬请期待',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
+          Text('该组件正在开发中，敬请期待',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)),
         ],
       ),
     );

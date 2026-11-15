@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_flutter:
+  antd_flutter_plus:
     path: ../
   flutter_screenutil: ^5.9.3
   device_preview: ^1.2.0

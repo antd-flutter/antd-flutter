@@ -1,6 +1,7 @@
 /// antd-flutter 官网示例应用入口
 library;
 
+import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,17 +23,23 @@ class AntdFlutterExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'antd-flutter',
-      debugShowCheckedModeBanner: false,
-      useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF1677FF), // Ant Design v6 主色
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
+    return AntScreenUtilInit(
+      builder: (context, child) {
+        return AntTheme(
+          data: AntThemeData.light(),
+          child: MaterialApp(
+            title: 'antd-flutter',
+            debugShowCheckedModeBanner: false,
+            locale: DevicePreview.locale(context),
+            builder: DevicePreview.appBuilder,
+            theme: ThemeData(
+              colorSchemeSeed: const Color(0xFF1677FF),
+              useMaterial3: true,
+            ),
+            home: const HomePage(),
+          ),
+        );
+      },
     );
   }
 }
