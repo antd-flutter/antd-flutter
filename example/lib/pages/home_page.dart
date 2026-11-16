@@ -1,6 +1,6 @@
-/// 官网首页 — antd 风格：宽屏左侧分组导航 + 右侧内容区，窄屏抽屉导航
 library;
 
+/// 官网首页 — antd 风格：宽屏左侧分组导航 + 右侧内容区，窄屏抽屉导航
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 

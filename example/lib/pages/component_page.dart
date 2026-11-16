@@ -1,11 +1,17 @@
-/// 组件展示页 — 根据 snakeName 路由到对应组件演示页
 library;
 
+/// 组件展示页 — 根据 snakeName 路由到对应组件演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'action_sheet_page.dart';
+import 'dialog_page.dart';
+import 'mask_page.dart';
+import 'popup_page.dart';
+import 'pull_to_refresh_page.dart';
+import 'toast_page.dart';
 import 'alert_page.dart';
 import 'drawer_page.dart';
 import 'message_page.dart';
@@ -110,6 +116,18 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'action_sheet':
+        return const ActionSheetPage();
+      case 'dialog':
+        return const DialogPage();
+      case 'mask':
+        return const MaskPage();
+      case 'popup':
+        return const PopupPage();
+      case 'pull_to_refresh':
+        return const PullToRefreshPage();
+      case 'toast':
+        return const ToastPage();
       case 'alert':
         return const AlertPage();
       case 'drawer':

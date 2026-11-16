@@ -1,7 +1,7 @@
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-/// AntModal 对话框演示页
 library;
 
+import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+/// AntModal 对话框演示页
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/material.dart';
 

@@ -37,8 +37,8 @@ jobs:
             fi
           done
 
-      - name: Dart analyze
-        run: dart analyze
+      - name: Flutter analyze
+        run: flutter analyze
 
       - name: Run tests
         run: flutter test

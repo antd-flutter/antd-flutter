@@ -1,7 +1,7 @@
-/// antd 官网导航数据 — 组件分类与组件清单
-/// 涵盖 antd v6 桌面版 + antd-mobile v5 移动端特有组件
 library;
 
+/// antd 官网导航数据 — 组件分类与组件清单
+/// 涵盖 antd v6 桌面版 + antd-mobile v5 移动端特有组件
 /// 导航项（单个组件）
 class NavItem {
   const NavItem(this.label, this.snakeName);

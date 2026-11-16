@@ -1,6 +1,6 @@
-/// antd-flutter 官网示例应用入口
 library;
 
+/// antd-flutter 官网示例应用入口
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';

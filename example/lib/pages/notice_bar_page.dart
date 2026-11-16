@@ -1,6 +1,6 @@
-/// NoticeBar 通告栏演示页
 library;
 
+/// NoticeBar 通告栏演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
