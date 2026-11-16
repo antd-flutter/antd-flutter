@@ -9,9 +9,7 @@ class RatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AntNavBar(title: 'Rate 评分', back: true),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +28,6 @@ class RatePage extends StatelessWidget {
             _DisabledDemo(),
           ],
         ),
-      ),
     );
   }
 }

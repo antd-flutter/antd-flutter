@@ -9,9 +9,7 @@ class DatePickerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AntNavBar(title: 'DatePicker 日期选择框', back: true),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +26,6 @@ class DatePickerPage extends StatelessWidget {
             _DisabledDemo(),
           ],
         ),
-      ),
     );
   }
 }

@@ -9,9 +9,7 @@ class TimePickerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AntNavBar(title: 'TimePicker 时间选择框', back: true),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +28,6 @@ class TimePickerPage extends StatelessWidget {
             _DisabledDemo(),
           ],
         ),
-      ),
     );
   }
 }

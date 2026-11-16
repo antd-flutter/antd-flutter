@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：37 / 111**
+**总体：45 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -101,7 +101,7 @@ void main() {
 | CapsuleTabs 📱 | ✅ | 胶囊选项卡 + 灰色容器白底激活 + 阴影 + 禁用项 |
 | JumboTabs 📱 | ✅ | 大选项卡 + 主标题/描述 + 底部指示条 |
 
-### 数据录入 — 10/30 完成
+### 数据录入 — 18/30 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -115,14 +115,14 @@ void main() {
 | TimePicker | ✅ | 时分秒三列滚轮 + 步长/确认按钮/清除/尺寸 |
 | Slider | ✅ | 滑动输入条 + 范围/步长/刻度标记/提示气泡 |
 | Rate | ✅ | 评分 + 半星/清除/自定义图标/数量/禁用 |
-| Form | 📋 | 表单校验引擎 |
-| AutoComplete | 📋 | 自动补全 |
-| Cascader | 📋 | 级联选择 |
-| TreeSelect | 📋 | 树选择 |
-| Mentions | 📋 | 提及 |
-| Transfer | 📋 | 穿梭框 |
-| Upload | 📋 | 上传 |
-| ColorPicker | 📋 | 颜色选择器 |
+| Form | ✅ | 表单 + form 控制器(getFieldsValue/setFieldsValue/resetFields/submit) + rules 校验 + layout |
+| AutoComplete | ✅ | 自动补全 + options/filterOption/受控/onSelect |
+| Cascader | ✅ | 级联选择 + 树形选项/changeOnSelect/showSearch/受控 |
+| TreeSelect | ✅ | 树选择 + treeData/默认展开/复选模式/受控 |
+| Mentions | ✅ | 提及 + options/prefix/split/受控/onSelect |
+| Transfer | ✅ | 穿梭框 + dataSource/targetKeys/selectedKeys/showSearch |
+| Upload | ✅ | 上传 + listType(text/picture/pictureCard)/maxCount/showUploadList |
+| ColorPicker | ✅ | 颜色选择器 + format(hex/rgb/hsl/hsb)/presets/disabledAlpha/allowClear |
 | Stepper 📱 | 📋 | 步进器，+/- 长按连增 |
 | SearchBar 📱 | 📋 | 搜索栏 |
 | Picker 📱 | 📋 | 底部弹出滚轮选择器 |

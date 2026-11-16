@@ -9,9 +9,7 @@ class SliderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AntNavBar(title: 'Slider 滑动输入条', back: true),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +26,6 @@ class SliderPage extends StatelessWidget {
             _DisabledDemo(),
           ],
         ),
-      ),
     );
   }
 }

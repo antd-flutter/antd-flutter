@@ -1,3 +1,18 @@
+## 0.14.0-beta.1
+
+新增 Form 表单、AutoComplete 自动补全、Cascader 级联选择、TreeSelect 树选择、Mentions 提及、Transfer 穿梭框、Upload 上传与 ColorPicker 颜色选择器组件（Phase 5 数据录入组件第三批）。
+
+- AntForm：表单，支持 form 表单控制器（getFieldsValue/setFieldsValue/resetFields/submit）、name 表单名、layout（horizontal/vertical）、initialValues 初始值、onFinish 提交回调、onFinishFailed 提交失败回调、disabled 表单级禁用、AntFormField 表单项（name/rules/label/required）
+- AntAutoComplete：自动补全，支持 options 选项列表（value/label）、filterOption 自定义过滤、size（large/middle/small）、placeholder、disabled、受控 value 与非受控 defaultValue、onChange/onSelect 事件回调
+- AntCascader：级联选择，支持 options 树形选项（value/label/children/disabled）、changeOnSelect 允许选择父级、showSearch 搜索过滤、size、placeholder、disabled、受控 value 与非受控 defaultValue、onChange/onChangeComplete 事件回调
+- AntTreeSelect：树选择，支持 treeData 树形数据（key/title/children/disabled）、treeDefaultExpandAll 默认展开全部、treeCheckable 复选模式、size、placeholder、disabled、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntMentions：提及，支持 options 选项列表（value/label）、split 分隔符、prefix 触发字符、size、placeholder、disabled、受控 value 与非受控 defaultValue、onChange/onSelect 事件回调
+- AntTransfer：穿梭框，支持 dataSource 数据源（key/title/description/disabled）、targetKeys 目标项、selectedKeys 选中项、showSearch 搜索、titles 标题、operations 操作文案、disabled、onChange/onSelectChange 事件回调
+- AntUpload：上传，支持 listType（text/picture/pictureCard）、accept 接受文件类型、multiple 多选、maxCount 最大数量、defaultFileList 默认文件列表、showUploadList 显示列表、disabled、onSelectFiles 选择回调、onChange/onRemove/onPreview 事件回调
+- AntColorPicker：颜色选择器，支持 format（hex/rgb/hsl/hsb）颜色格式、showText 显示文本、presets 预设色板、disabledAlpha 禁用透明度、allowClear 允许清空、size（large/middle/small）、disabled、受控 value 与非受控 defaultValue、onChange/onChangeComplete 事件回调
+- Widget test：Form 15 个 + AutoComplete 11 个 + Cascader 20 个 + TreeSelect 23 个 + Mentions 19 个 + Transfer 23 个 + Upload 24 个 + ColorPicker 19 个测试用例全量通过
+- Example demo 页：Form 7 个 + AutoComplete 6 个 + Cascader 5 个 + TreeSelect 5 个 + Mentions 5 个 + Transfer 6 个 + Upload 8 个 + ColorPicker 11 个展示区块
+
 ## 0.13.0-beta.1
 
 新增 Select 选择器、DatePicker 日期选择器、TimePicker 时间选择器、Slider 滑动输入条与 Rate 评分组件（Phase 5 数据录入组件第二批）。

@@ -5,16 +5,20 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
+import 'auto_complete_page.dart';
 import 'anchor_page.dart';
 import 'breadcrumb_page.dart';
 import 'button_page.dart';
 import 'capsule_tabs_page.dart';
+import 'cascader_page.dart';
 import 'checkbox_page.dart';
+import 'color_picker_page.dart';
 import 'date_picker_page.dart';
 import 'divider_page.dart';
 import 'dropdown_page.dart';
 import 'flex_page.dart';
 import 'float_button_page.dart';
+import 'form_page.dart';
 import 'grid_page.dart';
 import 'icon_page.dart';
 import 'index_bar_page.dart';
@@ -23,6 +27,7 @@ import 'input_page.dart';
 import 'jumbo_tabs_page.dart';
 import 'layout_page.dart';
 import 'masonry_page.dart';
+import 'mentions_page.dart';
 import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
@@ -40,6 +45,9 @@ import 'switch_page.dart';
 import 'tab_bar_page.dart';
 import 'tabs_page.dart';
 import 'time_picker_page.dart';
+import 'transfer_page.dart';
+import 'tree_select_page.dart';
+import 'upload_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -53,6 +61,8 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'auto_center':
         return const AutoCenterPage();
+      case 'auto_complete':
+        return const AutoCompletePage();
       case 'anchor':
         return const AnchorPage();
       case 'breadcrumb':
@@ -61,8 +71,12 @@ class ComponentPage extends StatelessWidget {
         return const ButtonPage();
       case 'capsule_tabs':
         return const CapsuleTabsPage();
+      case 'cascader':
+        return const CascaderPage();
       case 'checkbox':
         return const CheckboxPage();
+      case 'color_picker':
+        return const ColorPickerPage();
       case 'date_picker':
         return const DatePickerPage();
       case 'divider':
@@ -71,6 +85,8 @@ class ComponentPage extends StatelessWidget {
         return const DropdownPage();
       case 'flex':
         return const FlexPage();
+      case 'form':
+        return const FormPage();
       case 'float_button':
         return const FloatButtonPage();
       case 'grid':
@@ -89,6 +105,8 @@ class ComponentPage extends StatelessWidget {
         return const LayoutPage();
       case 'masonry':
         return const MasonryPage();
+      case 'mentions':
+        return const MentionsPage();
       case 'menu':
         return const MenuPage();
       case 'nav_bar':
@@ -123,6 +141,12 @@ class ComponentPage extends StatelessWidget {
         return const TabsPage();
       case 'time_picker':
         return const TimePickerPage();
+      case 'transfer':
+        return const TransferPage();
+      case 'tree_select':
+        return const TreeSelectPage();
+      case 'upload':
+        return const UploadPage();
       case 'typography':
         return const TypographyPage();
       default:
