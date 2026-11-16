@@ -153,7 +153,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
   Widget build(BuildContext context) {
     return AntFlex(
       vertical: true,
-      gap: 12.w,
+      gap: AntFlexGap.all(12.w),
       children: [
         AntColorPicker(
           value: _color,

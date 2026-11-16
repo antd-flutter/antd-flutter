@@ -14,6 +14,7 @@ import 'capsule_tabs_page.dart';
 import 'cascader_page.dart';
 import 'cascader_view_page.dart';
 import 'checkbox_page.dart';
+import 'check_list_page.dart';
 import 'color_picker_page.dart';
 import 'date_picker_page.dart';
 import 'divider_page.dart';
@@ -23,6 +24,7 @@ import 'float_button_page.dart';
 import 'form_page.dart';
 import 'grid_page.dart';
 import 'icon_page.dart';
+import 'image_uploader_page.dart';
 import 'index_bar_page.dart';
 import 'input_number_page.dart';
 import 'input_page.dart';
@@ -33,13 +35,16 @@ import 'mentions_page.dart';
 import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
+import 'number_keyboard_page.dart';
 import 'pagination_page.dart';
+import 'passcode_input_page.dart';
 import 'picker_page.dart';
 import 'rate_page.dart';
 import 'radio_page.dart';
 import 'safe_area_page.dart';
 import 'search_bar_page.dart';
 import 'select_page.dart';
+import 'selector_page.dart';
 import 'side_bar_page.dart';
 import 'slider_page.dart';
 import 'space_page.dart';
@@ -53,6 +58,7 @@ import 'time_picker_page.dart';
 import 'transfer_page.dart';
 import 'tree_select_page.dart';
 import 'upload_page.dart';
+import 'virtual_input_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -84,6 +90,8 @@ class ComponentPage extends StatelessWidget {
         return const CascaderViewPage();
       case 'checkbox':
         return const CheckboxPage();
+      case 'check_list':
+        return const CheckListPage();
       case 'color_picker':
         return const ColorPickerPage();
       case 'date_picker':
@@ -102,6 +110,8 @@ class ComponentPage extends StatelessWidget {
         return const GridPage();
       case 'icon':
         return const IconPage();
+      case 'image_uploader':
+        return const ImageUploaderPage();
       case 'index_bar':
         return const IndexBarPage();
       case 'input':
@@ -122,8 +132,12 @@ class ComponentPage extends StatelessWidget {
         return const NavBarPage();
       case 'notice_bar':
         return const NoticeBarPage();
+      case 'number_keyboard':
+        return const NumberKeyboardPage();
       case 'pagination':
         return const PaginationPage();
+      case 'passcode_input':
+        return const PasscodeInputPage();
       case 'picker':
         return const PickerPage();
       case 'rate':
@@ -136,6 +150,8 @@ class ComponentPage extends StatelessWidget {
         return const SearchBarPage();
       case 'select':
         return const SelectPage();
+      case 'selector':
+        return const SelectorPage();
       case 'side_bar':
         return const SideBarPage();
       case 'slider':
@@ -162,6 +178,8 @@ class ComponentPage extends StatelessWidget {
         return const TreeSelectPage();
       case 'upload':
         return const UploadPage();
+      case 'virtual_input':
+        return const VirtualInputPage();
       case 'typography':
         return const TypographyPage();
       default:

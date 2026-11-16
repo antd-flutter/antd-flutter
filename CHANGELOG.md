@@ -1,3 +1,16 @@
+## 0.16.0-beta.1
+
+新增 CheckList 复选列表、Selector 选择组、NumberKeyboard 数字键盘、PasscodeInput 密码格子输入、VirtualInput 虚拟输入与 ImageUploader 图片上传组件（Phase 5 数据录入组件第五批，数据录入分类 30/30 全部完成）。
+
+- AntCheckList：复选列表，支持 multiple 单选/多选模式、items 列表项（value/child/description/prefix/disabled/readOnly）、showCheckMark 选中图标、activeIcon 自定义选中图标、disabled/readOnly 全局禁用/只读、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntSelector：选择组，支持 options 选项列表（value/label/description/disabled）、multiple 单选/多选模式、columns 每行项数（null 时自适应换行）、disabled/readOnly、选中项主色边框与背景、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntNumberKeyboard：数字键盘，支持 4×3 数字网格、confirmText 确认按钮、customKey 自定义按键、randomOrder 数字乱序、maxLength 最大长度、title 标题、visible 可见性、受控 value 与非受控 defaultValue、onChange/onConfirm/onClose 事件回调
+- AntPasscodeInput：密码格子输入，支持 length 格子数量、plain 明文/密文展示、error 错误状态、separated 格子分离、keyboard 内置数字键盘开关、autofocus 自动聚焦、受控 value 与非受控 defaultValue、onChange/onFill 事件回调
+- AntVirtualInput：虚拟输入，支持 placeholder 占位文本、clearable 可清空、disabled 禁用、confirmText/onEnterPress 确认键、randomOrder/customKey 键盘配置、autoFocus 自动聚焦、onFocus/onBlur 事件回调、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntImageUploader：图片上传，支持 value/defaultValue 图片列表（AntImageUploadItem url/status）、maxCount 最大数量、columns 每行列数、deletable 可删除、showUpload 显示上传按钮、preview 点击预览（全屏可缩放）、imageFit 填充模式、onPickImage 选图回调、onDelete 删除拦截、onCountExceed 超出数量回调、受控与非受控模式
+- Widget test：CheckList 16 个 + Selector 14 个 + NumberKeyboard 15 个 + PasscodeInput 15 个 + VirtualInput 13 个 + ImageUploader 15 个测试用例全量通过
+- Example demo 页：CheckList 8 个 + Selector 8 个 + NumberKeyboard 7 个 + PasscodeInput 7 个 + VirtualInput 7 个 + ImageUploader 7 个展示区块
+
 ## 0.15.0-beta.1
 
 新增 Stepper 步进器、SearchBar 搜索栏、Picker 选择器、PickerView 选择器视图、CascaderView 级联选择视图与 CalendarPicker 日历选择器组件（Phase 5 数据录入组件第四批）。

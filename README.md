@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：51 / 111**
+**总体：57 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -101,7 +101,7 @@ void main() {
 | CapsuleTabs 📱 | ✅ | 胶囊选项卡 + 灰色容器白底激活 + 阴影 + 禁用项 |
 | JumboTabs 📱 | ✅ | 大选项卡 + 主标题/描述 + 底部指示条 |
 
-### 数据录入 — 24/30 完成
+### 数据录入 — 30/30 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -129,12 +129,12 @@ void main() {
 | PickerView 📱 | ✅ | 内嵌滚轮选择器视图 + 多列联动/受控 value/onChange |
 | CascaderView 📱 | ✅ | 级联选择视图 + 层级 Tab/自动跳转/onTabsChange/禁用选项 |
 | CalendarPicker 📱 | ✅ | 日历选择器 + single/range 模式/周起始日/min/max/月份导航 + 弹窗版与内嵌视图 |
-| CheckList 📱 | 📋 | 复选列表 |
-| Selector 📱 | 📋 | 选择组 |
-| NumberKeyboard 📱 | 📋 | 数字键盘 |
-| PasscodeInput 📱 | 📋 | 密码格子输入框 |
-| VirtualInput 📱 | 📋 | 虚拟输入 |
-| ImageUploader 📱 | 📋 | 图片上传 |
+| CheckList 📱 | ✅ | 复选列表 + multiple 单选/多选/items/showCheckMark/activeIcon/受控 |
+| Selector 📱 | ✅ | 选择组 + options/multiple/columns/选中主色边框/受控 |
+| NumberKeyboard 📱 | ✅ | 数字键盘 + confirmText/customKey/randomOrder/maxLength/受控 |
+| PasscodeInput 📱 | ✅ | 密码格子输入 + length/plain/error/separated/onFill/内置键盘 |
+| VirtualInput 📱 | ✅ | 虚拟输入 + placeholder/clearable/confirmText/onEnterPress/内置键盘 |
+| ImageUploader 📱 | ✅ | 图片上传 + maxCount/columns/preview/deletable/onPickImage/状态展示 |
 
 ### 数据展示 — 0/28 完成
 
