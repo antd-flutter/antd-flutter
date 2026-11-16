@@ -126,8 +126,9 @@ class _TypeDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 16),
       children: const [
         AntFloatButton(type: AntFloatButtonType.normal, tooltip: 'normal'),
         AntFloatButton(type: AntFloatButtonType.primary, tooltip: 'primary'),
@@ -141,8 +142,9 @@ class _ShapeDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 16),
       children: const [
         AntFloatButton(shape: AntFloatButtonShape.circle, tooltip: 'circle'),
         AntFloatButton(shape: AntFloatButtonShape.square, tooltip: 'square'),
@@ -160,8 +162,9 @@ class _IconDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 16),
       children: const [
         AntFloatButton(icon: Icon(AntIcons.questionOutlined), tooltip: '问题'),
         AntFloatButton(icon: Icon(AntIcons.moreOutlined), tooltip: '更多'),
@@ -178,8 +181,9 @@ class _BadgeDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 16),
       children: const [
         AntFloatButton(badge: AntFloatButtonBadge(count: 5), tooltip: 'count=5'),
         AntFloatButton(badge: AntFloatButtonBadge(count: 200), tooltip: 'count=200'),
@@ -195,8 +199,9 @@ class _DisabledDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 16),
       children: const [
         AntFloatButton(disabled: true, tooltip: '禁用'),
         AntFloatButton(
@@ -280,9 +285,9 @@ class _GroupPlacementDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 32,
-      runSpacing: 32,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(32),
       children: [
         AntFloatButtonGroup(
           placement: AntFloatButtonGroupPlacement.top,

@@ -21,15 +21,25 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isWide = MediaQuery.sizeOf(context).width >= 840;
+    final content = _selected == null
+        ? _buildOverview(theme)
+        : ComponentPage(snakeName: _selected!.snakeName);
 
     if (isWide) {
       return Scaffold(
-        body: AntFlex(
-          children: [
-            _buildSidebar(theme),
-            AntDivider(type: AntDividerType.vertical, spacing: 1, color: theme.dividerColor),
-            Expanded(child: _buildContent(theme, showHeader: true)),
-          ],
+        body: AntLayout(
+          sider: AntLayoutSider(
+            theme: AntLayoutSiderTheme.light,
+            width: 260,
+            child: _buildSidebarContent(theme),
+          ),
+          header: AntLayoutHeader(
+            child: Text(
+              _selected?.label ?? 'Ant Design v6 · Flutter 实现',
+              style: theme.textTheme.titleMedium,
+            ),
+          ),
+          content: AntLayoutContent(child: content),
         ),
       );
     }
@@ -39,15 +49,15 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(_selected?.label ?? 'antd-flutter'),
       ),
-      drawer: Drawer(child: _buildSidebar(theme, asDrawer: true)),
-      body: _buildContent(theme, showHeader: false),
+      drawer: Drawer(child: _buildSidebarContent(theme, closeOnTap: true)),
+      body: AntLayoutContent(child: content),
     );
   }
 
-  /// 左侧导航栏 — 分组标题 + 组件列表
-  /// [asDrawer] 为 true 时不固定宽度（由 Drawer 决定），点击项后自动关闭抽屉
-  Widget _buildSidebar(ThemeData theme, {bool asDrawer = false}) {
-    final sidebar = AntFlex(
+  /// 左侧导航栏内容 — 分组标题 + 组件列表
+  /// [closeOnTap] 为 true 时点击项后自动关闭抽屉
+  Widget _buildSidebarContent(ThemeData theme, {bool closeOnTap = false}) {
+    return AntFlex(
       vertical: true,
       children: [
         // Logo 区
@@ -90,16 +100,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 for (final item in group.items)
-                  _buildNavItem(theme, item, closeOnTap: asDrawer),
+                  _buildNavItem(theme, item, closeOnTap: closeOnTap),
               ],
             ],
           ),
         ),
       ],
     );
-
-    if (asDrawer) return sidebar;
-    return SizedBox(width: 260, child: sidebar);
   }
 
   /// 单个导航项
@@ -127,43 +134,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  /// 右侧内容区
-  Widget _buildContent(ThemeData theme, {required bool showHeader}) {
-    final selected = _selected;
-    return ColoredBox(
-      color: theme.colorScheme.surface,
-      child: AntFlex(
-        vertical: true,
-        align: AntFlexAlign.stretch,
-        children: [
-          // 顶栏（窄屏由 AppBar 代替）
-          if (showHeader)
-            Container(
-              height: 64,
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                border: Border(
-                  bottom: BorderSide(color: theme.dividerColor),
-                ),
-              ),
-              child: Text(
-                selected?.label ?? 'Ant Design v6 · Flutter 实现',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-          // 内容
-          Expanded(
-            child: selected == null
-                ? _buildOverview(theme)
-                : ComponentPage(snakeName: selected.snakeName),
-          ),
-        ],
       ),
     );
   }

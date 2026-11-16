@@ -76,7 +76,7 @@ class _ButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(spacing: 12, runSpacing: 12, children: children);
+    return AntFlex(wrap: true, gap: const AntFlexGap.all(12), children: children);
   }
 }
 

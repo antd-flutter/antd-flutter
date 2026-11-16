@@ -165,7 +165,7 @@ class _DecorationDemo extends StatelessWidget {
         SizedBox(height: 4),
         AntText(text: 'Ant Design (mark)', mark: true),
         SizedBox(height: 4),
-        Row(
+        AntRow(
           children: [
             AntText(text: 'Press '),
             AntText(text: 'Ctrl', keyboard: true),
@@ -185,10 +185,10 @@ class _LinkDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(row: 8, column: 16),
+      align: AntFlexAlign.center,
       children: const [
         AntLink(text: 'Ant Design Link'),
         AntLink(text: 'Success Link', type: AntTypographyType.success),

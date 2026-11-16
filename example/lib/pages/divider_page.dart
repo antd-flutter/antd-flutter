@@ -149,7 +149,7 @@ class _VerticalDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return const AntRow(
       children: [
         Text('文本一'),
         AntDivider(type: AntDividerType.vertical),

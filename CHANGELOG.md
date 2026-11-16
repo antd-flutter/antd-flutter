@@ -1,3 +1,17 @@
+## 0.6.0-beta.1
+
+新增 Grid 栅格与 Layout 布局组件（Phase 3 布局组件第二批）。
+
+- AntRow/AntCol：24 栅格系统，支持 span 栅格占位、offset 偏移、gutter 间距、align 垂直对齐（top/middle/bottom）、justify 水平分布（start/center/end/spaceAround/spaceBetween）、wrap 换行、flex 弹性比例（覆盖 span）
+- AntLayout：布局容器，支持 sider/header/content/footer 命名插槽组合，有 sider 时水平结构，无 sider 时纯垂直结构
+- AntLayoutSider：侧边栏，支持 width/collapsedWidth 自定义宽度、collapsible 可折叠、defaultCollapsed 初始折叠、collapsed 受控折叠状态、theme 深色/浅色主题（dark #001529 / light colorBgContainer）、breakpoint 响应式断点自动折叠、trigger 自定义触发器、onCollapse/onBreakpoint 事件回调、AnimatedContainer 宽度动画
+- AntLayoutHeader：顶部区域，高度 64，背景 colorBgContainer，支持自定义高度
+- AntLayoutContent：内容区域，flex 自动填充，背景 colorBgLayout
+- AntLayoutFooter：底部区域，padding 24×50，文字 colorTextSecondary
+- Widget test：Grid 32 个 + Layout 32 个测试用例全量通过
+- Example demo 页：Grid 9 个 + Layout 8 个展示区块
+- Example 首页已用 AntLayout/AntLayoutSider/AntLayoutHeader/AntLayoutContent 替换系统布局组件
+
 ## 0.5.0-beta.1
 
 新增 Divider 分割线、Flex 弹性布局与 Space 间距组件（Phase 3 布局组件首批）。

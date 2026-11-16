@@ -70,7 +70,7 @@ class _IconGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(spacing: 16, runSpacing: 16, children: children);
+    return AntFlex(wrap: true, gap: const AntFlexGap.all(16), children: children);
   }
 }
 
@@ -267,9 +267,9 @@ class _IconButtonDemo extends StatelessWidget {
   const _IconButtonDemo();
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(12),
       children: const [
         AntButton(type: AntButtonType.primary, icon: AntdIcon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
         AntButton(icon: AntdIcon(AntIcons.downloadOutlined, size: 16), child: Text('Download')),
@@ -318,8 +318,9 @@ class _SpinIconState extends State<_SpinIcon> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 24,
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.only(column: 24),
       children: [
         RotationTransition(
           turns: _controller,

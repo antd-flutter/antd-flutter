@@ -68,10 +68,9 @@ class _Section extends StatelessWidget {
 
 /// 演示用色块
 class _Box extends StatelessWidget {
-  const _Box(this.label, {this.color});
+  const _Box(this.label);
 
   final String label;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +79,7 @@ class _Box extends StatelessWidget {
       height: 48,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: color ?? const Color(0xFF1677FF).withValues(alpha: 0.15),
+        color: const Color(0xFF1677FF).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: const Color(0xFF1677FF).withValues(alpha: 0.3)),
       ),

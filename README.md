@@ -75,8 +75,8 @@ void main() {
 |---|---|---|
 | Divider | ✅ | 水平/垂直/solid/dashed/dotted/带文字/orientation/orientationMargin/plain |
 | Flex | ✅ | vertical/wrap/justify/align/gap(small/middle/large/all/only)/mainAxisSize |
-| Grid | 📋 | Row/Col 24 栅格 + 响应式断点 |
-| Layout | 📋 | Sider/Header/Content/Footer 组合 |
+| Grid | ✅ | Row/Col 24 栅格 + span/offset/gutter/align/justify/wrap/flex |
+| Layout | ✅ | Sider(折叠/断点/深浅主题) + Header/Content/Footer 组合 |
 | Space | ✅ | direction/size(small/middle/large/all/only)/align/wrap/split |
 | Splitter | 📋 | 可拖拽分隔面板 |
 | Masonry | 📋 | 瀑布流 |
