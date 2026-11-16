@@ -136,7 +136,7 @@ void main() {
 | VirtualInput 📱 | ✅ | 虚拟输入 + placeholder/clearable/confirmText/onEnterPress/内置键盘 |
 | ImageUploader 📱 | ✅ | 图片上传 + maxCount/columns/preview/deletable/onPickImage/状态展示 |
 
-### 数据展示 — 11/28 完成
+### 数据展示 — 20/28 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -147,19 +147,19 @@ void main() {
 | Empty | ✅ | image 自定义图片/描述文字/children 自定义内容 |
 | Image | ✅ | cached_network_image 缓存加载 + 全屏预览(缩放/组切换) + fit/radius/fallback/previewSrc |
 | Statistic | ✅ | value 精度/千分位分隔/前后缀/title + 倒计时模式 + 状态色 |
-| Table | 📋 | 排序/筛选/固定列/虚拟滚动 |
-| Descriptions | 📋 | 描述列表 |
-| Timeline | 📋 | 时间轴 |
-| Collapse | 📋 | 折叠面板 |
-| List | 📋 | 列表 |
-| Calendar | 📋 | 日历 |
-| Carousel | 📋 | 走马灯 + 移动端手势滑动 |
+| Table | ✅ | 排序三态/筛选菜单/固定列吸边/吸顶表头/虚拟滚动/分页/size/loading/empty |
+| Descriptions | ✅ | label/值列表 + column/span 跨列/bordered/size/colon/横纵布局 |
+| Timeline | ✅ | mode 左右交替 + 节点色预设/自定义节点/pending/reverse/label 标签列 |
+| Collapse | ✅ | 手风琴/受控多开 + 展开动画/箭头位置/自定义图标/borderless/size |
+| List | ✅ | 泛型懒加载列表 + header/footer/size/bordered/split/actions/extra/空态/loading/分页 |
+| Calendar | ✅ | 月视图 6×7 + 周起始日/今天高亮/disabledDate/fullscreen+card 双模式/dateCell 自定义 |
+| Carousel | ✅ | PageView 手势 + autoplay/loop/指示点四方位/箭头/垂直/受控/goTo |
 | Popover | ✅ | 气泡卡片 + title/content + 九方向 + 箭头/自定义背景 + hover/点击触发 + 受控 |
 | Tooltip | ✅ | 文字提示 + 12 方向 + 箭头/自定义颜色 + hover/点击/焦点触发 + 受控/延迟 |
 | Segmented | ✅ | 分段控制器 + 滑块动画 + String/Item 选项 + block/size/shape + 受控/禁用 |
 | QRCode | ✅ | 二维码 + 纠错等级 L/M/Q/H + 自定义颜色/尺寸 + expired/scanned 状态 + icon 模式 |
-| Tree | 📋 | 树形控件 |
-| Tour | 📋 | 漫游引导 |
+| Tree | ✅ | 多级树 + 展开动画/父子勾选联动/半选/checkStrictly/选中/showLine/受控 |
+| Tour | ✅ | 分步引导 + GlobalKey 目标定位/挖孔遮罩高亮/卡片跟随/步骤指示/跳过完成 |
 | Ellipsis 📱 | 📋 | 文本省略 |
 | Footer 📱 | 📋 | 页脚 |
 | PageIndicator 📱 | 📋 | 页面指示器 |

@@ -1,3 +1,19 @@
+## 0.19.0-beta.1
+
+新增 Table 表格、Descriptions 描述列表、Timeline 时间轴、Collapse 折叠面板、List 列表、Calendar 日历、Carousel 走马灯、Tree 树形控件与 Tour 漫游引导组件（Phase 6 数据展示组件第三批，数据展示分类 20/28）。
+
+- AntTable：排序三态循环（升序→降序→取消）+ 表头图标着色、filters 筛选菜单（多选/确认/重置）、fixed 列横向吸边（阴影分隔）、scrollY 吸顶表头、行数>50 ListView.builder 虚拟滚动、简版分页、render 自定义列/ellipsis/align/size/bordered/loading/empty
+- AntDescriptions：AntDescriptionsItem(label/child/span)、column 列数、bordered 灰底 label、size 三档、colon、layout(horizontal/vertical)
+- AntTimeline：mode(left/right/alternate 左右交替)、节点色预设映射主题色板、customDot 自定义节点、pending 加载节点、reverse 倒序、label 时间标签列
+- AntCollapse：accordion 手风琴、activeKey 受控/defaultActiveKey 多开、AnimatedSize 展开动画、箭头旋转、expandIconPosition/expandIcon 自定义、borderless、size
+- AntList：ListView.builder 懒加载泛型列表、header/footer、size、bordered/split、AntList.Item(content/extra/actions)、空态复用 AntEmpty、loading、pageSize 内部分页
+- AntCalendar：6×7 月视图（上下月补位灰显）、weekStartsOn(monday/sunday)、今天高亮/onSelect/受控、上月下月本月导航、disabledDate、fullscreen/card 双模式、dateCell 自定义单元格
+- AntCarousel：PageView 手势滑动、autoplay(3s 可配)/pauseOnHover/loop、dots 四方位指示点、arrows 桌面箭头、受控 current/defaultCurrent/onChange、goTo、vertical
+- AntTree：多级树展开动画、父子勾选联动（父勾子全选/子全选联动父/半选态）、checkStrictly 严格模式、selectedKeys/expandedKeys/checkedKeys 全受控、defaultExpandAll、showLine、disabled
+- AntTour：分步漫游引导，GlobalKey 目标定位、CustomPainter 挖孔遮罩 + 圆角描边高亮、引导卡片跟随（placement 13 方位/箭头）、步骤指示、上一步/下一步/完成/跳过、onStepChange/onFinish/onClose、maskClosable
+- Widget test：Table 27 + Tree 17 + Calendar 17 + Tour 16 + Carousel 15 + Descriptions 14 + Timeline 14 + Collapse 13 + List 12 个测试用例全量通过（累计 1306 个）
+- Example demo 页：九组件各 6-8 个展示区块
+
 ## 0.18.0-beta.1
 
 新增 Image 图片(含全屏预览)、Popover 气泡卡片、Tooltip 文字提示、Segmented 分段控制器与 QRCode 二维码组件（Phase 6 数据展示组件第二批）。

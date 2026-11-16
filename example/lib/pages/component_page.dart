@@ -6,6 +6,15 @@ import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'calendar_page.dart';
+import 'collapse_page.dart';
+import 'descriptions_page.dart';
+import 'list_page.dart';
+import 'table_page.dart';
+import 'timeline_page.dart';
+import 'tour_page.dart';
+import 'tree_page.dart';
+import 'carousel_page.dart';
 import 'image_page.dart';
 import 'popover_page.dart';
 import 'qr_code_page.dart';
@@ -83,6 +92,24 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'calendar':
+        return const CalendarPage();
+      case 'carousel':
+        return const CarouselPage();
+      case 'collapse':
+        return const CollapsePage();
+      case 'descriptions':
+        return const DescriptionsPage();
+      case 'list':
+        return const ListPage();
+      case 'table':
+        return const TablePage();
+      case 'timeline':
+        return const TimelinePage();
+      case 'tour':
+        return const TourPage();
+      case 'tree':
+        return const TreePage();
       case 'image':
         return const ImagePage();
       case 'popover':
