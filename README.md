@@ -194,12 +194,12 @@ void main() {
 | ErrorBlock 📱 | ✅ | 自绘插画四种状态 + 默认文案/自定义 children 操作区 |
 | ResultPage 📱 | ✅ | 页面级结果 + 五状态图标/description 明细列表/buttons 操作区 |
 
-### 其他 — 0/4 完成
+### 其他 — 4/4 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
-| Affix | 📋 | 固钉 |
-| App | 📋 | 全局上下文 |
+| Affix | ✅ | 页面固定 + offsetTop/offsetBottom/change 回调/占位不跳动 |
+| App | ✅ | 根部上下文 + message/notification/modal 无 context 调用 |
 | ConfigProvider | 📋 | 国际化 + 主题入口 |
 | BorderBeam | 📋 | 边框光效 |
 

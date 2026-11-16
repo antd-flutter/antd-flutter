@@ -1,3 +1,14 @@
+## 0.24.0-beta.1
+
+新增 Affix 固钉、App 全局上下文、ConfigProvider 国际化+主题入口与 BorderBeam 边框流光组件（Phase 8 其他组件，全部 111 组件实现完成）。
+
+- AntAffix：滚动钉住，offsetTop/offsetBottom 触发、change 回调、占位高度保持不跳动、宽度一致
+- AntApp：根部全局上下文（InheritedWidget）、AntApp.of 获取 StaticApi，message/notification/modal 无需页面 context 调用
+- AntConfigProvider：antdTheme 主题注入（组合 AntTheme）、direction(ltr/rtl) 文本方向、AntConfigLocale 自定义 locale 文案、嵌套覆盖
+- AntBorderBeam：CustomPaint 沿圆角矩形流光动画、colorPrimary/colorSecondary 双色、duration/reverse/initialOffset/borderRadius
+- Widget test：Affix 12 + BorderBeam 12 + App 14 + ConfigProvider 13 个测试用例全量通过（累计 1733 个）
+- Example demo 页：四组件各 5 个展示区块
+
 ## 0.23.0-beta.1
 
 新增 SwipeAction 滑动操作、Loading 加载、ErrorBlock 错误块与 ResultPage 结果页组件（Phase 7 反馈组件第三批，反馈分类 21/21 全部完成）。

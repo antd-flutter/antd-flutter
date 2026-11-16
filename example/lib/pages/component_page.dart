@@ -6,6 +6,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'affix_page.dart';
+import 'app_page.dart';
+import 'border_beam_page.dart';
+import 'config_provider_page.dart';
 import 'loading_page.dart';
 import 'swipe_action_page.dart';
 import 'action_sheet_page.dart';
@@ -117,6 +121,14 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'affix':
+        return const AffixPage();
+      case 'app':
+        return const AppPage();
+      case 'border_beam':
+        return const BorderBeamPage();
+      case 'config_provider':
+        return const ConfigProviderPage();
       case 'loading':
         return const LoadingPage();
       case 'swipe_action':

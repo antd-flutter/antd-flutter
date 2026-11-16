@@ -259,3 +259,15 @@ export 'src/components/feedback/loading/ant_loading.dart';
 export 'src/components/feedback/loading/ant_loading_types.dart';
 export 'src/components/feedback/error_block/ant_error_block.dart';
 export 'src/components/feedback/result_page/ant_result_page.dart';
+
+// ============================================================
+// 其他 Misc — App / ConfigProvider（Phase 8 最后一批）
+// ============================================================
+export 'src/components/misc/app/ant_app.dart';
+export 'src/components/misc/app/ant_app_types.dart';
+export 'src/components/misc/config_provider/ant_config_provider.dart';
+export 'src/components/misc/config_provider/ant_config_provider_types.dart';
+export 'src/components/misc/affix/ant_affix.dart';
+export 'src/components/misc/affix/ant_affix_types.dart';
+export 'src/components/misc/border_beam/ant_border_beam.dart';
+export 'src/components/misc/border_beam/ant_border_beam_types.dart';
