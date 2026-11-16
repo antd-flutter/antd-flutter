@@ -9,6 +9,7 @@ import 'flex_page.dart';
 import 'float_button_page.dart';
 import 'icon_page.dart';
 import 'notice_bar_page.dart';
+import 'space_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -32,6 +33,8 @@ class ComponentPage extends StatelessWidget {
         return const IconPage();
       case 'notice_bar':
         return const NoticeBarPage();
+      case 'space':
+        return const SpacePage();
       case 'typography':
         return const TypographyPage();
       default:
@@ -50,13 +53,13 @@ class _PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: AntSpace(
+        direction: AntSpaceDirection.vertical,
+        align: AntSpaceAlign.center,
+        size: const AntSpaceSize.middle(),
         children: [
           Icon(Icons.construction_outlined, size: 64, color: theme.colorScheme.outline),
-          const SizedBox(height: 16),
           Text(snakeName, style: theme.textTheme.headlineSmall),
-          const SizedBox(height: 8),
           Text('该组件正在开发中，敬请期待',
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)),
         ],

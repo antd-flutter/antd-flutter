@@ -40,3 +40,5 @@ export 'src/components/layout/divider/ant_divider.dart';
 export 'src/components/layout/divider/ant_divider_types.dart';
 export 'src/components/layout/flex/ant_flex.dart';
 export 'src/components/layout/flex/ant_flex_types.dart';
+export 'src/components/layout/space/ant_space.dart';
+export 'src/components/layout/space/ant_space_types.dart';

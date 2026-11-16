@@ -175,31 +175,34 @@ class _HomePageState extends State<HomePage> {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: AntFlex(
-          vertical: true,
-          mainAxisSize: MainAxisSize.min,
+        child: AntSpace(
+          direction: AntSpaceDirection.vertical,
+          size: const AntSpaceSize.large(),
           children: [
             Icon(
               Icons.palette_outlined,
               size: 72,
               color: theme.colorScheme.primary,
             ),
-            const SizedBox(height: 24),
-            Text(
-              'antd-flutter',
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+            AntSpace(
+              direction: AntSpaceDirection.vertical,
+              size: const AntSpaceSize.small(),
+              children: [
+                Text(
+                  'antd-flutter',
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  'Ant Design v6 设计规范的 Flutter 组件库',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Ant Design v6 设计规范的 Flutter 组件库',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.outline,
-              ),
-            ),
-            const SizedBox(height: 24),
             Text(
               '共 ${navGroups.length} 大分类 · $count 个组件规划中',
               style: theme.textTheme.bodyMedium?.copyWith(
