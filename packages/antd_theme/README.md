@@ -1,5 +1,8 @@
 # antd_theme
 
+> [!WARNING]
+> **Beta 阶段 — 暂不建议在生产环境使用。** antd_flutter_plus 当前处于 beta 阶段（0.x.0-beta.x），API 在 1.0.0 正式发布前可能随时变动，请仅用于评估、演示或开发体验。
+
 Ant Design v6 theme system for Flutter — theme data, theme injection, responsive breakpoints, and screen adaptation, built on top of [`antd_tokens`](https://pub.dev/packages/antd_tokens) and [`antd_color`](https://pub.dev/packages/antd_color).
 
 > **Beta** — This package is under active development. APIs may change before the stable release.

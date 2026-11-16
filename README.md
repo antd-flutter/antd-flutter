@@ -2,6 +2,11 @@
 
 [![pub package](https://img.shields.io/pub/v/antd_flutter_plus.svg)](https://pub.dev/packages/antd_flutter_plus)
 
+> [!WARNING]
+> **Beta 软件包 — 请勿用于生产环境。** antd_flutter_plus 目前处于公测阶段 (0.x.0-beta.x)。在达到 1.0.0 版本之前，API 可能会在没有通知的情况下发生变更。仅将其用于评估、演示或开发试用。
+
+> [!WARNING]
+> **Beta 阶段 — 暂不建议在生产环境使用。** antd_flutter_plus 当前处于 beta 阶段（0.x.0-beta.x），API 在 1.0.0 正式发布前可能随时变动，请仅用于评估、演示或开发体验。
 Ant Design v6 Flutter 组件库。基于 Ant Design 设计规范与 Design Token 体系，融合 antd v6（桌面端）与 antd-mobile v5（移动端）组件体系，在 Flutter 上实现的高质量跨平台组件库。
 
 ## 特性
