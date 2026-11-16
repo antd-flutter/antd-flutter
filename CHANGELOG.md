@@ -1,3 +1,17 @@
+## 0.20.0-beta.1
+
+新增 Ellipsis 文本省略、Footer 页脚、PageIndicator 页面指示器、ImageViewer 图片查看器、InfiniteScroll 无限滚动、FloatingPanel 浮动面板与 FloatingBubble 浮动气泡组件（Phase 6 数据展示组件第四批，数据展示分类 27/28）。
+
+- AntEllipsis：多行截断（TextPainter + 二分查找）、direction(start/end/middle)、rows、expandText/collapseText 展开收起、onContentClick
+- AntFooter：默认回顶部文案、onClick、child 自定义覆盖
+- AntPageIndicator：total/current 受控/defaultCurrent、横纵 direction、激活点动画（AnimatedContainer）、自定义颜色/尺寸/间距
+- AntImageViewer：受控 open 全屏 Overlay（淡入动画）、InteractiveViewer 缩放（maxZoomRatio）+ 双击缩放 + PageView 左右切换、页码指示、关闭按钮、afterClose 关闭动画后回调
+- AntInfiniteScroll：ScrollNotification 触底自动 loadMore、threshold 阈值、loading/失败重试/没有更多状态与自定义文案
+- AntFloatingPanel：锚点拖拽面板（anchors 平滑吸附动画）、handleHeight/自定义把手、contentHeight、onHeightChange、内容区滚动
+- AntFloatingBubble：可拖拽悬浮球、axis(x/y/both) 方向约束、边界钳制、点击展开菜单（MenuAction）、自定义图标
+- Widget test：Ellipsis 13 + Footer 7 + PageIndicator 12 + FloatingBubble 13 + InfiniteScroll 13 + ImageViewer 11 + FloatingPanel 13 个测试用例全量通过（累计 1387 个）
+- Example demo 页：七组件各 4-7 个展示区块
+
 ## 0.19.0-beta.1
 
 新增 Table 表格、Descriptions 描述列表、Timeline 时间轴、Collapse 折叠面板、List 列表、Calendar 日历、Carousel 走马灯、Tree 树形控件与 Tour 漫游引导组件（Phase 6 数据展示组件第三批，数据展示分类 20/28）。

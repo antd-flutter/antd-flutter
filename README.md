@@ -136,7 +136,7 @@ void main() {
 | VirtualInput 📱 | ✅ | 虚拟输入 + placeholder/clearable/confirmText/onEnterPress/内置键盘 |
 | ImageUploader 📱 | ✅ | 图片上传 + maxCount/columns/preview/deletable/onPickImage/状态展示 |
 
-### 数据展示 — 20/28 完成
+### 数据展示 — 27/28 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -160,13 +160,13 @@ void main() {
 | QRCode | ✅ | 二维码 + 纠错等级 L/M/Q/H + 自定义颜色/尺寸 + expired/scanned 状态 + icon 模式 |
 | Tree | ✅ | 多级树 + 展开动画/父子勾选联动/半选/checkStrictly/选中/showLine/受控 |
 | Tour | ✅ | 分步引导 + GlobalKey 目标定位/挖孔遮罩高亮/卡片跟随/步骤指示/跳过完成 |
-| Ellipsis 📱 | 📋 | 文本省略 |
-| Footer 📱 | 📋 | 页脚 |
-| PageIndicator 📱 | 📋 | 页面指示器 |
-| ImageViewer 📱 | 📋 | 全屏图片查看器 |
-| InfiniteScroll 📱 | 📋 | 无限滚动 |
-| FloatingPanel 📱 | 📋 | 浮动面板 |
-| FloatingBubble 📱 | 📋 | 浮动气泡 |
+| Ellipsis 📱 | ✅ | 多行截断(start/end/middle) + rows/expandText/collapseText 展开收起 |
+| Footer 📱 | ✅ | 默认回顶部文案 + onClick/child 自定义 |
+| PageIndicator 📱 | ✅ | 指示点 + 受控 current/激活动画/横纵方向/自定义颜色尺寸 |
+| ImageViewer 📱 | ✅ | 全屏查看 + 缩放/双击/左右切换/页码/关闭动画 |
+| InfiniteScroll 📱 | ✅ | 滚动触底加载 + threshold/loading/失败重试/没有更多 + 自定义文案 |
+| FloatingPanel 📱 | ✅ | 锚点拖拽面板 + 把手自定义/吸附动画/onHeightChange/内容滚动 |
+| FloatingBubble 📱 | ✅ | 可拖拽悬浮球 + axis 方向约束/边界钳制/点击展开菜单/自定义图标 |
 
 ### 反馈 — 0/21 完成
 
