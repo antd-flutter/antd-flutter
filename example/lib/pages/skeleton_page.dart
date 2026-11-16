@@ -73,7 +73,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
                   paragraph: const AntSkeletonParagraph(rows: 2),
                   child: Row(
                     children: [
-                      Icon(Icons.person, size: 40.w, color: theme.colorPrimary),
+                      AntdIcon(AntIcons.userOutlined, size: 40.w, color: theme.colorPrimary),
                       SizedBox(width: 16.w),
                       Expanded(
                         child: Text(
@@ -88,8 +88,9 @@ class _SkeletonPageState extends State<SkeletonPage> {
                   ),
                 ),
                 SizedBox(height: 12.w),
-                ElevatedButton(
-                  onPressed: () => setState(() => _loading = !_loading),
+                AntButton(
+                  type: AntButtonType.primary,
+                  onTap: () => setState(() => _loading = !_loading),
                   child: Text(_loading ? '显示内容' : '显示骨架屏'),
                 ),
               ],

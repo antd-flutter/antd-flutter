@@ -16,7 +16,7 @@ class ImageUploaderPage extends StatelessWidget {
             child: AntImageUploader(
               onPickImage: () async {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('模拟选图：添加 1 张图片')),
+                  const SnackBar(content: AntText(text: '模拟选图：添加 1 张图片')),
                 );
                 return [
                   const AntImageUploadItem(
@@ -60,7 +60,7 @@ class ImageUploaderPage extends StatelessWidget {
               },
               onCountExceed: (n) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('超出最大数量 $n 张')),
+                  SnackBar(content: AntText(text: '超出最大数量 $n 张')),
                 );
               },
             ),
@@ -144,7 +144,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           onChange: (items) => setState(() => _items = items),
         ),
         SizedBox(height: 8.w),
-        Text(
+        AntText(text: 
           '当前图片数: ${_items.length}',
           style: TextStyle(
             fontSize: 14.sp,
@@ -175,7 +175,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 15.sp,

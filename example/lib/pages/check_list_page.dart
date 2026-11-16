@@ -73,12 +73,12 @@ class CheckListPage extends StatelessWidget {
                 AntCheckListItem(
                   value: 'a',
                   child: Text('苹果'),
-                  prefix: Icon(Icons.apple),
+                  prefix: Icon(AntIcons.appleOutlined),
                 ),
                 AntCheckListItem(
                   value: 'b',
                   child: Text('安卓'),
-                  prefix: Icon(Icons.android),
+                  prefix: Icon(AntIcons.androidOutlined),
                 ),
               ],
             ),

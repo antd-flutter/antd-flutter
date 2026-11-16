@@ -36,7 +36,7 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
@@ -44,13 +44,12 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
             ),
         ],
       ),

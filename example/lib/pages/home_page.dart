@@ -5,6 +5,7 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../data/nav_data.dart';
+import '../main.dart';
 import 'component_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -34,9 +35,16 @@ class _HomePageState extends State<HomePage> {
             child: _buildSidebarContent(theme),
           ),
           header: AntLayoutHeader(
-            child: Text(
-              _selected?.label ?? 'Ant Design v6 · Flutter 实现',
-              style: theme.textTheme.titleMedium,
+            child: Row(
+              children: [
+                Expanded(
+                  child: AntText(text: 
+                    _selected?.label ?? 'Ant Design v6 · Flutter 实现',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                const _DarkModeToggle(),
+              ],
             ),
           ),
           content: AntLayoutContent(child: content),
@@ -52,11 +60,14 @@ class _HomePageState extends State<HomePage> {
           children: [
             AntNavBar(
               back: false,
-              left: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
+              left: AntButton(
+                type: AntButtonType.text,
+                shape: AntButtonShape.round,
+                icon: const AntdIcon(AntIcons.menuOutlined),
+                onTap: () => Scaffold.of(scaffoldContext).openDrawer(),
               ),
-              child: Text(_selected?.label ?? 'antd-flutter'),
+              right: const _DarkModeToggle(),
+              child: AntText(text: _selected?.label ?? 'antd-flutter'),
             ),
             Expanded(child: AntLayoutContent(child: content)),
           ],
@@ -79,14 +90,16 @@ class _HomePageState extends State<HomePage> {
           child: AntFlex(
             gap: const AntFlexGap.all(10),
             children: [
-              Icon(Icons.widgets_outlined,
+              AntdIcon(AntIcons.appstoreOutlined,
                   color: theme.colorScheme.primary, size: 28),
               Flexible(
-                child: Text(
-                  'antd-flutter',
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+                child: AntText(
+                  child: Text(
+                    'antd-flutter',
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -102,7 +115,7 @@ class _HomePageState extends State<HomePage> {
               for (final group in navGroups) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 16, 4),
-                  child: Text(
+                  child: AntText(text: 
                     group.title,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
@@ -124,18 +137,18 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNavItem(ThemeData theme, NavItem item,
       {bool closeOnTap = false}) {
     final selected = _selected == item;
-    return Material(
-      color: selected
-          ? theme.colorScheme.primaryContainer
-          : Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          setState(() => _selected = item);
-          if (closeOnTap) Navigator.of(context).pop();
-        },
+    return GestureDetector(
+      onTap: () {
+        setState(() => _selected = item);
+        if (closeOnTap) Navigator.of(context).pop();
+      },
+      child: Container(
+        color: selected
+            ? theme.colorScheme.primaryContainer
+            : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Text(
+          child: AntText(text: 
             item.label,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: selected
@@ -161,7 +174,7 @@ class _HomePageState extends State<HomePage> {
           size: const AntSpaceSize.large(),
           children: [
             Icon(
-              Icons.palette_outlined,
+              AntIcons.bgColorsOutlined,
               size: 72,
               color: theme.colorScheme.primary,
             ),
@@ -169,22 +182,24 @@ class _HomePageState extends State<HomePage> {
               direction: AntSpaceDirection.vertical,
               size: const AntSpaceSize.small(),
               children: [
-                Text(
+                AntText(text: 
                   'antd-flutter',
                   style: theme.textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                Text(
-                  'Ant Design v6 设计规范的 Flutter 组件库',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.outline,
+                AntText(
+                  child: Text(
+                    'Ant Design v6 设计规范的 Flutter 组件库',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
                   ),
                 ),
               ],
             ),
-            Text(
+            AntText(text: 
               '共 ${navGroups.length} 大分类 · $count 个组件规划中',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.outline,
@@ -193,6 +208,27 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 暗黑模式切换（演示 AntSwitch + 全局主题联动）
+class _DarkModeToggle extends StatelessWidget {
+  const _DarkModeToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(themeModeController.value ? AntIcons.moonOutlined : AntIcons.sunOutlined,
+            size: 18),
+        const SizedBox(width: 8),
+        AntSwitch(
+          checked: themeModeController.value,
+          onChange: (_) => themeModeController.toggle(),
+        ),
+      ],
     );
   }
 }

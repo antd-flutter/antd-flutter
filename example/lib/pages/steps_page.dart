@@ -40,21 +40,16 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntTitle(title, level: AntTitleLevel.h4),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, type: AntTypographyType.secondary),
             ),
         ],
       ),
@@ -140,15 +135,15 @@ class _IconDemo extends StatelessWidget {
       items: [
         AntStepsItem(
           title: '登录',
-          icon: Icon(Icons.login, size: 16, color: Colors.blue),
+          icon: AntdIcon(AntIcons.loginOutlined, size: 16, color: Colors.blue),
         ),
         AntStepsItem(
           title: '验证',
-          icon: Icon(Icons.security, size: 16, color: Colors.blue),
+          icon: AntdIcon(AntIcons.safetyCertificateOutlined, size: 16, color: Colors.blue),
         ),
         AntStepsItem(
           title: '完成',
-          icon: Icon(Icons.check_circle_outline, size: 16, color: Colors.grey),
+          icon: AntdIcon(AntIcons.checkCircleOutlined, size: 16, color: Colors.grey),
         ),
       ],
     );
@@ -183,17 +178,15 @@ class _ClickableDemoState extends State<_ClickableDemo> {
         const SizedBox(height: 16),
         Row(
           children: [
-            ElevatedButton(
-              onPressed: _current > 0
-                  ? () => setState(() => _current--)
-                  : null,
+            AntButton(
+              onTap: _current > 0 ? () => setState(() => _current--) : null,
+              disabled: _current <= 0,
               child: const Text('上一步'),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: _current < 3
-                  ? () => setState(() => _current++)
-                  : null,
+            AntButton(
+              onTap: _current < 3 ? () => setState(() => _current++) : null,
+              disabled: _current >= 3,
               child: const Text('下一步'),
             ),
           ],

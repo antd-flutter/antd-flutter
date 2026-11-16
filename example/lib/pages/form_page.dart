@@ -37,7 +37,7 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AntText(text: 
           title,
           style: TextStyle(
             fontSize: t.fontSizeLG,
@@ -47,7 +47,7 @@ class _Section extends StatelessWidget {
         ),
         if (description != null) ...[
           SizedBox(height: 4.h),
-          Text(
+          AntText(text: 
             description!,
             style: TextStyle(
               fontSize: t.fontSizeSM,
@@ -100,7 +100,7 @@ class _BasicFormSection extends StatelessWidget {
           AntButton(
             type: AntButtonType.primary,
             onTap: () => controller.submit(),
-            child: const Text('提交'),
+            child: const AntText(text: '提交'),
           ),
         ],
       ),
@@ -147,7 +147,7 @@ class _HorizontalFormSection extends StatelessWidget {
           AntButton(
             type: AntButtonType.primary,
             onTap: () => controller.submit(),
-            child: const Text('提交'),
+            child: const AntText(text: '提交'),
           ),
         ],
       ),
@@ -228,12 +228,12 @@ class _ValidationFormSection extends StatelessWidget {
               AntButton(
                 type: AntButtonType.primary,
                 onTap: () => controller.submit(),
-                child: const Text('提交'),
+                child: const AntText(text: '提交'),
               ),
               SizedBox(width: 12.w),
               AntButton(
                 onTap: () => controller.reset(),
-                child: const Text('重置'),
+                child: const AntText(text: '重置'),
               ),
             ],
           ),

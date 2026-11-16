@@ -73,8 +73,9 @@ class _SpinPageState extends State<SpinPage> {
                   ),
                 ),
                 SizedBox(height: 12.w),
-                ElevatedButton(
-                  onPressed: () => setState(() => _spinning = !_spinning),
+                AntButton(
+                  type: AntButtonType.primary,
+                  onTap: () => setState(() => _spinning = !_spinning),
                   child: Text(_spinning ? '停止加载' : '开始加载'),
                 ),
               ],
@@ -88,7 +89,7 @@ class _SpinPageState extends State<SpinPage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
                 AntSpin(
-                  indicator: Icon(Icons.autorenew, size: 28),
+                  indicator: AntdIcon(AntIcons.syncOutlined, size: 28),
                 ),
                 AntSpin(
                   indicator: SizedBox(

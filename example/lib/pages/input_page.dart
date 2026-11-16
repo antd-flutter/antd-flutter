@@ -59,11 +59,11 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(text: title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
             ),
         ],
       ),
@@ -113,14 +113,14 @@ class _AffixDemo extends StatelessWidget {
       SizedBox(
         width: 240,
         child: AntInput(
-          prefix: Icon(Icons.person_outline),
+          prefix: AntdIcon(AntIcons.userOutlined),
           placeholder: '前缀图标',
         ),
       ),
       SizedBox(
         width: 240,
         child: AntInput(
-          suffix: Icon(Icons.search),
+          suffix: AntdIcon(AntIcons.searchOutlined),
           placeholder: '后缀图标',
         ),
       ),
@@ -136,22 +136,22 @@ class _AddonDemo extends StatelessWidget {
       SizedBox(
         width: 300,
         child: AntInput(
-          addonBefore: Text('http://'),
+          addonBefore: AntText(text: 'http://'),
           placeholder: '前置标签',
         ),
       ),
       SizedBox(
         width: 300,
         child: AntInput(
-          addonAfter: Text('.com'),
+          addonAfter: AntText(text: '.com'),
           placeholder: '后置标签',
         ),
       ),
       SizedBox(
         width: 360,
         child: AntInput(
-          addonBefore: Text('http://'),
-          addonAfter: Text('.com'),
+          addonBefore: AntText(text: 'http://'),
+          addonAfter: AntText(text: '.com'),
           placeholder: '前后置标签',
         ),
       ),
@@ -301,7 +301,7 @@ class _GroupDemo extends StatelessWidget {
           child: AntInputGroup(
             compact: true,
             children: [
-              AntInput(addonBefore: Text('http://'), placeholder: '域名'),
+              AntInput(addonBefore: AntText(text: 'http://'), placeholder: '域名'),
               AntInput(placeholder: '.com'),
             ],
           ),

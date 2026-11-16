@@ -113,8 +113,8 @@ class _CharacterDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Row(children: [
-      AntRate(character: Icons.favorite, defaultValue: 3),
-      AntRate(character: Icons.sentiment_satisfied, defaultValue: 4),
+      AntRate(character: AntIcons.heartFilled, defaultValue: 3),
+      AntRate(character: AntIcons.smileOutlined, defaultValue: 4),
     ]);
   }
 }

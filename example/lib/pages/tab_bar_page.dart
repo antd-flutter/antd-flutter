@@ -42,21 +42,16 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntTitle(title, level: AntTitleLevel.h4),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, type: AntTypographyType.secondary),
             ),
         ],
       ),
@@ -71,9 +66,9 @@ class _BasicDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntTabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: Icons.home_outlined, activeIcon: Icons.home),
-        AntTabBarItem(key: 'find', title: '发现', icon: Icons.explore_outlined, activeIcon: Icons.explore),
-        AntTabBarItem(key: 'me', title: '我的', icon: Icons.person_outline, activeIcon: Icons.person),
+        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined, activeIcon: AntIcons.homeOutlined),
+        AntTabBarItem(key: 'find', title: '发现', icon: AntIcons.compassOutlined, activeIcon: AntIcons.compassOutlined),
+        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined, activeIcon: AntIcons.userOutlined),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -103,9 +98,9 @@ class _BadgeDotDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntTabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: Icons.home),
-        AntTabBarItem(key: 'msg', title: '消息', icon: Icons.message, badgeDot: true),
-        AntTabBarItem(key: 'me', title: '我的', icon: Icons.person),
+        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
+        AntTabBarItem(key: 'msg', title: '消息', icon: AntIcons.messageOutlined, badgeDot: true),
+        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -119,9 +114,9 @@ class _BadgeTextDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntTabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: Icons.home),
-        AntTabBarItem(key: 'cart', title: '购物车', icon: Icons.shopping_cart, badgeText: '8'),
-        AntTabBarItem(key: 'me', title: '我的', icon: Icons.person),
+        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
+        AntTabBarItem(key: 'cart', title: '购物车', icon: AntIcons.shoppingOutlined, badgeText: '8'),
+        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -138,14 +133,14 @@ class _ActiveIconDemo extends StatelessWidget {
         AntTabBarItem(
           key: 'home',
           title: '首页',
-          icon: Icons.home_outlined,
-          activeIcon: Icons.home,
+          icon: AntIcons.homeOutlined,
+          activeIcon: AntIcons.homeOutlined,
         ),
         AntTabBarItem(
           key: 'star',
           title: '收藏',
-          icon: Icons.star_border,
-          activeIcon: Icons.star,
+          icon: AntIcons.starOutlined,
+          activeIcon: AntIcons.starOutlined,
         ),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),

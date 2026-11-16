@@ -70,7 +70,7 @@ class WatermarkPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return ListTile(
                     leading: Icon(
-                      Icons.description,
+                      AntIcons.fileTextOutlined,
                       color: theme.colorPrimary,
                     ),
                     title: Text(

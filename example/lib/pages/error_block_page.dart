@@ -51,12 +51,12 @@ class ErrorBlockPage extends StatelessWidget {
                 spacing: 8.w,
                 children: [
                   AntButton(
-                    child: const Text('点击刷新'),
+                    child: const AntText(text: '点击刷新'),
                     onTap: () {},
                   ),
                   AntButton(
                     type: AntButtonType.primary,
-                    child: const Text('检查网络设置'),
+                    child: const AntText(text: '检查网络设置'),
                     onTap: () {},
                   ),
                 ],
@@ -89,7 +89,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

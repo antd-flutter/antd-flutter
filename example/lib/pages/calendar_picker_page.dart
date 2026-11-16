@@ -113,7 +113,7 @@ class _PopupDemoState extends State<_PopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.calendar_today, size: 16.w, color: t.colorTextSecondary),
+              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
               SizedBox(width: 8.w),
               Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
             ],
@@ -162,7 +162,7 @@ class _RangePopupDemoState extends State<_RangePopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.date_range, size: 16.w, color: t.colorTextSecondary),
+              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
               SizedBox(width: 8.w),
               Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
             ],

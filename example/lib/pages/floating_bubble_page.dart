@@ -17,7 +17,7 @@ class FloatingBubblePage extends StatelessWidget {
               height: 120,
               child: AntFloatingBubble(
                 initialPos: Offset(100, 30),
-                child: Icon(Icons.add),
+                child: AntdIcon(AntIcons.plusOutlined),
               ),
             ),
           ),
@@ -58,7 +58,7 @@ class FloatingBubblePage extends StatelessWidget {
                   height: 90,
                   child: AntFloatingBubble(
                     initialPos: Offset(20, 10),
-                    child: Icon(Icons.edit),
+                    child: AntdIcon(AntIcons.editOutlined),
                   ),
                 ),
                 SizedBox(width: 16),
@@ -68,7 +68,7 @@ class FloatingBubblePage extends StatelessWidget {
                   child: AntFloatingBubble(
                     initialPos: Offset(20, 10),
                     backgroundColor: Colors.teal,
-                    child: Icon(Icons.chat_bubble_outline),
+                    child: AntdIcon(AntIcons.messageOutlined),
                   ),
                 ),
               ],
@@ -81,7 +81,7 @@ class FloatingBubblePage extends StatelessWidget {
               height: 140,
               child: AntFloatingBubble(
                 initialPos: Offset(220, 70),
-                child: Icon(Icons.rocket_launch),
+                child: AntdIcon(AntIcons.rocketOutlined),
               ),
             ),
           ),
@@ -107,7 +107,7 @@ class _AxisDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AntText(text: 
           label,
           style: TextStyle(
             fontSize: theme.fontSizeSM.sp,
@@ -124,7 +124,7 @@ class _AxisDemo extends StatelessWidget {
           child: AntFloatingBubble(
             axis: axis,
             initialPos: const Offset(16, 16),
-            child: const Icon(Icons.open_with),
+            child: const AntdIcon(AntIcons.dragOutlined),
           ),
         ),
       ],
@@ -163,26 +163,26 @@ class _MenuDemoState extends State<_MenuDemo> {
             menu: [
               AntFloatingBubbleMenuAction(
                 label: '新建',
-                icon: const Icon(Icons.add),
+                icon: const AntdIcon(AntIcons.plusOutlined),
                 onClick: () => setState(() => _lastAction = '新建'),
               ),
               AntFloatingBubbleMenuAction(
                 label: '搜索',
-                icon: const Icon(Icons.search),
+                icon: const AntdIcon(AntIcons.searchOutlined),
                 onClick: () => setState(() => _lastAction = '搜索'),
               ),
               AntFloatingBubbleMenuAction(
                 label: '设置',
-                icon: const Icon(Icons.settings),
+                icon: const AntdIcon(AntIcons.settingOutlined),
                 onClick: () => setState(() => _lastAction = '设置'),
               ),
             ],
-            child: const Icon(Icons.menu),
+            child: const AntdIcon(AntIcons.menuOutlined),
           ),
         ),
         if (_lastAction != null) ...[
           SizedBox(height: 8.w),
-          Text(
+          AntText(text: 
             '最近操作：$_lastAction',
             style: TextStyle(
               fontSize: theme.fontSizeSM.sp,
@@ -219,7 +219,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: theme.fontSize.sp,

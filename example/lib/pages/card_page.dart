@@ -58,7 +58,7 @@ class CardPage extends StatelessWidget {
                 height: 120.w,
                 child: Container(
                   color: theme.colorPrimary.withValues(alpha: 0.2),
-                  child: Icon(Icons.image, size: 48.w, color: theme.colorPrimary),
+                  child: Icon(AntIcons.pictureOutlined, size: 48.w, color: theme.colorPrimary),
                 ),
               ),
               title: const Text('带封面的卡片'),

@@ -45,7 +45,7 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
                   children: [
                     Icon(Icons.unfold_more, size: 16.w, color: theme.colorTextQuaternary),
                     SizedBox(width: 4.w),
-                    Text(
+                    AntText(text: 
                       '拖动调整高度',
                       style: TextStyle(
                         fontSize: 12.sp,
@@ -83,7 +83,7 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
             theme: theme,
             child: Column(
               children: [
-                Text(
+                AntText(text: 
                   '当前高度比例：${(_heightPercent * 100).toStringAsFixed(0)}%',
                   style: TextStyle(
                     fontSize: 14.sp,
@@ -137,8 +137,8 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
       itemCount: count,
       itemBuilder: (_, int index) => ListTile(
         dense: true,
-        leading: Icon(Icons.description, size: 18.w),
-        title: Text('内容项 ${index + 1}'),
+        leading: AntdIcon(AntIcons.fileTextOutlined, size: 18.w),
+        title: AntText(text: '内容项 ${index + 1}'),
       ),
     );
   }
@@ -164,7 +164,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

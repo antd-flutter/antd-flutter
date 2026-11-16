@@ -72,7 +72,7 @@ class PullToRefreshPage extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.refresh, size: 18.w, color: theme.colorPrimary),
+                      Icon(AntIcons.reloadOutlined, size: 18.w, color: theme.colorPrimary),
                       SizedBox(width: 6.w),
                       Text('自定义头部提示', style: TextStyle(fontSize: 14.sp)),
                     ],
@@ -97,7 +97,7 @@ class PullToRefreshPage extends StatelessWidget {
     return ListView.builder(
       itemCount: count,
       itemBuilder: (context, index) => ListTile(
-        leading: const Icon(Icons.description),
+        leading: const Icon(AntIcons.fileTextOutlined),
         title: Text('列表项 ${index + 1}'),
         subtitle: const Text('下拉列表即可刷新内容'),
       ),

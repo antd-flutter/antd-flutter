@@ -1,3 +1,13 @@
+## 1.0.0-beta.1
+
+里程碑版本：全部 111 组件实现完成 + 官网自举达成。
+
+- **官网自举**：example 全部 demo 页内容层 Material 组件替换为 antd-flutter 组件（图标→AntIcons、按钮→AntButton、文本→AntTypography、加载→AntSpin/Progress 等），0 处 Material 内容组件引用（MaterialApp/Scaffold 为 Flutter 应用骨架保留）
+- **暗黑模式**：demo 顶部亮暗切换按钮（AntSwitch + 全局 AntTheme 联动），宽屏 Header / 窄屏 NavBar 均可切换
+- **质量基线**：1733 个测试全量通过；根包与 example analyze 零问题；flutter build web 构建成功
+- **文档**：根包与 4 个子包 README 增加 beta 警告横幅（1.0.0 前 API 可能变动，暂不建议生产使用）
+- 组件统计：通用 5 + 布局 9 + 导航 13 + 数据录入 30 + 数据展示 27 + 反馈 21 + 其他 4 + 图标包 698 图标
+
 ## 0.24.0-beta.1
 
 新增 Affix 固钉、App 全局上下文、ConfigProvider 国际化+主题入口与 BorderBeam 边框流光组件（Phase 8 其他组件，全部 111 组件实现完成）。

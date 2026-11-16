@@ -40,21 +40,16 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntTitle(title, level: AntTitleLevel.h4),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              child: AntText(text: description!, type: AntTypographyType.secondary),
             ),
         ],
       ),
@@ -225,13 +220,13 @@ class _IconDisabledDemo extends StatelessWidget {
         AntTabsItem(
           key: '1',
           label: 'Tab 1',
-          icon: Icon(Icons.android, size: 16),
+          icon: AntdIcon(AntIcons.androidOutlined, size: 16),
           child: Text('Content with icon'),
         ),
         AntTabsItem(
           key: '2',
           label: 'Tab 2',
-          icon: Icon(Icons.apple, size: 16),
+          icon: AntdIcon(AntIcons.appleOutlined, size: 16),
           child: Text('Another content'),
         ),
         AntTabsItem(

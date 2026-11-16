@@ -36,12 +36,12 @@ class _DialogPageState extends State<DialogPage> {
                 final ok = await AntDialog.alert(
                   context,
                   title: '提示',
-                  content: const Text('操作已提交成功。'),
+                  content: const AntText(text: '操作已提交成功。'),
                   okText: '知道了',
                 );
                 _showResult('alert 结果: $ok');
               },
-              child: const Text('显示 alert 对话框'),
+              child: const AntText(text: '显示 alert 对话框'),
             ),
           ),
           SizedBox(height: 16.w),
@@ -54,11 +54,11 @@ class _DialogPageState extends State<DialogPage> {
                 final ok = await AntDialog.confirm(
                   context,
                   title: '删除确认',
-                  content: const Text('确定要删除这条记录吗？'),
+                  content: const AntText(text: '确定要删除这条记录吗？'),
                 );
                 _showResult('confirm 结果: $ok');
               },
-              child: const Text('显示 confirm 对话框'),
+              child: const AntText(text: '显示 confirm 对话框'),
             ),
           ),
           SizedBox(height: 16.w),
@@ -70,7 +70,7 @@ class _DialogPageState extends State<DialogPage> {
                 AntDialog.alert(
                   context,
                   title: '自定义按钮',
-                  content: const Text('可自定义任意数量的操作按钮。'),
+                  content: const AntText(text: '可自定义任意数量的操作按钮。'),
                   actions: [
                     AntDialogAction(text: '取消', onClick: () {}),
                     AntDialogAction(
@@ -82,7 +82,7 @@ class _DialogPageState extends State<DialogPage> {
                   ],
                 );
               },
-              child: const Text('显示自定义 actions'),
+              child: const AntText(text: '显示自定义 actions'),
             ),
           ),
           SizedBox(height: 16.w),
@@ -95,23 +95,23 @@ class _DialogPageState extends State<DialogPage> {
               children: [
                 AntButton(
                   onTap: () => setState(() => _controlledVisible = true),
-                  child: const Text('遮罩可关闭'),
+                  child: const AntText(text: '遮罩可关闭'),
                 ),
                 AntButton(
                   onTap: () {
                     AntDialog.alert(
                       context,
                       title: '强制操作',
-                      content: const Text('closeOnMaskClick = false，必须点击按钮关闭。'),
+                      content: const AntText(text: 'closeOnMaskClick = false，必须点击按钮关闭。'),
                       closeOnMaskClick: false,
                     );
                   },
-                  child: const Text('遮罩不可关闭'),
+                  child: const AntText(text: '遮罩不可关闭'),
                 ),
                 AntDialog(
                   visible: _controlledVisible,
                   title: '受控对话框',
-                  content: const Text('visible 由宿主控制，点击遮罩或按钮均会关闭。'),
+                  content: const AntText(text: 'visible 由宿主控制，点击遮罩或按钮均会关闭。'),
                   mode: AntDialogMode.confirm,
                   onClick: () => setState(() => _controlledVisible = false),
                 ),
@@ -128,7 +128,7 @@ class _DialogPageState extends State<DialogPage> {
                 color: theme.colorFillQuaternary,
                 borderRadius: BorderRadius.circular(theme.borderRadius.r),
               ),
-              child: Text('最近结果：$_lastResult',
+              child: AntText(text: '最近结果：$_lastResult',
                   style: TextStyle(fontSize: 14.sp, color: theme.colorText)),
             ),
           ),
@@ -144,15 +144,15 @@ class _DialogPageState extends State<DialogPage> {
                   content: const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('v2.0 新特性：'),
+                      AntText(text: 'v2.0 新特性：'),
                       SizedBox(height: 4),
-                      Text('· 全新移动端对话框'),
-                      Text('· 四方向弹出层'),
+                      AntText(text: '· 全新移动端对话框'),
+                      AntText(text: '· 四方向弹出层'),
                     ],
                   ),
                 );
               },
-              child: const Text('显示富内容对话框'),
+              child: const AntText(text: '显示富内容对话框'),
             ),
           ),
         ],
@@ -174,7 +174,7 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AntText(text: 
           title,
           style: TextStyle(
             fontSize: 15.sp,

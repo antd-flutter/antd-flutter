@@ -137,8 +137,9 @@ class _QRCodePageState extends State<QRCodePage> {
           SizedBox(height: 16.w),
           Align(
             alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () => setState(() => _expired = !_expired),
+            child: AntButton(
+              type: AntButtonType.primary,
+              onTap: () => setState(() => _expired = !_expired),
               child: const Text('切换过期/正常状态'),
             ),
           ),

@@ -31,7 +31,7 @@ class _DrawerPageState extends State<DrawerPage> {
               theme: theme,
               child: AntButton(
                 onTap: () => setState(() => _rightOpen = true),
-                child: const Text('Open Drawer'),
+                child: const AntText(text: 'Open Drawer'),
               ),
             ),
             SizedBox(height: 16.w),
@@ -40,7 +40,7 @@ class _DrawerPageState extends State<DrawerPage> {
               theme: theme,
               child: AntButton(
                 onTap: () => setState(() => _leftOpen = true),
-                child: const Text('左侧打开'),
+                child: const AntText(text: '左侧打开'),
               ),
             ),
             SizedBox(height: 16.w),
@@ -49,7 +49,7 @@ class _DrawerPageState extends State<DrawerPage> {
               theme: theme,
               child: AntButton(
                 onTap: () => setState(() => _topOpen = true),
-                child: const Text('顶部打开'),
+                child: const AntText(text: '顶部打开'),
               ),
             ),
             SizedBox(height: 16.w),
@@ -58,7 +58,7 @@ class _DrawerPageState extends State<DrawerPage> {
               theme: theme,
               child: AntButton(
                 onTap: () => setState(() => _bottomOpen = true),
-                child: const Text('底部打开'),
+                child: const AntText(text: '底部打开'),
               ),
             ),
             SizedBox(height: 16.w),
@@ -67,7 +67,7 @@ class _DrawerPageState extends State<DrawerPage> {
               theme: theme,
               child: AntButton(
                 onTap: () => setState(() => _footerOpen = true),
-                child: const Text('带 Footer'),
+                child: const AntText(text: '带 Footer'),
               ),
             ),
             SizedBox(height: 16.w),
@@ -80,11 +80,11 @@ class _DrawerPageState extends State<DrawerPage> {
                 children: [
                   AntButton(
                     onTap: () => setState(() => _noMaskOpen = true),
-                    child: const Text('无遮罩抽屉'),
+                    child: const AntText(text: '无遮罩抽屉'),
                   ),
                   AntButton(
                     onTap: () => _showFixedMaskDrawer(context),
-                    child: const Text('遮罩不可关闭'),
+                    child: const AntText(text: '遮罩不可关闭'),
                   ),
                 ],
               ),
@@ -101,59 +101,59 @@ class _DrawerPageState extends State<DrawerPage> {
       children: [
         AntDrawer(
           open: _rightOpen,
-          title: const Text('Basic Drawer'),
+          title: const AntText(text: 'Basic Drawer'),
           onClose: () => setState(() => _rightOpen = false),
-          child: const Text('右侧抽屉内容，超出高度可滚动。'),
+          child: const AntText(text: '右侧抽屉内容，超出高度可滚动。'),
         ),
         AntDrawer(
           open: _leftOpen,
           placement: AntDrawerPlacement.left,
-          title: const Text('左侧抽屉'),
+          title: const AntText(text: '左侧抽屉'),
           onClose: () => setState(() => _leftOpen = false),
-          child: const Text('左侧滑入的抽屉内容。'),
+          child: const AntText(text: '左侧滑入的抽屉内容。'),
         ),
         AntDrawer(
           open: _topOpen,
           placement: AntDrawerPlacement.top,
           height: 240,
-          title: const Text('顶部抽屉'),
+          title: const AntText(text: '顶部抽屉'),
           onClose: () => setState(() => _topOpen = false),
-          child: const Text('顶部滑入的抽屉内容。'),
+          child: const AntText(text: '顶部滑入的抽屉内容。'),
         ),
         AntDrawer(
           open: _bottomOpen,
           placement: AntDrawerPlacement.bottom,
           height: 240,
-          title: const Text('底部抽屉'),
+          title: const AntText(text: '底部抽屉'),
           onClose: () => setState(() => _bottomOpen = false),
-          child: const Text('底部滑入的抽屉内容。'),
+          child: const AntText(text: '底部滑入的抽屉内容。'),
         ),
         AntDrawer(
           open: _footerOpen,
-          title: const Text('带 Footer 抽屉'),
+          title: const AntText(text: '带 Footer 抽屉'),
           onClose: () => setState(() => _footerOpen = false),
           footer: Wrap(
             spacing: 8.w,
             children: [
               AntButton(
                 onTap: () => setState(() => _footerOpen = false),
-                child: const Text('取消'),
+                child: const AntText(text: '取消'),
               ),
               AntButton(
                 type: AntButtonType.primary,
                 onTap: () => setState(() => _footerOpen = false),
-                child: const Text('提交'),
+                child: const AntText(text: '提交'),
               ),
             ],
           ),
-          child: const Text('带底部操作区的抽屉内容。'),
+          child: const AntText(text: '带底部操作区的抽屉内容。'),
         ),
         AntDrawer(
           open: _noMaskOpen,
           mask: false,
-          title: const Text('无遮罩抽屉'),
+          title: const AntText(text: '无遮罩抽屉'),
           onClose: () => setState(() => _noMaskOpen = false),
-          child: const Text('没有遮罩的抽屉，页面仍可交互。'),
+          child: const AntText(text: '没有遮罩的抽屉，页面仍可交互。'),
         ),
       ],
     );
@@ -168,9 +168,9 @@ class _DrawerPageState extends State<DrawerPage> {
           AntDrawer(
             open: true,
             maskClosable: false,
-            title: const Text('遮罩不可关闭'),
+            title: const AntText(text: '遮罩不可关闭'),
             onClose: () => Navigator.of(dialogContext).pop(),
-            child: const Text('点击遮罩不会关闭，请使用右上角关闭按钮。'),
+            child: const AntText(text: '点击遮罩不会关闭，请使用右上角关闭按钮。'),
           ),
         ],
       ),
@@ -190,7 +190,7 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AntText(text: 
           title,
           style: TextStyle(
             fontSize: 14.sp,

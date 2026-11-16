@@ -120,7 +120,7 @@ class TimelinePage extends StatelessWidget {
                 ),
                 AntTimelineItem(
                   content: Text('自定义图标节点'),
-                  customDot: Icon(Icons.check_circle, color: theme.colorSuccess, size: 16.w),
+                  customDot: AntdIcon(AntIcons.checkCircleOutlined, color: theme.colorSuccess, size: 16.w),
                 ),
                 AntTimelineItem(
                   content: Text('自定义颜色节点'),

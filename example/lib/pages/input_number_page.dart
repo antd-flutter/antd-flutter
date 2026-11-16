@@ -51,11 +51,11 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(text: title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
             ),
         ],
       ),
@@ -135,9 +135,9 @@ class _AddonDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _Row(children: [
-      AntInputNumber(addonBefore: Text('+'), defaultValue: 100),
-      AntInputNumber(addonAfter: Text('元'), defaultValue: 100),
-      AntInputNumber(addonBefore: Text('价格'), addonAfter: Text('¥'), defaultValue: 50),
+      AntInputNumber(addonBefore: AntText(text: '+'), defaultValue: 100),
+      AntInputNumber(addonAfter: AntText(text: '元'), defaultValue: 100),
+      AntInputNumber(addonBefore: AntText(text: '价格'), addonAfter: AntText(text: '¥'), defaultValue: 50),
     ]);
   }
 }

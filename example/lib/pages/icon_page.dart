@@ -51,11 +51,11 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(text: title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
             ),
         ],
       ),
@@ -95,7 +95,7 @@ class _IconCell extends StatelessWidget {
         children: [
           icon,
           const SizedBox(height: 8),
-          Text(
+          AntText(text: 
             label,
             style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline),
           ),
@@ -271,12 +271,12 @@ class _IconButtonDemo extends StatelessWidget {
       wrap: true,
       gap: const AntFlexGap.all(12),
       children: const [
-        AntButton(type: AntButtonType.primary, icon: AntdIcon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
-        AntButton(icon: AntdIcon(AntIcons.downloadOutlined, size: 16), child: Text('Download')),
-        AntButton(type: AntButtonType.dashed, icon: AntdIcon(AntIcons.cloudDownloadOutlined, size: 16), child: Text('Cloud')),
+        AntButton(type: AntButtonType.primary, icon: AntdIcon(AntIcons.searchOutlined, size: 16), child: AntText(text: 'Search')),
+        AntButton(icon: AntdIcon(AntIcons.downloadOutlined, size: 16), child: AntText(text: 'Download')),
+        AntButton(type: AntButtonType.dashed, icon: AntdIcon(AntIcons.cloudDownloadOutlined, size: 16), child: AntText(text: 'Cloud')),
         AntButton(type: AntButtonType.primary, icon: AntdIcon(AntIcons.plusOutlined, size: 16)),
-        AntButton(type: AntButtonType.text, icon: AntdIcon(AntIcons.editOutlined, size: 16), child: Text('Edit')),
-        AntButton(type: AntButtonType.primary, danger: true, icon: AntdIcon(AntIcons.deleteOutlined, size: 16), child: Text('Delete')),
+        AntButton(type: AntButtonType.text, icon: AntdIcon(AntIcons.editOutlined, size: 16), child: AntText(text: 'Edit')),
+        AntButton(type: AntButtonType.primary, danger: true, icon: AntdIcon(AntIcons.deleteOutlined, size: 16), child: AntText(text: 'Delete')),
       ],
     );
   }

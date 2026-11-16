@@ -20,7 +20,7 @@ class ListPage extends StatelessWidget {
               child: AntList<String>(
                 dataSource: const ['条目一', '条目二', '条目三'],
                 itemKey: (item, _) => item,
-                renderItem: (item, _) => AntListItem(content: Text(item)),
+                renderItem: (item, _) => AntListItem(content: AntText(text: item)),
               ),
             ),
           ),
@@ -34,10 +34,10 @@ class ListPage extends StatelessWidget {
                   height: 180.w,
                   child: AntList<String>(
                     size: AntListSize.large,
-                    header: const Text('大尺寸'),
+                    header: const AntText(text: '大尺寸'),
                     dataSource: const ['大尺寸条目一', '大尺寸条目二'],
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
                 SizedBox(height: 12.w),
@@ -45,10 +45,10 @@ class ListPage extends StatelessWidget {
                   height: 160.w,
                   child: AntList<String>(
                     size: AntListSize.small,
-                    header: const Text('小尺寸'),
+                    header: const AntText(text: '小尺寸'),
                     dataSource: const ['小尺寸条目一', '小尺寸条目二'],
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
@@ -64,10 +64,10 @@ class ListPage extends StatelessWidget {
                   height: 180.w,
                   child: AntList<String>(
                     bordered: true,
-                    header: const Text('有边框'),
+                    header: const AntText(text: '有边框'),
                     dataSource: const ['条目一', '条目二'],
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
                 SizedBox(height: 12.w),
@@ -77,7 +77,7 @@ class ListPage extends StatelessWidget {
                     split: false,
                     dataSource: const ['无分割线条目一', '无分割线条目二'],
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
@@ -94,13 +94,13 @@ class ListPage extends StatelessWidget {
                 dataSource: const ['文章标题一', '文章标题二'],
                 itemKey: (item, _) => item,
                 renderItem: (item, _) => AntListItem(
-                  content: Text(item),
-                  extra: Text('2026-01-01',
+                  content: AntText(text: item),
+                  extra: AntText(text: '2026-01-01',
                       style: TextStyle(
                           fontSize: 12.sp, color: theme.colorTextSecondary)),
                   actions: const [
-                    AntListAction(child: Text('编辑')),
-                    AntListAction(child: Text('删除')),
+                    AntListAction(child: AntText(text: '编辑')),
+                    AntListAction(child: AntText(text: '删除')),
                   ],
                 ),
               ),
@@ -116,7 +116,7 @@ class ListPage extends StatelessWidget {
                 bordered: true,
                 dataSource: const [],
                 itemKey: (item, _) => item,
-                renderItem: (item, _) => AntListItem(content: Text(item)),
+                renderItem: (item, _) => AntListItem(content: AntText(text: item)),
               ),
             ),
           ),
@@ -132,7 +132,7 @@ class ListPage extends StatelessWidget {
                     loading: true,
                     dataSource: const ['条目一'],
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
                 SizedBox(height: 12.w),
@@ -143,7 +143,7 @@ class ListPage extends StatelessWidget {
                     pageSize: 5,
                     dataSource: List.generate(20, (i) => '长列表条目${i + 1}'),
                     itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: Text(item)),
+                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
@@ -175,7 +175,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

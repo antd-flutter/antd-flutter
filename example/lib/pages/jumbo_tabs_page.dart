@@ -42,13 +42,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -118,7 +118,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('当前激活: $_activeKey'),
+        AntText(text: '当前激活: $_activeKey'),
         const SizedBox(height: 8),
         AntJumboTabs(
           activeKey: _activeKey,
@@ -136,6 +136,6 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
 void _showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
+    SnackBar(content: AntText(text: message), duration: const Duration(seconds: 1)),
   );
 }

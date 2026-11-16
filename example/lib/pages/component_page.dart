@@ -343,17 +343,21 @@ class _PlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Center(
       child: AntSpace(
         direction: AntSpaceDirection.vertical,
         align: AntSpaceAlign.center,
         size: const AntSpaceSize.middle(),
         children: [
-          Icon(Icons.construction_outlined, size: 64, color: theme.colorScheme.outline),
-          Text(snakeName, style: theme.textTheme.headlineSmall),
+          Icon(AntIcons.toolOutlined, size: 64, color: theme.colorTextQuaternary),
+          Text(snakeName,
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorTextHeading)),
           Text('该组件正在开发中，敬请期待',
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)),
+              style: TextStyle(fontSize: 14, color: theme.colorTextQuaternary)),
         ],
       ),
     );

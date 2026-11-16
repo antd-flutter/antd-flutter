@@ -34,7 +34,7 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
@@ -42,13 +42,12 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
             ),
         ],
       ),
@@ -61,11 +60,11 @@ class _BasicDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Container(
       height: 200,
       decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: theme.colorBorderSecondary),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const AntAutoCenter(
@@ -73,7 +72,7 @@ class _BasicDemo extends StatelessWidget {
           direction: AntSpaceDirection.vertical,
           align: AntSpaceAlign.center,
           children: [
-            Icon(Icons.center_focus_strong, size: 48),
+            Icon(AntIcons.aimOutlined, size: 48),
             Text('居中内容'),
           ],
         ),
@@ -87,11 +86,11 @@ class _ExpandedDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Container(
       height: 300,
       decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: theme.colorBorderSecondary),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
@@ -106,7 +105,7 @@ class _ExpandedDemo extends StatelessWidget {
               direction: AntSpaceDirection.vertical,
               align: AntSpaceAlign.center,
               children: [
-                Icon(Icons.vertical_align_center, size: 48),
+                Icon(AntIcons.picCenterOutlined, size: 48),
                 Text('占据剩余空间并居中'),
               ],
             ),
@@ -126,23 +125,23 @@ class _PageLayoutDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Container(
       height: 400,
       decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: theme.colorBorderSecondary),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: theme.colorScheme.primaryContainer,
+            color: theme.colorFillSecondary,
             child: Row(
               children: [
-                const Icon(Icons.arrow_back_ios, size: 20),
+                const Icon(AntIcons.leftOutlined, size: 20),
                 const SizedBox(width: 8),
-                Text('NavBar 导航栏', style: theme.textTheme.titleSmall),
+                Text('NavBar 导航栏', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: theme.colorTextHeading)),
               ],
             ),
           ),
@@ -153,7 +152,7 @@ class _PageLayoutDemo extends StatelessWidget {
               align: AntSpaceAlign.center,
               size: AntSpaceSize.middle(),
               children: [
-                Icon(Icons.phone_iphone, size: 64),
+                Icon(AntIcons.mobileOutlined, size: 64),
                 Text('页面主内容', style: TextStyle(fontSize: 18)),
                 Text('在导航栏与底部栏之间自动居中',
                     style: TextStyle(fontSize: 12)),
@@ -162,13 +161,13 @@ class _PageLayoutDemo extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: theme.colorScheme.secondaryContainer,
+            color: theme.colorFillTertiary,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                Icon(Icons.home_outlined),
-                Icon(Icons.search),
-                Icon(Icons.person_outline),
+                Icon(AntIcons.homeOutlined),
+                Icon(AntIcons.searchOutlined),
+                Icon(AntIcons.userOutlined),
               ],
             ),
           ),

@@ -82,7 +82,7 @@ class AlertPage extends StatelessWidget {
                   message: '自定义图标提示',
                   type: AntAlertType.info,
                   showIcon: true,
-                  icon: Icon(Icons.lightbulb),
+                  icon: Icon(AntIcons.bulbOutlined),
                 ),
               ],
             ),
@@ -97,8 +97,10 @@ class AlertPage extends StatelessWidget {
                   message: '需要你进行确认的操作',
                   type: AntAlertType.info,
                   showIcon: true,
-                  action: TextButton(
-                    onPressed: () => _showMsg(context, '已接受'),
+                  action: AntButton(
+                    type: AntButtonType.link,
+                    size: AntButtonSize.small,
+                    onTap: () => _showMsg(context, '已接受'),
                     child: const Text('接受'),
                   ),
                 ),

@@ -8,6 +8,14 @@ import 'package:material_ui/material_ui.dart';
 
 import 'pages/home_page.dart';
 
+/// 全局亮暗模式切换（demo 演示用）
+class ThemeModeController extends ValueNotifier<bool> {
+  ThemeModeController() : super(false);
+  void toggle() => value = !value;
+}
+
+final themeModeController = ThemeModeController();
+
 void main() {
   runApp(
     DevicePreview(
@@ -25,19 +33,25 @@ class AntdFlutterExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntScreenUtilInit(
       builder: (context, child) {
-        return AntTheme(
-          data: AntThemeData.light(),
-          child: MaterialApp(
-            title: 'antd-flutter',
-            debugShowCheckedModeBanner: false,
-            locale: DevicePreview.locale(context),
-            builder: DevicePreview.appBuilder,
-            theme: ThemeData(
-              colorSchemeSeed: const Color(0xFF1677FF),
-              useMaterial3: true,
-            ),
-            home: const HomePage(),
-          ),
+        return ValueListenableBuilder<bool>(
+          valueListenable: themeModeController,
+          builder: (context, isDark, _) {
+            return AntTheme(
+              data: isDark ? AntThemeData.dark() : AntThemeData.light(),
+              child: MaterialApp(
+                title: 'antd-flutter',
+                debugShowCheckedModeBanner: false,
+                locale: DevicePreview.locale(context),
+                builder: DevicePreview.appBuilder,
+                theme: ThemeData(
+                  brightness: isDark ? Brightness.dark : Brightness.light,
+                  colorSchemeSeed: const Color(0xFF1677FF),
+                  useMaterial3: true,
+                ),
+                home: const HomePage(),
+              ),
+            );
+          },
         );
       },
     );

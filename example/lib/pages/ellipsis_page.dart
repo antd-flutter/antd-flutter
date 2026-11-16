@@ -92,7 +92,7 @@ class EllipsisPage extends StatelessWidget {
 
   void _showMsg(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
+      SnackBar(content: AntText(text: msg)),
     );
   }
 }
@@ -117,7 +117,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

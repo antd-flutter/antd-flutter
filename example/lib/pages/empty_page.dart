@@ -38,8 +38,8 @@ class EmptyPage extends StatelessWidget {
             theme: theme,
             child: AntEmpty(
               description: '自定义图标',
-              imageWidget: Icon(
-                Icons.search_off,
+              imageWidget: AntdIcon(
+                AntIcons.searchOutlined,
                 size: 64.w,
                 color: theme.colorTextQuaternary,
               ),
@@ -62,10 +62,10 @@ class EmptyPage extends StatelessWidget {
                 size: AntButtonSize.small,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('刷新中...')),
+                    const SnackBar(content: AntText(text: '刷新中...')),
                   );
                 },
-                child: const Text('刷新'),
+                child: const AntText(text: '刷新'),
               ),
             ),
           ),
@@ -95,7 +95,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

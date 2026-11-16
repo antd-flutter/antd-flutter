@@ -99,7 +99,7 @@ class BorderBeamPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.verified, size: 20.w, color: theme.colorSuccess),
+                      Icon(AntIcons.safetyCertificateFilled, size: 20.w, color: theme.colorSuccess),
                       SizedBox(width: 8.w),
                       Text(
                         '认证信息',
@@ -120,7 +120,7 @@ class BorderBeamPage extends StatelessWidget {
                   SizedBox(height: 12.w),
                   Row(
                     children: [
-                      Icon(Icons.check_circle,
+                      Icon(AntIcons.checkCircleOutlined,
                           size: 16.w, color: theme.colorSuccess),
                       SizedBox(width: 4.w),
                       const Text('实时校验通过'),

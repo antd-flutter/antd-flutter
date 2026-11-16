@@ -8,10 +8,10 @@ class DescriptionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     final items = const [
-      AntDescriptionsItem(label: '名称', child: Text('张三')),
-      AntDescriptionsItem(label: '手机号', child: Text('138****8888')),
-      AntDescriptionsItem(label: '城市', child: Text('杭州')),
-      AntDescriptionsItem(label: '邮箱', child: Text('zhangsan@example.com')),
+      AntDescriptionsItem(label: '名称', child: AntText(text: '张三')),
+      AntDescriptionsItem(label: '手机号', child: AntText(text: '138****8888')),
+      AntDescriptionsItem(label: '城市', child: AntText(text: '杭州')),
+      AntDescriptionsItem(label: '邮箱', child: AntText(text: 'zhangsan@example.com')),
     ];
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
@@ -37,7 +37,7 @@ class DescriptionsPage extends StatelessWidget {
               children: [
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '大号', child: Text('large')),
+                    AntDescriptionsItem(label: '大号', child: AntText(text: 'large')),
                   ],
                   size: AntDescriptionsSize.large,
                   bordered: true,
@@ -45,7 +45,7 @@ class DescriptionsPage extends StatelessWidget {
                 SizedBox(height: 12.w),
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '中号', child: Text('middle')),
+                    AntDescriptionsItem(label: '中号', child: AntText(text: 'middle')),
                   ],
                   size: AntDescriptionsSize.middle,
                   bordered: true,
@@ -53,7 +53,7 @@ class DescriptionsPage extends StatelessWidget {
                 SizedBox(height: 12.w),
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '小号', child: Text('small')),
+                    AntDescriptionsItem(label: '小号', child: AntText(text: 'small')),
                   ],
                   size: AntDescriptionsSize.small,
                   bordered: true,
@@ -69,12 +69,12 @@ class DescriptionsPage extends StatelessWidget {
               column: 3,
               bordered: true,
               items: [
-                AntDescriptionsItem(label: '产品', child: Text('云服务器')),
-                AntDescriptionsItem(label: '计费模式', child: Text('预付费')),
-                AntDescriptionsItem(label: '自动续费', child: Text('是')),
+                AntDescriptionsItem(label: '产品', child: AntText(text: '云服务器')),
+                AntDescriptionsItem(label: '计费模式', child: AntText(text: '预付费')),
+                AntDescriptionsItem(label: '自动续费', child: AntText(text: '是')),
                 AntDescriptionsItem(
                   label: '配置',
-                  child: Text('CPU 4 核 / 内存 8G / 磁盘 100G SSD / 带宽 5Mbps'),
+                  child: AntText(text: 'CPU 4 核 / 内存 8G / 磁盘 100G SSD / 带宽 5Mbps'),
                   span: 3,
                 ),
               ],
@@ -96,13 +96,13 @@ class DescriptionsPage extends StatelessWidget {
             theme: theme,
             child: AntDescriptions(
               items: [
-                AntDescriptionsItem(label: '订单号', child: Text('202405160001')),
-                AntDescriptionsItem(label: '状态', child: Text('已支付')),
-                AntDescriptionsItem(label: '金额', child: Text('¥299.00')),
-                AntDescriptionsItem(label: '支付方式', child: Text('支付宝')),
+                AntDescriptionsItem(label: '订单号', child: AntText(text: '202405160001')),
+                AntDescriptionsItem(label: '状态', child: AntText(text: '已支付')),
+                AntDescriptionsItem(label: '金额', child: AntText(text: '¥299.00')),
+                AntDescriptionsItem(label: '支付方式', child: AntText(text: '支付宝')),
               ],
-              title: Text('订单详情'),
-              extra: Text('编辑'),
+              title: AntText(text: '订单详情'),
+              extra: AntText(text: '编辑'),
               bordered: true,
               colon: false,
             ),
@@ -133,7 +133,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

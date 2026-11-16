@@ -73,7 +73,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,
@@ -127,7 +127,7 @@ class _BasicDemoState extends State<_BasicDemo> {
                     color: AntTheme.of(context).colorFillQuaternary,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Text(item, style: TextStyle(fontSize: 14.sp)),
+                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
                 ))
             .toList(),
       ),
@@ -152,7 +152,7 @@ class _RetryDemo extends StatelessWidget {
         children: _mockPage(0)
             .map((item) => Padding(
                   padding: EdgeInsets.only(bottom: 8.w),
-                  child: Text(item, style: TextStyle(fontSize: 14.sp)),
+                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
                 ))
             .toList(),
       ),
@@ -187,7 +187,7 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
         children: _mockPage(0)
             .map((item) => Padding(
                   padding: EdgeInsets.only(bottom: 8.w),
-                  child: Text(item, style: TextStyle(fontSize: 14.sp)),
+                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
                 ))
             .toList(),
       ),
@@ -227,7 +227,7 @@ class _ThresholdDemoState extends State<_ThresholdDemo> {
             children: _items
                 .map((item) => Padding(
                       padding: EdgeInsets.only(bottom: 8.w),
-                      child: Text(item, style: TextStyle(fontSize: 14.sp)),
+                      child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
                     ))
                 .toList(),
           ),
@@ -249,7 +249,7 @@ class _NoMoreDemo extends StatelessWidget {
         children: _mockPage(0)
             .map((item) => Padding(
                   padding: EdgeInsets.only(bottom: 8.w),
-                  child: Text(item, style: TextStyle(fontSize: 14.sp)),
+                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
                 ))
             .toList(),
       ),

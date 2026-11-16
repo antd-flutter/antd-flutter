@@ -94,17 +94,17 @@ class TagPage extends StatelessWidget {
                 AntTag(
                   child: '已完成',
                   color: AntTagColor.success,
-                  icon: Icon(Icons.check_circle),
+                  icon: AntdIcon(AntIcons.checkCircleOutlined),
                 ),
                 AntTag(
                   child: '进行中',
                   color: AntTagColor.processing,
-                  icon: Icon(Icons.sync),
+                  icon: AntdIcon(AntIcons.syncOutlined),
                 ),
                 AntTag(
                   child: '出错',
                   color: AntTagColor.error,
-                  icon: Icon(Icons.error),
+                  icon: AntdIcon(AntIcons.closeCircleOutlined),
                 ),
               ],
             ),

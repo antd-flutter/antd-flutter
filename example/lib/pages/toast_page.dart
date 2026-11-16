@@ -71,7 +71,7 @@ class ToastPage extends StatelessWidget {
                   onTap: () => _show(
                     context,
                     '自定义图标',
-                    icon: const Icon(Icons.favorite, color: Colors.pink),
+                    icon: const AntdIcon(AntIcons.heartOutlined, color: Colors.pink),
                   ),
                   child: const Text('自定义图标'),
                 ),

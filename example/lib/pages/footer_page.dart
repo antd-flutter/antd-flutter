@@ -39,9 +39,9 @@ class FooterPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.vertical_align_top, size: 14.w),
+                  AntdIcon(AntIcons.verticalAlignTopOutlined, size: 14.w),
                   SizedBox(width: 4.w),
-                  Text(
+                  AntText(text: 
                     '回到顶部',
                     style: TextStyle(
                       fontSize: theme.fontSizeSM,
@@ -59,7 +59,7 @@ class FooterPage extends StatelessWidget {
 
   void _showMsg(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
+      SnackBar(content: AntText(text: msg)),
     );
   }
 }
@@ -84,7 +84,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,

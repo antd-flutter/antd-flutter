@@ -51,17 +51,17 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(description!, style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
             ),
         ],
       ),
@@ -163,12 +163,12 @@ class _ShapeDemo extends StatelessWidget {
       AntButton(
         type: AntButtonType.primary,
         shape: AntButtonShape.circle,
-        icon: const Icon(Icons.search, size: 16),
+        icon: const Icon(AntIcons.searchOutlined, size: 16),
       ),
       const AntButton(
         type: AntButtonType.primary,
         shape: AntButtonShape.round,
-        icon: Icon(Icons.download, size: 16),
+        icon: Icon(AntIcons.downloadOutlined, size: 16),
         child: Text('Download'),
       ),
     ]);
@@ -180,16 +180,16 @@ class _IconDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _ButtonRow(children: [
-      AntButton(type: AntButtonType.primary, icon: Icon(Icons.search, size: 16), child: Text('Search')),
-      AntButton(icon: Icon(Icons.search, size: 16), child: Text('Search')),
+      AntButton(type: AntButtonType.primary, icon: Icon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
+      AntButton(icon: Icon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
       AntButton(
         type: AntButtonType.dashed,
-        icon: Icon(Icons.download, size: 16),
+        icon: Icon(AntIcons.downloadOutlined, size: 16),
         child: Text('Download'),
       ),
       AntButton(
         type: AntButtonType.primary,
-        icon: Icon(Icons.arrow_forward, size: 16),
+        icon: Icon(AntIcons.arrowRightOutlined, size: 16),
         iconPlacement: AntButtonIconPlacement.end,
         child: Text('Next'),
       ),

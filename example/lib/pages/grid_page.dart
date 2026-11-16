@@ -52,13 +52,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -87,7 +87,7 @@ class _Cell extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: c.withValues(alpha: 0.35)),
       ),
-      child: Text(label,
+      child: AntText(text: label,
           style: TextStyle(
             color: c,
             fontSize: 13,
@@ -160,7 +160,7 @@ class _RatioDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -184,7 +184,7 @@ class _GutterDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('gutter: 16', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(text: 'gutter: 16', style: TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -203,7 +203,7 @@ class _GutterDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('gutter: 24', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(text: 'gutter: 24', style: TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -270,7 +270,7 @@ class _AlignDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -319,7 +319,7 @@ class _JustifyDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,

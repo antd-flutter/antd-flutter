@@ -143,7 +143,7 @@ class _MaskPageState extends State<MaskPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(),
+                  const AntSpin(),
                   SizedBox(height: 12.w),
                   Text(
                     '正在加载...',

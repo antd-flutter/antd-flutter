@@ -52,13 +52,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -75,9 +75,9 @@ class _BasicDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       children: [
-        Text('段落一：春眠不觉晓，处处闻啼鸟。'),
+        AntText(text: '段落一：春眠不觉晓，处处闻啼鸟。'),
         AntDivider(),
-        Text('段落二：夜来风雨声，花落知多少。'),
+        AntText(text: '段落二：夜来风雨声，花落知多少。'),
       ],
     );
   }
@@ -90,9 +90,9 @@ class _TitleDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('内容区域'),
-        AntDivider(child: Text('标题文本')),
-        Text('内容区域'),
+        AntText(text: '内容区域'),
+        AntDivider(child: AntText(text: '标题文本')),
+        AntText(text: '内容区域'),
       ],
     );
   }
@@ -107,15 +107,15 @@ class _OrientationDemo extends StatelessWidget {
       children: [
         AntDivider(
           orientation: AntDividerOrientation.left,
-          child: Text('左侧标题'),
+          child: AntText(text: '左侧标题'),
         ),
         AntDivider(
           orientation: AntDividerOrientation.center,
-          child: Text('中间标题'),
+          child: AntText(text: '中间标题'),
         ),
         AntDivider(
           orientation: AntDividerOrientation.right,
-          child: Text('右侧标题'),
+          child: AntText(text: '右侧标题'),
         ),
       ],
     );
@@ -132,12 +132,12 @@ class _MarginDemo extends StatelessWidget {
         AntDivider(
           orientation: AntDividerOrientation.left,
           orientationMargin: 48,
-          child: Text('左边距 48'),
+          child: AntText(text: '左边距 48'),
         ),
         AntDivider(
           orientation: AntDividerOrientation.right,
           orientationMargin: 48,
-          child: Text('右边距 48'),
+          child: AntText(text: '右边距 48'),
         ),
       ],
     );
@@ -151,11 +151,11 @@ class _VerticalDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const AntRow(
       children: [
-        Text('文本一'),
+        AntText(text: '文本一'),
         AntDivider(type: AntDividerType.vertical),
-        Text('链接一'),
+        AntText(text: '链接一'),
         AntDivider(type: AntDividerType.vertical),
-        Text('链接二'),
+        AntText(text: '链接二'),
       ],
     );
   }
@@ -168,14 +168,14 @@ class _DashedDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('段落一'),
+        AntText(text: '段落一'),
         AntDivider(
           variant: AntDividerVariant.dashed,
-          child: Text('虚线标题'),
+          child: AntText(text: '虚线标题'),
         ),
-        Text('段落二'),
+        AntText(text: '段落二'),
         AntDivider(dashed: true),
-        Text('段落三'),
+        AntText(text: '段落三'),
       ],
     );
   }
@@ -188,12 +188,12 @@ class _DottedDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('段落一'),
+        AntText(text: '段落一'),
         AntDivider(
           variant: AntDividerVariant.dotted,
-          child: Text('点线标题'),
+          child: AntText(text: '点线标题'),
         ),
-        Text('段落二'),
+        AntText(text: '段落二'),
       ],
     );
   }
@@ -206,11 +206,11 @@ class _PlainDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('段落一'),
-        AntDivider(plain: true, child: Text('普通标题')),
-        Text('段落二'),
-        AntDivider(child: Text('非普通标题')),
-        Text('段落三'),
+        AntText(text: '段落一'),
+        AntDivider(plain: true, child: AntText(text: '普通标题')),
+        AntText(text: '段落二'),
+        AntDivider(child: AntText(text: '非普通标题')),
+        AntText(text: '段落三'),
       ],
     );
   }
@@ -223,13 +223,13 @@ class _CustomDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('自定义颜色'),
+        AntText(text: '自定义颜色'),
         AntDivider(color: Colors.blue),
-        Text('自定义粗细'),
+        AntText(text: '自定义粗细'),
         AntDivider(thickness: 3),
-        Text('自定义间距'),
+        AntText(text: '自定义间距'),
         AntDivider(spacing: 48),
-        Text('缩进'),
+        AntText(text: '缩进'),
         AntDivider(indent: 32, endIndent: 32),
       ],
     );

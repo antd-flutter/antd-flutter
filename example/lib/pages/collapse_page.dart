@@ -100,7 +100,7 @@ class CollapsePage extends StatelessWidget {
                 ),
               ],
               expandIcon: (context, isExpanded) => Icon(
-                isExpanded ? Icons.remove_circle : Icons.add_circle,
+                isExpanded ? AntIcons.minusCircleOutlined : AntIcons.plusCircleOutlined,
                 size: 16.w,
               ),
             ),

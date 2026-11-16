@@ -85,18 +85,16 @@ class _TreePageState extends State<TreePage> {
                 Wrap(
                   spacing: 8.w,
                   children: [
-                    OutlinedButton(
-                      onPressed: () =>
-                          setState(() => _expandedKeys = const ['zj']),
+                    AntButton(
+                      onTap: () => setState(() => _expandedKeys = const ['zj']),
                       child: const Text('展开浙江'),
                     ),
-                    OutlinedButton(
-                      onPressed: () =>
-                          setState(() => _expandedKeys = const ['js']),
+                    AntButton(
+                      onTap: () => setState(() => _expandedKeys = const ['js']),
                       child: const Text('展开江苏'),
                     ),
-                    OutlinedButton(
-                      onPressed: () => setState(() => _expandedKeys = const []),
+                    AntButton(
+                      onTap: () => setState(() => _expandedKeys = const []),
                       child: const Text('全部收起'),
                     ),
                   ],

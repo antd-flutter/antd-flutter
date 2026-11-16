@@ -78,7 +78,7 @@ class CascaderViewPage extends StatelessWidget {
             title: '自定义选中图标',
             child: AntCascaderView(
               options: _options,
-              activeIcon: Icon(Icons.star, size: 16.sp),
+              activeIcon: Icon(AntIcons.starFilled, size: 16.sp),
               onChange: (value, items) => debugPrint('onChange: $value'),
             ),
           ),

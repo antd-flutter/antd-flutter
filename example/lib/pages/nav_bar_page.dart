@@ -104,9 +104,11 @@ class _RightDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntNavBar(
-      right: IconButton(
-        icon: const Icon(Icons.more_horiz),
-        onPressed: () => _showSnackbar(context, '点击了更多'),
+      right: AntButton(
+        type: AntButtonType.text,
+        shape: AntButtonShape.circle,
+        icon: const Icon(AntIcons.moreOutlined),
+        onTap: () => _showSnackbar(context, '点击了更多'),
       ),
       child: const Text('右侧操作'),
     );
@@ -136,13 +138,17 @@ class _FullDemo extends StatelessWidget {
       right: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSnackbar(context, '搜索'),
+          AntButton(
+            type: AntButtonType.text,
+            shape: AntButtonShape.circle,
+            icon: const Icon(AntIcons.searchOutlined),
+            onTap: () => _showSnackbar(context, '搜索'),
           ),
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () => _showSnackbar(context, '更多'),
+          AntButton(
+            type: AntButtonType.text,
+            shape: AntButtonShape.circle,
+            icon: const Icon(AntIcons.moreOutlined),
+            onTap: () => _showSnackbar(context, '更多'),
           ),
         ],
       ),

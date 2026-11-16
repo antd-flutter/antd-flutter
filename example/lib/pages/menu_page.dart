@@ -109,8 +109,8 @@ class _HorizontalDemo extends StatelessWidget {
         mode: AntMenuMode.horizontal,
         defaultSelectedKeys: const ['mail'],
         items: const [
-          AntMenuItem(key: 'mail', label: '邮件', icon: Icon(Icons.mail, size: 16)),
-          AntMenuItem(key: 'app', label: '应用', icon: Icon(Icons.apps, size: 16)),
+          AntMenuItem(key: 'mail', label: '邮件', icon: Icon(AntIcons.mailOutlined, size: 16)),
+          AntMenuItem(key: 'app', label: '应用', icon: Icon(AntIcons.appstoreOutlined, size: 16)),
           AntMenuItem(key: 'sub1', label: '更多', children: [
             AntMenuItem(key: '1-1', label: '选项 1'),
             AntMenuItem(key: '1-2', label: '选项 2'),
@@ -139,9 +139,9 @@ class _DarkDemo extends StatelessWidget {
         theme: AntMenuTheme.dark,
         defaultSelectedKeys: const ['1'],
         items: const [
-          AntMenuItem(key: '1', label: '导航一', icon: Icon(Icons.mail, size: 16)),
-          AntMenuItem(key: '2', label: '导航二', icon: Icon(Icons.app_settings_alt, size: 16)),
-          AntMenuItem(key: 'sub1', label: '子菜单', icon: Icon(Icons.settings, size: 16), children: [
+          AntMenuItem(key: '1', label: '导航一', icon: Icon(AntIcons.mailOutlined, size: 16)),
+          AntMenuItem(key: '2', label: '导航二', icon: Icon(AntIcons.appstoreOutlined, size: 16)),
+          AntMenuItem(key: 'sub1', label: '子菜单', icon: Icon(AntIcons.settingOutlined, size: 16), children: [
             AntMenuItem(key: '3', label: '选项 3'),
             AntMenuItem(key: '4', label: '选项 4'),
           ]),
@@ -169,9 +169,9 @@ class _CollapsedDemo extends StatelessWidget {
         inlineCollapsed: true,
         defaultSelectedKeys: const ['1'],
         items: const [
-          AntMenuItem(key: '1', label: '导航一', icon: Icon(Icons.mail, size: 18)),
-          AntMenuItem(key: '2', label: '导航二', icon: Icon(Icons.calendar_month, size: 18)),
-          AntMenuItem(key: 'sub1', label: '子菜单', icon: Icon(Icons.settings, size: 18), children: [
+          AntMenuItem(key: '1', label: '导航一', icon: Icon(AntIcons.mailOutlined, size: 18)),
+          AntMenuItem(key: '2', label: '导航二', icon: Icon(AntIcons.calendarOutlined, size: 18)),
+          AntMenuItem(key: 'sub1', label: '子菜单', icon: Icon(AntIcons.settingOutlined, size: 18), children: [
             AntMenuItem(key: '3', label: '选项 3'),
           ]),
         ],

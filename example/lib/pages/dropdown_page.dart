@@ -46,13 +46,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             ),
@@ -80,7 +80,7 @@ class _BasicDemo extends StatelessWidget {
     return AntDropdown(
       items: _basicItems,
       onClick: (key) => debugPrint('点击了 $key'),
-      child: AntButton(child: const Text('悬停我')),
+      child: AntButton(child: const AntText(text: '悬停我')),
     );
   }
 }
@@ -98,7 +98,7 @@ class _ClickDemo extends StatelessWidget {
       items: _basicItems,
       trigger: AntDropdownTrigger.click,
       onClick: (key) => debugPrint('点击了 $key'),
-      child: AntButton(child: const Text('点击我')),
+      child: AntButton(child: const AntText(text: '点击我')),
     );
   }
 }
@@ -119,22 +119,22 @@ class _PlacementDemo extends StatelessWidget {
         AntDropdown(
           items: _basicItems,
           placement: AntDropdownPlacement.bottomLeft,
-          child: AntButton(child: const Text('bottomLeft')),
+          child: AntButton(child: const AntText(text: 'bottomLeft')),
         ),
         AntDropdown(
           items: _basicItems,
           placement: AntDropdownPlacement.bottomRight,
-          child: AntButton(child: const Text('bottomRight')),
+          child: AntButton(child: const AntText(text: 'bottomRight')),
         ),
         AntDropdown(
           items: _basicItems,
           placement: AntDropdownPlacement.topLeft,
-          child: AntButton(child: const Text('topLeft')),
+          child: AntButton(child: const AntText(text: 'topLeft')),
         ),
         AntDropdown(
           items: _basicItems,
           placement: AntDropdownPlacement.topRight,
-          child: AntButton(child: const Text('topRight')),
+          child: AntButton(child: const AntText(text: 'topRight')),
         ),
       ],
     );
@@ -153,7 +153,7 @@ class _ArrowDemo extends StatelessWidget {
     return AntDropdown(
       items: _basicItems,
       arrow: true,
-      child: AntButton(child: const Text('带箭头')),
+      child: AntButton(child: const AntText(text: '带箭头')),
     );
   }
 }
@@ -178,7 +178,7 @@ class _ItemStyleDemo extends StatelessWidget {
         AntDropdownItem(key: 'delete', label: '删除', danger: true),
       ],
       onClick: (key) => debugPrint('点击了 $key'),
-      child: AntButton(child: const Text('更多操作')),
+      child: AntButton(child: const AntText(text: '更多操作')),
     );
   }
 }
@@ -206,11 +206,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           open: _open,
           onOpenChange: (v) => setState(() => _open = v),
           onClick: (key) => debugPrint('点击了 $key'),
-          child: AntButton(child: const Text('受控下拉')),
+          child: AntButton(child: const AntText(text: '受控下拉')),
         ),
         const SizedBox(width: 16),
         AntButton(
-          child: Text(_open ? '关闭' : '打开'),
+          child: AntText(text: _open ? '关闭' : '打开'),
           onTap: () => setState(() => _open = !_open),
         ),
       ],

@@ -102,9 +102,9 @@ class _SegmentedPageState extends State<SegmentedPage> {
             theme: theme,
             child: AntSegmented(
               options: const [
-                AntSegmentedItem(label: '列表', icon: Icon(Icons.list)),
-                AntSegmentedItem(label: '地图', icon: Icon(Icons.map)),
-                AntSegmentedItem(label: '设置', icon: Icon(Icons.settings)),
+                AntSegmentedItem(label: '列表', icon: AntdIcon(AntIcons.unorderedListOutlined)),
+                AntSegmentedItem(label: '地图', icon: AntdIcon(AntIcons.globalOutlined)),
+                AntSegmentedItem(label: '设置', icon: AntdIcon(AntIcons.settingOutlined)),
               ],
               onChange: (v) => _showMsg(context, '选中：$v'),
             ),
@@ -115,8 +115,8 @@ class _SegmentedPageState extends State<SegmentedPage> {
             theme: theme,
             child: AntSegmented(
               options: [
-                const AntSegmentedItem(value: 'list', icon: Icon(Icons.list)),
-                const AntSegmentedItem(value: 'grid', icon: Icon(Icons.grid_view)),
+                const AntSegmentedItem(value: 'list', icon: AntdIcon(AntIcons.unorderedListOutlined)),
+                const AntSegmentedItem(value: 'grid', icon: AntdIcon(AntIcons.appstoreOutlined)),
                 '文字项',
               ],
               onChange: (v) => _showMsg(context, '选中：$v'),

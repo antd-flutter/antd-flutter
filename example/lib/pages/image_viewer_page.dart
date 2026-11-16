@@ -80,7 +80,7 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AntText(text: 
             title,
             style: TextStyle(
               fontSize: 16.sp,
@@ -194,11 +194,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
       children: [
         AntButton(
           type: AntButtonType.primary,
-          child: Text(_open ? '关闭预览' : '打开预览'),
+          child: AntText(text: _open ? '关闭预览' : '打开预览'),
           onTap: () => setState(() => _open = !_open),
         ),
         SizedBox(height: 8.w),
-        Text(
+        AntText(text: 
           '当前状态：${_open ? '已打开' : '已关闭'}',
           style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
         ),
@@ -229,7 +229,7 @@ class _DefaultIndexDemoState extends State<_DefaultIndexDemo> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AntButton(
-          child: const Text('从第 2 张开始预览'),
+          child: const AntText(text: '从第 2 张开始预览'),
           onTap: () => setState(() => _open = true),
         ),
         AntImageViewer(
@@ -274,7 +274,7 @@ class _ComboDemoState extends State<_ComboDemo> {
         SizedBox(height: 8.w),
         AntButton(
           type: AntButtonType.dashed,
-          child: const Text('查看大图'),
+          child: const AntText(text: '查看大图'),
           onTap: () => setState(() => _open = true),
         ),
         AntImageViewer(

@@ -124,27 +124,16 @@ class _CarouselPageState extends State<CarouselPage> {
                   runSpacing: 8.w,
                   children: [
                     for (var i = 0; i < 3; i++)
-                      OutlinedButton(
-                        onPressed: () {
+                      AntButton(
+                        size: AntButtonSize.small,
+                        type: _current == i
+                            ? AntButtonType.primary
+                            : AntButtonType.normal,
+                        onTap: () {
                           _controller.goTo(i);
                           setState(() => _current = i);
                         },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: _current == i
-                                ? theme.colorPrimary
-                                : theme.colorBorder,
-                          ),
-                        ),
-                        child: Text(
-                          'goTo(${i + 1})',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: _current == i
-                                ? theme.colorPrimary
-                                : theme.colorText,
-                          ),
-                        ),
+                        child: Text('goTo(${i + 1})'),
                       ),
                   ],
                 ),
@@ -167,21 +156,21 @@ class _CarouselPageState extends State<CarouselPage> {
                   title: '新品发布',
                   subtitle: 'AntdFlutter v1.0 正式上线',
                   color: theme.colorPrimary,
-                  icon: Icons.rocket_launch,
+                  icon: AntIcons.rocketOutlined,
                 ),
                 _BannerCard(
                   theme: theme,
                   title: '限时优惠',
                   subtitle: '全场组件 5 折起',
                   color: theme.colorError,
-                  icon: Icons.local_offer,
+                  icon: AntIcons.tagOutlined,
                 ),
                 _BannerCard(
                   theme: theme,
                   title: '社区共建',
                   subtitle: '欢迎提交 Issue 与 PR',
                   color: theme.colorSuccess,
-                  icon: Icons.favorite,
+                  icon: AntIcons.heartFilled,
                 ),
               ],
             ),

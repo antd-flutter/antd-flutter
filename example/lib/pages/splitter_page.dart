@@ -40,21 +40,16 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntTitle(title, level: AntTitleLevel.h4),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(text: description!, type: AntTypographyType.secondary),
             ),
         ],
       ),
@@ -169,12 +164,14 @@ class _ControlledDemoState extends State<_ControlledDemo> {
         children: [
           AntSpace(
             children: [
-              ElevatedButton(
-                onPressed: () => setState(() => _sizeA = 200),
+              AntButton(
+                type: AntButtonType.primary,
+                onTap: () => setState(() => _sizeA = 200),
                 child: const Text('A=200'),
               ),
-              ElevatedButton(
-                onPressed: () => setState(() => _sizeA = 400),
+              AntButton(
+                type: AntButtonType.primary,
+                onTap: () => setState(() => _sizeA = 400),
                 child: const Text('A=400'),
               ),
             ],

@@ -38,7 +38,7 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = AntTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
@@ -46,13 +46,12 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
             ),
         ],
       ),
@@ -96,7 +95,7 @@ class _IconSeparatorDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntBreadcrumb(
-      separatorWidget: const Icon(Icons.arrow_forward_ios, size: 10),
+      separatorWidget: const Icon(AntIcons.rightOutlined, size: 10),
       items: const [
         AntBreadcrumbItem(title: '首页'),
         AntBreadcrumbItem(title: '设置'),
@@ -114,15 +113,15 @@ class _IconDemo extends StatelessWidget {
     return const AntBreadcrumb(items: [
       AntBreadcrumbItem(
         title: '首页',
-        icon: Icon(Icons.home_outlined, size: 14),
+        icon: Icon(AntIcons.homeOutlined, size: 14),
       ),
       AntBreadcrumbItem(
         title: '用户',
-        icon: Icon(Icons.person_outline, size: 14),
+        icon: Icon(AntIcons.userOutlined, size: 14),
       ),
       AntBreadcrumbItem(
         title: '详情',
-        icon: Icon(Icons.description_outlined, size: 14),
+        icon: Icon(AntIcons.fileOutlined, size: 14),
       ),
     ]);
   }

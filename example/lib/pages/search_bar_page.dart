@@ -83,7 +83,7 @@ class SearchBarPage extends StatelessWidget {
             child: AntSearchBar(
               placeholder: '搜索',
               searchIcon: Icon(
-                Icons.person_search,
+                AntIcons.searchOutlined,
                 size: 18.sp,
               ),
               onSearch: (v) => debugPrint('onSearch: $v'),

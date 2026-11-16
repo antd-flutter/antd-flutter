@@ -90,7 +90,7 @@ class _AffixPageState extends State<AffixPage> {
       ),
       child: Row(
         children: [
-          Icon(Icons.push_pin, size: 16.w, color: theme.colorPrimary),
+          Icon(AntIcons.pushpinOutlined, size: 16.w, color: theme.colorPrimary),
           SizedBox(width: 8.w),
           Text(text),
         ],

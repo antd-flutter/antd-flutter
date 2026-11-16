@@ -71,7 +71,7 @@ class _FloatButtonPageState extends State<FloatButtonPage> {
 
 void _showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
+    SnackBar(content: AntText(text: message), duration: const Duration(seconds: 1)),
   );
 }
 
@@ -93,13 +93,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -333,7 +333,7 @@ class _BackTopHint extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
+      child: AntText(text: 
         '向下滚动本页面，右下角将出现回到顶部按钮',
         style: theme.textTheme.bodyMedium,
       ),

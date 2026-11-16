@@ -50,13 +50,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -81,7 +81,7 @@ class _Block extends StatelessWidget {
       height: height,
       color: color ?? theme.colorScheme.primary.withValues(alpha: 0.12),
       alignment: Alignment.center,
-      child: Text(label,
+      child: AntText(text: label,
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: theme.colorScheme.primary)),
     );
@@ -148,7 +148,7 @@ class _CollapsibleDemoState extends State<_CollapsibleDemo> {
           collapsed: _collapsed,
           onCollapse: (v) => setState(() => _collapsed = v),
           child: Center(
-            child: Text(
+            child: AntText(text: 
               _collapsed ? 'S' : 'Sider',
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: Colors.white),
@@ -208,14 +208,14 @@ class _CustomTriggerDemoState extends State<_CustomTriggerDemo> {
             height: 48,
             color: theme.colorScheme.primary,
             alignment: Alignment.center,
-            child: Icon(
-              _collapsed ? Icons.menu : Icons.menu_open,
+            child: AntdIcon(
+              _collapsed ? AntIcons.menuOutlined : AntIcons.menuUnfoldOutlined,
               color: Colors.white,
               size: 20,
             ),
           ),
           child: Center(
-            child: Text(
+            child: AntText(text: 
               _collapsed ? 'S' : 'Sider',
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: Colors.white),
@@ -265,7 +265,7 @@ class _ResponsiveDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('窗口宽度低于 992px 时侧边栏自动折叠',
+        AntText(text: '窗口宽度低于 992px 时侧边栏自动折叠',
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.outline)),
         const SizedBox(height: 8),
@@ -310,7 +310,7 @@ class _ComboDemoState extends State<_ComboDemo> {
           width: 160,
           collapsedWidth: 64,
           child: Center(
-            child: Text(
+            child: AntText(text: 
               _collapsed ? 'S' : 'Sider',
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: Colors.white),
@@ -323,9 +323,9 @@ class _ComboDemoState extends State<_ComboDemo> {
             align: AntFlexAlign.center,
             gap: const AntFlexGap.all(12),
             children: [
-              Icon(Icons.dashboard_outlined,
+              AntdIcon(AntIcons.dashboardOutlined,
                   size: 20, color: theme.colorScheme.primary),
-              Text('Dashboard',
+              AntText(text: 'Dashboard',
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w600)),
             ],

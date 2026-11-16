@@ -194,8 +194,8 @@ class _ControlledTooltipDemoState extends State<_ControlledTooltipDemo> {
           child: const Text('受控触发'),
         ),
         SizedBox(width: 16.w),
-        OutlinedButton(
-          onPressed: () => setState(() => _open = !_open),
+        AntButton(
+          onTap: () => setState(() => _open = !_open),
           child: Text(
             _open ? '关闭气泡' : '打开气泡',
             style: TextStyle(fontSize: 13.sp, color: theme.colorPrimary),

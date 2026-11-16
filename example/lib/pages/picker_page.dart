@@ -129,7 +129,7 @@ class PickerPage extends StatelessWidget {
               style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
             )
           else
-            Icon(Icons.keyboard_arrow_right, size: 18.sp, color: t.colorTextTertiary),
+            Icon(AntIcons.rightOutlined, size: 18.sp, color: t.colorTextTertiary),
         ],
       ),
     );

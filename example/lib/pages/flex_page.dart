@@ -50,13 +50,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
+          AntText(text: title,
               style:
                   theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
+              child: AntText(text: description!,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline)),
             ),
@@ -83,7 +83,7 @@ class _Box extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: const Color(0xFF1677FF).withValues(alpha: 0.3)),
       ),
-      child: Text(label,
+      child: AntText(text: label,
           style: const TextStyle(
             color: Color(0xFF1677FF),
             fontSize: 14,
@@ -161,7 +161,7 @@ class _JustifyDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -203,7 +203,7 @@ class _AlignDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -221,7 +221,7 @@ class _AlignDemo extends StatelessWidget {
               SizedBox(
                 width: 48,
                 height: 56,
-                child: Center(child: Text('B', style: TextStyle(color: Color(0xFF1677FF), fontWeight: FontWeight.w500))),
+                child: Center(child: AntText(text: 'B', style: TextStyle(color: Color(0xFF1677FF), fontWeight: FontWeight.w500))),
               ),
               _Box('C'),
             ],
@@ -253,7 +253,7 @@ class _GapPresetDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -280,7 +280,7 @@ class _GapCustomDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('AntFlexGap.all(32) — 单值',
+        const AntText(text: 'AntFlexGap.all(32) — 单值',
             style: TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         Container(
@@ -296,7 +296,7 @@ class _GapCustomDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('AntFlexGap.only(row: 8, column: 20) — 行列分别',
+        const AntText(text: 'AntFlexGap.only(row: 8, column: 20) — 行列分别',
             style: TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         Container(

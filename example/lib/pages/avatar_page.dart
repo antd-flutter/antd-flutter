@@ -21,7 +21,7 @@ class AvatarPage extends StatelessWidget {
                 SizedBox(width: 16.w),
                 AntAvatar(child: 'U', backgroundColor: Colors.blueGrey),
                 SizedBox(width: 16.w),
-                AntAvatar(icon: const Icon(Icons.person)),
+                AntAvatar(icon: const Icon(AntIcons.userOutlined)),
               ],
             ),
           ),
@@ -52,7 +52,7 @@ class AvatarPage extends StatelessWidget {
                 AntAvatar(child: 'S', shape: AntAvatarShape.square),
                 SizedBox(width: 16.w),
                 AntAvatar(
-                  icon: const Icon(Icons.person),
+                  icon: const Icon(AntIcons.userOutlined),
                   shape: AntAvatarShape.square,
                 ),
               ],
