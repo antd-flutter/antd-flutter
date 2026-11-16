@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
           AntCapsuleTabItem(key: 'a', title: '选项一'),
           AntCapsuleTabItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       expect(find.text('选项一'), findsOneWidget);
       expect(find.text('选项二'), findsOneWidget);
@@ -33,7 +32,7 @@ void main() {
         items: [
           AntCapsuleTabItem(key: 'a', titleWidget: Text('自定义')),
         ],
-      )));
+      ),),);
 
       expect(find.text('自定义'), findsOneWidget);
     });
@@ -44,7 +43,7 @@ void main() {
           AntCapsuleTabItem(key: 'a', title: '选项一'),
           AntCapsuleTabItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       final textA = tester.widget<Text>(find.text('选项一'));
       final textB = tester.widget<Text>(find.text('选项二'));
@@ -59,7 +58,7 @@ void main() {
           AntCapsuleTabItem(key: 'a', title: '选项一'),
           AntCapsuleTabItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       final textB = tester.widget<Text>(find.text('选项二'));
       expect(textB.style?.fontWeight, FontWeight.w600);
@@ -71,7 +70,7 @@ void main() {
           AntCapsuleTabItem(key: 'a', title: '选项一'),
           AntCapsuleTabItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       // 两个 AnimatedContainer（胶囊项）
       final containers = find.byType(AnimatedContainer);
@@ -99,8 +98,8 @@ void main() {
             AntCapsuleTabItem(key: 'b', title: '选项二'),
           ],
           onChange: (key) => setState(() => changed = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();
@@ -118,8 +117,8 @@ void main() {
             AntCapsuleTabItem(key: 'b', title: '选项二'),
           ],
           onChange: (key) => setState(() => activeKey = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();
@@ -135,7 +134,7 @@ void main() {
           AntCapsuleTabItem(key: 'b', title: '选项二'),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('选项一'));
       await tester.pumpAndSettle();
@@ -151,7 +150,7 @@ void main() {
           AntCapsuleTabItem(key: 'b', title: '选项二', disabled: true),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();

@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/radio/ant_radio.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -27,7 +27,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntRadio(
         defaultChecked: true,
         child: Text('A'),
-      )));
+      ),),);
       // 选中状态：内圆点存在（小容器），通过检查圆点数量判断
       expect(find.byType(Container), findsWidgets);
     });
@@ -37,7 +37,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntRadio(
         child: const Text('A'),
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, true);
@@ -51,7 +51,7 @@ void main() {
           setState = s;
           return AntRadio(checked: val, child: const Text('A'));
         },
-      )));
+      ),),);
       setState(() => val = true);
       await tester.pump();
       // 受控选中后，onChange 不应触发
@@ -64,7 +64,7 @@ void main() {
         disabled: true,
         child: const Text('A'),
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -74,11 +74,11 @@ void main() {
       String? selected;
       await tester.pumpWidget(_wrap(AntRadioGroup<String>(
         children: [
-          AntRadio(value: 'a', child: const Text('A')),
-          AntRadio(value: 'b', child: const Text('B')),
+          const AntRadio(value: 'a', child: Text('A')),
+          const AntRadio(value: 'b', child: Text('B')),
         ],
         onChange: (v) => selected = v,
-      )));
+      ),),);
       await tester.tap(find.text('B'));
       await tester.pump();
       expect(selected, 'b');
@@ -92,7 +92,7 @@ void main() {
           AntRadioOption(value: 'a', label: Text('A')),
           AntRadioOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
@@ -105,7 +105,7 @@ void main() {
           AntRadioOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, 'a');
@@ -120,7 +120,7 @@ void main() {
           AntRadioOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('B'));
       await tester.pump();
       expect(changed, 'b');
@@ -140,7 +140,7 @@ void main() {
             ],
           );
         },
-      )));
+      ),),);
       setState(() => val = 'b');
       await tester.pump();
       // 受控切换到 b
@@ -156,7 +156,7 @@ void main() {
           AntRadioOption(value: 'a', label: Text('A')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -170,7 +170,7 @@ void main() {
           AntRadioOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -183,7 +183,7 @@ void main() {
           AntRadioOption(value: 'a', label: Text('A')),
           AntRadioOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.byType(Column), findsOneWidget);
     });
 
@@ -194,7 +194,7 @@ void main() {
           AntRadioOption(value: 'a', label: Text('A')),
           AntRadioOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
@@ -208,7 +208,7 @@ void main() {
           AntRadioOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('B'));
       await tester.pump();
       expect(changed, 'b');
@@ -223,7 +223,7 @@ void main() {
           AntRadioButton(value: 'a', child: Text('A')),
           AntRadioButton(value: 'b', child: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
@@ -233,11 +233,11 @@ void main() {
       await tester.pumpWidget(_wrap(AntRadioGroup<String>(
         optionType: AntRadioGroupOptionType.button,
         children: [
-          AntRadioButton(value: 'a', child: const Text('A')),
-          AntRadioButton(value: 'b', child: const Text('B')),
+          const AntRadioButton(value: 'a', child: Text('A')),
+          const AntRadioButton(value: 'b', child: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, 'a');
@@ -248,10 +248,10 @@ void main() {
       await tester.pumpWidget(_wrap(AntRadioGroup<String>(
         optionType: AntRadioGroupOptionType.button,
         children: [
-          AntRadioButton(value: 'a', child: const Text('A'), disabled: true),
+          const AntRadioButton(value: 'a', disabled: true, child: Text('A')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);

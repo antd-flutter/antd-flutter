@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/input/ant_input.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -36,7 +36,7 @@ void main() {
           setState = s;
           return AntInput(value: val);
         },
-      )));
+      ),),);
       expect(find.text('a'), findsOneWidget);
       setState(() => val = 'b');
       await tester.pump();
@@ -60,7 +60,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInput(
         prefix: Icon(Icons.search),
         suffix: Icon(Icons.settings),
-      )));
+      ),),);
       expect(find.byIcon(Icons.search), findsOneWidget);
       expect(find.byIcon(Icons.settings), findsOneWidget);
     });
@@ -69,7 +69,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInput(
         addonBefore: Text('http://'),
         placeholder: 'url',
-      )));
+      ),),);
       expect(find.text('http://'), findsOneWidget);
     });
 
@@ -77,7 +77,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInput(
         allowClear: true,
         defaultValue: 'text',
-      )));
+      ),),);
       expect(find.byIcon(Icons.cancel), findsOneWidget);
     });
 
@@ -92,7 +92,7 @@ void main() {
         allowClear: true,
         defaultValue: 'text',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pump();
       expect(changed, '');
@@ -104,7 +104,7 @@ void main() {
         maxLength: 10,
         showCount: true,
         defaultValue: 'abc',
-      )));
+      ),),);
       expect(find.text('3 / 10'), findsOneWidget);
     });
 
@@ -130,7 +130,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputTextArea(
         placeholder: '多行',
         rows: 4,
-      )));
+      ),),);
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.minLines, 4);
       expect(field.maxLines, 4);
@@ -156,7 +156,7 @@ void main() {
         maxLength: 50,
         showCount: true,
         defaultValue: 'abc',
-      )));
+      ),),);
       expect(find.text('3 / 50'), findsOneWidget);
     });
 
@@ -189,7 +189,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputPassword(
         visibilityToggle: false,
         defaultValue: 'x',
-      )));
+      ),),);
       expect(find.byIcon(Icons.visibility_off), findsNothing);
       expect(find.byIcon(Icons.visibility), findsNothing);
     });
@@ -198,7 +198,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputPassword(
         disabled: true,
         defaultValue: 'x',
-      )));
+      ),),);
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
       await tester.tap(find.byIcon(Icons.visibility_off));
       await tester.pump();
@@ -218,7 +218,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntInputSearch(
         defaultValue: 'keyword',
         onSearch: (v) => searched = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.search));
       await tester.pump();
       expect(searched, 'keyword');
@@ -228,7 +228,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputSearch(
         enterButton: true,
         placeholder: 's',
-      )));
+      ),),);
       expect(find.text('搜索'), findsOneWidget);
     });
 
@@ -236,7 +236,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputSearch(
         enterButton: '查找',
         placeholder: 's',
-      )));
+      ),),);
       expect(find.text('查找'), findsOneWidget);
     });
 
@@ -246,7 +246,7 @@ void main() {
         enterButton: true,
         defaultValue: 'q',
         onSearch: (v) => searched = v,
-      )));
+      ),),);
       await tester.tap(find.text('搜索'));
       await tester.pump();
       expect(searched, 'q');
@@ -256,7 +256,7 @@ void main() {
       String? searched;
       await tester.pumpWidget(_wrap(AntInputSearch(
         onSearch: (v) => searched = v,
-      )));
+      ),),);
       await tester.enterText(find.byType(TextField), 'enter');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
@@ -271,7 +271,7 @@ void main() {
           AntInput(placeholder: 'a'),
           AntInput(placeholder: 'b'),
         ],
-      )));
+      ),),);
       expect(find.text('a'), findsOneWidget);
       expect(find.text('b'), findsOneWidget);
     });
@@ -283,7 +283,7 @@ void main() {
           AntInput(placeholder: 'a'),
           AntInput(placeholder: 'b'),
         ],
-      )));
+      ),),);
       expect(find.text('a'), findsOneWidget);
       expect(find.text('b'), findsOneWidget);
     });

@@ -21,7 +21,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/check_list/ant_check
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/check_list/ant_check_list_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 复选列表 — 列表样式的单选/多选组件。
 ///

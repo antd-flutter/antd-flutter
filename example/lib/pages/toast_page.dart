@@ -2,7 +2,7 @@ library;
 
 /// AntToast 轻提示演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ToastPage extends StatelessWidget {
   const ToastPage({super.key});

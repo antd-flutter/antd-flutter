@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/avatar/ant_avatar.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -112,9 +112,10 @@ void main() {
         _wrap(AntAvatar(
           src: 'https://example.com/bad.png',
           onError: () => errorCalled = true,
-        )),
+        ),),
       );
       await tester.pumpAndSettle();
+      expect(errorCalled, isTrue);
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
   });
@@ -126,7 +127,7 @@ void main() {
           AntAvatar(child: 'A'),
           AntAvatar(child: 'B'),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
@@ -141,7 +142,7 @@ void main() {
           AntAvatar(child: 'D'),
           AntAvatar(child: 'E'),
         ],
-      )));
+      ),),);
       // 显示 2 个头像 + "+3"
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
@@ -156,7 +157,7 @@ void main() {
           AntAvatar(child: 'A'),
           AntAvatar(child: 'B'),
         ],
-      )));
+      ),),);
       final sizeA = tester.getSize(
         find.ancestor(of: find.text('A'), matching: find.byType(Container)).first,
       );
@@ -174,7 +175,7 @@ void main() {
           AntAvatar(child: 'A'),
           AntAvatar(child: 'B'),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
       // 第二个头像左边距应小于第一个头像右边距（重叠）

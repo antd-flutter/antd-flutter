@@ -1,7 +1,7 @@
 /// AntDescriptions 类型定义
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 描述列表尺寸。
 enum AntDescriptionsSize {

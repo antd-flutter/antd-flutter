@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
           AntJumboTabItem(key: 'a', title: '全部', description: '所有订单'),
           AntJumboTabItem(key: 'b', title: '待付款', description: '等待付款'),
         ],
-      )));
+      ),),);
 
       expect(find.text('全部'), findsOneWidget);
       expect(find.text('所有订单'), findsOneWidget);
@@ -35,7 +34,7 @@ void main() {
         items: [
           AntJumboTabItem(key: 'a', titleWidget: Text('自定义标题')),
         ],
-      )));
+      ),),);
 
       expect(find.text('自定义标题'), findsOneWidget);
     });
@@ -45,7 +44,7 @@ void main() {
         items: [
           AntJumboTabItem(key: 'a', title: '全部'),
         ],
-      )));
+      ),),);
 
       expect(find.text('全部'), findsOneWidget);
       expect(find.byType(Text), findsOneWidget);
@@ -57,7 +56,7 @@ void main() {
           AntJumboTabItem(key: 'a', title: '全部'),
           AntJumboTabItem(key: 'b', title: '待付款'),
         ],
-      )));
+      ),),);
 
       final textA = tester.widget<Text>(find.text('全部'));
       final textB = tester.widget<Text>(find.text('待付款'));
@@ -72,7 +71,7 @@ void main() {
           AntJumboTabItem(key: 'a', title: '全部'),
           AntJumboTabItem(key: 'b', title: '待付款'),
         ],
-      )));
+      ),),);
 
       final textB = tester.widget<Text>(find.text('待付款'));
       expect(textB.style?.fontWeight, FontWeight.w600);
@@ -84,7 +83,7 @@ void main() {
           AntJumboTabItem(key: 'a', title: '全部'),
           AntJumboTabItem(key: 'b', title: '待付款'),
         ],
-      )));
+      ),),);
 
       // 两个 AnimatedContainer（指示条）
       final indicators = find.byType(AnimatedContainer);
@@ -110,8 +109,8 @@ void main() {
             AntJumboTabItem(key: 'b', title: '待付款'),
           ],
           onChange: (key) => setState(() => changed = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('待付款'));
       await tester.pumpAndSettle();
@@ -129,8 +128,8 @@ void main() {
             AntJumboTabItem(key: 'b', title: '待付款'),
           ],
           onChange: (key) => setState(() => activeKey = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('待付款'));
       await tester.pumpAndSettle();
@@ -146,7 +145,7 @@ void main() {
           AntJumboTabItem(key: 'b', title: '待付款'),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('全部'));
       await tester.pumpAndSettle();
@@ -162,7 +161,7 @@ void main() {
           AntJumboTabItem(key: 'b', title: '待付款', disabled: true),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('待付款'));
       await tester.pumpAndSettle();

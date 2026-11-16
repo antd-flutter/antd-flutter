@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/rate/ant_rate.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -48,7 +48,7 @@ void main() {
         defaultValue: 2,
         disabled: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.star).at(2));
       await tester.pump();
       expect(changed, null);
@@ -59,7 +59,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntRate(
         allowHalf: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       // 点击第 3 颗星的左半部分
       final star = find.byIcon(Icons.star).at(2);
       final center = tester.getCenter(star);
@@ -74,7 +74,7 @@ void main() {
         defaultValue: 3,
         allowClear: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.star).at(2));
       await tester.pump();
       expect(changed, 0);
@@ -88,7 +88,7 @@ void main() {
     testWidgets('custom character renders', (tester) async {
       await tester.pumpWidget(_wrap(const AntRate(
         character: Icons.favorite,
-      )));
+      ),),);
       expect(find.byIcon(Icons.favorite), findsNWidgets(5));
       expect(find.byIcon(Icons.star), findsNothing);
     });

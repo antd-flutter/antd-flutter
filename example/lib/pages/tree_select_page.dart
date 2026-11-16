@@ -2,8 +2,7 @@ library;
 
 /// AntTreeSelect demo 页面
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 const _treeData = <AntTreeSelectOption>[
   AntTreeSelectOption(value: 'zj', label: '浙江', children: [

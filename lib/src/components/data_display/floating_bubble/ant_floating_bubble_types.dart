@@ -1,7 +1,7 @@
 /// AntFloatingBubble 类型定义。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 悬浮气泡可拖拽轴向。
 enum AntFloatingBubbleAxis {

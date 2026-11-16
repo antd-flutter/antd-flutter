@@ -10,7 +10,7 @@ library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 // ============================================================
@@ -387,7 +387,7 @@ class _AntInputState extends State<AntInput> {
         boxShadow: _focused && !widget.disabled
             ? [
                 BoxShadow(
-                  color: _outlineColorOf(t, widget.status).withOpacity(0.8),
+                  color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
                   blurRadius: t.controlOutlineWidth.w,
                   spreadRadius: 0,
                 ),
@@ -406,7 +406,7 @@ class _AntInputState extends State<AntInput> {
       height: height.w,
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-        color: t.colorFillSecondary.withOpacity(0.3),
+        color: t.colorFillSecondary.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(color: t.colorBorder, width: 1.w),
           bottom: BorderSide(color: t.colorBorder, width: 1.w),
@@ -639,7 +639,7 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
           boxShadow: _focused && !widget.disabled
               ? [
                   BoxShadow(
-                    color: _outlineColorOf(t, widget.status).withOpacity(0.8),
+                    color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
                     blurRadius: t.controlOutlineWidth.w,
                   ),
                 ]
@@ -916,7 +916,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
                 height: iconSize,
                 child: CircularProgressIndicator(
                   strokeWidth: 1.5.w,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : isTextButton

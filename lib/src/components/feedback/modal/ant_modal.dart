@@ -2,7 +2,7 @@
 ///
 /// API 与 antd React Modal 对齐：
 /// - [AntModal] — 受控 `open` 的对话框组件
-/// - [showAntModal] — 函数式快捷方法（confirm 风格，返回 Future<bool?>）
+/// - [showAntModal] — 函数式快捷方法（confirm 风格，返回 `Future<bool?>`）
 /// - [AntModal.title] / [AntModal.content] — 标题与内容
 /// - [AntModal.okText] / [AntModal.cancelText] — 按钮文案（确定 / 取消）
 /// - [AntModal.onOk] / [AntModal.onCancel] — 确认/取消回调
@@ -20,7 +20,7 @@ library;
 import 'dart:async';
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../general/button/ant_button.dart';
 import '../../general/button/ant_button_types.dart';

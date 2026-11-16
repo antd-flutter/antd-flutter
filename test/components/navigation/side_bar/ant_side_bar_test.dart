@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -23,7 +22,7 @@ void main() {
           AntSideBarItem(key: 'b', title: '选项二'),
           AntSideBarItem(key: 'c', title: '选项三'),
         ],
-      )));
+      ),),);
 
       expect(find.text('选项一'), findsOneWidget);
       expect(find.text('选项二'), findsOneWidget);
@@ -35,7 +34,7 @@ void main() {
         items: [
           AntSideBarItem(key: 'a', titleWidget: Text('自定义标题')),
         ],
-      )));
+      ),),);
 
       expect(find.text('自定义标题'), findsOneWidget);
     });
@@ -46,7 +45,7 @@ void main() {
           AntSideBarItem(key: 'a', title: '选项一'),
           AntSideBarItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       // 第一项激活 → 颜色不同
       final textA = tester.widget<Text>(find.text('选项一'));
@@ -63,7 +62,7 @@ void main() {
           AntSideBarItem(key: 'a', title: '选项一'),
           AntSideBarItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       final textB = tester.widget<Text>(find.text('选项二'));
       expect(textB.style?.fontWeight, FontWeight.w600);
@@ -74,7 +73,7 @@ void main() {
         items: [
           AntSideBarItem(key: 'a', title: '选项一', badgeDot: true),
         ],
-      )));
+      ),),);
 
       // 圆点是一个圆形小 Container
       final dot = find.byWidgetPredicate(
@@ -91,7 +90,7 @@ void main() {
         items: [
           AntSideBarItem(key: 'a', title: '选项一', badgeText: '9'),
         ],
-      )));
+      ),),);
 
       expect(find.text('9'), findsOneWidget);
     });
@@ -107,8 +106,8 @@ void main() {
             AntSideBarItem(key: 'b', title: '选项二'),
           ],
           onChange: (key) => setState(() => changed = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();
@@ -126,8 +125,8 @@ void main() {
             AntSideBarItem(key: 'b', title: '选项二'),
           ],
           onChange: (key) => setState(() => activeKey = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();
@@ -143,7 +142,7 @@ void main() {
           AntSideBarItem(key: 'b', title: '选项二'),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('选项一'));
       await tester.pumpAndSettle();
@@ -159,7 +158,7 @@ void main() {
           AntSideBarItem(key: 'b', title: '选项二', disabled: true),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('选项二'));
       await tester.pumpAndSettle();
@@ -173,7 +172,7 @@ void main() {
           AntSideBarItem(key: 'a', title: '选项一'),
           AntSideBarItem(key: 'b', title: '选项二', disabled: true),
         ],
-      )));
+      ),),);
 
       final textB = tester.widget<Text>(find.text('选项二'));
       // 禁用项颜色与激活项不同（非 colorPrimary）
@@ -189,7 +188,7 @@ void main() {
           AntSideBarItem(key: 'a', title: '选项一'),
           AntSideBarItem(key: 'b', title: '选项二'),
         ],
-      )));
+      ),),);
 
       // 两项各有一个 AnimatedContainer 高亮条
       final highlights = find.byType(AnimatedContainer);

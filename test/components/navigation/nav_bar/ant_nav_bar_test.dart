@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -55,8 +54,8 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           const AntNavBar(
-            child: Text('标题'),
             right: Text('编辑'),
+            child: Text('标题'),
           ),
         ),
       );
@@ -67,8 +66,8 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           const AntNavBar(
-            child: Text('标题'),
             left: Text('附加'),
+            child: Text('标题'),
           ),
         ),
       );
@@ -133,15 +132,15 @@ void main() {
       final barSize = tester.getSize(find.byType(AntNavBar));
       // 允许 1 像素误差（左右 Expanded 等分，标题精确居中）
       expect((titleRect.dx - (barRect.dx + barSize.width / 2)).abs(),
-          lessThan(1.0));
+          lessThan(1.0),);
     });
 
     testWidgets('右侧内容靠右', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const AntNavBar(
-            child: Text('标题'),
             right: Text('编辑'),
+            child: Text('标题'),
           ),
         ),
       );

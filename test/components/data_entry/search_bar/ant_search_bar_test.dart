@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
     testWidgets('renders with placeholder', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(placeholder: '搜索商品'),
-      ));
+      ),);
       expect(find.text('搜索商品'), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
     });
@@ -30,14 +29,14 @@ void main() {
     testWidgets('defaultValue displays in input', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(defaultValue: '初始值'),
-      ));
+      ),);
       expect(find.text('初始值'), findsOneWidget);
     });
 
     testWidgets('controlled value displays', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(value: '受控值'),
-      ));
+      ),);
       expect(find.text('受控值'), findsOneWidget);
     });
 
@@ -45,7 +44,7 @@ void main() {
       String? changed;
       await tester.pumpWidget(_wrap(
         AntSearchBar(onChange: (v) => changed = v),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), 'abc');
       await tester.pumpAndSettle();
       expect(changed, 'abc');
@@ -55,7 +54,7 @@ void main() {
       String? searched;
       await tester.pumpWidget(_wrap(
         AntSearchBar(onSearch: (v) => searched = v),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), 'keyword');
       await tester.testTextInput.receiveAction(TextInputAction.search);
       await tester.pumpAndSettle();
@@ -65,21 +64,21 @@ void main() {
     testWidgets('clear button appears when text exists', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(defaultValue: 'hello'),
-      ));
+      ),);
       expect(find.byIcon(Icons.cancel), findsOneWidget);
     });
 
     testWidgets('clear button hidden when no text', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(),
-      ));
+      ),);
       expect(find.byIcon(Icons.cancel), findsNothing);
     });
 
     testWidgets('clearable=false hides clear button', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(defaultValue: 'hello', clearable: false),
-      ));
+      ),);
       expect(find.byIcon(Icons.cancel), findsNothing);
     });
 
@@ -90,7 +89,7 @@ void main() {
           defaultValue: 'hello',
           onlyShowClearWhenFocus: true,
         ),
-      ));
+      ),);
       // Not focused initially — no clear icon
       expect(find.byIcon(Icons.cancel), findsNothing);
 
@@ -110,7 +109,7 @@ void main() {
           onClear: () => cleared = true,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pumpAndSettle();
       expect(cleared, isTrue);
@@ -122,7 +121,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(),
-      ));
+      ),);
       expect(find.text('取消'), findsNothing);
     });
 
@@ -132,7 +131,7 @@ void main() {
         const AntSearchBar(
           showCancelButton: AntSearchBarCancelMode.focus,
         ),
-      ));
+      ),);
       expect(find.text('取消'), findsNothing);
 
       await tester.tap(find.byType(TextField));
@@ -146,7 +145,7 @@ void main() {
         const AntSearchBar(
           showCancelButton: AntSearchBarCancelMode.always,
         ),
-      ));
+      ),);
       expect(find.text('取消'), findsOneWidget);
     });
 
@@ -156,7 +155,7 @@ void main() {
           showCancelButton: AntSearchBarCancelMode.always,
           cancelText: 'Close',
         ),
-      ));
+      ),);
       expect(find.text('Close'), findsOneWidget);
     });
 
@@ -167,7 +166,7 @@ void main() {
           showCancelButton: AntSearchBarCancelMode.always,
           onCancel: () => cancelled = true,
         ),
-      ));
+      ),);
       await tester.tap(find.text('取消'));
       await tester.pumpAndSettle();
       expect(cancelled, isTrue);
@@ -183,7 +182,7 @@ void main() {
           clearOnCancel: true,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.text('取消'));
       await tester.pumpAndSettle();
       expect(changed, '');
@@ -200,7 +199,7 @@ void main() {
           clearOnCancel: false,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.text('取消'));
       await tester.pumpAndSettle();
       expect(changed, isNull);
@@ -215,7 +214,7 @@ void main() {
           onFocus: () => focused = true,
           onBlur: () => blurred = true,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       expect(focused, isTrue);
@@ -229,7 +228,7 @@ void main() {
     testWidgets('maxLength limits input', (tester) async {
       await tester.pumpWidget(_wrap(
         AntSearchBar(maxLength: 3, onChange: (v) {}),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), 'abcdef');
       await tester.pumpAndSettle();
       // TextField maxLength truncates to 3 chars
@@ -239,7 +238,7 @@ void main() {
     testWidgets('custom searchIcon displays', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(searchIcon: Icon(Icons.person)),
-      ));
+      ),);
       expect(find.byIcon(Icons.person), findsOneWidget);
       expect(find.byIcon(Icons.search), findsNothing);
     });

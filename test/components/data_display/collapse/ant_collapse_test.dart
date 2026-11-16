@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/collapse/ant_collapse.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -44,7 +44,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         key: collapseKey,
         items: _panels(),
-      )));
+      ),),);
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
       final expanded = tester.getSize(find.byKey(collapseKey)).height;
@@ -81,7 +81,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
         defaultActiveKey: const ['panel_0', 'panel_1'],
-      )));
+      ),),);
       await tester.pumpAndSettle();
       expect(find.text('内容一'), findsOneWidget);
       expect(find.text('内容二'), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
         activeKey: const ['panel_0'],
-      )));
+      ),),);
       await tester.pumpAndSettle();
       expect(find.text('内容一'), findsOneWidget);
       // 受控模式下点击面板二不会展开
@@ -105,7 +105,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
         onChange: changes.add,
-      )));
+      ),),);
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
       expect(changes, hasLength(1));
@@ -113,18 +113,18 @@ void main() {
     });
 
     testWidgets('disabled panel does not expand', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(items: const [
+      await tester.pumpWidget(_wrap(const AntCollapse(items: [
         AntCollapsePanel(label: '禁用面板', child: Text('内容'), disabled: true),
-      ])));
+      ],),),);
       await tester.tap(find.text('禁用面板'));
       await tester.pumpAndSettle();
       expect(find.text('内容'), findsNothing);
     });
 
     testWidgets('extra widget renders in header', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(items: const [
+      await tester.pumpWidget(_wrap(const AntCollapse(items: [
         AntCollapsePanel(label: '带extra', extra: Text('附加'), child: Text('内容')),
-      ])));
+      ],),),);
       expect(find.text('附加'), findsOneWidget);
     });
 
@@ -132,7 +132,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
         expandIconPosition: AntCollapseExpandIconPosition.right,
-      )));
+      ),),);
       final row = tester.widget<Row>(
         find.ancestor(of: find.text('面板一'), matching: find.byType(Row)).first,
       );
@@ -143,7 +143,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
         expandIcon: (context, isExpanded) => const Icon(Icons.star),
-      )));
+      ),),);
       expect(find.byIcon(Icons.star), findsWidgets);
     });
 
@@ -153,7 +153,7 @@ void main() {
         key: collapseKey,
         items: _panels(),
         bordered: false,
-      )));
+      ),),);
       final decorated = tester
           .widget<DecoratedBox>(
             find.descendant(
@@ -170,7 +170,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCollapse(
         key: collapseKey,
         items: _panels(),
-      )));
+      ),),);
       final before = tester.getSize(find.byKey(collapseKey)).height;
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();

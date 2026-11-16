@@ -2,7 +2,7 @@ library;
 
 /// NavBar 导航栏演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class NavBarPage extends StatelessWidget {
   const NavBarPage({super.key});
@@ -77,9 +77,9 @@ class _BackDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntNavBar(
-      child: const Text('带返回'),
       back: true,
       onBack: () => _showSnackbar(context, '点击了返回'),
+      child: const Text('带返回'),
     );
   }
 }
@@ -90,10 +90,10 @@ class _LeftDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntNavBar(
-      child: const Text('左侧附加'),
       back: true,
       left: const Text('首页'),
       onBack: () => _showSnackbar(context, '点击了返回箭头'),
+      child: const Text('左侧附加'),
     );
   }
 }
@@ -104,11 +104,11 @@ class _RightDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntNavBar(
-      child: const Text('右侧操作'),
       right: IconButton(
         icon: const Icon(Icons.more_horiz),
         onPressed: () => _showSnackbar(context, '点击了更多'),
       ),
+      child: const Text('右侧操作'),
     );
   }
 }
@@ -120,7 +120,7 @@ class _NoBorderDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: const AntNavBar(child: Text('无边框'), border: false),
+      child: const AntNavBar(border: false, child: Text('无边框')),
     );
   }
 }
@@ -131,7 +131,6 @@ class _FullDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntNavBar(
-      child: const Text('完整示例'),
       back: true,
       onBack: () => _showSnackbar(context, '返回'),
       right: Row(
@@ -147,6 +146,7 @@ class _FullDemo extends StatelessWidget {
           ),
         ],
       ),
+      child: const Text('完整示例'),
     );
   }
 }

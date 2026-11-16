@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
           AntTabBarItem(key: 'a', title: '首页'),
           AntTabBarItem(key: 'b', title: '我的'),
         ],
-      )));
+      ),),);
 
       expect(find.text('首页'), findsOneWidget);
       expect(find.text('我的'), findsOneWidget);
@@ -34,7 +33,7 @@ void main() {
           AntTabBarItem(key: 'a', title: '首页', icon: Icons.home),
           AntTabBarItem(key: 'b', title: '我的', icon: Icons.person),
         ],
-      )));
+      ),),);
 
       expect(find.byIcon(Icons.home), findsOneWidget);
       expect(find.byIcon(Icons.person), findsOneWidget);
@@ -48,7 +47,7 @@ void main() {
             titleWidget: Text('自定义标题'),
           ),
         ],
-      )));
+      ),),);
 
       expect(find.text('自定义标题'), findsOneWidget);
     });
@@ -59,7 +58,7 @@ void main() {
           AntTabBarItem(key: 'a', title: '首页'),
           AntTabBarItem(key: 'b', title: '我的'),
         ],
-      )));
+      ),),);
 
       // 第一项激活 → colorPrimary
       final textA = tester.widget<Text>(find.text('首页'));
@@ -74,7 +73,7 @@ void main() {
           AntTabBarItem(key: 'a', title: '首页'),
           AntTabBarItem(key: 'b', title: '我的'),
         ],
-      )));
+      ),),);
 
       // b 激活 → 两项颜色不同
       final textA = tester.widget<Text>(find.text('首页'));
@@ -87,7 +86,7 @@ void main() {
         items: [
           AntTabBarItem(key: 'a', title: '首页', icon: Icons.home, badgeText: '5'),
         ],
-      )));
+      ),),);
 
       expect(find.text('5'), findsOneWidget);
     });
@@ -97,7 +96,7 @@ void main() {
         items: [
           AntTabBarItem(key: 'a', title: '首页', badgeDot: true),
         ],
-      )));
+      ),),);
 
       // 圆点是一个小 Container（圆形装饰）
       final dot = find.byWidgetPredicate(
@@ -109,7 +108,7 @@ void main() {
     testWidgets('border 默认 true 有顶部分割线', (tester) async {
       await tester.pumpWidget(_wrap(const AntTabBar(
         items: [AntTabBarItem(key: 'a', title: '首页')],
-      )));
+      ),),);
 
       // 有 border → BoxDecoration.border 非 null
       final container = tester.widget<Container>(
@@ -130,8 +129,8 @@ void main() {
             AntTabBarItem(key: 'b', title: '我的'),
           ],
           onChange: (key) => setState(() => changed = key),
-        )),
-      ));
+        ),),
+      ),);
 
       await tester.tap(find.text('我的'));
       await tester.pumpAndSettle();
@@ -149,8 +148,8 @@ void main() {
             AntTabBarItem(key: 'b', title: '我的'),
           ],
           onChange: (key) => setState(() => activeKey = key),
-        )),
-      ));
+        ),),
+      ),);
 
       // 点击 b
       await tester.tap(find.text('我的'));
@@ -168,7 +167,7 @@ void main() {
           AntTabBarItem(key: 'b', title: '我的'),
         ],
         onChange: (_) => callCount++,
-      )));
+      ),),);
 
       await tester.tap(find.text('首页'));
       await tester.pumpAndSettle();
@@ -182,7 +181,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntTabBar(
         border: false,
         items: [AntTabBarItem(key: 'a', title: '首页')],
-      )));
+      ),),);
 
       // border=false → BoxDecoration.border 为 null
       final container = tester.widget<Container>(
@@ -203,7 +202,7 @@ void main() {
             activeIcon: Icons.home,
           ),
         ],
-      )));
+      ),),);
 
       expect(find.byIcon(Icons.home), findsOneWidget);
       expect(find.byIcon(Icons.home_outlined), findsNothing);
@@ -221,7 +220,7 @@ void main() {
           ),
           AntTabBarItem(key: 'b', title: '我的'),
         ],
-      )));
+      ),),);
 
       expect(find.byIcon(Icons.home_outlined), findsOneWidget);
       expect(find.byIcon(Icons.home), findsNothing);
@@ -232,7 +231,7 @@ void main() {
         items: [
           AntTabBarItem(key: 'a', title: '首页'),
         ],
-      )));
+      ),),);
 
       expect(find.text('首页'), findsOneWidget);
       expect(find.byType(Icon), findsNothing);

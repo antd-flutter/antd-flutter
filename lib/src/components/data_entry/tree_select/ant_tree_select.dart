@@ -22,7 +22,7 @@ library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/tree_select/ant_tree_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/tree_select/ant_tree_select_types.dart';
 
@@ -51,7 +51,7 @@ class AntTreeSelect extends StatefulWidget {
   /// 树节点数据
   final List<AntTreeSelectOption> treeData;
 
-  /// 受控值（单选 String / 多选 List<String>）
+  /// 受控值（单选 String / 多选 `List<String>`）
   final Object? value;
 
   /// 非受控默认值

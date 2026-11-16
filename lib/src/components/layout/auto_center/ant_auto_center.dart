@@ -10,7 +10,7 @@
 /// 设置 [expanded] 为 true 可占据剩余空间；在非弹性布局中直接居中。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntAutoCenter

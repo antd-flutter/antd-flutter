@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _testOptions = <AntMentionsOption>[
@@ -31,7 +30,7 @@ void main() {
           options: [],
           placeholder: '输入 @ 提及他人',
         ),
-      ));
+      ),);
       expect(find.text('输入 @ 提及他人'), findsOneWidget);
     });
 
@@ -41,7 +40,7 @@ void main() {
           options: [],
           defaultValue: 'hello',
         ),
-      ));
+      ),);
       expect(find.text('hello'), findsOneWidget);
     });
 
@@ -51,14 +50,14 @@ void main() {
           options: [],
           value: 'controlled',
         ),
-      ));
+      ),);
       expect(find.text('controlled'), findsOneWidget);
     });
 
     testWidgets('typing @ shows options dropdown', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntMentions(options: _testOptions),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -69,7 +68,7 @@ void main() {
     testWidgets('typing @a filters options', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntMentions(options: _testOptions),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@a');
       await tester.pumpAndSettle();
@@ -81,7 +80,7 @@ void main() {
     testWidgets('typing without @ does not show dropdown', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntMentions(options: _testOptions),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), 'hello');
       await tester.pumpAndSettle();
@@ -97,7 +96,7 @@ void main() {
           onChange: (text) => changedText = text,
           onSelect: (opt) => selectedOption = opt,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -114,7 +113,7 @@ void main() {
           options: _testOptions,
           onChange: (text) => changedText = text,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@zom');
       await tester.pumpAndSettle();
@@ -126,7 +125,7 @@ void main() {
     testWidgets('space after @ closes dropdown', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntMentions(options: _testOptions),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@ afc');
       await tester.pumpAndSettle();
@@ -144,7 +143,7 @@ void main() {
           options: options,
           onChange: (text) => changedText = text,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -162,7 +161,7 @@ void main() {
           disabled: true,
           placeholder: '禁用',
         ),
-      ));
+      ),);
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.enabled, isFalse);
     });
@@ -176,7 +175,7 @@ void main() {
           allowClear: true,
           onChange: (text) => changedText = text,
         ),
-      ));
+      ),);
       expect(find.text('hello'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pumpAndSettle();
@@ -189,7 +188,7 @@ void main() {
           options: _testOptions,
           prefix: '#',
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '#');
       await tester.pumpAndSettle();
@@ -210,7 +209,7 @@ void main() {
             );
           },
         ),
-      ));
+      ),);
       expect(find.text('请输入'), findsOneWidget);
       setStateOuter(() => value = 'updated');
       await tester.pumpAndSettle();
@@ -224,7 +223,7 @@ void main() {
           options: _testOptions,
           onChange: (text) => changedText = text,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), 'hello world');
       await tester.pumpAndSettle();

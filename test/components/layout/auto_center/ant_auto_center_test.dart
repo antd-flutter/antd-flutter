@@ -2,7 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -150,12 +150,12 @@ void main() {
   // 导致外层 AntAutoCenter 的主轴居中失效（内容顶在容器顶部）
   group('AntAutoCenter — 与 AntSpace 组合居中（回归）', () {
   testWidgets('松约束容器内垂直水平均居中', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(const MaterialApp(
       home: Scaffold(
         body: Column(
           children: [
-            const SizedBox(height: 100),
-            Container(
+            SizedBox(height: 100),
+            SizedBox(
               height: 200,
               child: AntAutoCenter(
                 child: AntSpace(
@@ -168,9 +168,9 @@ void main() {
           ],
         ),
       ),
-    ));
+    ),);
     await tester.pump();
-    final boxRect = tester.getRect(find.byType(Container).last);
+    final boxRect = tester.getRect(find.byType(AntAutoCenter));
     final contentRect = tester.getRect(find.byType(AntSpace));
     expect(contentRect.center.dx, moreOrLessEquals(boxRect.center.dx, epsilon: 1));
     expect(contentRect.center.dy, moreOrLessEquals(boxRect.center.dy, epsilon: 1));

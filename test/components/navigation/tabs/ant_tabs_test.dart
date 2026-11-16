@@ -2,7 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -75,7 +75,7 @@ void main() {
         _wrap(AntTabs(
           items: _sampleItems(),
           onChange: (key) => changedKey = key,
-        )),
+        ),),
       );
       await tester.tap(find.text('Tab 2'));
       await tester.pump();
@@ -114,7 +114,7 @@ void main() {
             ),
           ],
           onChange: (key) => changedKey = key,
-        )),
+        ),),
       );
       await tester.tap(find.text('Tab 2'));
       await tester.pump();
@@ -154,7 +154,7 @@ void main() {
           type: AntTabsType.editableCard,
           items: _sampleItems(),
           onEdit: (_, __) {},
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -171,7 +171,7 @@ void main() {
           type: AntTabsType.editableCard,
           items: _sampleItems(),
           onEdit: (_, __) {},
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -191,7 +191,7 @@ void main() {
             AntTabsItem(key: '2', label: 'T2', child: Text('C2')),
           ],
           onEdit: (_, __) {},
-        )),
+        ),),
       );
       // 只有第二项显示关闭按钮
       expect(
@@ -229,7 +229,7 @@ void main() {
             removedKey = key;
             action = act;
           },
-        )),
+        ),),
       );
       // 点击第一个关闭按钮
       final closeButtons = find.descendant(
@@ -249,7 +249,7 @@ void main() {
           type: AntTabsType.editableCard,
           items: _sampleItems(),
           onEdit: (_, act) => action = act,
-        )),
+        ),),
       );
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
@@ -264,7 +264,7 @@ void main() {
         _wrap(AntTabs(
           tabPosition: AntTabPosition.bottom,
           items: _sampleItems(),
-        )),
+        ),),
       );
       // 内容区域应该在标签栏上方
       final contentCenter = tester.getCenter(find.text('Content 1'));
@@ -277,7 +277,7 @@ void main() {
         _wrap(AntTabs(
           tabPosition: AntTabPosition.left,
           items: _sampleItems(),
-        )),
+        ),),
       );
       final contentCenter = tester.getCenter(find.text('Content 1'));
       final tabBarCenter = tester.getCenter(find.text('Tab 1'));
@@ -289,7 +289,7 @@ void main() {
         _wrap(AntTabs(
           tabPosition: AntTabPosition.right,
           items: _sampleItems(),
-        )),
+        ),),
       );
       final contentCenter = tester.getCenter(find.text('Content 1'));
       final tabBarCenter = tester.getCenter(find.text('Tab 1'));
@@ -331,7 +331,7 @@ void main() {
               child: Text('C1'),
             ),
           ],
-        )),
+        ),),
       );
       expect(find.text('Custom Label'), findsOneWidget);
       expect(find.text('Text Label'), findsNothing);
@@ -348,7 +348,7 @@ void main() {
               child: Text('C1'),
             ),
           ],
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -378,7 +378,7 @@ void main() {
         _wrap(AntTabs(
           tabBarGutter: 20,
           items: _sampleItems(),
-        )),
+        ),),
       );
       final tab1Center = tester.getCenter(find.text('Tab 1'));
       final tab2Center = tester.getCenter(find.text('Tab 2'));
@@ -392,7 +392,7 @@ void main() {
           items: _sampleItems(),
           addIcon: const Icon(Icons.add_circle),
           onEdit: (_, __) {},
-        )),
+        ),),
       );
       expect(
         find.descendant(

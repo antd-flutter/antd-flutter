@@ -1,7 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/page_indicator/ant_page_indicator.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -60,7 +59,7 @@ void main() {
           setState = s;
           return AntPageIndicator(total: 4, current: page);
         },
-      )));
+      ),),);
       expect(
         (_dot(tester, 0).decoration! as BoxDecoration).color,
         AntThemeData.light().colorPrimary,
@@ -97,7 +96,7 @@ void main() {
         total: 4,
         defaultCurrent: 1,
         direction: AntPageIndicatorDirection.vertical,
-      )));
+      ),),);
       final active = _dot(tester, 1);
       final normal = _dot(tester, 0);
       // 垂直方向激活点沿高度伸展，宽度保持一致
@@ -119,7 +118,7 @@ void main() {
         total: 3,
         dotColor: Colors.black12,
         activeDotColor: Colors.orange,
-      )));
+      ),),);
       expect(
         (_dot(tester, 0).decoration! as BoxDecoration).color,
         Colors.orange,
@@ -136,7 +135,7 @@ void main() {
         dotSize: 8,
         activeDotSize: 20,
         dotSpacing: 6,
-      )));
+      ),),);
       final normal = _dot(tester, 1);
       final active = _dot(tester, 0);
       expect(normal.constraints!.maxWidth, 8.w);
@@ -150,7 +149,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntPageIndicator(
         total: 2,
         color: AntPageIndicatorPresetColor.white,
-      )));
+      ),),);
       expect(
         (_dot(tester, 0).decoration! as BoxDecoration).color,
         const Color(0xFFFFFFFF),
@@ -166,7 +165,7 @@ void main() {
           setState = s;
           return AntPageIndicator(total: 3, current: page);
         },
-      )));
+      ),),);
       // 动画进行中（未 settle）即存在动画容器
       setState(() => page = 1);
       await tester.pump();

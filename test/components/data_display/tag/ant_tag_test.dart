@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/tag/ant_tag.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntTag(
         child: '自定义',
         customColor: Colors.purple,
-      )));
+      ),),);
       expect(find.text('自定义'), findsOneWidget);
       final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration! as BoxDecoration;
@@ -83,7 +83,7 @@ void main() {
         child: '可关闭',
         closable: true,
         onClose: () => closed = true,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.close));
       await tester.pump();
       expect(closed, isTrue);
@@ -94,7 +94,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntTag(
         child: '带图标',
         icon: Icon(Icons.check_circle),
-      )));
+      ),),);
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
       expect(find.text('带图标'), findsOneWidget);
     });
@@ -103,7 +103,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntTag(
         child: '自定义间距',
         padding: EdgeInsets.all(12),
-      )));
+      ),),);
       final container = tester.widget<Container>(find.byType(Container).first);
       expect(container.padding, const EdgeInsets.all(12));
     });

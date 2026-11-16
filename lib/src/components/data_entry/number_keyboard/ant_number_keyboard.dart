@@ -17,7 +17,7 @@ import 'package:antd_theme/antd_theme.dart';
 export 'package:antd_flutter_plus/src/components/data_entry/number_keyboard/ant_number_keyboard_types.dart';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 数字键盘 — 提供数字输入面板。
 ///

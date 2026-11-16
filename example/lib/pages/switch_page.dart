@@ -2,7 +2,7 @@ library;
 
 /// Switch 开关演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SwitchPage extends StatelessWidget {
   const SwitchPage({super.key});

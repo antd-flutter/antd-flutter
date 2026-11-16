@@ -1,8 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/qr_code/ant_qr_code.dart';
-import 'package:antd_flutter_plus/src/components/data_display/qr_code/ant_qr_code_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -131,7 +129,7 @@ void main() {
         value: 'a',
         status: AntQRCodeStatus.expired,
         onRefresh: () => refreshed++,
-      )));
+      ),),);
       expect(find.text('二维码过期'), findsOneWidget);
 
       await tester.tap(find.text('二维码过期'));
@@ -166,7 +164,7 @@ void main() {
           value: 'a',
           icon: true,
           status: AntQRCodeStatus.expired,
-        )),
+        ),),
       );
       expect(find.byIcon(Icons.qr_code_2), findsNothing);
       expect(find.text('二维码过期'), findsOneWidget);

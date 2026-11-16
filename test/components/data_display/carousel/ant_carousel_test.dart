@@ -1,7 +1,7 @@
 import 'package:antd_flutter_plus/src/components/data_display/carousel/ant_carousel.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -35,9 +35,6 @@ Widget _carousel({
 }) {
   return AntCarousel(
     height: 200,
-    children: [
-      for (final p in _pages) Center(child: Text(p)),
-    ],
     autoplay: autoplay,
     autoplayInterval: interval,
     pauseOnHover: pauseOnHover,
@@ -50,6 +47,9 @@ Widget _carousel({
     current: current,
     onChange: onChange,
     controller: controller,
+    children: [
+      for (final p in _pages) Center(child: Text(p)),
+    ],
   );
 }
 
@@ -63,7 +63,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       expect(tester.widgetList(dots).length, 3);
     });
@@ -82,7 +82,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       await tester.tap(dots.at(2));
       await tester.pumpAndSettle();
@@ -96,7 +96,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       await tester.tap(dots.at(1));
       await tester.pumpAndSettle();
@@ -108,7 +108,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       expect(tester.widgetList(dots), isEmpty);
     });
@@ -132,7 +132,7 @@ void main() {
       await tester.pumpWidget(_wrap(_carousel(
         autoplay: true,
         onChange: changes.add,
-      )));
+      ),),);
       expect(changes, isEmpty);
       // 等待一个 autoplayInterval 周期
       await tester.pump(const Duration(seconds: 3));
@@ -147,8 +147,8 @@ void main() {
         _carousel(
             autoplay: true,
             loop: true,
-            interval: const Duration(milliseconds: 100)),
-      ));
+            interval: const Duration(milliseconds: 100),),
+      ),);
       // 3 次切换后应回到第 0 页
       await tester.pump(const Duration(milliseconds: 320));
       await tester.pumpAndSettle();
@@ -163,7 +163,7 @@ void main() {
           pauseOnHover: true,
           interval: const Duration(milliseconds: 100),
         ),
-      ));
+      ),);
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
       addTearDown(gesture.removePointer);
@@ -186,7 +186,7 @@ void main() {
                 _carousel(current: current),
               ],
             ),
-          ));
+          ),);
       await tester.pumpWidget(buildHost());
       await tester.pumpAndSettle();
       await tester.tap(find.text('jump'));
@@ -219,7 +219,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       // 左侧指示点为纵向排列
       final centers =
@@ -240,7 +240,7 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container),
+            (w) => w is GestureDetector && w.child is Container,),
       );
       final centers =
           tester.widgetList(dots).map((w) => w as GestureDetector).toList();

@@ -1,7 +1,7 @@
 import 'package:antd_flutter_plus/src/components/data_display/empty/ant_empty.dart';
 import 'package:antd_flutter_plus/src/components/data_display/list/ant_list.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child, {Size size = const Size(400, 800)}) {
@@ -63,7 +63,7 @@ void main() {
           renderItem: (item, index) =>
               AntListItem(content: Text('自定义-$item-$index')),
         ),
-      )));
+      ),),);
       expect(find.text('自定义-a-0'), findsOneWidget);
       expect(find.text('自定义-b-1'), findsOneWidget);
     });
@@ -72,7 +72,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(header: const Text('头部'), footer: const Text('底部')),
-      )));
+      ),),);
       expect(find.text('头部'), findsOneWidget);
       expect(find.text('底部'), findsOneWidget);
     });
@@ -81,7 +81,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(bordered: true),
-      )));
+      ),),);
       final decorated = tester
           .widget<DecoratedBox>(
             find.descendant(
@@ -97,7 +97,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(split: false),
-      )));
+      ),),);
       final containers = tester
           .widgetList<Container>(
             find.descendant(
@@ -119,7 +119,7 @@ void main() {
           SizedBox(height: 300, child: _list(size: AntListSize.large)),
           SizedBox(height: 300, child: _list(size: AntListSize.small)),
         ],
-      )));
+      ),),);
       final largeText = tester.widget<DefaultTextStyle>(
         find.ancestor(of: find.text('条目一').first, matching: find.byType(DefaultTextStyle)).first,
       );
@@ -149,7 +149,7 @@ void main() {
             ],
           ),
         ),
-      )));
+      ),),);
       expect(find.text('操作'), findsOneWidget);
       await tester.tap(find.text('操作'));
       expect(tapped, isTrue);
@@ -166,7 +166,7 @@ void main() {
             extra: const Text('右侧'),
           ),
         ),
-      )));
+      ),),);
       expect(find.text('右侧'), findsOneWidget);
       final row = tester.widget<Row>(
         find.ancestor(of: find.text('条目一'), matching: find.byType(Row)).first,
@@ -178,7 +178,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(dataSource: const []),
-      )));
+      ),),);
       expect(find.byType(AntEmpty), findsOneWidget);
       expect(find.text('条目一'), findsNothing);
     });
@@ -187,7 +187,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(loading: true),
-      )));
+      ),),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('条目一'), findsNothing);
     });
@@ -203,7 +203,7 @@ void main() {
           itemKey: (item, _) => item,
           renderItem: (item, _) => AntListItem(content: Text(item)),
         ),
-      )));
+      ),),);
       await tester.pumpAndSettle();
       // 100 条只构建可见行
       final built = tester
@@ -225,7 +225,7 @@ void main() {
       await tester.pumpWidget(_wrap(SizedBox(
         height: 600,
         child: _list(dataSource: dataSource, pageSize: 2),
-      )));
+      ),),);
       expect(find.text('分页条目1'), findsOneWidget);
       expect(find.text('分页条目2'), findsOneWidget);
       expect(find.text('分页条目3'), findsNothing);

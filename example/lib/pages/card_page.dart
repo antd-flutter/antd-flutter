@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CardPage extends StatelessWidget {
   const CardPage({super.key});
@@ -63,10 +62,6 @@ class CardPage extends StatelessWidget {
                 ),
               ),
               title: const Text('带封面的卡片'),
-              child: Text(
-                '卡片内容卡片内容',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
-              ),
               actions: [
                 AntCardAction(
                   child: const Text('操作一'),
@@ -77,6 +72,10 @@ class CardPage extends StatelessWidget {
                   onTap: () => _showMsg(context, '操作二'),
                 ),
               ],
+              child: Text(
+                '卡片内容卡片内容',
+                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+              ),
             ),
           ),
           SizedBox(height: 16.w),

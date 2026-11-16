@@ -1,7 +1,7 @@
 import 'package:antd_flutter_plus/src/components/data_display/image_viewer/ant_image_viewer.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 固定失败的资源路径：不依赖真实网络。
@@ -67,11 +67,11 @@ void main() {
   group('AntImageViewer', () {
     testWidgets('open=true shows mask and first image', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset, kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset, kMissingAsset],
           open: true,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       // 暗色遮罩 + 图片渲染组件存在，页面底层内容仍在其下。
       expect(find.byType(Material), findsWidgets);
@@ -84,11 +84,11 @@ void main() {
 
     testWidgets('open=false shows nothing', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset, kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset, kMissingAsset],
           open: false,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.byType(InteractiveViewer), findsNothing);
       expect(find.byType(PageView), findsNothing);
@@ -96,34 +96,34 @@ void main() {
 
     testWidgets('multi images show page indicator', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset, kMissingAsset, kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset, kMissingAsset, kMissingAsset],
           open: true,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('1 / 3'), findsOneWidget);
     });
 
     testWidgets('defaultIndex sets initial page', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset, kMissingAsset, kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset, kMissingAsset, kMissingAsset],
           open: true,
           defaultIndex: 1,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('2 / 3'), findsOneWidget);
     });
 
     testWidgets('swipe left updates page indicator', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset, kMissingAsset, kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset, kMissingAsset, kMissingAsset],
           open: true,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       await tester.fling(find.byType(PageView), const Offset(-600, 0), 2000);
@@ -143,7 +143,7 @@ void main() {
           open: true,
           onClose: () => closed = true,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.close));
@@ -153,12 +153,12 @@ void main() {
 
     testWidgets('InteractiveViewer respects maxZoomRatio', (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset],
           open: true,
           maxZoomRatio: 4.5,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       final viewer =
@@ -170,12 +170,12 @@ void main() {
     testWidgets('double tap zooms in with composite zoom enabled',
         (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset],
           open: true,
           maxZoomRatio: 3.0,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       final center = tester.getCenter(find.byType(InteractiveViewer));
@@ -193,12 +193,12 @@ void main() {
     testWidgets('double tap does not zoom when composite zoom disabled',
         (tester) async {
       await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset],
+        const AntImageViewer(
+          images: [kMissingAsset],
           open: true,
           enableCompositeZoom: false,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(InteractiveViewer));
@@ -209,7 +209,7 @@ void main() {
       final viewer =
           tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
       expect(viewer.transformationController!.value.getMaxScaleOnAxis(),
-          closeTo(1.0, 0.01));
+          closeTo(1.0, 0.01),);
     });
 
     testWidgets('afterClose fires after close animation', (tester) async {
@@ -227,7 +227,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('打开'));
@@ -250,7 +250,7 @@ void main() {
       await tester.pumpWidget(const _Host(
         images: [kMissingAsset, kMissingAsset],
         initialOpen: true,
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('1 / 2'), findsOneWidget);
 

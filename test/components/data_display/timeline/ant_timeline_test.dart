@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/timeline/ant_timeline.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -17,10 +17,10 @@ Widget _wrap(Widget child) {
 }
 
 List<AntTimelineItem> _basicItems() => [
-      AntTimelineItem(content: const Text('创建站点'), color: AntTimelineColor.green),
-      AntTimelineItem(content: const Text('部署上线'), color: AntTimelineColor.blue),
-      AntTimelineItem(content: const Text('访问异常'), color: AntTimelineColor.red),
-      AntTimelineItem(content: const Text('待处理'), color: AntTimelineColor.gray),
+      const AntTimelineItem(content: Text('创建站点'), color: AntTimelineColor.green),
+      const AntTimelineItem(content: Text('部署上线'), color: AntTimelineColor.blue),
+      const AntTimelineItem(content: Text('访问异常'), color: AntTimelineColor.red),
+      const AntTimelineItem(content: Text('待处理'), color: AntTimelineColor.gray),
     ];
 
 void main() {
@@ -34,14 +34,14 @@ void main() {
     });
 
     testWidgets('renders item content', (tester) async {
-      await tester.pumpWidget(_wrap(AntTimeline(
+      await tester.pumpWidget(_wrap(const AntTimeline(
         items: [
           AntTimelineItem(
-            content: const Text('文本'),
-            customDot: const Icon(Icons.star),
+            content: Text('文本'),
+            customDot: Icon(Icons.star),
           ),
         ],
-      )));
+      ),),);
       expect(find.text('文本'), findsOneWidget);
     });
 
@@ -49,7 +49,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         mode: AntTimelineMode.alternate,
-      )));
+      ),),);
       final first = tester.getTopLeft(find.text('创建站点'));
       final second = tester.getTopLeft(find.text('部署上线'));
       final center = tester.getSize(find.byType(AntTimeline)).width / 2;
@@ -62,7 +62,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         mode: AntTimelineMode.left,
-      )));
+      ),),);
       final rowLeft = tester.getTopLeft(find.byType(AntTimeline));
       final content = tester.getTopLeft(find.text('创建站点'));
       // 默认模式内容在节点列右侧，有缩进
@@ -73,7 +73,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         mode: AntTimelineMode.right,
-      )));
+      ),),);
       final timeline = tester.getTopLeft(find.byType(AntTimeline));
       final width = tester.getSize(find.byType(AntTimeline)).width;
       final content = tester.getTopLeft(find.text('创建站点'));
@@ -85,7 +85,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         pending: true,
-      )));
+      ),),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       // pending 节点在最后一个 item 之后
       final last = tester.getTopLeft(find.text('待处理'));
@@ -98,7 +98,7 @@ void main() {
         items: _basicItems(),
         pending: true,
         pendingDot: const Icon(Icons.more_horiz),
-      )));
+      ),),);
       expect(find.byIcon(Icons.more_horiz), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
@@ -107,7 +107,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         reverse: true,
-      )));
+      ),),);
       final first = tester.getTopLeft(find.text('待处理'));
       final last = tester.getTopLeft(find.text('创建站点'));
       expect(first.dy, lessThan(last.dy));
@@ -135,23 +135,23 @@ void main() {
     });
 
     testWidgets('customDot renders custom widget', (tester) async {
-      await tester.pumpWidget(_wrap(AntTimeline(
+      await tester.pumpWidget(_wrap(const AntTimeline(
         items: [
           AntTimelineItem(
-            content: const Text('自定义'),
-            customDot: const Icon(Icons.check_circle),
+            content: Text('自定义'),
+            customDot: Icon(Icons.check_circle),
           ),
         ],
-      )));
+      ),),);
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
     });
 
     testWidgets('dotColor overrides node color', (tester) async {
-      await tester.pumpWidget(_wrap(AntTimeline(
+      await tester.pumpWidget(_wrap(const AntTimeline(
         items: [
-          AntTimelineItem(content: const Text('紫色'), dotColor: Colors.purple),
+          AntTimelineItem(content: Text('紫色'), dotColor: Colors.purple),
         ],
-      )));
+      ),),);
       final dot = tester.widget<Container>(
         find.byWidgetPredicate(
           (w) => w is Container &&
@@ -163,11 +163,11 @@ void main() {
     });
 
     testWidgets('label renders in label column', (tester) async {
-      await tester.pumpWidget(_wrap(AntTimeline(
+      await tester.pumpWidget(_wrap(const AntTimeline(
         items: [
-          AntTimelineItem(label: '09:00', content: const Text('会议开始')),
+          AntTimelineItem(label: '09:00', content: Text('会议开始')),
         ],
-      )));
+      ),),);
       expect(find.text('09:00'), findsOneWidget);
       expect(find.text('会议开始'), findsOneWidget);
       final label = tester.getTopLeft(find.text('09:00'));
@@ -185,7 +185,7 @@ void main() {
             onTap: () => tapped = true,
           ),
         ],
-      )));
+      ),),);
       // Opacity 包裹（视觉降级）
       expect(find.byType(Opacity), findsOneWidget);
       await tester.tap(find.text('禁用项'));
@@ -201,7 +201,7 @@ void main() {
             onTap: () => tapped = true,
           ),
         ],
-      )));
+      ),),);
       await tester.tap(find.text('可点击'));
       expect(tapped, isTrue);
     });

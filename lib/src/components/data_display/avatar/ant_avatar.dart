@@ -26,7 +26,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/data_display/avatar/ant_avatar_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/avatar/ant_avatar_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntAvatar

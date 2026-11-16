@@ -5,7 +5,7 @@ import 'package:antd_flutter_plus/src/components/feedback/modal/ant_modal.dart';
 import 'package:antd_flutter_plus/src/components/general/button/ant_button.dart';
 import 'package:antd_flutter_plus/src/components/general/button/ant_button_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {

@@ -2,7 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -54,7 +54,7 @@ void main() {
             AntStepsItem(title: 'Step 1', description: 'Description 1'),
             AntStepsItem(title: 'Step 2'),
           ],
-        )),
+        ),),
       );
       expect(find.text('Description 1'), findsOneWidget);
     });
@@ -64,7 +64,7 @@ void main() {
         _wrap(AntSteps(
           direction: AntStepsDirection.horizontal,
           items: _sampleItems(),
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -80,7 +80,7 @@ void main() {
         _wrap(AntSteps(
           direction: AntStepsDirection.vertical,
           items: _sampleItems(),
-        )),
+        ),),
       );
       // 垂直布局顶层是 Column
       final stepsFinder = find.byType(AntSteps);
@@ -156,7 +156,7 @@ void main() {
           current: 1,
           status: AntStepsStatus.error,
           items: _sampleItems(),
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -178,7 +178,7 @@ void main() {
             ),
             AntStepsItem(title: 'Step 2'),
           ],
-        )),
+        ),),
       );
       // 即使 index < current 应该是 finish，但 item.status 指定 error
       expect(
@@ -199,7 +199,7 @@ void main() {
           current: 0,
           items: _sampleItems(),
           onChange: (i) => tappedIndex = i,
-        )),
+        ),),
       );
       // 点击第 2 步（index 1）
       await tester.tap(find.text('2'));
@@ -213,7 +213,7 @@ void main() {
           current: 1,
           items: _sampleItems(),
           onChange: (i) => tappedIndex = i,
-        )),
+        ),),
       );
       // 点击当前步骤（显示数字 '2'）不应触发
       await tester.tap(find.text('2'));
@@ -231,7 +231,7 @@ void main() {
             AntStepsItem(title: 'Step 3'),
           ],
           onChange: (i) => tappedIndex = i,
-        )),
+        ),),
       );
       // 点击 disabled 步骤（数字 '2'）不应触发
       await tester.tap(find.text('2'));
@@ -298,7 +298,7 @@ void main() {
             ),
             AntStepsItem(title: 'Step 2'),
           ],
-        )),
+        ),),
       );
       expect(
         find.descendant(

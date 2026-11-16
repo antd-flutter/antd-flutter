@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
     testWidgets('renders trigger swatch', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntColorPicker(defaultValue: '#1677ff'),
-      ));
+      ),);
       // 触发器存在（Container 包含颜色）
       expect(find.byType(GestureDetector), findsWidgets);
     });
@@ -30,21 +29,21 @@ void main() {
     testWidgets('showText displays hex value', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntColorPicker(defaultValue: '#1677ff', showText: true),
-      ));
+      ),);
       expect(find.text('#1677ff'), findsOneWidget);
     });
 
     testWidgets('controlled value displays', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntColorPicker(value: '#ff0000', showText: true),
-      ));
+      ),);
       expect(find.text('#ff0000'), findsOneWidget);
     });
 
     testWidgets('tapping trigger opens panel', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntColorPicker(defaultValue: '#1677ff'),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       // 面板应包含色相滑块的渐变绘制
@@ -58,7 +57,7 @@ void main() {
           defaultValue: '#1677ff',
           onOpenChange: (open) => openStates.add(open),
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(openStates, [true]);
@@ -75,7 +74,7 @@ void main() {
           disabled: true,
           onOpenChange: (open) => opened = open,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(opened, isFalse);
@@ -92,7 +91,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(find.text('推荐颜色'), findsOneWidget);
@@ -111,7 +110,7 @@ void main() {
           ],
           onChange: (color) => changedColor = color,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       // 点击预设色块（GestureDetector 在面板内）
@@ -131,7 +130,7 @@ void main() {
           showText: true,
           onChange: (color) => clearedColor = color,
         ),
-      ));
+      ),);
       expect(find.text('#1677ff'), findsOneWidget);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
@@ -147,7 +146,7 @@ void main() {
           defaultValue: '#1677ff',
           disabledAlpha: true,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       // 面板应只有 SV 面板 + 色相滑块两个 CustomPaint 区域
@@ -161,7 +160,7 @@ void main() {
           defaultValue: '#ff0000',
           format: AntColorFormat.rgb,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(find.text('rgb(255, 0, 0)'), findsOneWidget);
@@ -173,7 +172,7 @@ void main() {
           defaultValue: '#ff0000',
           format: AntColorFormat.hsl,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(find.text('hsl(0, 100%, 50%)'), findsOneWidget);
@@ -185,7 +184,7 @@ void main() {
           defaultValue: '#ff0000',
           format: AntColorFormat.hsb,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
       expect(find.text('hsb(0, 100%, 100%)'), findsOneWidget);
@@ -197,7 +196,7 @@ void main() {
           defaultValue: '#1677ff',
           open: true,
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       // 面板已打开，验证有渐变绘制
       expect(find.byType(CustomPaint), findsWidgets);
@@ -209,7 +208,7 @@ void main() {
           defaultValue: '#1677ff',
           size: AntColorPickerSize.small,
         ),
-      ));
+      ),);
       // 仅验证不崩溃
       expect(find.byType(GestureDetector), findsWidgets);
     });
@@ -220,7 +219,7 @@ void main() {
           defaultValue: '#1677ff',
           size: AntColorPickerSize.large,
         ),
-      ));
+      ),);
       expect(find.byType(GestureDetector), findsWidgets);
     });
   });

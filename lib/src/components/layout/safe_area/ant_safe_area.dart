@@ -12,7 +12,7 @@
 /// - [left] / [right] — 是否应用左右安全区
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_safe_area_types.dart';
 

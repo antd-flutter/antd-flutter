@@ -19,7 +19,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'ant_pagination_types.dart';
@@ -356,7 +356,7 @@ class _AntPaginationState extends State<AntPagination> {
               .map((size) => DropdownMenuItem(
                     value: size,
                     child: Text('$size 条/页'),
-                  ))
+                  ),)
               .toList(),
           onChanged: widget.disabled
               ? null

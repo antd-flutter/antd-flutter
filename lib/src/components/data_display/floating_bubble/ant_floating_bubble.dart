@@ -18,8 +18,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // 内部：尺寸常量（对齐 floating-bubble.less，--size 48px）

@@ -1,7 +1,7 @@
 /// AntCollapse 类型定义
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 折叠面板尺寸。
 enum AntCollapseSize {

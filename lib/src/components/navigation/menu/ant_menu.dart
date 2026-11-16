@@ -13,7 +13,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_menu_types.dart';
 
@@ -142,11 +142,11 @@ class _AntMenuState extends State<AntMenu> {
     if (selected) {
       return _isDark ? Colors.white : theme.colorPrimary;
     }
-    return _isDark ? Colors.white.withOpacity(0.65) : theme.colorText;
+    return _isDark ? Colors.white.withValues(alpha: 0.65) : theme.colorText;
   }
 
   Color _selectedBgColor(AntThemeData theme) =>
-      _isDark ? theme.colorPrimary : theme.colorPrimary.withOpacity(0.06);
+      _isDark ? theme.colorPrimary : theme.colorPrimary.withValues(alpha: 0.06);
 
   @override
   Widget build(BuildContext context) {
@@ -185,8 +185,8 @@ class _AntMenuState extends State<AntMenu> {
       if (item.type == AntMenuItemType.divider) {
         children.add(Divider(
           height: 1,
-          color: _isDark ? Colors.white.withOpacity(0.12) : theme.colorSplit,
-        ));
+          color: _isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorSplit,
+        ),);
         continue;
       }
       if (item.type == AntMenuItemType.group) {
@@ -218,7 +218,7 @@ class _AntMenuState extends State<AntMenu> {
         style: TextStyle(
           fontSize: theme.fontSizeSM,
           color: _isDark
-              ? Colors.white.withOpacity(0.45)
+              ? Colors.white.withValues(alpha: 0.45)
               : theme.colorTextTertiary,
         ),
       ),
@@ -252,7 +252,7 @@ class _AntMenuState extends State<AntMenu> {
                   fontSize: theme.fontSize,
                   color: item.disabled
                       ? (_isDark
-                          ? Colors.white.withOpacity(0.25)
+                          ? Colors.white.withValues(alpha: 0.25)
                           : theme.colorTextDisabled)
                       : item.danger
                           ? theme.colorError
@@ -343,8 +343,8 @@ class _AntMenuState extends State<AntMenu> {
       if (item.type == AntMenuItemType.divider) {
         topItems.add(VerticalDivider(
           width: 1,
-          color: _isDark ? Colors.white.withOpacity(0.12) : theme.colorSplit,
-        ));
+          color: _isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorSplit,
+        ),);
         continue;
       }
       if (item.type == AntMenuItemType.group) continue;
@@ -457,7 +457,7 @@ class _AntMenuState extends State<AntMenu> {
       decoration: BoxDecoration(
         color: _bgColor(theme),
         border: Border(
-          top: BorderSide(color: _isDark ? Colors.white.withOpacity(0.12) : theme.colorSplit),
+          top: BorderSide(color: _isDark ? Colors.white.withValues(alpha: 0.12) : theme.colorSplit),
         ),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8),

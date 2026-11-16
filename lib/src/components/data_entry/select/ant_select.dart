@@ -27,7 +27,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/select/ant_select_ty
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/select/ant_select_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntSelect
@@ -56,7 +56,7 @@ class AntSelect<T> extends StatefulWidget {
   /// 选择模式。
   final AntSelectMode mode;
 
-  /// 受控选中值（单选为 T?，多选为 List<T>?）。
+  /// 受控选中值（单选为 `T?`，多选为 `List<T>?`）。
   final Object? value;
 
   /// 非受控初始值。
@@ -236,7 +236,7 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
           onClear: widget.allowClear && !widget.disabled
               ? () => _handleSelect(v, false)
               : null,
-        ));
+        ),);
       }
     } else {
       final v = _currentValue as T?;
@@ -459,7 +459,7 @@ class _SelectOverlay<T> extends StatelessWidget {
         ? options
         : options
             .where((o) =>
-                o.label.toLowerCase().contains(searchText.toLowerCase()))
+                o.label.toLowerCase().contains(searchText.toLowerCase()),)
             .toList();
 
     return Stack(
@@ -490,7 +490,7 @@ class _SelectOverlay<T> extends StatelessWidget {
                     border: Border.all(color: theme.colorSplit),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -529,7 +529,7 @@ class _SelectOverlay<T> extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.circular(theme.borderRadius.w),
                                 borderSide: BorderSide(
-                                    color: theme.colorPrimary, width: 1.5.w),
+                                    color: theme.colorPrimary, width: 1.5.w,),
                               ),
                             ),
                             onChanged: onSearch,

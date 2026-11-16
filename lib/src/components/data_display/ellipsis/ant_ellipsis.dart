@@ -19,7 +19,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/data_display/ellipsis/ant_ellipsis_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/ellipsis/ant_ellipsis_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 省略号占位符。
 const String _kEllipsisChar = '...';
@@ -90,7 +90,7 @@ class _AntEllipsisState extends State<AntEllipsis> {
         if (_expanded && _canExpand) {
           return _buildContent(context, widget.content, baseStyle,
               trailingAction: widget.collapseText,
-              onActionTap: _toggleExpand);
+              onActionTap: _toggleExpand,);
         }
 
         if (!isOverflow) {
@@ -100,7 +100,7 @@ class _AntEllipsisState extends State<AntEllipsis> {
         if (!_canExpand) {
           // 不可展开：仅按行数省略展示
           return _buildContent(
-              context, _truncate(maxWidth, baseStyle), baseStyle);
+              context, _truncate(maxWidth, baseStyle), baseStyle,);
         }
 
         return _buildContent(

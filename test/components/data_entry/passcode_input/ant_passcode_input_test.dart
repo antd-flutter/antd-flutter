@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -25,7 +24,7 @@ void main() {
           defaultValue: '123456',
           plain: true,
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('6'), findsOneWidget);
@@ -38,7 +37,7 @@ void main() {
           defaultValue: '1234',
           plain: true,
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
@@ -50,7 +49,7 @@ void main() {
         _wrap(const AntPasscodeInput(
           defaultValue: '12',
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.text('1'), findsNothing);
       expect(find.text('2'), findsNothing);
@@ -69,7 +68,7 @@ void main() {
           defaultValue: '12',
           plain: true,
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
@@ -81,7 +80,7 @@ void main() {
           separated: true,
           defaultValue: '1',
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.byType(AntPasscodeInput), findsOneWidget);
     });
@@ -91,7 +90,7 @@ void main() {
         _wrap(const AntPasscodeInput(
           error: true,
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.byType(AntPasscodeInput), findsOneWidget);
     });
@@ -132,7 +131,7 @@ void main() {
       var changed = '';
       await tester.pumpWidget(_wrap(AntPasscodeInput(
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -148,7 +147,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntPasscodeInput(
         defaultValue: '12',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.backspace_outlined));
@@ -161,7 +160,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntPasscodeInput(
         length: 2,
         onFill: (v) => filled = v,
-      )));
+      ),),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -178,7 +177,7 @@ void main() {
         length: 2,
         defaultValue: '12',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('3'));
@@ -194,7 +193,7 @@ void main() {
           value: '123',
           plain: true,
           keyboard: false,
-        )),
+        ),),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
@@ -205,7 +204,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntPasscodeInput(
         value: '1',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('2'));

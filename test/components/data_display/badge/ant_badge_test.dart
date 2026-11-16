@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/badge/ant_badge.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -56,7 +56,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntBadge(
         dot: true,
         child: Icon(Icons.notifications),
-      )));
+      ),),);
       expect(find.byIcon(Icons.notifications), findsOneWidget);
       // badge Stack 应作为 Icon 的祖先存在
       expect(
@@ -72,7 +72,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntBadge(
         count: 3,
         child: Text('消息'),
-      )));
+      ),),);
       expect(find.text('消息'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
       expect(
@@ -97,7 +97,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntBadge(
         status: AntBadgeStatus.success,
         text: '成功',
-      )));
+      ),),);
       expect(find.text('成功'), findsOneWidget);
       expect(find.byType(Row), findsOneWidget);
     });
@@ -105,7 +105,7 @@ void main() {
     testWidgets('status error renders without text', (tester) async {
       await tester.pumpWidget(_wrap(const AntBadge(
         status: AntBadgeStatus.error,
-      )));
+      ),),);
       final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration! as BoxDecoration;
       expect(decoration.shape, BoxShape.circle);
@@ -116,7 +116,7 @@ void main() {
         count: 1,
         offset: [10, 10],
         child: SizedBox(width: 40, height: 40),
-      )));
+      ),),);
       expect(find.text('1'), findsOneWidget);
     });
 
@@ -131,7 +131,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntBadge(
         status: AntBadgeStatus.processing,
         child: Text('处理中'),
-      )));
+      ),),);
       expect(find.text('处理中'), findsOneWidget);
       expect(
         find.ancestor(

@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/empty/ant_empty.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -54,7 +54,7 @@ void main() {
     testWidgets('custom imageWidget overrides preset', (tester) async {
       await tester.pumpWidget(_wrap(const AntEmpty(
         imageWidget: Icon(Icons.search_off),
-      )));
+      ),),);
       expect(find.byIcon(Icons.search_off), findsOneWidget);
       // Empty 内部不应有 CustomPaint（被 imageWidget 覆盖）
       expect(
@@ -69,7 +69,7 @@ void main() {
     testWidgets('child renders below description', (tester) async {
       await tester.pumpWidget(_wrap(const AntEmpty(
         child: Text('刷新'),
-      )));
+      ),),);
       expect(find.text('刷新'), findsOneWidget);
       expect(find.text('暂无数据'), findsOneWidget);
     });
@@ -77,7 +77,7 @@ void main() {
     testWidgets('child renders with spacing', (tester) async {
       await tester.pumpWidget(_wrap(const AntEmpty(
         child: SizedBox(key: Key('extra'), width: 10, height: 10),
-      )));
+      ),),);
       expect(find.byKey(const Key('extra')), findsOneWidget);
     });
   });

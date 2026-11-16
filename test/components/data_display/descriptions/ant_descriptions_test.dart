@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/descriptions/ant_descriptions.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -28,7 +28,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         colon: false,
-      )));
+      ),),);
       expect(find.text('名称'), findsOneWidget);
       expect(find.text('张三'), findsOneWidget);
       expect(find.text('手机号'), findsOneWidget);
@@ -44,7 +44,7 @@ void main() {
           AntDescriptionsItem(label: 'd', child: Text('4')),
         ],
         column: 2,
-      )));
+      ),),);
       // 4 项、每行 2 列 → 应有 4 行；验证第 4 项仍渲染
       expect(find.text('4'), findsOneWidget);
       // 第 4 项位于最后一行，纵坐标应大于第一行
@@ -61,7 +61,7 @@ void main() {
         ],
         column: 3,
         bordered: true,
-      )));
+      ),),);
       expect(find.text('span2'), findsOneWidget);
       // span=2 的 cell 宽度应大于 span=1 的 cell
       final w1 = tester.getSize(find.text('1')).width;
@@ -73,7 +73,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         bordered: true,
-      )));
+      ),),);
       // bordered 模式下存在灰底（colorFillAlter）容器
       final light = AntThemeData.light();
       final grayCells = tester.widgetList<Container>(
@@ -89,7 +89,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         size: AntDescriptionsSize.small,
-      )));
+      ),),);
       final text = tester.widget<Text>(find.text('名称:'));
       expect(text.style!.fontSize, AntThemeData.light().fontSizeSM);
     });
@@ -98,7 +98,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         size: AntDescriptionsSize.large,
-      )));
+      ),),);
       final text = tester.widget<Text>(find.text('名称:'));
       expect(text.style!.fontSize, AntThemeData.light().fontSize);
     });
@@ -107,7 +107,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         size: AntDescriptionsSize.middle,
-      )));
+      ),),);
       expect(find.text('张三'), findsOneWidget);
     });
 
@@ -120,7 +120,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         colon: false,
-      )));
+      ),),);
       expect(find.text('名称:'), findsNothing);
       expect(find.text('名称'), findsOneWidget);
     });
@@ -129,7 +129,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         layout: AntDescriptionsLayout.vertical,
-      )));
+      ),),);
       final label = tester.getTopLeft(find.text('名称'));
       final value = tester.getTopLeft(find.text('张三'));
       expect(value.dy, greaterThan(label.dy));
@@ -139,7 +139,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: _basicItems,
         layout: AntDescriptionsLayout.horizontal,
-      )));
+      ),),);
       final label = tester.getTopLeft(find.text('名称:'));
       final value = tester.getTopLeft(find.text('张三'));
       expect(value.dx, greaterThan(label.dx));
@@ -150,7 +150,7 @@ void main() {
         items: _basicItems,
         title: Text('用户信息'),
         extra: Text('编辑'),
-      )));
+      ),),);
       expect(find.text('用户信息'), findsOneWidget);
       expect(find.text('编辑'), findsOneWidget);
     });
@@ -159,7 +159,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntDescriptions(
         items: [],
         title: Text('空列表'),
-      )));
+      ),),);
       expect(find.text('空列表'), findsOneWidget);
       expect(find.text('张三'), findsNothing);
     });
@@ -172,7 +172,7 @@ void main() {
             child: Icon(Icons.check_circle),
           ),
         ],
-      )));
+      ),),);
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
     });
   });

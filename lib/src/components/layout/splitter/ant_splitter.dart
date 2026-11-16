@@ -23,7 +23,7 @@ import 'dart:math' as math;
 
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_splitter_types.dart';
 

@@ -20,7 +20,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/radio/ant_radio_type
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/radio/ant_radio_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // 内部：单选圆圈绘制
@@ -545,7 +545,7 @@ class _GroupButtonItem<T> extends StatelessWidget {
           color: checked
               ? (isSolid
                   ? (disabled ? t.colorBgContainerDisabled : t.colorPrimary)
-                  : (disabled ? t.colorBgContainerDisabled : t.colorPrimary.withOpacity(0.06)))
+                  : (disabled ? t.colorBgContainerDisabled : t.colorPrimary.withValues(alpha: 0.06)))
               : (disabled ? t.colorBgContainerDisabled : t.colorBgContainer),
           border: Border.all(
             color: checked && !disabled ? t.colorPrimary : t.colorBorder,

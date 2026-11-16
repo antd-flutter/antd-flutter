@@ -1,7 +1,7 @@
 /// AntSideBar 数据类型 — antd-mobile SideBar 侧边导航栏
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 侧边导航栏项。
 class AntSideBarItem {

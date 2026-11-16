@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SegmentedPage extends StatefulWidget {
   const SegmentedPage({super.key});
@@ -11,7 +10,6 @@ class SegmentedPage extends StatefulWidget {
 
 class _SegmentedPageState extends State<SegmentedPage> {
   String _controlledValue = '周';
-  AntSegmentedSize _demoSize = AntSegmentedSize.middle;
   AntSegmentedShape _demoShape = AntSegmentedShape.rounded;
 
   @override

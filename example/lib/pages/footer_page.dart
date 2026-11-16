@@ -1,7 +1,6 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 // 注：组件 export 行追加到 antd_flutter_plus.dart 后可改回 barrel 导入
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FooterPage extends StatelessWidget {
   const FooterPage({super.key});

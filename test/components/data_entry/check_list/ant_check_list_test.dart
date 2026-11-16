@@ -2,9 +2,8 @@
 library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/check_list/ant_check_list.dart';
-import 'package:antd_flutter_plus/src/components/data_entry/check_list/ant_check_list_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -40,8 +39,8 @@ void main() {
     testWidgets('renders description', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            items: const [
+          const AntCheckList<String>(
+            items: [
               AntCheckListItem(
                 value: 'a',
                 child: Text('苹果'),
@@ -60,8 +59,8 @@ void main() {
     testWidgets('renders prefix', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            items: const [
+          const AntCheckList<String>(
+            items: [
               AntCheckListItem(
                 value: 'a',
                 child: Text('苹果'),
@@ -95,7 +94,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           AntCheckList<String>(
-            activeIcon: Icon(Icons.star),
+            activeIcon: const Icon(Icons.star),
             defaultValue: ['a'],
             items: _items(),
           ),

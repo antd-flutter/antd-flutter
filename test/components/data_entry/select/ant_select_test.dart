@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/select/ant_select.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -28,7 +28,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
         placeholder: '请选择',
-      )));
+      ),),);
       expect(find.text('请选择'), findsOneWidget);
     });
 
@@ -36,7 +36,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
         defaultValue: 'b',
-      )));
+      ),),);
       expect(find.text('选项二'), findsOneWidget);
     });
 
@@ -44,7 +44,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
         disabled: true,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       expect(find.text('选项一'), findsNothing);
@@ -53,7 +53,7 @@ void main() {
     testWidgets('tap opens dropdown and shows options', (tester) async {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       expect(find.text('选项一'), findsOneWidget);
@@ -66,7 +66,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntSelect<String>(
         options: _options,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       await tester.tap(find.text('选项二').last);
@@ -81,7 +81,7 @@ void main() {
         mode: AntSelectMode.multiple,
         options: _options,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       await tester.tap(find.text('选项一').last);
@@ -99,7 +99,7 @@ void main() {
         options: _options,
         defaultValue: ['a', 'b'],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       await tester.tap(find.text('选项一').last);
@@ -112,7 +112,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
         showSearch: true,
-      )));
+      ),),);
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pump();
       await tester.enterText(find.byType(TextField), '二');
@@ -128,7 +128,7 @@ void main() {
         defaultValue: 'a',
         allowClear: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       expect(find.text('选项一'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pump();
@@ -140,7 +140,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSelect<String>(
         options: _options,
         loading: true,
-      )));
+      ),),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });

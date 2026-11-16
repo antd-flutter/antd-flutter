@@ -2,9 +2,8 @@
 library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/selector/ant_selector.dart';
-import 'package:antd_flutter_plus/src/components/data_entry/selector/ant_selector_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -40,8 +39,8 @@ void main() {
     testWidgets('renders description', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
-            options: const [
+          const AntSelector<String>(
+            options: [
               AntSelectorOption(
                 value: 'a',
                 label: Text('苹果'),

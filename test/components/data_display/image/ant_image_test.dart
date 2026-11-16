@@ -1,7 +1,7 @@
 import 'package:antd_flutter_plus/src/components/data_display/image/ant_image.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _okUrl = 'https://example.com/a.png';

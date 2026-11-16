@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -65,7 +64,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntVirtualInput(
         placeholder: '输入',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('输入'));
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -82,7 +81,7 @@ void main() {
         defaultValue: '123',
         clearable: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('123'));
       await tester.pump();
       expect(find.byIcon(Icons.cancel), findsOneWidget);
@@ -97,7 +96,7 @@ void main() {
         defaultValue: '99',
         confirmText: '确定',
         onEnterPress: (v) => entered = v,
-      )));
+      ),),);
       await tester.tap(find.text('99'));
       await tester.pump();
       await tester.tap(find.text('确定'));
@@ -110,7 +109,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntVirtualInput(
         placeholder: '输入',
         onBlur: () => blurCount++,
-      )));
+      ),),);
       await tester.tap(find.text('输入'));
       await tester.pump();
       expect(find.text('1'), findsOneWidget);
@@ -125,7 +124,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntVirtualInput(
         placeholder: '输入',
         onFocus: () => focusCount++,
-      )));
+      ),),);
       await tester.tap(find.text('输入'));
       await tester.pump();
       expect(focusCount, 1);
@@ -136,7 +135,7 @@ void main() {
         placeholder: '输入',
         customKey: '.',
         autoFocus: true,
-      )));
+      ),),);
       expect(find.text('.'), findsOneWidget);
     });
   });
@@ -154,7 +153,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntVirtualInput(
         value: '1',
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('1'));
       await tester.pump();
       await tester.tap(find.text('2'));

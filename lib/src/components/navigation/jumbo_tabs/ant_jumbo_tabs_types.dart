@@ -1,7 +1,7 @@
 /// AntJumboTabs 数据类型 — antd-mobile JumboTabs 大选项卡
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 大选项卡项。
 class AntJumboTabItem {

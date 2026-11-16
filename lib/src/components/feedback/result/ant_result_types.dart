@@ -1,7 +1,7 @@
 /// AntResult 类型定义 — 对齐 antd React Result 的配置项
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Result 结果状态。
 enum AntResultStatus {

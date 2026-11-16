@@ -16,8 +16,8 @@ import 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_ty
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 内嵌滚轮选择器 — 多列滚轮，选中项实时回调。
 class AntPickerView extends StatefulWidget {

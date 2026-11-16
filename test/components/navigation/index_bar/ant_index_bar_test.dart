@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -26,7 +25,7 @@ void main() {
           AntIndexBarItem(key: 'B'),
           AntIndexBarItem(key: 'C'),
         ],
-      )));
+      ),),);
 
       // 每个字母同时出现在索引条和分组标题 → 2 处
       expect(find.text('A'), findsNWidgets(2));
@@ -40,7 +39,7 @@ void main() {
           AntIndexBarItem(key: 'A', title: 'A 组'),
           AntIndexBarItem(key: 'B', title: 'B 组'),
         ],
-      )));
+      ),),);
 
       // 分组标题
       expect(find.text('A 组'), findsOneWidget);
@@ -53,7 +52,7 @@ void main() {
           AntIndexBarItem(key: 'A', child: Text('阿强')),
           AntIndexBarItem(key: 'B', child: Text('Bob')),
         ],
-      )));
+      ),),);
 
       expect(find.text('阿强'), findsOneWidget);
       expect(find.text('Bob'), findsOneWidget);
@@ -64,7 +63,7 @@ void main() {
         items: [
           AntIndexBarItem(key: 'A'),
         ],
-      )));
+      ),),);
 
       // key 'A' 同时出现在索引条和分组标题 → 2 处
       expect(find.text('A'), findsNWidgets(2));
@@ -80,7 +79,7 @@ void main() {
           AntIndexBarItem(key: 'B'),
         ],
         onChange: (key) => changed = key,
-      )));
+      ),),);
 
       // 点击索引条中的 B（.last：索引条在右侧）
       await tester.tap(find.text('B').last);
@@ -95,7 +94,7 @@ void main() {
           AntIndexBarItem(key: 'A'),
           AntIndexBarItem(key: 'B'),
         ],
-      )));
+      ),),);
 
       await tester.tap(find.text('B').last);
       await tester.pump();
@@ -110,7 +109,7 @@ void main() {
           AntIndexBarItem(key: 'A'),
           AntIndexBarItem(key: 'B'),
         ],
-      )));
+      ),),);
 
       await tester.tap(find.text('B').last);
       await tester.pump();
@@ -134,7 +133,7 @@ void main() {
           AntIndexBarItem(key: 'C'),
         ],
         onChange: (key) => changed = key,
-      )));
+      ),),);
 
       // 从索引条的 A（.last：分组标题在前，索引条在后）开始向下拖动
       final offsetA = tester.getCenter(find.text('A').last);

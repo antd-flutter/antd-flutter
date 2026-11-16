@@ -23,7 +23,7 @@ import 'package:antd_flutter_plus/src/components/data_display/segmented/ant_segm
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_display/segmented/ant_segmented_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 滑块动画时长。
 const Duration _kSlideDuration = Duration(milliseconds: 200);

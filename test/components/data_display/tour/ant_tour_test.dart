@@ -4,7 +4,7 @@ library;
 import 'package:antd_flutter_plus/src/components/data_display/tour/ant_tour.dart';
 import 'package:antd_flutter_plus/src/components/data_display/tour/ant_tour_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -175,7 +175,7 @@ void main() {
           steps: [
             AntTourStep(target: t1, title: 'A', description: 'a'),
             AntTourStep(target: t2, title: 'B', description: 'b'),
-            AntTourStep(title: 'C', description: 'c'),
+            const AntTourStep(title: 'C', description: 'c'),
           ],
         ),
       ),

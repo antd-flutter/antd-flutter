@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// InfiniteScroll demo 页 — 基础/失败重试/自定义文案/阈值/没有更多。
 class InfiniteScrollPage extends StatelessWidget {
@@ -96,7 +95,7 @@ List<String> _mockPage(int page) =>
 
 /// 基础用法：模拟分页加载 3 页。
 class _BasicDemo extends StatefulWidget {
-  _BasicDemo();
+  const _BasicDemo();
 
   @override
   State<_BasicDemo> createState() => _BasicDemoState();
@@ -163,7 +162,7 @@ class _RetryDemo extends StatelessWidget {
 
 /// 自定义文案。
 class _CustomTextDemo extends StatefulWidget {
-  _CustomTextDemo();
+  const _CustomTextDemo();
 
   @override
   State<_CustomTextDemo> createState() => _CustomTextDemoState();
@@ -198,7 +197,7 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
 
 /// threshold：距底部 300 逻辑像素即触发。
 class _ThresholdDemo extends StatefulWidget {
-  _ThresholdDemo();
+  const _ThresholdDemo();
 
   @override
   State<_ThresholdDemo> createState() => _ThresholdDemoState();

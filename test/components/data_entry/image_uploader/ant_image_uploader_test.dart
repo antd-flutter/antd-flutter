@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -29,7 +28,7 @@ void main() {
           AntImageUploadItem(url: 'https://a.com/1.png'),
           AntImageUploadItem(url: 'https://a.com/2.png'),
         ],
-      )));
+      ),),);
       await tester.pump();
       // 两项各有删除按钮
       expect(find.byIcon(Icons.close), findsNWidgets(2));
@@ -40,7 +39,7 @@ void main() {
     testWidgets('hide upload button when showUpload false', (tester) async {
       await tester.pumpWidget(_wrap(const AntImageUploader(
         showUpload: false,
-      )));
+      ),),);
       expect(find.byIcon(Icons.add), findsNothing);
     });
 
@@ -49,7 +48,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntImageUploader(
         maxCount: 1,
         defaultValue: [AntImageUploadItem(url: 'https://a.com/1.png')],
-      )));
+      ),),);
       await tester.pump();
       expect(find.byIcon(Icons.add), findsNothing);
     });
@@ -58,7 +57,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntImageUploader(
         deletable: false,
         defaultValue: [AntImageUploadItem(url: 'https://a.com/1.png')],
-      )));
+      ),),);
       await tester.pump();
       expect(find.byIcon(Icons.close), findsNothing);
     });
@@ -72,7 +71,7 @@ void main() {
             status: AntImageUploadStatus.uploading,
           ),
         ],
-      )));
+      ),),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
@@ -84,7 +83,7 @@ void main() {
             status: AntImageUploadStatus.failed,
           ),
         ],
-      )));
+      ),),);
       expect(find.byIcon(Icons.error_outline), findsOneWidget);
     });
   });
@@ -96,7 +95,7 @@ void main() {
         onPickImage: () async =>
             [const AntImageUploadItem(url: 'https://a.com/new.png')],
         onChange: (items) => changed = items,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(changed.length, 1);
@@ -113,7 +112,7 @@ void main() {
           AntImageUploadItem(url: 'https://a.com/2.png'),
         ],
         onChange: (items) => changed = items,
-      )));
+      ),),);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.close).first);
       await tester.pump();
@@ -129,7 +128,7 @@ void main() {
         ],
         onDelete: (_) => false,
         onChange: (items) => changed = items,
-      )));
+      ),),);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.close).first);
       await tester.pump();
@@ -150,7 +149,7 @@ void main() {
         ],
         onCountExceed: (n) => exceed = n,
         onChange: (items) => changed = items,
-      )));
+      ),),);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
@@ -169,7 +168,7 @@ void main() {
     testWidgets('tap image opens preview page', (tester) async {
       await tester.pumpWidget(_wrap(const AntImageUploader(
         defaultValue: [AntImageUploadItem(url: 'https://a.com/1.png')],
-      )));
+      ),),);
       await tester.pump();
       await tester.tap(find.byType(ClipRRect).first);
       await tester.pumpAndSettle();
@@ -189,7 +188,7 @@ void main() {
           AntImageUploadItem(url: 'https://a.com/2.png'),
           AntImageUploadItem(url: 'https://a.com/3.png'),
         ],
-      )));
+      ),),);
       await tester.pump();
       expect(find.byIcon(Icons.close), findsNWidgets(3));
     });
@@ -201,7 +200,7 @@ void main() {
         onPickImage: () async =>
             [const AntImageUploadItem(url: 'https://a.com/2.png')],
         onChange: (items) => changed = items,
-      )));
+      ),),);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();

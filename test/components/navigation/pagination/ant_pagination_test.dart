@@ -2,7 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -102,7 +102,7 @@ void main() {
         _wrap(const AntPagination(
           total: 50,
           size: AntPaginationSize.small,
-        )),
+        ),),
       );
       // small 模式按钮 24x24
       final buttons = tester.widgetList<Container>(
@@ -125,7 +125,7 @@ void main() {
         _wrap(AntPagination(
           total: 50,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       await tester.tap(find.byIcon(Icons.chevron_right));
       expect(changedPage, 2);
@@ -138,7 +138,7 @@ void main() {
           defaultCurrent: 3,
           total: 50,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       await tester.tap(find.byIcon(Icons.chevron_left));
       expect(changedPage, 2);
@@ -150,7 +150,7 @@ void main() {
         _wrap(AntPagination(
           total: 50,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       await tester.tap(find.text('3'));
       expect(changedPage, 3);
@@ -162,7 +162,7 @@ void main() {
         _wrap(AntPagination(
           total: 100,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       // 当前页 1，右侧省略号跳 +5 → 页 6
       await tester.tap(find.byIcon(Icons.more_horiz));
@@ -303,7 +303,7 @@ void main() {
               capturedTheme = AntTheme.of(context);
               return Column(
                 children: [
-                  AntPagination(
+                  const AntPagination(
                     current: 4,
                     total: 50,
                   ),
@@ -339,7 +339,7 @@ void main() {
           total: 50,
           disabled: true,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       await tester.tap(find.text('3'));
       expect(changedPage, -1);
@@ -352,7 +352,7 @@ void main() {
           total: 50,
           disabled: true,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
       await tester.tap(find.byIcon(Icons.chevron_right));
       expect(changedPage, -1);
@@ -390,7 +390,7 @@ void main() {
         _wrap(const AntPagination(
           total: 100,
           showSizeChanger: true,
-        )),
+        ),),
       );
       expect(
         find.descendant(
@@ -407,7 +407,7 @@ void main() {
         _wrap(const AntPagination(
           total: 100,
           showQuickJumper: true,
-        )),
+        ),),
       );
       expect(find.text('跳至'), findsOneWidget);
       expect(find.text('页'), findsOneWidget);
@@ -427,7 +427,7 @@ void main() {
           total: 100,
           showQuickJumper: true,
           onChange: (p) => changedPage = p,
-        )),
+        ),),
       );
 
       await tester.enterText(
@@ -451,7 +451,7 @@ void main() {
           total: 100,
           showSizeChanger: true,
           onPageSizeChange: (s) => changedSize = s,
-        )),
+        ),),
       );
 
       // 打开下拉
@@ -471,7 +471,7 @@ void main() {
         _wrap(const AntPagination(
           total: 100,
           showSizeChanger: true,
-        )),
+        ),),
       );
 
       // 初始 10 条/页 → 10 页

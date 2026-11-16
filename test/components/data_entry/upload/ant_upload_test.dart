@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,7 +21,7 @@ void main() {
     testWidgets('renders upload button with default text', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntUpload(),
-      ));
+      ),);
       expect(find.text('上传'), findsOneWidget);
       expect(find.byIcon(Icons.upload_file), findsOneWidget);
     });
@@ -30,7 +29,7 @@ void main() {
     testWidgets('renders custom button text', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntUpload(uploadButtonText: '选择文件'),
-      ));
+      ),);
       expect(find.text('选择文件'), findsOneWidget);
     });
 
@@ -42,7 +41,7 @@ void main() {
             AntUploadFile(uid: '2', name: 'img.png'),
           ],
         ),
-      ));
+      ),);
       expect(find.text('doc.pdf'), findsOneWidget);
       expect(find.text('img.png'), findsOneWidget);
     });
@@ -54,7 +53,7 @@ void main() {
             AntUploadFile(uid: '1', name: 'controlled.txt'),
           ],
         ),
-      ));
+      ),);
       expect(find.text('controlled.txt'), findsOneWidget);
     });
 
@@ -67,7 +66,7 @@ void main() {
             return [];
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(selectCalled, isTrue);
@@ -87,7 +86,7 @@ void main() {
             lastList = list;
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(lastFile?.name, 'new-file.txt');
@@ -108,7 +107,7 @@ void main() {
             update(file.copyWith(status: AntUploadStatus.done, percent: 100));
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(states, [AntUploadStatus.uploading]);
@@ -127,7 +126,7 @@ void main() {
             return true;
           },
         ),
-      ));
+      ),);
       expect(find.text('to-remove.txt'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();
@@ -143,7 +142,7 @@ void main() {
           ],
           onRemove: (file) async => false,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();
       expect(find.text('keep-me.txt'), findsOneWidget);
@@ -158,7 +157,7 @@ void main() {
           ],
           onPreview: (file) => previewedFile = file,
         ),
-      ));
+      ),);
       await tester.tap(find.text('preview.txt'));
       await tester.pumpAndSettle();
       expect(previewedFile?.name, 'preview.txt');
@@ -174,7 +173,7 @@ void main() {
             return [];
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(selectCalled, isFalse);
@@ -188,7 +187,7 @@ void main() {
             AntUploadFile(uid: '1', name: 'locked.txt'),
           ],
         ),
-      ));
+      ),);
       expect(find.text('locked.txt'), findsOneWidget);
       expect(find.byIcon(Icons.close), findsNothing);
     });
@@ -201,7 +200,7 @@ void main() {
             AntUploadFile(uid: '1', name: 'hidden.txt'),
           ],
         ),
-      ));
+      ),);
       expect(find.text('hidden.txt'), findsNothing);
     });
 
@@ -217,7 +216,7 @@ void main() {
             lastList = list;
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(lastList?.length, 1);
@@ -230,7 +229,7 @@ void main() {
     testWidgets('pictureCard listType renders add card trigger', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntUpload(listType: AntUploadListType.pictureCard),
-      ));
+      ),);
       expect(find.byIcon(Icons.add), findsOneWidget);
       expect(find.text('上传'), findsNothing);
     });
@@ -247,7 +246,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('uploading.txt'), findsOneWidget);
     });
@@ -263,7 +262,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
       expect(find.text('failed.txt'), findsOneWidget);
     });
 
@@ -280,7 +279,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
       expect(find.text('70%'), findsOneWidget);
     });
 
@@ -297,7 +296,7 @@ void main() {
             lastList = list;
           },
         ),
-      ));
+      ),);
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(lastList?.length, 1);

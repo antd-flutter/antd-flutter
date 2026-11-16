@@ -249,3 +249,13 @@ export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh.dart';
 export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh_types.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
+
+// ============================================================
+// 反馈 Feedback — 批次C
+// ============================================================
+export 'src/components/feedback/swipe_action/ant_swipe_action.dart';
+export 'src/components/feedback/swipe_action/ant_swipe_action_types.dart';
+export 'src/components/feedback/loading/ant_loading.dart';
+export 'src/components/feedback/loading/ant_loading_types.dart';
+export 'src/components/feedback/error_block/ant_error_block.dart';
+export 'src/components/feedback/result_page/ant_result_page.dart';

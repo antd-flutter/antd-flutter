@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/ellipsis/ant_ellipsis.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const String kLongText =
@@ -54,7 +54,7 @@ void main() {
           rows: 1,
           expandText: '展开',
           direction: AntEllipsisDirection.end,
-        )),
+        ),),
       );
       final text = tester.widget<Text>(find.textContaining('...')).data!;
       expect(text.startsWith(_prefixOf(kLongText)), isTrue);
@@ -68,12 +68,12 @@ void main() {
           rows: 1,
           expandText: '展开',
           direction: AntEllipsisDirection.start,
-        )),
+        ),),
       );
       final text = tester.widget<Text>(find.textContaining('...')).data!;
       expect(text.startsWith('...'), isTrue);
       expect(text.endsWith(kLongText.substring(kLongText.length - 2)),
-          isTrue);
+          isTrue,);
     });
 
     testWidgets('direction middle truncates center', (tester) async {
@@ -83,13 +83,13 @@ void main() {
           rows: 1,
           expandText: '展开',
           direction: AntEllipsisDirection.middle,
-        )),
+        ),),
       );
       final text = tester.widget<Text>(find.textContaining('...')).data!;
       expect(text.contains('...'), isTrue);
       expect(text.startsWith(kLongText.substring(0, 2)), isTrue);
       expect(text.endsWith(kLongText.substring(kLongText.length - 2)),
-          isTrue);
+          isTrue,);
     });
 
     testWidgets('tap expandText expands full text', (tester) async {
@@ -110,7 +110,7 @@ void main() {
           rows: 1,
           expandText: '展开',
           collapseText: '收起',
-        )),
+        ),),
       );
       await tester.tap(find.text('展开'));
       await tester.pump();
@@ -139,7 +139,7 @@ void main() {
         rows: 1,
         expandText: '展开',
         onContentClick: () => clicked = true,
-      )));
+      ),),);
       await tester.tap(find.textContaining('...'), warnIfMissed: false);
       await tester.pump();
       expect(clicked, isTrue);
@@ -151,7 +151,7 @@ void main() {
           content: kLongText * 3,
           rows: 3,
           expandText: '展开',
-        )),
+        ),),
       );
       expect(find.text(kLongText * 3), findsNothing);
       expect(find.text('展开'), findsOneWidget);
@@ -161,7 +161,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntEllipsis(
         content: '样式透传',
         style: TextStyle(fontSize: 18, color: Colors.purple),
-      )));
+      ),),);
       final text = tester.widget<Text>(find.text('样式透传'));
       expect(text.style!.fontSize, 18);
       expect(text.style!.color, Colors.purple);

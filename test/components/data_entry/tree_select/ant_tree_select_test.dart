@@ -2,20 +2,19 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 List<AntTreeSelectOption> _testTreeData() => [
-      AntTreeSelectOption(value: 'zj', label: '浙江', children: [
+      const AntTreeSelectOption(value: 'zj', label: '浙江', children: [
         AntTreeSelectOption(value: 'hz', label: '杭州'),
         AntTreeSelectOption(value: 'nb', label: '宁波'),
-      ]),
-      AntTreeSelectOption(value: 'js', label: '江苏', children: [
+      ],),
+      const AntTreeSelectOption(value: 'js', label: '江苏', children: [
         AntTreeSelectOption(value: 'nj', label: '南京'),
         AntTreeSelectOption(value: 'sz', label: '苏州'),
-      ]),
-      AntTreeSelectOption(value: 'gd', label: '广东'),
+      ],),
+      const AntTreeSelectOption(value: 'gd', label: '广东'),
     ];
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -37,7 +36,7 @@ void main() {
           treeData: [],
           placeholder: '请选择',
         ),
-      ));
+      ),);
       expect(find.text('请选择'), findsOneWidget);
     });
 
@@ -48,7 +47,7 @@ void main() {
           defaultValue: 'hz',
           placeholder: '请选择',
         ),
-      ));
+      ),);
       // defaultValue is 'hz' but treeData is empty, so label falls back to value
       expect(find.text('hz'), findsOneWidget);
     });
@@ -60,14 +59,14 @@ void main() {
           value: 'nj',
           placeholder: '请选择',
         ),
-      ));
+      ),);
       expect(find.text('nj'), findsOneWidget);
     });
 
     testWidgets('opens dropdown on tap and shows root nodes', (tester) async {
       await tester.pumpWidget(_wrap(
         AntTreeSelect(treeData: _testTreeData()),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsWidgets);
@@ -78,7 +77,7 @@ void main() {
     testWidgets('children hidden until parent expanded', (tester) async {
       await tester.pumpWidget(_wrap(
         AntTreeSelect(treeData: _testTreeData()),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       // 子节点不应显示
@@ -89,7 +88,7 @@ void main() {
     testWidgets('expand shows children', (tester) async {
       await tester.pumpWidget(_wrap(
         AntTreeSelect(treeData: _testTreeData()),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       // 点击展开箭头展开
@@ -102,7 +101,7 @@ void main() {
     testWidgets('collapse hides children', (tester) async {
       await tester.pumpWidget(_wrap(
         AntTreeSelect(treeData: _testTreeData()),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       // 展开
@@ -121,7 +120,7 @@ void main() {
           treeData: _testTreeData(),
           treeDefaultExpandAll: true,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       expect(find.text('杭州'), findsOneWidget);
@@ -136,7 +135,7 @@ void main() {
           treeDefaultExpandAll: true,
           onChange: (v) => selected = v as String?,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       await tester.tap(find.text('南京'));
@@ -148,15 +147,15 @@ void main() {
     testWidgets('disabled node cannot be selected', (tester) async {
       String? selected;
       final data = [
-        AntTreeSelectOption(value: 'a', label: '可用'),
-        AntTreeSelectOption(value: 'b', label: '禁用', disabled: true),
+        const AntTreeSelectOption(value: 'a', label: '可用'),
+        const AntTreeSelectOption(value: 'b', label: '禁用', disabled: true),
       ];
       await tester.pumpWidget(_wrap(
         AntTreeSelect(
           treeData: data,
           onChange: (v) => selected = v as String?,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       await tester.tap(find.text('禁用'));
@@ -171,7 +170,7 @@ void main() {
           disabled: true,
           placeholder: '禁用',
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsNothing);
@@ -186,7 +185,7 @@ void main() {
           multiple: true,
           onChange: (v) => selected = v as List<String>?,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       await tester.tap(find.text('杭州'));
@@ -209,7 +208,7 @@ void main() {
           defaultValue: ['a', 'b'],
           placeholder: '请选择',
         ),
-      ));
+      ),);
       expect(find.text('a、b'), findsOneWidget);
     });
 
@@ -222,7 +221,7 @@ void main() {
           allowClear: true,
           onChange: (v) => selected = v as String?,
         ),
-      ));
+      ),);
       expect(find.text('南京'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pumpAndSettle();
@@ -239,7 +238,7 @@ void main() {
           allowClear: true,
           onChange: (v) => selected = v as List<String>?,
         ),
-      ));
+      ),);
       expect(find.text('杭州'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.cancel));
       await tester.pumpAndSettle();
@@ -249,7 +248,7 @@ void main() {
     testWidgets('closes dropdown when tapping outside', (tester) async {
       await tester.pumpWidget(_wrap(
         AntTreeSelect(treeData: _testTreeData()),
-      ));
+      ),);
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsWidgets);
@@ -272,7 +271,7 @@ void main() {
             );
           },
         ),
-      ));
+      ),);
       expect(find.text('请选择'), findsOneWidget);
       setStateOuter(() => value = 'sz');
       await tester.pumpAndSettle();
@@ -286,7 +285,7 @@ void main() {
           size: AntTreeSelectSize.large,
           placeholder: '大',
         ),
-      ));
+      ),);
       final box = tester.getSize(find.byType(AntTreeSelect));
       expect(box.height, greaterThan(35));
     });
@@ -298,7 +297,7 @@ void main() {
           size: AntTreeSelectSize.small,
           placeholder: '小',
         ),
-      ));
+      ),);
       final box = tester.getSize(find.byType(AntTreeSelect));
       expect(box.height, lessThan(30));
     });
@@ -316,7 +315,7 @@ void main() {
     test('isLeaf returns false when children is non-empty', () {
       const parent = AntTreeSelectOption(value: 'a', label: 'A', children: [
         AntTreeSelectOption(value: 'a1', label: 'A1'),
-      ]);
+      ],);
       expect(parent.isLeaf, isFalse);
     });
 

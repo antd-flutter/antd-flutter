@@ -24,7 +24,7 @@ library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/mentions/ant_mentions_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/mentions/ant_mentions_types.dart';
 
@@ -250,11 +250,7 @@ class _AntMentionsState extends State<AntMentions> {
     final cursorPos = _controller.selection.baseOffset;
 
     // 替换 '@searchText' 为 '@option.value '
-    final newText = text.substring(0, _prefixIndex) +
-        widget.prefix +
-        option.value +
-        ' ' +
-        text.substring(cursorPos.clamp(0, text.length));
+    final newText = '${text.substring(0, _prefixIndex)}${widget.prefix}${option.value} ${text.substring(cursorPos.clamp(0, text.length))}';
 
     _controller.text = newText;
     final newCursorPos = _prefixIndex + widget.prefix.length + option.value.length + 1;

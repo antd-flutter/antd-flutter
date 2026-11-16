@@ -2,7 +2,7 @@ library;
 
 /// 官网首页 — antd 风格：宽屏左侧分组导航 + 右侧内容区，窄屏抽屉导航
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../data/nav_data.dart';
 import 'component_page.dart';
@@ -51,12 +51,12 @@ class _HomePageState extends State<HomePage> {
         builder: (scaffoldContext) => Column(
           children: [
             AntNavBar(
-              child: Text(_selected?.label ?? 'antd-flutter'),
               back: false,
               left: IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
               ),
+              child: Text(_selected?.label ?? 'antd-flutter'),
             ),
             Expanded(child: AntLayoutContent(child: content)),
           ],

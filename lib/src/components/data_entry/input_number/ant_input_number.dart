@@ -17,7 +17,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/input_number/ant_inp
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/input_number/ant_input_number_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 /// 数字输入框 — 支持步进按钮、上下限、精度控制。
@@ -307,7 +307,7 @@ class _AntInputNumberState extends State<AntInputNumber> {
               boxShadow: _focused && !widget.disabled
                   ? [
                       BoxShadow(
-                        color: _outlineColorOf(t, widget.status).withOpacity(0.8),
+                        color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
                         blurRadius: t.controlOutlineWidth.w,
                       ),
                     ]
@@ -363,7 +363,7 @@ class _AntInputNumberState extends State<AntInputNumber> {
       height: height.w,
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-        color: t.colorFillSecondary.withOpacity(0.3),
+        color: t.colorFillSecondary.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(color: t.colorBorder, width: 1.w),
           bottom: BorderSide(color: t.colorBorder, width: 1.w),

@@ -168,7 +168,7 @@ void main() {
 | FloatingPanel 📱 | ✅ | 锚点拖拽面板 + 把手自定义/吸附动画/onHeightChange/内容滚动 |
 | FloatingBubble 📱 | ✅ | 可拖拽悬浮球 + axis 方向约束/边界钳制/点击展开菜单/自定义图标 |
 
-### 反馈 — 17/21 完成
+### 反馈 — 21/21 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -189,10 +189,10 @@ void main() {
 | Dialog 📱 | ✅ | 移动端小卡片 + alert/confirm 函数式/自定义 actions/遮罩配置 |
 | Popup 📱 | ✅ | 四方向滑入弹层 + 关闭图标/遮罩配置/内容滚动 |
 | Mask 📱 | ✅ | 全屏遮罩 + 透明度/颜色/点击回调/上层内容/淡入淡出 |
-| SwipeAction 📱 | 📋 | 滑动操作 |
-| Loading 📱 | 📋 | 加载 |
-| ErrorBlock 📱 | 📋 | 错误块 |
-| ResultPage 📱 | 📋 | 结果页 |
+| SwipeAction 📱 | ✅ | 左右滑动手势 + 跟随位移/松手吸附/超半宽展开/回调收起/danger/disabled |
+| Loading 📱 | ✅ | 轻量转圈 + size/color/速度/child 组合/方向 |
+| ErrorBlock 📱 | ✅ | 自绘插画四种状态 + 默认文案/自定义 children 操作区 |
+| ResultPage 📱 | ✅ | 页面级结果 + 五状态图标/description 明细列表/buttons 操作区 |
 
 ### 其他 — 0/4 完成
 

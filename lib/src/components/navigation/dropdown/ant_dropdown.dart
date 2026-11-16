@@ -14,7 +14,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_dropdown_types.dart';
 
@@ -291,7 +291,7 @@ class _DropdownOverlay extends StatelessWidget {
         border: Border.all(color: theme.colorSplit),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -328,7 +328,7 @@ class _DropdownOverlay extends StatelessWidget {
             : item.danger
                 ? theme.colorError
                 : theme.colorTextSecondary,
-      ));
+      ),);
       labelWidgets.add(const SizedBox(width: 8));
     }
     labelWidgets.add(

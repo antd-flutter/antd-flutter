@@ -21,7 +21,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_pull_to_refresh_types.dart';
 export 'ant_pull_to_refresh_types.dart';

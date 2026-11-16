@@ -1,7 +1,7 @@
 /// AntCapsuleTabs 数据类型 — antd-mobile CapsuleTabs 胶囊选项卡
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 胶囊选项卡项。
 class AntCapsuleTabItem {

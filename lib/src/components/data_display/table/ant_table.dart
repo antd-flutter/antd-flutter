@@ -20,7 +20,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_table_types.dart';
 
@@ -427,7 +427,7 @@ class _AntTableState extends State<AntTable> {
     // 虚拟滚动：scrollY 且行数超阈值 → ListView.builder 懒加载
     if (widget.scrollY != null) {
       if (rows.length > _kVirtualThreshold) {
-        return Container(
+        return SizedBox(
           height: widget.scrollY!.w,
           child: ListView.builder(
             itemCount: rows.length,
@@ -450,7 +450,7 @@ class _AntTableState extends State<AntTable> {
           ),
         );
       }
-      return Container(
+      return SizedBox(
         height: widget.scrollY!.w,
         child: ListView(
           children: [

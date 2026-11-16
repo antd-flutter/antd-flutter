@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/footer/ant_footer.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -40,7 +40,7 @@ void main() {
     testWidgets('child overrides default content', (tester) async {
       await tester.pumpWidget(_wrap(const AntFooter(
         child: Icon(Icons.vertical_align_top),
-      )));
+      ),),);
       expect(find.byIcon(Icons.vertical_align_top), findsOneWidget);
       expect(find.text('Foot 返回顶部'), findsNothing);
     });
@@ -48,7 +48,7 @@ void main() {
     testWidgets('custom style applies background', (tester) async {
       await tester.pumpWidget(_wrap(const AntFooter(
         style: BoxDecoration(color: Colors.amber),
-      )));
+      ),),);
       final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration! as BoxDecoration;
       expect(decoration.color, Colors.amber);
@@ -66,7 +66,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntFooter(
         onClick: () => clicked = true,
         child: const Text('自定义'),
-      )));
+      ),),);
       await tester.tap(find.text('自定义'));
       await tester.pump();
       expect(clicked, isFalse);

@@ -10,7 +10,7 @@ library;
 
 import 'package:antd_flutter_plus/src/components/data_entry/checkbox/ant_checkbox.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_transfer_types.dart';
 
@@ -97,7 +97,7 @@ class _AntTransferState extends State<AntTransfer> {
   void initState() {
     super.initState();
     _targetKeys = List<String>.from(
-        widget.targetKeys ?? widget.defaultTargetKeys);
+        widget.targetKeys ?? widget.defaultTargetKeys,);
     _sourceSelectedKeys = <String>[];
     _targetSelectedKeys = <String>[];
     // 初始选中状态由 defaultSelectedKeys 分配到对应面板
@@ -158,7 +158,7 @@ class _AntTransferState extends State<AntTransfer> {
       .toList();
 
   List<AntTransferItem> _filterItems(
-      List<AntTransferItem> items, String searchText) {
+      List<AntTransferItem> items, String searchText,) {
     if (searchText.isEmpty) return items;
     final filter = widget.filterOption;
     if (filter != null) {
@@ -591,7 +591,7 @@ class _TransferPanel extends StatelessWidget {
   }
 
   bool _isAllChecked(
-      List<AntTransferItem> filteredItems, List<String> selectedKeys) {
+      List<AntTransferItem> filteredItems, List<String> selectedKeys,) {
     final selectable =
         filteredItems.where((item) => !item.disabled).toList();
     if (selectable.isEmpty) return false;

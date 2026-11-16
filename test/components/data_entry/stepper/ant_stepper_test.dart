@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -22,14 +21,14 @@ void main() {
     testWidgets('renders with defaultValue', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 5),
-      ));
+      ),);
       expect(find.text('5'), findsOneWidget);
     });
 
     testWidgets('controlled value displays', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(value: 10),
-      ));
+      ),);
       expect(find.text('10'), findsOneWidget);
     });
 
@@ -40,7 +39,7 @@ void main() {
           defaultValue: 3,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(changed, 4);
@@ -54,7 +53,7 @@ void main() {
           defaultValue: 3,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       expect(changed, 2);
@@ -69,7 +68,7 @@ void main() {
           step: 5,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(changed, 5);
@@ -83,7 +82,7 @@ void main() {
           min: 0,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       // 在 min 边界按钮已禁用，不会触发 onChange
@@ -99,7 +98,7 @@ void main() {
           max: 10,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       // 在 max 边界按钮已禁用，不会触发 onChange
@@ -115,7 +114,7 @@ void main() {
           min: 0,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       // 输入小于 min 的值会被钳制
       await tester.enterText(find.byType(TextField), '-10');
       await tester.pumpAndSettle();
@@ -130,7 +129,7 @@ void main() {
           max: 10,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), '99');
       await tester.pumpAndSettle();
       expect(changed, 10);
@@ -144,7 +143,7 @@ void main() {
           disabled: true,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(changed, isNull);
@@ -158,7 +157,7 @@ void main() {
           digits: 2,
           step: 0.1,
         ),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(find.text('3.10'), findsOneWidget);
@@ -171,7 +170,7 @@ void main() {
           defaultValue: 0,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), '7');
       await tester.pumpAndSettle();
       expect(changed, 7);
@@ -184,7 +183,7 @@ void main() {
           inputReadOnly: true,
           onChange: (v) {},
         ),
-      ));
+      ),);
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.readOnly, isTrue);
     });
@@ -197,7 +196,7 @@ void main() {
           allowEmpty: true,
           onChange: (v) => changed = v,
         ),
-      ));
+      ),);
       await tester.enterText(find.byType(TextField), '');
       await tester.pumpAndSettle();
       expect(changed, isNull);
@@ -206,7 +205,7 @@ void main() {
     testWidgets('minus button disabled at min boundary', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 0, min: 0),
-      ));
+      ),);
       // minus 图标颜色应为禁用色（无法直接断言颜色，验证值不变即可）
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
@@ -216,7 +215,7 @@ void main() {
     testWidgets('plus button disabled at max boundary', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 10, max: 10),
-      ));
+      ),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(find.text('10'), findsOneWidget);
@@ -225,14 +224,14 @@ void main() {
     testWidgets('small size renders', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 1, size: AntStepperSize.small),
-      ));
+      ),);
       expect(find.text('1'), findsOneWidget);
     });
 
     testWidgets('large size renders', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 1, size: AntStepperSize.large),
-      ));
+      ),);
       expect(find.text('1'), findsOneWidget);
     });
   });

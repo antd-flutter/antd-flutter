@@ -17,7 +17,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/stepper/ant_stepper_
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/stepper/ant_stepper_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 /// 步进器 — 移动端数值调节组件。

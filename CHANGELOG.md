@@ -1,3 +1,15 @@
+## 0.23.0-beta.1
+
+新增 SwipeAction 滑动操作、Loading 加载、ErrorBlock 错误块与 ResultPage 结果页组件（Phase 7 反馈组件第三批，反馈分类 21/21 全部完成）。
+
+- AntSwipeAction：左右滑动手势、跟随位移与松手吸附动画、超半宽自动展开、点击操作回调并收起、closeOnAction、actionWidth、danger/disabled、onOpened/onClosed
+- AntLoading：轻量转圈（3/4 圆弧 CustomPainter + 旋转动画）、size/color、speed 三档、child 组合、direction
+- AntErrorBlock：default/empty/disconnected/busy 四状态自绘 CustomPaint 简化插画、默认文案、title/description 自定义、children 操作区
+- AntResultPage：页面级结果页（垂直居中）、success/error/info/warning/waiting 五状态图标、description 多行明细列表、buttons 操作区、icon 自定义
+- Widget test：SwipeAction 14 + Loading 10 + ErrorBlock 11 + ResultPage 12 个测试用例全量通过（累计 1682 个）
+- 工程修复：CI dart analyze info 致命问题（dart fix 批量修复 1700+ 机械 lint；material.dart → material_ui 官方迁移落地 + cupertino_ui 依赖补充）；example library 指令位置/缺 import 编译错误修复，flutter build web 构建恢复
+- Example demo 页：四组件各 4-6 个展示区块
+
 ## 0.22.0-beta.1
 
 新增 Toast 轻提示、ActionSheet 动作面板、PullToRefresh 下拉刷新、Dialog 移动端对话框、Popup 弹出层与 Mask 遮罩层组件（Phase 7 反馈组件第二批，反馈分类 17/21）。

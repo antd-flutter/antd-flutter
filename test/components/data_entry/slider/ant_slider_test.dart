@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/slider/ant_slider.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -27,7 +27,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSlider(
         defaultValue: 30,
         tooltipVisible: true,
-      )));
+      ),),);
       expect(find.text('30'), findsOneWidget);
     });
 
@@ -36,10 +36,10 @@ void main() {
       await tester.pumpWidget(_wrap(AntSlider(
         defaultValue: 0,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       // 点击轨道右侧
       await tester.tapAt(tester.getCenter(find.byType(AntSlider)) +
-          const Offset(100, 0));
+          const Offset(100, 0),);
       await tester.pump();
       expect(changed, isNotNull);
       expect(changed! > 0, true);
@@ -51,9 +51,9 @@ void main() {
         defaultValue: 0,
         disabled: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tapAt(tester.getCenter(find.byType(AntSlider)) +
-          const Offset(100, 0));
+          const Offset(100, 0),);
       await tester.pump();
       expect(changed, null);
     });
@@ -62,7 +62,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntSlider(
         value: 50,
         tooltipVisible: true,
-      )));
+      ),),);
       expect(find.text('50'), findsOneWidget);
     });
 
@@ -74,7 +74,7 @@ void main() {
           AntSliderMark(value: 50, label: '50'),
           AntSliderMark(value: 100, label: '100'),
         ],
-      )));
+      ),),);
       expect(find.text('50'), findsOneWidget);
       expect(find.text('100'), findsOneWidget);
     });
@@ -84,9 +84,9 @@ void main() {
       await tester.pumpWidget(_wrap(AntSlider(
         defaultValue: 0,
         onChangeEnd: (v) => endValue = v,
-      )));
+      ),),);
       await tester.tapAt(tester.getCenter(find.byType(AntSlider)) +
-          const Offset(100, 0));
+          const Offset(100, 0),);
       await tester.pump();
       expect(endValue, isNotNull);
     });
@@ -99,9 +99,9 @@ void main() {
         max: 100,
         step: 10,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tapAt(tester.getCenter(find.byType(AntSlider)) +
-          const Offset(100, 0));
+          const Offset(100, 0),);
       await tester.pump();
       expect(changed! % 10, 0);
     });

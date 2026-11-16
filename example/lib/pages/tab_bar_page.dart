@@ -2,7 +2,7 @@ library;
 
 /// TabBar 标签栏演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class TabBarPage extends StatelessWidget {
   const TabBarPage({super.key});

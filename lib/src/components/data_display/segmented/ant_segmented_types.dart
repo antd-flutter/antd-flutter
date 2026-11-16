@@ -1,7 +1,7 @@
 /// AntSegmented 类型定义
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 分段控制器尺寸。
 enum AntSegmentedSize {

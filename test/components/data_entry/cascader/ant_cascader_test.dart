@@ -2,26 +2,25 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 测试选项树
 List<AntCascaderOption> _testOptions() => [
-      AntCascaderOption(value: 'zj', label: '浙江', children: [
+      const AntCascaderOption(value: 'zj', label: '浙江', children: [
         AntCascaderOption(value: 'hz', label: '杭州', children: [
           AntCascaderOption(value: 'xh', label: '西湖'),
           AntCascaderOption(value: 'yh', label: '余杭'),
-        ]),
+        ],),
         AntCascaderOption(value: 'nb', label: '宁波', children: [
           AntCascaderOption(value: 'js', label: '江东'),
-        ]),
-      ]),
-      AntCascaderOption(value: 'js', label: '江苏', children: [
+        ],),
+      ],),
+      const AntCascaderOption(value: 'js', label: '江苏', children: [
         AntCascaderOption(value: 'nj', label: '南京', children: [
           AntCascaderOption(value: 'xl', label: '玄武'),
-        ]),
-      ]),
+        ],),
+      ],),
     ];
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -43,7 +42,7 @@ void main() {
           options: [],
           placeholder: '请选择',
         ),
-      ));
+      ),);
       expect(find.text('请选择'), findsOneWidget);
     });
 
@@ -53,7 +52,7 @@ void main() {
           options: _testOptions(),
           defaultValue: const ['zj', 'hz', 'xh'],
         ),
-      ));
+      ),);
       expect(find.text('浙江 / 杭州 / 西湖'), findsOneWidget);
     });
 
@@ -63,14 +62,14 @@ void main() {
           options: _testOptions(),
           value: const ['js', 'nj', 'xl'],
         ),
-      ));
+      ),);
       expect(find.text('江苏 / 南京 / 玄武'), findsOneWidget);
     });
 
     testWidgets('opens panel on tap and shows first column', (tester) async {
       await tester.pumpWidget(_wrap(
         AntCascader(options: _testOptions()),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsWidgets);
@@ -80,7 +79,7 @@ void main() {
     testWidgets('expands second column when clicking parent option', (tester) async {
       await tester.pumpWidget(_wrap(
         AntCascader(options: _testOptions()),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       // 点击"浙江"展开子列
@@ -97,7 +96,7 @@ void main() {
           options: _testOptions(),
           onChange: (path) => selectedPath = path,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       await tester.tap(find.text('浙江').first);
@@ -117,7 +116,7 @@ void main() {
           options: _testOptions(),
           onChange: (_) => callCount++,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       await tester.tap(find.text('浙江').first);
@@ -133,7 +132,7 @@ void main() {
           changeOnSelect: true,
           onChange: (path) => selectedPath = path,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       await tester.tap(find.text('浙江').first);
@@ -146,19 +145,19 @@ void main() {
     testWidgets('disabled option cannot be selected', (tester) async {
       var selectedPath = <String>[];
       final disabledOptions = [
-        AntCascaderOption(value: 'a', label: '可用', children: [
+        const AntCascaderOption(value: 'a', label: '可用', children: [
           AntCascaderOption(value: 'a1', label: '子项A1'),
-        ]),
-        AntCascaderOption(value: 'b', label: '禁用', disabled: true, children: [
+        ],),
+        const AntCascaderOption(value: 'b', label: '禁用', disabled: true, children: [
           AntCascaderOption(value: 'b1', label: '子项B1'),
-        ]),
+        ],),
       ];
       await tester.pumpWidget(_wrap(
         AntCascader(
           options: disabledOptions,
           onChange: (path) => selectedPath = path,
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       await tester.tap(find.text('禁用'));
@@ -176,7 +175,7 @@ void main() {
           disabled: true,
           placeholder: '禁用',
         ),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsNothing);
@@ -191,7 +190,7 @@ void main() {
           allowClear: true,
           onChange: (path) => selectedPath = path,
         ),
-      ));
+      ),);
       expect(find.text('浙江 / 杭州 / 西湖'), findsOneWidget);
       // 点击清除图标
       await tester.tap(find.byIcon(Icons.cancel));
@@ -202,7 +201,7 @@ void main() {
     testWidgets('closes panel when tapping outside', (tester) async {
       await tester.pumpWidget(_wrap(
         AntCascader(options: _testOptions()),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       expect(find.text('浙江'), findsWidgets);
@@ -226,7 +225,7 @@ void main() {
             );
           },
         ),
-      ));
+      ),);
       expect(find.text('请选择'), findsOneWidget);
       setStateOuter(() => value = ['zj', 'nb', 'js']);
       await tester.pumpAndSettle();
@@ -236,7 +235,7 @@ void main() {
     testWidgets('switching column selection resets deeper columns', (tester) async {
       await tester.pumpWidget(_wrap(
         AntCascader(options: _testOptions()),
-      ));
+      ),);
       await tester.tap(find.byType(AntCascader));
       await tester.pumpAndSettle();
       // 展开 浙江 → 杭州
@@ -259,7 +258,7 @@ void main() {
           size: AntCascaderSize.large,
           placeholder: '大',
         ),
-      ));
+      ),);
       final box = tester.getSize(find.byType(AntCascader));
       expect(box.height, greaterThan(35));
     });
@@ -271,7 +270,7 @@ void main() {
           size: AntCascaderSize.small,
           placeholder: '小',
         ),
-      ));
+      ),);
       final box = tester.getSize(find.byType(AntCascader));
       expect(box.height, lessThan(30));
     });
@@ -289,7 +288,7 @@ void main() {
     test('isLeaf returns false when children is non-empty', () {
       const parent = AntCascaderOption(value: 'a', label: 'A', children: [
         AntCascaderOption(value: 'a1', label: 'A1'),
-      ]);
+      ],);
       expect(parent.isLeaf, isFalse);
     });
 

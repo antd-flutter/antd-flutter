@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/table/ant_table.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -83,7 +83,7 @@ void main() {
                 Text('操作-${record['name'] as String}'),
           ),
         ],
-      )));
+      ),),);
       expect(find.text('操作-Alice'), findsOneWidget);
       expect(find.text('操作-Bob'), findsOneWidget);
     });
@@ -99,7 +99,7 @@ void main() {
     testWidgets('custom rowKey function applies', (tester) async {
       await tester.pumpWidget(_wrap(_table(
         rowKey: (record) => 'r-${record['id']}',
-      )));
+      ),),);
       expect(
         find.byKey(const ValueKey<Object?>('ant_table_row_r-2')),
         findsOneWidget,
@@ -118,7 +118,7 @@ void main() {
           dataIndex: 'age',
           sorter: (a, b) => (a['age'] as int).compareTo(b['age'] as int),
         ),
-      ])));
+      ],),),);
 
       double dyOf(String name) =>
           tester.getTopLeft(find.text(name)).dy;
@@ -153,7 +153,7 @@ void main() {
           dataIndex: 'age',
           sorter: (a, b) => 0,
         ),
-      ])));
+      ],),),);
 
       final theme = AntThemeData.light();
       final upIcon =
@@ -190,12 +190,12 @@ void main() {
           title: '城市',
           dataIndex: 'city',
           filters: [
-            AntTableFilterItem(text: '北京', value: '北京'),
-            AntTableFilterItem(text: '上海', value: '上海'),
+            const AntTableFilterItem(text: '北京', value: '北京'),
+            const AntTableFilterItem(text: '上海', value: '上海'),
           ],
           onFilter: (value, record) => record['city'] == value,
         ),
-      ])));
+      ],),),);
       expect(find.byIcon(Icons.filter_alt_outlined), findsOneWidget);
     });
 
@@ -208,14 +208,14 @@ void main() {
             title: '城市',
             dataIndex: 'city',
             filters: [
-              AntTableFilterItem(text: '北京', value: '北京'),
-              AntTableFilterItem(text: '上海', value: '上海'),
-              AntTableFilterItem(text: '深圳', value: '深圳'),
+              const AntTableFilterItem(text: '北京', value: '北京'),
+              const AntTableFilterItem(text: '上海', value: '上海'),
+              const AntTableFilterItem(text: '深圳', value: '深圳'),
             ],
             onFilter: (value, record) => record['city'] == value,
           ),
-        ]),
-      )));
+        ],),
+      ),),);
 
       // 打开筛选面板
       await tester.tap(find.byIcon(Icons.filter_alt_outlined));
@@ -246,12 +246,12 @@ void main() {
             title: '城市',
             dataIndex: 'city',
             filters: [
-              AntTableFilterItem(text: '北京', value: '北京'),
+              const AntTableFilterItem(text: '北京', value: '北京'),
             ],
             onFilter: (value, record) => record['city'] == value,
           ),
-        ]),
-      )));
+        ],),
+      ),),);
 
       await tester.tap(find.byIcon(Icons.filter_alt_outlined));
       await tester.pump();
@@ -290,7 +290,7 @@ void main() {
             const AntTableColumn(title: '城市', dataIndex: 'city', width: 200),
           ],
         ),
-      )));
+      ),),);
 
       // 固定列渲染正常
       expect(find.text('姓名'), findsOneWidget);
@@ -299,7 +299,7 @@ void main() {
       final gradients = tester
           .widgetList<Container>(find.byType(Container))
           .where((c) => c.decoration is BoxDecoration &&
-              (c.decoration! as BoxDecoration).gradient != null)
+              (c.decoration! as BoxDecoration).gradient != null,)
           .length;
       expect(gradients, greaterThanOrEqualTo(2)); // 表头 + 行
     });
@@ -319,7 +319,7 @@ void main() {
             ),
           ],
         ),
-      )));
+      ),),);
       expect(find.text('城市'), findsOneWidget);
       expect(find.text('北京'), findsOneWidget);
     });
@@ -332,7 +332,7 @@ void main() {
           30,
           (i) => {'id': i, 'name': 'row $i', 'age': i},
         ),
-      )));
+      ),),);
 
       // 表头在滚动区外，滚动后仍可见
       expect(find.text('姓名'), findsOneWidget);
@@ -354,7 +354,7 @@ void main() {
           100,
           (i) => {'id': i, 'name': 'row $i', 'age': i},
         ),
-      )));
+      ),),);
 
       // ListView.builder 懒加载：首屏只构建可见行
       expect(find.text('row 0'), findsOneWidget);
@@ -371,7 +371,7 @@ void main() {
       await tester.pumpWidget(_wrap(_table(
         scrollY: 300,
         dataSource: _people(),
-      )));
+      ),),);
       // 3 行 < 50 行阈值，全部一次性构建
       expect(find.text('Alice'), findsOneWidget);
       expect(find.text('Carol'), findsOneWidget);
@@ -390,7 +390,7 @@ void main() {
         pagination: true,
         pageSize: 4,
         dataSource: data,
-      )));
+      ),),);
 
       // 第一页显示 user 0~3
       expect(find.text('user 0'), findsOneWidget);
@@ -419,7 +419,7 @@ void main() {
         pagination: true,
         pageSize: 4,
         dataSource: data,
-      )));
+      ),),);
 
       // 下一页
       await tester.tap(find.byIcon(Icons.chevron_right));
@@ -455,7 +455,7 @@ void main() {
         final deco = c.decoration;
         if (deco is! BoxDecoration || deco.border is! Border) return false;
         final b = deco.border! as Border;
-        final solid = BorderStyle.solid;
+        const solid = BorderStyle.solid;
         return b.left.style == solid &&
             b.right.style == solid &&
             b.top.style == solid &&
@@ -472,7 +472,7 @@ void main() {
         final deco = c.decoration;
         if (deco is! BoxDecoration || deco.border is! Border) return false;
         final b = deco.border! as Border;
-        final solid = BorderStyle.solid;
+        const solid = BorderStyle.solid;
         return b.left.style == solid &&
             b.right.style == solid &&
             b.top.style == solid &&
@@ -489,7 +489,7 @@ void main() {
             .widgetList<Container>(find.ancestor(
           of: find.text('Alice'),
           matching: find.byType(Container),
-        ))
+        ),)
             .firstWhere((c) => c.padding != null);
         return (cellContainer.padding! as EdgeInsets).vertical;
       }
@@ -523,7 +523,7 @@ void main() {
       await tester.pumpWidget(_wrap(_table(
         dataSource: const [],
         empty: const Text('自定义空状态'),
-      )));
+      ),),);
       expect(find.text('自定义空状态'), findsOneWidget);
       expect(find.text('暂无数据'), findsNothing);
     });
@@ -546,8 +546,8 @@ void main() {
           ),
         ], dataSource: const [
           {'id': 1, 'desc': longText},
-        ]),
-      )));
+        ],),
+      ),),);
 
       final cellText = tester.widget<Text>(find.text(longText));
       expect(cellText.maxLines, 1);
@@ -556,12 +556,12 @@ void main() {
 
     testWidgets('align center/right applies alignment', (tester) async {
       await tester.pumpWidget(_wrap(_table(columns: [
-        AntTableColumn(
+        const AntTableColumn(
           title: '年龄',
           dataIndex: 'age',
           align: AntTableAlign.center,
         ),
-      ])));
+      ],),),);
       // 居中列的单元格内容包一层 Center
       final centerWidgets =
           tester.widgetList<Center>(find.byType(Center)).toList();

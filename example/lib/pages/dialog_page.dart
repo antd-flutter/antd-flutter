@@ -2,7 +2,6 @@ library;
 
 /// AntDialog 对话框演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 class DialogPage extends StatefulWidget {

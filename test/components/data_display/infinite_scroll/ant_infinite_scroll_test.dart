@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:antd_flutter_plus/src/components/data_display/infinite_scroll/ant_infinite_scroll.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -43,7 +43,7 @@ void main() {
             child: const Column(children: [Text('条目一'), Text('条目二')]),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('条目一'), findsOneWidget);
       expect(find.text('条目二'), findsOneWidget);
@@ -61,7 +61,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       // 内容不足一屏（maxScrollExtent = 0），初始自动加载一次。
       expect(callCount, 1);
@@ -87,7 +87,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pump();
       expect(callCount, 0);
       expect(find.text('首屏'), findsOneWidget);
@@ -112,7 +112,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(callCount, 0);
 
@@ -141,7 +141,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(callCount, 0);
 
@@ -171,7 +171,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pump();
       expect(find.text('加载中'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -188,7 +188,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('加载失败'), findsOneWidget);
       expect(find.text('点击重试'), findsOneWidget);
@@ -208,7 +208,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(callCount, 1);
       expect(find.text('点击重试'), findsOneWidget);
@@ -239,7 +239,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       // 阈值 500 大于总可滚动距离，首帧即进入阈值范围自动触发。
       expect(callCount, 1);
@@ -263,7 +263,7 @@ void main() {
             ),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       final position =
           tester.state<ScrollableState>(find.byType(Scrollable).first)
@@ -288,7 +288,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pump();
       expect(find.text('努力加载中'), findsOneWidget);
 
@@ -307,7 +307,7 @@ void main() {
             child: const Column(children: [Text('内容')]),
           ),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('加载出错了'), findsOneWidget);
       expect(find.text('重新加载'), findsOneWidget);

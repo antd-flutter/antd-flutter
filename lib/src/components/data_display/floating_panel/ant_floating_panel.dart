@@ -20,7 +20,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/data_display/floating_panel/ant_floating_panel_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/floating_panel/ant_floating_panel_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 默认锚点（最低 / 中间 / 最高）。
 const List<double> _kDefaultAnchors = <double>[0.6, 0.8, 1.0];

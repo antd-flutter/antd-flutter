@@ -5,7 +5,7 @@ import 'package:antd_flutter_plus/src/components/data_display/tooltip/ant_toolti
 import 'package:antd_flutter_plus/src/components/data_display/tooltip/ant_tooltip_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 气泡内容定位辅助。

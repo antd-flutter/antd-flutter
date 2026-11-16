@@ -18,7 +18,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/image_uploader/ant_image_uploader_types.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 图片上传 — 图片选择、预览与删除的网格组件。
 ///

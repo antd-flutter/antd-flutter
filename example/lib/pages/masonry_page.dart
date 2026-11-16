@@ -2,7 +2,7 @@ library;
 
 /// Masonry 瀑布流演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class MasonryPage extends StatelessWidget {
   const MasonryPage({super.key});
@@ -63,8 +63,8 @@ Widget _card(String label, double height, Color color) {
   return Container(
     height: height,
     decoration: BoxDecoration(
-      color: color.withOpacity(0.08),
-      border: Border.all(color: color.withOpacity(0.3)),
+      color: color.withValues(alpha: 0.08),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(8),
     ),
     alignment: Alignment.center,

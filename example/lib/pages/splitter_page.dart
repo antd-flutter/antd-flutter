@@ -2,7 +2,7 @@ library;
 
 /// Splitter 分割面板演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SplitterPage extends StatelessWidget {
   const SplitterPage({super.key});
@@ -66,8 +66,8 @@ class _Section extends StatelessWidget {
 Widget _panelContent(String label, Color color) {
   return Container(
     decoration: BoxDecoration(
-      color: color.withOpacity(0.08),
-      border: Border.all(color: color.withOpacity(0.3)),
+      color: color.withValues(alpha: 0.08),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(8),
     ),
     alignment: Alignment.center,

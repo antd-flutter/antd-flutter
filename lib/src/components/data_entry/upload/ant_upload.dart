@@ -10,7 +10,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_upload_types.dart';
 
@@ -171,7 +171,7 @@ class _AntUploadState extends State<AntUpload> {
         _updateFileInList(uploadingFile.copyWith(
           status: AntUploadStatus.done,
           percent: 100,
-        ));
+        ),);
       }
     }
   }

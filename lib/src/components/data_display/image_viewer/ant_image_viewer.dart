@@ -27,7 +27,7 @@ export 'package:antd_flutter_plus/src/components/data_display/image_viewer/ant_i
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 图片查看器 — 全屏浏览多张图片，支持缩放与左右切换。
 ///

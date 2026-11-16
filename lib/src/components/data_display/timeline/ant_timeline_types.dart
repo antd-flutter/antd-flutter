@@ -1,7 +1,7 @@
 /// AntTimeline 类型定义
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 时间轴模式。
 enum AntTimelineMode {

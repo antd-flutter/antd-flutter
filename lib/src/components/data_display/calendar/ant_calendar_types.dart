@@ -1,7 +1,7 @@
 /// AntCalendar 类型定义。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart'
     show AntCalendarWeekStartsOn;

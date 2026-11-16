@@ -17,7 +17,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/checkbox/ant_checkbo
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/checkbox/ant_checkbox_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // 内部：复选框方框绘制

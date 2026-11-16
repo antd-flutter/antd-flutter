@@ -17,7 +17,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/feedback/spin/ant_spin_types.dart';
 export 'package:antd_flutter_plus/src/components/feedback/spin/ant_spin_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 遮罩层 key（供测试与外部结构断言使用）。
 const Key kAntSpinMaskKey = Key('__ant_spin_mask__');

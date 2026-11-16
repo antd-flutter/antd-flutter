@@ -1,7 +1,6 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 // 组件尚未加入 barrel export 前的临时直接引用；export 行合入后可移除。
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 每个演示区块内面板容器的固定高度。
 const double _kDemoPanelHeight = 360;

@@ -16,7 +16,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/switch/ant_switch_ty
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/switch/ant_switch_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 开关组件 — 对齐 antd React Switch。
 class AntSwitch extends StatefulWidget {
@@ -106,7 +106,7 @@ class _AntSwitchState extends State<AntSwitch> {
         : t.colorPrimary;
     final inactiveColor = isDisabled
         ? t.colorBgContainerDisabled
-        : t.colorFillSecondary.withOpacity(0.6);
+        : t.colorFillSecondary.withValues(alpha: 0.6);
 
     final childTextSize = (isSmall ? 10 : 12).sp;
     final childColor = isDisabled ? t.colorTextDisabled : Colors.white;
@@ -173,7 +173,7 @@ class _AntSwitchState extends State<AntSwitch> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 2.w,
                       offset: Offset(0, 1.w),
                     ),

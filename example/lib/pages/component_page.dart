@@ -2,10 +2,12 @@ library;
 
 /// 组件展示页 — 根据 snakeName 路由到对应组件演示页
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'loading_page.dart';
+import 'swipe_action_page.dart';
 import 'action_sheet_page.dart';
 import 'dialog_page.dart';
 import 'mask_page.dart';
@@ -86,7 +88,6 @@ import 'rate_page.dart';
 import 'radio_page.dart';
 import 'safe_area_page.dart';
 import 'search_bar_page.dart';
-import 'statistic_page.dart';
 import 'select_page.dart';
 import 'selector_page.dart';
 import 'side_bar_page.dart';
@@ -116,6 +117,10 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'loading':
+        return const LoadingPage();
+      case 'swipe_action':
+        return const SwipeActionPage();
       case 'action_sheet':
         return const ActionSheetPage();
       case 'dialog':

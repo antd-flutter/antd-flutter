@@ -22,7 +22,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/feedback/alert/ant_alert_types.dart';
 export 'package:antd_flutter_plus/src/components/feedback/alert/ant_alert_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntAlert

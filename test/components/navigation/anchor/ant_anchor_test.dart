@@ -2,8 +2,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -49,7 +48,7 @@ void main() {
               AntAnchorItem(key: 'part-1', title: 'Part 1', children: [
                 AntAnchorItem(key: 'part-1-1', title: 'Sub 1'),
                 AntAnchorItem(key: 'part-1-2', title: 'Sub 2'),
-              ]),
+              ],),
             ],
           ),
         ),
@@ -198,7 +197,7 @@ void main() {
             items: [
               AntAnchorItem(key: 'part-1', title: 'Part 1', children: [
                 AntAnchorItem(key: 'sub-1', title: 'Sub 1'),
-              ]),
+              ],),
             ],
           ),
         ),

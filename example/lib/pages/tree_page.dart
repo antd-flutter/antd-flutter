@@ -1,8 +1,6 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-/// AntTree demo 页面
-import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _treeData = [

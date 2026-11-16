@@ -19,8 +19,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/data_display/page_indicator/ant_page_indicator_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/page_indicator/ant_page_indicator_types.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // 内部：默认尺寸（对齐 page-indicator.less）

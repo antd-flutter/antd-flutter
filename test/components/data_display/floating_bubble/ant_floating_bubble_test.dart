@@ -1,7 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const double _canvasW = 300;
@@ -57,7 +56,7 @@ void main() {
     testWidgets('initialPos positions the bubble', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(40, 60),
-      )));
+      ),),);
       final positioned = _bubblePosition(tester);
       expect(positioned.left, 40.w);
       expect(positioned.top, 60.w);
@@ -67,7 +66,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(50, 50),
         axis: AntFloatingBubbleAxis.both,
-      )));
+      ),),);
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
       await gesture.moveBy(const Offset(1, 1));
@@ -84,7 +83,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(50, 50),
         axis: AntFloatingBubbleAxis.x,
-      )));
+      ),),);
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
       await gesture.moveBy(const Offset(1, 1));
@@ -101,7 +100,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(50, 50),
         axis: AntFloatingBubbleAxis.y,
-      )));
+      ),),);
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
       await gesture.moveBy(const Offset(1, 1));
@@ -117,7 +116,7 @@ void main() {
     testWidgets('position updates after drag', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(10, 10),
-      )));
+      ),),);
       expect(_bubblePosition(tester).left, 10.w);
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
@@ -144,7 +143,7 @@ void main() {
             onClick: () => clicked = 'B',
           ),
         ],
-      )));
+      ),),);
       // 收起时菜单文字不可见（透明但仍在树中，断言 IgnorePointer 生效后点击不可达）
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
@@ -159,7 +158,7 @@ void main() {
     testWidgets('tap again collapses menu', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       final panel = tester.widget<AnimatedOpacity>(
@@ -188,7 +187,7 @@ void main() {
     testWidgets('menu item click collapses menu', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       await tester.tap(find.text('菜单A'));
@@ -208,7 +207,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(20, 20),
         constraint: true,
-      )));
+      ),),);
       // 向左上方大幅拖拽，应被钳制在边界内（left/top >= 0）
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
@@ -227,7 +226,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         initialPos: Offset(100, 100),
         constraint: false,
-      )));
+      ),),);
       final gesture =
           await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
       await gesture.moveBy(const Offset(1, 1));
@@ -243,7 +242,7 @@ void main() {
     testWidgets('custom child icon renders', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
         child: Icon(Icons.edit),
-      )));
+      ),),);
       expect(find.byIcon(Icons.edit), findsOneWidget);
       expect(find.byIcon(Icons.add), findsNothing);
     });
@@ -252,7 +251,7 @@ void main() {
       var tapped = false;
       await tester.pumpWidget(_wrap(AntFloatingBubble(
         onClick: () => tapped = true,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(tapped, isTrue);

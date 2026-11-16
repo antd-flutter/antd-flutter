@@ -1,7 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/input_number/ant_input_number.dart';
-import 'package:antd_flutter_plus/src/components/data_entry/input_number/ant_input_number_types.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -32,7 +31,7 @@ void main() {
           setState = s;
           return AntInputNumber(value: val);
         },
-      )));
+      ),),);
       expect(find.text('1'), findsOneWidget);
       setState(() => val = 10);
       await tester.pump();
@@ -49,7 +48,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntInputNumber(
         defaultValue: 3,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
       expect(changed, 4);
@@ -61,7 +60,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntInputNumber(
         defaultValue: 3,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pump();
       expect(changed, 2);
@@ -74,7 +73,7 @@ void main() {
         defaultValue: 9,
         max: 10,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
       expect(changed, 10);
@@ -90,7 +89,7 @@ void main() {
         defaultValue: 1,
         min: 0,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pump();
       expect(changed, 0);
@@ -106,7 +105,7 @@ void main() {
         defaultValue: 10,
         step: 5,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
       expect(changed, 15);
@@ -116,7 +115,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputNumber(
         defaultValue: 3.14159,
         precision: 2,
-      )));
+      ),),);
       expect(find.text('3.14'), findsOneWidget);
     });
 
@@ -126,7 +125,7 @@ void main() {
         defaultValue: 3,
         disabled: true,
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
       expect(changed, null);
@@ -137,7 +136,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputNumber(
         defaultValue: 3,
         controls: AntInputNumberControls.none,
-      )));
+      ),),);
       expect(find.byIcon(Icons.add), findsNothing);
       expect(find.byIcon(Icons.remove), findsNothing);
     });
@@ -146,7 +145,7 @@ void main() {
       double? changed;
       await tester.pumpWidget(_wrap(AntInputNumber(
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.enterText(find.byType(TextField), '42');
       // 模拟失焦提交
       await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -158,7 +157,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntInputNumber(
         defaultValue: 100,
         addonBefore: Text('¥'),
-      )));
+      ),),);
       expect(find.text('¥'), findsOneWidget);
       expect(find.text('100'), findsOneWidget);
     });
@@ -168,7 +167,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntInputNumber(
         defaultValue: 1,
         onStep: (v) => stepped = v,
-      )));
+      ),),);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump();
       expect(stepped, 2);

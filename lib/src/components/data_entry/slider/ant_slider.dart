@@ -22,7 +22,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/slider/ant_slider_ty
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/slider/ant_slider_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntSlider
@@ -150,7 +150,7 @@ class _AntSliderState extends State<AntSlider> {
               ? null
               : (details) {
                   _updateValue(
-                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0));
+                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),);
                 },
           onHorizontalDragEnd: widget.disabled
               ? null
@@ -162,7 +162,7 @@ class _AntSliderState extends State<AntSlider> {
               ? null
               : (details) {
                   _updateValue(
-                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0));
+                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),);
                   widget.onChangeEnd?.call(_currentValue);
                 },
           child: SizedBox(
@@ -243,7 +243,7 @@ class _AntSliderState extends State<AntSlider> {
                         border: Border.all(color: theme.colorSplit),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -280,7 +280,7 @@ class _AntSliderState extends State<AntSlider> {
                           ? null
                           : [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),

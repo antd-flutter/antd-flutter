@@ -18,7 +18,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/date_picker/ant_date
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/date_picker/ant_date_picker_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ============================================================
 // AntDatePicker
@@ -294,7 +294,7 @@ class _DatePickerOverlay extends StatelessWidget {
     final leadingBlanks = firstDay.weekday % 7;
 
     final today = DateTime.now();
-    final isToday = (d) =>
+    bool isToday(d) =>
         d.year == today.year &&
         d.month == today.month &&
         d.day == today.day;
@@ -346,7 +346,7 @@ class _DatePickerOverlay extends StatelessWidget {
                     border: Border.all(color: theme.colorSplit),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -363,7 +363,7 @@ class _DatePickerOverlay extends StatelessWidget {
                             icon: Icons.chevron_left,
                             theme: theme,
                             onTap: () => onPanelChange(
-                                DateTime(year, month - 1, 1)),
+                                DateTime(year, month - 1, 1),),
                           ),
                           Text(
                             '$year年$month月',
@@ -377,7 +377,7 @@ class _DatePickerOverlay extends StatelessWidget {
                             icon: Icons.chevron_right,
                             theme: theme,
                             onTap: () => onPanelChange(
-                                DateTime(year, month + 1, 1)),
+                                DateTime(year, month + 1, 1),),
                           ),
                         ],
                       ),
@@ -395,7 +395,7 @@ class _DatePickerOverlay extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                ))
+                                ),)
                             .toList(),
                       ),
                       SizedBox(height: 4.w),

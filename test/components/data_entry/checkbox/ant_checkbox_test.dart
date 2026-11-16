@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/data_entry/checkbox/ant_checkbox.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -27,7 +27,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntCheckbox(
         defaultChecked: true,
         child: Text('A'),
-      )));
+      ),),);
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
@@ -41,7 +41,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntCheckbox(
         child: const Text('A'),
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, true);
@@ -52,7 +52,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntCheckbox(
         defaultChecked: true,
         child: Text('A'),
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(find.byIcon(Icons.check), findsNothing);
@@ -66,7 +66,7 @@ void main() {
           setState = s;
           return AntCheckbox(checked: val, child: const Text('A'));
         },
-      )));
+      ),),);
       expect(find.byIcon(Icons.check), findsNothing);
       setState(() => val = true);
       await tester.pump();
@@ -79,7 +79,7 @@ void main() {
         disabled: true,
         child: const Text('A'),
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -90,7 +90,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntCheckbox(
         indeterminate: true,
         child: Text('A'),
-      )));
+      ),),);
       expect(find.byIcon(Icons.remove), findsOneWidget);
     });
   });
@@ -102,7 +102,7 @@ void main() {
           AntCheckboxOption(value: 'a', label: Text('A')),
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
@@ -115,7 +115,7 @@ void main() {
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, ['a']);
@@ -129,7 +129,7 @@ void main() {
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       await tester.tap(find.text('B'));
@@ -146,7 +146,7 @@ void main() {
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, isEmpty);
@@ -159,7 +159,7 @@ void main() {
           AntCheckboxOption(value: 'a', label: Text('A')),
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       // b 应该选中
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
@@ -177,7 +177,7 @@ void main() {
             ],
           );
         },
-      )));
+      ),),);
       expect(find.byIcon(Icons.check), findsNothing);
       setState(() => val = ['a']);
       await tester.pump();
@@ -192,7 +192,7 @@ void main() {
           AntCheckboxOption(value: 'a', label: Text('A')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -206,7 +206,7 @@ void main() {
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
         onChange: (v) => changed = v,
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
@@ -219,7 +219,7 @@ void main() {
           AntCheckboxOption(value: 'a', label: Text('A')),
           AntCheckboxOption(value: 'b', label: Text('B')),
         ],
-      )));
+      ),),);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
       expect(find.byType(Column), findsOneWidget);
@@ -233,7 +233,7 @@ void main() {
           AntCheckbox(value: 'a', child: Text('A')),
           AntCheckbox(value: 'b', child: Text('B')),
         ],
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, ['a']);
@@ -249,7 +249,7 @@ void main() {
         children: const [
           AntCheckbox(value: 'a', child: Text('A')),
         ],
-      )));
+      ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);

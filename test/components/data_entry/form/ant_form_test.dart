@@ -1,6 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -40,7 +39,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       expect(find.text('用户名'), findsOneWidget);
       expect(find.text('邮箱'), findsOneWidget);
@@ -61,7 +60,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       expect(find.text('*'), findsOneWidget);
     });
@@ -78,7 +77,7 @@ void main() {
             AntFormItem<String>(
               name: 'username',
               label: '用户名',
-              rules: [AntFormFieldRule.required(message: '请输入用户名')],
+              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
               builder: (field) => AntInput(
                 value: field.value ?? '',
                 onChange: field.didChange,
@@ -86,7 +85,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 输入值
       await tester.enterText(find.byType(AntInput), 'admin');
@@ -112,7 +111,7 @@ void main() {
             AntFormItem<String>(
               name: 'username',
               label: '用户名',
-              rules: [AntFormFieldRule.required(message: '请输入用户名')],
+              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
               builder: (field) => AntInput(
                 value: field.value ?? '',
                 onChange: field.didChange,
@@ -120,7 +119,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 不输入值直接提交
       controller.submit();
@@ -140,7 +139,7 @@ void main() {
             AntFormItem<String>(
               name: 'username',
               label: '用户名',
-              rules: [AntFormFieldRule.required(message: '请输入用户名')],
+              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
               builder: (field) => AntInput(
                 value: field.value ?? '',
                 onChange: field.didChange,
@@ -148,7 +147,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 校验前无错误文案
       expect(find.text('请输入用户名'), findsNothing);
@@ -171,7 +170,7 @@ void main() {
               name: 'username',
               label: '用户名',
               rules: [
-                AntFormFieldRule(minLength: 3, message: '至少3个字符'),
+                const AntFormFieldRule(minLength: 3, message: '至少3个字符'),
               ],
               validateTrigger: AntFormValidateTrigger.onChange,
               builder: (field) => AntInput(
@@ -181,7 +180,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 输入短文本触发校验
       await tester.enterText(find.byType(AntInput), 'ab');
@@ -213,7 +212,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 通过 controller 设置值
       controller.setValue('username', 'hello');
@@ -242,7 +241,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       expect(controller.getValue('username'), 'initial');
 
@@ -275,7 +274,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       expect(controller.getValue('username'), 'preset');
       expect(find.text('preset'), findsOneWidget);
@@ -297,7 +296,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 水平布局应有 Row 包含标签和控件
       final rowFinder = find.byType(Row);
@@ -327,7 +326,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       // 输入非法邮箱
       await tester.enterText(find.byType(AntInput), 'not-an-email');
@@ -365,7 +364,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       await tester.enterText(find.byType(AntInput), '20');
       await tester.pumpAndSettle();
@@ -391,7 +390,7 @@ void main() {
             ),
           ],
         ),
-      ));
+      ),);
 
       expect(find.text('密码长度至少6位'), findsOneWidget);
     });

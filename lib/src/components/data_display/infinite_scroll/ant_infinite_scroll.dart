@@ -25,7 +25,7 @@ export 'package:antd_flutter_plus/src/components/data_display/infinite_scroll/an
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 无限滚动 — 滚动到底部自动加载更多数据。
 ///

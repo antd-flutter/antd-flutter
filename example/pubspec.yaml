@@ -17,6 +17,7 @@ dependencies:
 
   antd_theme: any
   material_ui: any
+  cupertino_ui: any
 dependency_overrides:
   antd_color:
     path: ../packages/antd_color

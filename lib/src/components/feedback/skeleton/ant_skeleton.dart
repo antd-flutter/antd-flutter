@@ -20,7 +20,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 import 'package:antd_flutter_plus/src/components/feedback/skeleton/ant_skeleton_types.dart';
 export 'package:antd_flutter_plus/src/components/feedback/skeleton/ant_skeleton_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 默认段落行数
 const int _kDefaultParagraphRows = 3;

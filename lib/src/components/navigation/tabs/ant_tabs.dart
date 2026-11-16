@@ -15,7 +15,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_tabs_types.dart';
 
@@ -440,7 +440,7 @@ class _AntTabsState extends State<AntTabs> {
               : SystemMouseCursors.click,
           child: Container(
             height: _tabHeight,
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: cardDecoration,
             child: Row(
               children: [
@@ -488,7 +488,7 @@ class _AntTabsState extends State<AntTabs> {
           height: _isHorizontal ? _tabHeight : null,
           width: _isHorizontal ? null : 40,
           padding: _isHorizontal
-              ? EdgeInsets.symmetric(horizontal: 12)
+              ? const EdgeInsets.symmetric(horizontal: 12)
               : const EdgeInsets.symmetric(vertical: 8),
           child: Center(
             child: widget.addIcon ??

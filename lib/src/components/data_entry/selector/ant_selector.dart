@@ -19,7 +19,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/selector/ant_selecto
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/selector/ant_selector_types.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 选择组 — 标签/网格风格的单选/多选组件。
 ///
@@ -247,7 +247,7 @@ class _SelectorItem<T> extends StatelessWidget {
           color: disabled
               ? t.colorBgContainerDisabled
               : checked
-                  ? t.colorPrimary.withOpacity(0.08)
+                  ? t.colorPrimary.withValues(alpha: 0.08)
                   : t.colorFillSecondary,
           borderRadius: BorderRadius.circular(t.borderRadius.w),
           border: Border.all(

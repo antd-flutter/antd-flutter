@@ -14,8 +14,7 @@ import 'package:antd_flutter_plus/src/components/data_entry/search_bar/ant_searc
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/search_bar/ant_search_bar_types.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 搜索栏 — 移动端搜索场景的输入组件。
 class AntSearchBar extends StatefulWidget {
