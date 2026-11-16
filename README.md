@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：21 / 111**
+**总体：32 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -101,15 +101,15 @@ void main() {
 | CapsuleTabs 📱 | ✅ | 胶囊选项卡 + 灰色容器白底激活 + 阴影 + 禁用项 |
 | JumboTabs 📱 | ✅ | 大选项卡 + 主标题/描述 + 底部指示条 |
 
-### 数据录入 — 0/30 完成
+### 数据录入 — 5/30 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
-| Input | 📋 | TextArea/Password/Search/Group |
-| InputNumber | 📋 | 数字输入框 |
-| Checkbox | 📋 | 多选框 |
-| Radio | 📋 | 单选框 |
-| Switch | 📋 | 开关 |
+| Input | ✅ | TextArea/Password/Search/Group + 前后缀/addon/清除/字数统计/状态/尺寸 |
+| InputNumber | ✅ | 数字输入框 + 上下限/步长/精度/controls 模式/addon |
+| Checkbox | ✅ | 多选框 + 半选/受控/组(options/children)/纵向/组禁用 |
+| Radio | ✅ | 单选框 + 按钮风格(outline/solid)/组/纵向/组禁用 |
+| Switch | ✅ | 开关 + 尺寸/文案/加载中/禁用/受控 |
 | Select | 📋 | 单选/多选/搜索 |
 | DatePicker | 📋 | 日期选择框 |
 | TimePicker | 📋 | 时间选择框 |

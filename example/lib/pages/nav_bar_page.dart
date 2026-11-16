@@ -91,7 +91,7 @@ class _LeftDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntNavBar(
       child: const Text('左侧附加'),
-      backArrow: true,
+      back: true,
       left: const Text('首页'),
       onBack: () => _showSnackbar(context, '点击了返回箭头'),
     );

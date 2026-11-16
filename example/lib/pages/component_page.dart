@@ -9,6 +9,7 @@ import 'anchor_page.dart';
 import 'breadcrumb_page.dart';
 import 'button_page.dart';
 import 'capsule_tabs_page.dart';
+import 'checkbox_page.dart';
 import 'divider_page.dart';
 import 'dropdown_page.dart';
 import 'flex_page.dart';
@@ -16,6 +17,8 @@ import 'float_button_page.dart';
 import 'grid_page.dart';
 import 'icon_page.dart';
 import 'index_bar_page.dart';
+import 'input_number_page.dart';
+import 'input_page.dart';
 import 'jumbo_tabs_page.dart';
 import 'layout_page.dart';
 import 'masonry_page.dart';
@@ -23,11 +26,13 @@ import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
 import 'pagination_page.dart';
+import 'radio_page.dart';
 import 'safe_area_page.dart';
 import 'side_bar_page.dart';
 import 'space_page.dart';
 import 'splitter_page.dart';
 import 'steps_page.dart';
+import 'switch_page.dart';
 import 'tab_bar_page.dart';
 import 'tabs_page.dart';
 import 'typography_page.dart';
@@ -51,6 +56,8 @@ class ComponentPage extends StatelessWidget {
         return const ButtonPage();
       case 'capsule_tabs':
         return const CapsuleTabsPage();
+      case 'checkbox':
+        return const CheckboxPage();
       case 'divider':
         return const DividerPage();
       case 'dropdown':
@@ -65,6 +72,10 @@ class ComponentPage extends StatelessWidget {
         return const IconPage();
       case 'index_bar':
         return const IndexBarPage();
+      case 'input':
+        return const InputPage();
+      case 'input_number':
+        return const InputNumberPage();
       case 'jumbo_tabs':
         return const JumboTabsPage();
       case 'layout':
@@ -79,6 +90,8 @@ class ComponentPage extends StatelessWidget {
         return const NoticeBarPage();
       case 'pagination':
         return const PaginationPage();
+      case 'radio':
+        return const RadioPage();
       case 'safe_area':
         return const SafeAreaPage();
       case 'side_bar':
@@ -89,6 +102,8 @@ class ComponentPage extends StatelessWidget {
         return const SplitterPage();
       case 'steps':
         return const StepsPage();
+      case 'switch':
+        return const SwitchPage();
       case 'tab_bar':
         return const TabBarPage();
       case 'tabs':

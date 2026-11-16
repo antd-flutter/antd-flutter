@@ -1,3 +1,22 @@
+## 0.12.0-beta.1
+
+新增 Input 输入框、InputNumber 数字输入框、Checkbox 复选框、Radio 单选框与 Switch 开关组件（Phase 5 数据录入组件首批）。
+
+- AntInput：输入框，支持 size（large/middle/small）、status（normal/error/warning）、prefix/suffix 前后缀、addonBefore/addonAfter 外部前后置、allowClear 清除按钮、maxLength/showCount 字数统计、bordered 边框开关、disabled 禁用、受控 value 与非受控 defaultValue、onChange/onSubmit 事件回调
+- AntInputTextArea：多行文本，支持 autoSize 自适应高度（boolean/对象 minRows/maxRows）、maxLength/showCount 字数统计
+- AntInputPassword：密码框，支持 visibilityToggle 密码可见切换
+- AntInputSearch：搜索框，支持 onSearch 搜索回调、enterButton 自定义搜索按钮
+- AntInputGroup：输入框组，支持 compact 紧凑模式（合并相邻边框）
+- AntInputNumber：数字输入框，支持 min/max 上下限、step 步长、precision 精度、controls（upDown/none）步进按钮模式、addonBefore/addonAfter、size、disabled、受控 value 与非受控 defaultValue、onChange/onStep 事件回调
+- AntCheckbox：复选框，支持受控 checked 与非受控 defaultChecked、indeterminate 半选、disabled 禁用、value 组内联动、onChange 事件回调
+- AntCheckboxGroup：复选框组，支持 options 列表与 children 两种模式、受控 value 与非受控 defaultValue、direction（horizontal/vertical）、组级 disabled、onChange 事件回调
+- AntRadio：单选框，支持受控 checked 与非受控 defaultChecked、disabled 禁用、value 组内联动、onChange 事件回调
+- AntRadioGroup：单选框组，支持 options 列表与 children 两种模式、optionType（normal/button）选项风格、buttonStyle（outline/solid）按钮风格、direction（horizontal/vertical）、组级 disabled、onChange 事件回调
+- AntRadioButton：按钮风格单选，搭配 AntRadioGroup 使用
+- AntSwitch：开关，支持受控 checked 与非受控 defaultChecked、size（middle/small）、checkedChildren/unCheckedChildren 文案、loading 加载中、disabled 禁用、onChange 事件回调
+- Widget test：Input 25 个 + InputNumber 15 个 + Checkbox 19 个 + Radio 18 个 + Switch 14 个测试用例全量通过
+- Example demo 页：Input 11 个 + InputNumber 8 个 + Checkbox 8 个 + Radio 9 个 + Switch 6 个展示区块
+
 ## 0.11.0-beta.1
 
 新增 NavBar 导航栏、TabBar 标签栏、SideBar 侧边栏、IndexBar 索引栏、CapsuleTabs 胶囊选项卡与 JumboTabs 大块选项卡组件（Phase 4 导航组件第三批，导航分类全部完成）。
