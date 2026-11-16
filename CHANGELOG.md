@@ -1,3 +1,14 @@
+## 0.7.0-beta.1
+
+新增 Splitter 分割面板与 Masonry 瀑布流组件（Phase 3 布局组件第三批）。
+
+- AntSplitter：分割面板，支持 layout（horizontal/vertical）、拖拽调整面板大小、collapsible 折叠按钮、size 受控模式、defaultSize 双击重置、min/max 尺寸约束、lazy 拖拽模式、resizable 可调整开关、onResizeStart/onResize/onResizeEnd/onCollapse/onDraggerDoubleClick 事件回调
+- AntSplitterPanel：面板配置，支持 size/defaultSize/min/max/resizable/collapsible/child
+- AntMasonry：瀑布流布局，支持 columns 列数（默认 3）、responsiveColumns 响应式列数（xs/sm/md/lg/xl/xxl 断点与 antd 栅格对齐）、gutter 列间距、verticalGutter 行间距、贪心分配（有 height 时放入最矮列）与轮询分配（无 height 时）
+- AntMasonryItem：瀑布流项，支持 height 参与贪心分配
+- Widget test：Splitter 20 个 + Masonry 12 个测试用例全量通过
+- Example demo 页：Splitter 6 个 + Masonry 4 个展示区块
+
 ## 0.6.0-beta.1
 
 新增 Grid 栅格与 Layout 布局组件（Phase 3 布局组件第二批）。

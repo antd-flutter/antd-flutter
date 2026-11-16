@@ -69,7 +69,7 @@ void main() {
 | FloatButton | ✅ | 悬浮按钮 + FloatButtonGroup(trigger/placement) + FloatButtonBackTop + badge 角标 |
 | NoticeBar 📱 | ✅ | 通告栏，滚动/多行/可关闭/5种语义颜色/3种形状/边框模式 |
 
-### 布局 — 3/9 完成
+### 布局 — 5/9 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -78,8 +78,8 @@ void main() {
 | Grid | ✅ | Row/Col 24 栅格 + span/offset/gutter/align/justify/wrap/flex |
 | Layout | ✅ | Sider(折叠/断点/深浅主题) + Header/Content/Footer 组合 |
 | Space | ✅ | direction/size(small/middle/large/all/only)/align/wrap/split |
-| Splitter | 📋 | 可拖拽分隔面板 |
-| Masonry | 📋 | 瀑布流 |
+| Splitter | ✅ | 拖拽调整/折叠/受控/双击重置/lazy/min/max |
+| Masonry | ✅ | columns/responsiveColumns(断点)/gutter/贪心+轮询分配 |
 | SafeArea 📱 | 📋 | 安全区适配 |
 | AutoCenter 📱 | 📋 | 内容不足一屏时自动垂直居中 |
 

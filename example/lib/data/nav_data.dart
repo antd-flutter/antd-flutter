@@ -35,8 +35,10 @@ const List<NavGroup> navGroups = [
     NavItem('Flex 弹性布局', 'flex'),
     NavItem('Grid 栅格', 'grid'),
     NavItem('Layout 布局', 'layout'),
+    NavItem('Masonry 瀑布流', 'masonry'),
     NavItem('SafeArea 安全区', 'safe_area'),
     NavItem('Space 间距', 'space'),
+    NavItem('Splitter 分割面板', 'splitter'),
   ]),
   NavGroup('导航', [
     NavItem('Anchor 锚点', 'anchor'),

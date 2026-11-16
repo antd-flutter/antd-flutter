@@ -11,8 +11,10 @@ import 'float_button_page.dart';
 import 'grid_page.dart';
 import 'icon_page.dart';
 import 'layout_page.dart';
+import 'masonry_page.dart';
 import 'notice_bar_page.dart';
 import 'space_page.dart';
+import 'splitter_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -38,10 +40,14 @@ class ComponentPage extends StatelessWidget {
         return const IconPage();
       case 'layout':
         return const LayoutPage();
+      case 'masonry':
+        return const MasonryPage();
       case 'notice_bar':
         return const NoticeBarPage();
       case 'space':
         return const SpacePage();
+      case 'splitter':
+        return const SplitterPage();
       case 'typography':
         return const TypographyPage();
       default:
