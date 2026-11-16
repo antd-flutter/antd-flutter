@@ -153,3 +153,17 @@ export 'src/components/data_display/empty/ant_empty.dart';
 export 'src/components/data_display/empty/ant_empty_types.dart';
 export 'src/components/data_display/statistic/ant_statistic.dart';
 export 'src/components/data_display/statistic/ant_statistic_types.dart';
+
+// ============================================================
+// 数据展示 Data Display — 批次B
+// ============================================================
+export 'src/components/data_display/tooltip/ant_tooltip.dart';
+export 'src/components/data_display/tooltip/ant_tooltip_types.dart';
+export 'src/components/data_display/popover/ant_popover.dart';
+export 'src/components/data_display/popover/ant_popover_types.dart';
+export 'src/components/data_display/segmented/ant_segmented.dart';
+export 'src/components/data_display/segmented/ant_segmented_types.dart';
+export 'src/components/data_display/qr_code/ant_qr_code.dart';
+export 'src/components/data_display/qr_code/ant_qr_code_types.dart';
+export 'src/components/data_display/image/ant_image.dart';
+export 'src/components/data_display/image/ant_image_types.dart';

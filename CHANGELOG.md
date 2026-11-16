@@ -1,3 +1,15 @@
+## 0.18.0-beta.1
+
+新增 Image 图片(含全屏预览)、Popover 气泡卡片、Tooltip 文字提示、Segmented 分段控制器与 QRCode 二维码组件（Phase 6 数据展示组件第二批）。
+
+- AntImage：图片展示，网络图经 cached_network_image 缓存加载（加载占位/失败占位统一封装隔离 SDK）、fit 适配/radius 圆角/width/height、preview 点击全屏预览（自绘 Overlay：暗色遮罩 + InteractiveViewer 缩放 + 关闭按钮）、AntImage.PreviewGroup 组内左右切换 + 页码指示、fallback/errorWidget 加载失败自定义、previewSrc 预览图独立配置
+- AntPopover：气泡卡片，title 标题/content 内容区、九方向 placement、arrow 箭头、color 自定义背景（文字自动反白）、overlayStyle、hover/点击触发、受控 open/defaultOpen/disabled
+- AntTooltip：文字提示，12 方向 placement、arrow 箭头、color/overlayStyle、hover/点击/焦点触发（桌面 hover 延迟可配，移动端点击/长按）、受控 open/defaultOpen
+- AntSegmented：分段控制器，String/AntSegmentedItem(label/icon/value/disabled) 选项、选中滑块动画（block AnimatedAlign / inline AnimatedContainer）、block 占满整行、size(large/middle/small)、shape(rounded/round)、受控 value/defaultValue/onChange、全局与单项 disabled
+- AntQRCode：二维码（qr_flutter 经中间层封装，不泄漏 SDK 语义），size/errorLevel(L/M/Q/H)/color/bgColor 主题适配/bordered、status(active/expired/scanned) 覆盖层、expired 点击刷新 onRefresh、icon 中心图标模式
+- Widget test：Tooltip 27 个 + Popover 19 个 + Segmented 16 个 + QRCode 15 个 + Image 17 个测试用例全量通过（累计 1161 个）
+- Example demo 页：Tooltip/Popover/Segmented/QRCode/Image 各 7-8 个展示区块
+
 ## 0.17.0-beta.2
 
 修复 AntSpace 在松约束父级（如 AntAutoCenter/Center 内）不居中的问题。

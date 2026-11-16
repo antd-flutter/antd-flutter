@@ -136,7 +136,7 @@ void main() {
 | VirtualInput 📱 | ✅ | 虚拟输入 + placeholder/clearable/confirmText/onEnterPress/内置键盘 |
 | ImageUploader 📱 | ✅ | 图片上传 + maxCount/columns/preview/deletable/onPickImage/状态展示 |
 
-### 数据展示 — 6/28 完成
+### 数据展示 — 11/28 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -145,7 +145,7 @@ void main() {
 | Tag | ✅ | 预设色/checkable 可勾选/closable 可关闭/borderless + 图标 |
 | Card | ✅ | title/extra/cover/actions + size + hoverable/bordered + 内嵌模式 |
 | Empty | ✅ | image 自定义图片/描述文字/children 自定义内容 |
-| Image | 📋 | 图片 + 预览 |
+| Image | ✅ | cached_network_image 缓存加载 + 全屏预览(缩放/组切换) + fit/radius/fallback/previewSrc |
 | Statistic | ✅ | value 精度/千分位分隔/前后缀/title + 倒计时模式 + 状态色 |
 | Table | 📋 | 排序/筛选/固定列/虚拟滚动 |
 | Descriptions | 📋 | 描述列表 |
@@ -154,10 +154,10 @@ void main() {
 | List | 📋 | 列表 |
 | Calendar | 📋 | 日历 |
 | Carousel | 📋 | 走马灯 + 移动端手势滑动 |
-| Popover | 📋 | 气泡卡片 |
-| Tooltip | 📋 | 文字提示 |
-| Segmented | 📋 | 分段控制器 |
-| QRCode | 📋 | 二维码 |
+| Popover | ✅ | 气泡卡片 + title/content + 九方向 + 箭头/自定义背景 + hover/点击触发 + 受控 |
+| Tooltip | ✅ | 文字提示 + 12 方向 + 箭头/自定义颜色 + hover/点击/焦点触发 + 受控/延迟 |
+| Segmented | ✅ | 分段控制器 + 滑块动画 + String/Item 选项 + block/size/shape + 受控/禁用 |
+| QRCode | ✅ | 二维码 + 纠错等级 L/M/Q/H + 自定义颜色/尺寸 + expired/scanned 状态 + icon 模式 |
 | Tree | 📋 | 树形控件 |
 | Tour | 📋 | 漫游引导 |
 | Ellipsis 📱 | 📋 | 文本省略 |

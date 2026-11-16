@@ -6,6 +6,11 @@ import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'image_page.dart';
+import 'popover_page.dart';
+import 'qr_code_page.dart';
+import 'segmented_page.dart';
+import 'tooltip_page.dart';
 import 'badge_page.dart';
 import 'card_page.dart';
 import 'tag_page.dart';
@@ -78,6 +83,16 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'image':
+        return const ImagePage();
+      case 'popover':
+        return const PopoverPage();
+      case 'qr_code':
+        return const QRCodePage();
+      case 'segmented':
+        return const SegmentedPage();
+      case 'tooltip':
+        return const TooltipPage();
       case 'badge':
         return const BadgePage();
       case 'card':
