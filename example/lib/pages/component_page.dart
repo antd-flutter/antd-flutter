@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'ellipsis_page.dart';
+import 'floating_bubble_page.dart';
+import 'floating_panel_page.dart';
+import 'footer_page.dart';
+import 'image_viewer_page.dart';
+import 'infinite_scroll_page.dart';
+import 'page_indicator_page.dart';
 import 'calendar_page.dart';
 import 'collapse_page.dart';
 import 'descriptions_page.dart';
@@ -92,6 +99,20 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'ellipsis':
+        return const EllipsisPage();
+      case 'floating_bubble':
+        return const FloatingBubblePage();
+      case 'floating_panel':
+        return const FloatingPanelPage();
+      case 'footer':
+        return const FooterPage();
+      case 'image_viewer':
+        return const ImageViewerPage();
+      case 'infinite_scroll':
+        return const InfiniteScrollPage();
+      case 'page_indicator':
+        return const PageIndicatorPage();
       case 'calendar':
         return const CalendarPage();
       case 'carousel':

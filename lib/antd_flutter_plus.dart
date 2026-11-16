@@ -189,3 +189,21 @@ export 'src/components/data_display/collapse/ant_collapse.dart';
 export 'src/components/data_display/collapse/ant_collapse_types.dart';
 export 'src/components/data_display/list/ant_list.dart';
 export 'src/components/data_display/list/ant_list_types.dart';
+
+// ============================================================
+// 数据展示 Data Display — 批次D
+// ============================================================
+export 'src/components/data_display/ellipsis/ant_ellipsis.dart';
+export 'src/components/data_display/ellipsis/ant_ellipsis_types.dart';
+export 'src/components/data_display/footer/ant_footer.dart';
+export 'src/components/data_display/footer/ant_footer_types.dart';
+export 'src/components/data_display/page_indicator/ant_page_indicator.dart';
+export 'src/components/data_display/page_indicator/ant_page_indicator_types.dart';
+export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
+export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
+export 'src/components/data_display/infinite_scroll/ant_infinite_scroll.dart';
+export 'src/components/data_display/infinite_scroll/ant_infinite_scroll_types.dart';
+export 'src/components/data_display/image_viewer/ant_image_viewer.dart';
+export 'src/components/data_display/image_viewer/ant_image_viewer_types.dart';
+export 'src/components/data_display/floating_panel/ant_floating_panel.dart';
+export 'src/components/data_display/floating_panel/ant_floating_panel_types.dart';
