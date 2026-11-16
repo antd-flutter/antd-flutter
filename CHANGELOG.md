@@ -1,3 +1,12 @@
+## 0.8.0-beta.1
+
+新增 SafeArea 安全区与 AutoCenter 自动居中组件（Phase 3 布局组件第四批，布局分类全部完成）。
+
+- AntSafeArea：安全区，支持 position（top/bottom/both）、占位模式（child 为 null 时渲染安全区高度 SizedBox，对齐 antd React）与包装模式（child 不为 null 时包装子组件并添加安全区内边距，对齐 Flutter SafeArea）、maintainBottomViewPadding 键盘弹出保持底部内边距、minimum 最小内边距、left/right 左右安全区开关
+- AntAutoCenter：自动居中，让内容在剩余空间中自动居中，支持 expanded 在 Flex 父级中占据剩余空间（对齐 antd React AutoCenter 行为）
+- Widget test：SafeArea 14 个 + AutoCenter 7 个测试用例全量通过
+- Example demo 页：SafeArea 4 个 + AutoCenter 3 个展示区块
+
 ## 0.7.0-beta.1
 
 新增 Splitter 分割面板与 Masonry 瀑布流组件（Phase 3 布局组件第三批）。

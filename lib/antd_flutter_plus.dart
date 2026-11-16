@@ -36,6 +36,7 @@ export 'src/components/general/notice_bar/ant_notice_bar.dart';
 export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
 
 // L4 组件层 — 布局
+export 'src/components/layout/auto_center/ant_auto_center.dart';
 export 'src/components/layout/divider/ant_divider.dart';
 export 'src/components/layout/divider/ant_divider_types.dart';
 export 'src/components/layout/flex/ant_flex.dart';
@@ -46,6 +47,8 @@ export 'src/components/layout/layout/ant_layout.dart';
 export 'src/components/layout/layout/ant_layout_types.dart';
 export 'src/components/layout/masonry/ant_masonry.dart';
 export 'src/components/layout/masonry/ant_masonry_types.dart';
+export 'src/components/layout/safe_area/ant_safe_area.dart';
+export 'src/components/layout/safe_area/ant_safe_area_types.dart';
 export 'src/components/layout/space/ant_space.dart';
 export 'src/components/layout/space/ant_space_types.dart';
 export 'src/components/layout/splitter/ant_splitter.dart';
