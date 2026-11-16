@@ -26,6 +26,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # dart analyze 会递归扫描 packages/*/example 嵌套包，
+      # 需先为每个子包 example 解析依赖，否则 URI 无法解析报错
+      - name: Install subpackage example dependencies
+        run: |
+          for d in packages/*/example; do
+            if [ -f "$d/pubspec.yaml" ]; then
+              echo "flutter pub get in $d"
+              (cd "$d" && flutter pub get)
+            fi
+          done
+
       - name: Dart analyze
         run: dart analyze
 
