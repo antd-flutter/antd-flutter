@@ -240,7 +240,7 @@ class _AntLayoutSiderState extends State<AntLayoutSider> {
                     minWidth: 0,
                     maxWidth: double.infinity,
                     minHeight: 0,
-                    maxHeight: double.infinity,
+                    maxHeight: constraints.maxHeight,
                     alignment: Alignment.topLeft,
                     child: SizedBox(
                       width: widget.width.w,

@@ -32,6 +32,14 @@ export 'src/components/navigation/pagination/ant_pagination.dart';
 export 'src/components/navigation/pagination/ant_pagination_types.dart';
 export 'src/components/navigation/steps/ant_steps.dart';
 export 'src/components/navigation/steps/ant_steps_types.dart';
+export 'src/components/navigation/tabs/ant_tabs.dart';
+export 'src/components/navigation/tabs/ant_tabs_types.dart';
+export 'src/components/navigation/menu/ant_menu.dart';
+export 'src/components/navigation/menu/ant_menu_types.dart';
+export 'src/components/navigation/anchor/ant_anchor.dart';
+export 'src/components/navigation/anchor/ant_anchor_types.dart';
+export 'src/components/navigation/dropdown/ant_dropdown.dart';
+export 'src/components/navigation/dropdown/ant_dropdown_types.dart';
 
 // L4 组件层 — 通用
 export 'src/components/general/button/ant_button.dart';

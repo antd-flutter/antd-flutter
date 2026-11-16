@@ -1,3 +1,14 @@
+## 0.10.0-beta.1
+
+新增 Tabs 标签页、Menu 导航菜单、Anchor 锚点与 Dropdown 下拉菜单组件（Phase 4 导航组件第二批）。
+
+- AntTabs：标签页，支持 items 列表（key/label/child/disabled/closable）、activeKey 受控与 defaultActiveKey 非受控、type（line/card）、position（top/left/right/bottom）、closable 全局可关闭、onChange/onTabClick/onTabClose 事件回调、AnimatedSize 内容切换动画、指示条滑动动画
+- AntMenu：导航菜单，支持 mode（vertical/horizontal）、items 列表（key/label/labelWidget/icon/disabled/children/type item/group/divider）、theme（light/dark）、selectedKey 受控与 defaultSelectedKey 非受控、inlineCollapsed 折叠、openKeys/subMenuOpenKeys 展开子菜单、onClick/onOpenChange 事件回调、水平模式 SubMenu 下拉弹出
+- AntAnchor：锚点，支持 direction（vertical/horizontal）、items 列表（key/title/titleWidget/children 嵌套子链接）、controller 受控（setActive/activeKey）、onClick 事件回调、垂直左侧边框激活指示、水平底部边框激活指示
+- AntDropdown：下拉菜单，支持 trigger（hover/click）、placement（bottomLeft/bottomRight/topLeft/topRight）、items 列表（key/label/labelWidget/icon/disabled/danger/type item/divider）、open 受控与 onOpenChange、onClick 事件回调、arrow 箭头、disabled 禁用、Overlay 浮层实现
+- Widget test：Tabs 19 个 + Menu 29 个 + Anchor 15 个 + Dropdown 15 个测试用例全量通过
+- Example demo 页：Tabs 6 个 + Menu 5 个 + Anchor 4 个 + Dropdown 6 个展示区块
+
 ## 0.9.0-beta.1
 
 新增 Breadcrumb 面包屑、Steps 步骤条与 Pagination 分页组件（Phase 4 导航组件首批）。

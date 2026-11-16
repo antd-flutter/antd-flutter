@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：11 / 111**
+**总体：15 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -83,17 +83,17 @@ void main() {
 | SafeArea 📱 | ✅ | top/bottom/both + 占位模式/包装模式/键盘适配 |
 | AutoCenter 📱 | ✅ | 自动居中 + expanded 弹性布局占满剩余空间 |
 
-### 导航 — 3/13 完成
+### 导航 — 7/13 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
 | Breadcrumb | ✅ | items/separator/separatorWidget/title/titleWidget/icon/onClick |
 | Steps | ✅ | horizontal/vertical/normal/small/wait/process/finish/error/onChange |
 | Pagination | ✅ | 受控/非受控/showSizeChanger/showQuickJumper/showTotal/simple/small |
-| Tabs | 📋 | 卡片/线条样式 + 可拖拽关闭 |
-| Menu | 📋 | 水平/垂直/内嵌 + SubMenu |
-| Anchor | 📋 | 锚点滚动联动 |
-| Dropdown | 📋 | 弹出菜单 |
+| Tabs | ✅ | line/card 样式 + top/left/right/bottom 位置 + closable 关闭 + 受控/非受控 |
+| Menu | ✅ | vertical/horizontal + SubMenu 展开 + light/dark 主题 + 折叠 + 分组/分割线 |
+| Anchor | ✅ | vertical/horizontal + 嵌套子链接 + controller 受控 + 边框激活指示 |
+| Dropdown | ✅ | hover/click 触发 + 四方向弹出 + 分割线/禁用/危险项 + arrow 箭头 + 受控 |
 | NavBar 📱 | 📋 | 移动端导航栏 |
 | TabBar 📱 | 📋 | 底部 Tab 切换 + Badge |
 | SideBar 📱 | 📋 | 移动端侧边栏 |

@@ -5,21 +5,25 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
+import 'anchor_page.dart';
 import 'breadcrumb_page.dart';
 import 'button_page.dart';
 import 'divider_page.dart';
+import 'dropdown_page.dart';
 import 'flex_page.dart';
 import 'float_button_page.dart';
 import 'grid_page.dart';
 import 'icon_page.dart';
 import 'layout_page.dart';
 import 'masonry_page.dart';
+import 'menu_page.dart';
 import 'notice_bar_page.dart';
 import 'pagination_page.dart';
 import 'safe_area_page.dart';
 import 'space_page.dart';
 import 'splitter_page.dart';
 import 'steps_page.dart';
+import 'tabs_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -33,12 +37,16 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'auto_center':
         return const AutoCenterPage();
+      case 'anchor':
+        return const AnchorPage();
       case 'breadcrumb':
         return const BreadcrumbPage();
       case 'button':
         return const ButtonPage();
       case 'divider':
         return const DividerPage();
+      case 'dropdown':
+        return const DropdownPage();
       case 'flex':
         return const FlexPage();
       case 'float_button':
@@ -51,6 +59,8 @@ class ComponentPage extends StatelessWidget {
         return const LayoutPage();
       case 'masonry':
         return const MasonryPage();
+      case 'menu':
+        return const MenuPage();
       case 'notice_bar':
         return const NoticeBarPage();
       case 'pagination':
@@ -63,6 +73,8 @@ class ComponentPage extends StatelessWidget {
         return const SplitterPage();
       case 'steps':
         return const StepsPage();
+      case 'tabs':
+        return const TabsPage();
       case 'typography':
         return const TypographyPage();
       default:
