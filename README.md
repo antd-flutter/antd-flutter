@@ -136,17 +136,17 @@ void main() {
 | VirtualInput 📱 | ✅ | 虚拟输入 + placeholder/clearable/confirmText/onEnterPress/内置键盘 |
 | ImageUploader 📱 | ✅ | 图片上传 + maxCount/columns/preview/deletable/onPickImage/状态展示 |
 
-### 数据展示 — 0/28 完成
+### 数据展示 — 6/28 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
-| Avatar | 📋 | 头像 |
-| Badge | 📋 | 徽标数 |
-| Tag | 📋 | 标签 |
-| Card | 📋 | 卡片 |
-| Empty | 📋 | 空状态 |
+| Avatar | ✅ | 尺寸/形状(shape/circle/square)/图标/图片/文字 + Group 最大数量折叠 + 状态色 |
+| Badge | ✅ | count/overflowCount/圆点/文字 + 状态色 + status-dot + offset 偏移 + size |
+| Tag | ✅ | 预设色/checkable 可勾选/closable 可关闭/borderless + 图标 |
+| Card | ✅ | title/extra/cover/actions + size + hoverable/bordered + 内嵌模式 |
+| Empty | ✅ | image 自定义图片/描述文字/children 自定义内容 |
 | Image | 📋 | 图片 + 预览 |
-| Statistic | 📋 | 统计数值 |
+| Statistic | ✅ | value 精度/千分位分隔/前后缀/title + 倒计时模式 + 状态色 |
 | Table | 📋 | 排序/筛选/固定列/虚拟滚动 |
 | Descriptions | 📋 | 描述列表 |
 | Timeline | 📋 | 时间轴 |

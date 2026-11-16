@@ -6,6 +6,7 @@
 # ---- 工作区辅助目录（非项目代码，不纳入版本控制）----
 # ai-brain 内嵌独立 git 仓库，需无斜杠模式才能匹配 gitlink
 ai-brain
+.agents/
 .joycode/
 .temp/
 AGENTS.md

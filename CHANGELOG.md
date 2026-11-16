@@ -1,3 +1,16 @@
+## 0.17.0-beta.1
+
+新增 Avatar 头像、Badge 徽标数、Tag 标签、Card 卡片、Empty 空状态与 Statistic 统计数值组件（Phase 6 数据展示组件首批）。
+
+- AntAvatar：头像，支持 size(px/xs/sm/md/lg/xl)/shape(circle/square)/src 图片/icon 图标/children 文字 + AntAvatarGroup 组（maxCount 最大数量折叠/maxStyle 溢出样式/size 传递）
+- AntBadge：徽标数，支持 count 计数/overflowCount 溢出上限/showZero 零值展示/dot 圆点/children 文本内容/status 状态点(success/processing/default/error/warning)/text 状态文案/badgeColor 自定义颜色/offset 偏移/size 尺寸
+- AntTag：标签，支持 presetColor 预设色(success/processing/error/warning/default + 彩色色板)/checkable 可勾选/checked 受控/closable 可关闭/onClose/color 自定义颜色/borderless 无边框/icon 图标
+- AntCard：卡片，支持 title 标题/extra 右上角操作区/cover 封面图/actions 底部操作组/size 尺寸/hoverable 悬停浮起/bordered 边框/onTap 点击回调 + AntCardMeta 组合(avatar/title/description)
+- AntEmpty：空状态，支持 description 描述文字/image 自定义图片/children 自定义内容
+- AntStatistic：统计数值，支持 value 数值/precision 精度/groupSeparator 千分位分隔符/title 标题/prefix/suffix 前后缀/valueStyle 数值样式/countdown 倒计时模式(format 格式/finishes 回调)/status 状态色
+- Widget test：Avatar 14 个 + Badge 14 个 + Tag 12 个 + Card 12 个 + Empty 9 个 + Statistic 12 个测试用例全量通过（累计 1066 个）
+- Example demo 页：Avatar/Badge/Tag/Card/Empty/Statistic 各 6-8 个展示区块
+
 ## 0.16.0-beta.1
 
 新增 CheckList 复选列表、Selector 选择组、NumberKeyboard 数字键盘、PasscodeInput 密码格子输入、VirtualInput 虚拟输入与 ImageUploader 图片上传组件（Phase 5 数据录入组件第五批，数据录入分类 30/30 全部完成）。

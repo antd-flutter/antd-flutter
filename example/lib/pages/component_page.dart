@@ -5,6 +5,10 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
+import 'avatar_page.dart';
+import 'badge_page.dart';
+import 'card_page.dart';
+import 'tag_page.dart';
 import 'auto_complete_page.dart';
 import 'anchor_page.dart';
 import 'breadcrumb_page.dart';
@@ -19,6 +23,7 @@ import 'color_picker_page.dart';
 import 'date_picker_page.dart';
 import 'divider_page.dart';
 import 'dropdown_page.dart';
+import 'empty_page.dart';
 import 'flex_page.dart';
 import 'float_button_page.dart';
 import 'form_page.dart';
@@ -43,6 +48,7 @@ import 'rate_page.dart';
 import 'radio_page.dart';
 import 'safe_area_page.dart';
 import 'search_bar_page.dart';
+import 'statistic_page.dart';
 import 'select_page.dart';
 import 'selector_page.dart';
 import 'side_bar_page.dart';
@@ -70,6 +76,14 @@ class ComponentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (snakeName) {
+      case 'avatar':
+        return const AvatarPage();
+      case 'badge':
+        return const BadgePage();
+      case 'card':
+        return const CardPage();
+      case 'tag':
+        return const TagPage();
       case 'auto_center':
         return const AutoCenterPage();
       case 'auto_complete':
@@ -100,6 +114,8 @@ class ComponentPage extends StatelessWidget {
         return const DividerPage();
       case 'dropdown':
         return const DropdownPage();
+      case 'empty':
+        return const EmptyPage();
       case 'flex':
         return const FlexPage();
       case 'form':
