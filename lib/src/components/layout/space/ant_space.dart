@@ -79,6 +79,7 @@ class AntSpace extends StatelessWidget {
       }
       return Flex(
         direction: isVertical ? Axis.vertical : Axis.horizontal,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: _mapCrossAxisAlignment(align, isVertical),
         textBaseline: align == AntSpaceAlign.baseline
             ? TextBaseline.alphabetic
@@ -100,6 +101,7 @@ class AntSpace extends StatelessWidget {
 
     return Flex(
       direction: isVertical ? Axis.vertical : Axis.horizontal,
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: _mapCrossAxisAlignment(align, isVertical),
       textBaseline: align == AntSpaceAlign.baseline
           ? TextBaseline.alphabetic

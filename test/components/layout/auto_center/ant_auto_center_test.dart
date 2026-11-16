@@ -146,4 +146,34 @@ void main() {
       expect(innerRect.top, 280);
     });
   });
+  // 回归测试：AntSpace 内部 Flex 曾用 MainAxisSize.max 撑满主轴，
+  // 导致外层 AntAutoCenter 的主轴居中失效（内容顶在容器顶部）
+  group('AntAutoCenter — 与 AntSpace 组合居中（回归）', () {
+  testWidgets('松约束容器内垂直水平均居中', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            const SizedBox(height: 100),
+            Container(
+              height: 200,
+              child: AntAutoCenter(
+                child: AntSpace(
+                  direction: AntSpaceDirection.vertical,
+                  align: AntSpaceAlign.center,
+                  children: [Icon(Icons.center_focus_strong, size: 48), Text('居中内容')],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ));
+    await tester.pump();
+    final boxRect = tester.getRect(find.byType(Container).last);
+    final contentRect = tester.getRect(find.byType(AntSpace));
+    expect(contentRect.center.dx, moreOrLessEquals(boxRect.center.dx, epsilon: 1));
+    expect(contentRect.center.dy, moreOrLessEquals(boxRect.center.dy, epsilon: 1));
+  });
+});
 }

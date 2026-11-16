@@ -1,3 +1,11 @@
+## 0.17.0-beta.2
+
+修复 AntSpace 在松约束父级（如 AntAutoCenter/Center 内）不居中的问题。
+
+- AntSpace：内部 Flex 由默认 MainAxisSize.max 改为 MainAxisSize.min，Space 语义应为紧贴子项的容器；此前 max 会撑满主轴剩余空间，导致外层 Center/AntAutoCenter 的主轴居中失效（内容顶在容器顶部）
+- 新增回归测试：AntAutoCenter + AntSpace 组合在松约束容器内水平垂直均居中
+- 全量 1067 个测试通过
+
 ## 0.17.0-beta.1
 
 新增 Avatar 头像、Badge 徽标数、Tag 标签、Card 卡片、Empty 空状态与 Statistic 统计数值组件（Phase 6 数据展示组件首批）。
