@@ -1,3 +1,15 @@
+## 0.13.0-beta.1
+
+新增 Select 选择器、DatePicker 日期选择器、TimePicker 时间选择器、Slider 滑动输入条与 Rate 评分组件（Phase 5 数据录入组件第二批）。
+
+- AntSelect：选择器，支持 mode（single/multiple）单选/多选、options 选项列表（value/label/disabled）、showSearch 搜索过滤、allowClear 清除按钮、loading 加载中、size（large/middle/small）、placeholder 占位文本、disabled 禁用、autofocus 自动聚焦、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntDatePicker：日期选择器，支持日历浮层面板（月份导航/今日高亮/范围外置灰）、format 日期格式化（yyyy-MM-dd）、allowClear 清除按钮、size（large/middle/small）、placeholder、disabled、autofocus、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntTimePicker：时间选择器，支持时分秒三列滚轮选择、hourStep/minuteStep/secondStep 步长、确认按钮提交、allowClear 清除按钮、size（large/middle/small）、placeholder、disabled、autofocus、受控 value 与非受控 defaultValue、onChange 事件回调
+- AntSlider：滑动输入条，支持 min/max 范围、step 步长、marks 刻度标记、tooltipVisible 提示气泡控制、disabled 禁用、autofocus 自动聚焦、受控 value 与非受控 defaultValue、onChange/onChangeEnd 事件回调
+- AntRate：评分组件，支持 count 星星数量、allowHalf 半星选择、allowClear 再次点击清除、character 自定义图标、disabled 禁用、autofocus 自动聚焦、受控 value 与非受控 defaultValue、onChange 事件回调
+- Widget test：Select 10 个 + DatePicker 8 个 + TimePicker 8 个 + Slider 8 个 + Rate 9 个测试用例全量通过
+- Example demo 页：Select 7 个 + DatePicker 5 个 + TimePicker 6 个 + Slider 5 个 + Rate 6 个展示区块
+
 ## 0.12.0-beta.1
 
 新增 Input 输入框、InputNumber 数字输入框、Checkbox 复选框、Radio 单选框与 Switch 开关组件（Phase 5 数据录入组件首批）。

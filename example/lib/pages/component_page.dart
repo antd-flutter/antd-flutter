@@ -10,6 +10,7 @@ import 'breadcrumb_page.dart';
 import 'button_page.dart';
 import 'capsule_tabs_page.dart';
 import 'checkbox_page.dart';
+import 'date_picker_page.dart';
 import 'divider_page.dart';
 import 'dropdown_page.dart';
 import 'flex_page.dart';
@@ -26,15 +27,19 @@ import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
 import 'pagination_page.dart';
+import 'rate_page.dart';
 import 'radio_page.dart';
 import 'safe_area_page.dart';
+import 'select_page.dart';
 import 'side_bar_page.dart';
+import 'slider_page.dart';
 import 'space_page.dart';
 import 'splitter_page.dart';
 import 'steps_page.dart';
 import 'switch_page.dart';
 import 'tab_bar_page.dart';
 import 'tabs_page.dart';
+import 'time_picker_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -58,6 +63,8 @@ class ComponentPage extends StatelessWidget {
         return const CapsuleTabsPage();
       case 'checkbox':
         return const CheckboxPage();
+      case 'date_picker':
+        return const DatePickerPage();
       case 'divider':
         return const DividerPage();
       case 'dropdown':
@@ -90,12 +97,18 @@ class ComponentPage extends StatelessWidget {
         return const NoticeBarPage();
       case 'pagination':
         return const PaginationPage();
+      case 'rate':
+        return const RatePage();
       case 'radio':
         return const RadioPage();
       case 'safe_area':
         return const SafeAreaPage();
+      case 'select':
+        return const SelectPage();
       case 'side_bar':
         return const SideBarPage();
+      case 'slider':
+        return const SliderPage();
       case 'space':
         return const SpacePage();
       case 'splitter':
@@ -108,6 +121,8 @@ class ComponentPage extends StatelessWidget {
         return const TabBarPage();
       case 'tabs':
         return const TabsPage();
+      case 'time_picker':
+        return const TimePickerPage();
       case 'typography':
         return const TypographyPage();
       default:
