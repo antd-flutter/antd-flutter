@@ -1,3 +1,16 @@
+## 0.15.0-beta.1
+
+新增 Stepper 步进器、SearchBar 搜索栏、Picker 选择器、PickerView 选择器视图、CascaderView 级联选择视图与 CalendarPicker 日历选择器组件（Phase 5 数据录入组件第四批）。
+
+- AntStepper：步进器，支持 min/max 范围、step 步长、precision 精度、disabled 禁用、受控 value 与非受控 defaultValue、onChange 事件回调、边界按钮自动禁用
+- AntSearchBar：搜索栏，支持 placeholder 占位文本、maxLength 最大长度、showCancelButton 取消按钮、cancelText 取消按钮文本、onSearch/onCancel/onFocus/onBlur 事件回调、搜索图标与清除按钮
+- AntPicker：底部弹窗选择器，支持 columns 多列数据、title 标题、confirmText/cancelText 确认取消文本、closeOnMaskClick 遮罩关闭、受控 visible 与受控 value、onConfirm/onCancel/onSelect/onClose 事件回调
+- AntPickerView：内嵌选择器视图，支持 columns 多列数据、itemHeight 行高、受控 value 与非受控 defaultValue、onChange 事件回调、滚轮联动
+- AntCascaderView：内嵌级联选择视图，支持 options 树形选项、placeholder 占位文本、高度自定义、层级 Tab 切换、选中后自动跳转下一层级、受控 value 与非受控 defaultValue、onChange(value, items)/onTabsChange 事件回调、禁用选项
+- AntCalendarPicker：日历选择器，支持 selectionMode（single/range）单选/范围选择、weekStartsOn（monday/sunday）周起始日、min/max 日期范围、allowClear 清除选择、月份导航、底部弹窗版与内嵌视图（AntCalendarPickerView）、受控 value 与非受控 defaultValue、onConfirm/onCancel/onClose/onChange 事件回调
+- Widget test：Stepper 14 个 + SearchBar 12 个 + Picker 14 个 + PickerView 12 个 + CascaderView 16 个 + CalendarPicker 28 个测试用例全量通过
+- Example demo 页：Stepper 8 个 + SearchBar 6 个 + Picker 7 个 + PickerView 5 个 + CascaderView 8 个 + CalendarPicker 8 个展示区块
+
 ## 0.14.0-beta.1
 
 新增 Form 表单、AutoComplete 自动补全、Cascader 级联选择、TreeSelect 树选择、Mentions 提及、Transfer 穿梭框、Upload 上传与 ColorPicker 颜色选择器组件（Phase 5 数据录入组件第三批）。

@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：45 / 111**
+**总体：51 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -101,7 +101,7 @@ void main() {
 | CapsuleTabs 📱 | ✅ | 胶囊选项卡 + 灰色容器白底激活 + 阴影 + 禁用项 |
 | JumboTabs 📱 | ✅ | 大选项卡 + 主标题/描述 + 底部指示条 |
 
-### 数据录入 — 18/30 完成
+### 数据录入 — 24/30 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -123,12 +123,12 @@ void main() {
 | Transfer | ✅ | 穿梭框 + dataSource/targetKeys/selectedKeys/showSearch |
 | Upload | ✅ | 上传 + listType(text/picture/pictureCard)/maxCount/showUploadList |
 | ColorPicker | ✅ | 颜色选择器 + format(hex/rgb/hsl/hsb)/presets/disabledAlpha/allowClear |
-| Stepper 📱 | 📋 | 步进器，+/- 长按连增 |
-| SearchBar 📱 | 📋 | 搜索栏 |
-| Picker 📱 | 📋 | 底部弹出滚轮选择器 |
-| PickerView 📱 | 📋 | 内嵌滚轮选择器视图 |
-| CascaderView 📱 | 📋 | 级联选择视图 |
-| CalendarPicker 📱 | 📋 | 日历选择器 |
+| Stepper 📱 | ✅ | 步进器 + min/max/step/precision + 边界按钮禁用 + 受控 |
+| SearchBar 📱 | ✅ | 搜索栏 + placeholder/maxLength/取消按钮/onSearch/onCancel |
+| Picker 📱 | ✅ | 底部弹窗选择器 + 多列滚轮/确认取消/遮罩关闭/受控 visible |
+| PickerView 📱 | ✅ | 内嵌滚轮选择器视图 + 多列联动/受控 value/onChange |
+| CascaderView 📱 | ✅ | 级联选择视图 + 层级 Tab/自动跳转/onTabsChange/禁用选项 |
+| CalendarPicker 📱 | ✅ | 日历选择器 + single/range 模式/周起始日/min/max/月份导航 + 弹窗版与内嵌视图 |
 | CheckList 📱 | 📋 | 复选列表 |
 | Selector 📱 | 📋 | 选择组 |
 | NumberKeyboard 📱 | 📋 | 数字键盘 |

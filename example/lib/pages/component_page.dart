@@ -9,8 +9,10 @@ import 'auto_complete_page.dart';
 import 'anchor_page.dart';
 import 'breadcrumb_page.dart';
 import 'button_page.dart';
+import 'calendar_picker_page.dart';
 import 'capsule_tabs_page.dart';
 import 'cascader_page.dart';
+import 'cascader_view_page.dart';
 import 'checkbox_page.dart';
 import 'color_picker_page.dart';
 import 'date_picker_page.dart';
@@ -32,14 +34,17 @@ import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
 import 'pagination_page.dart';
+import 'picker_page.dart';
 import 'rate_page.dart';
 import 'radio_page.dart';
 import 'safe_area_page.dart';
+import 'search_bar_page.dart';
 import 'select_page.dart';
 import 'side_bar_page.dart';
 import 'slider_page.dart';
 import 'space_page.dart';
 import 'splitter_page.dart';
+import 'stepper_page.dart';
 import 'steps_page.dart';
 import 'switch_page.dart';
 import 'tab_bar_page.dart';
@@ -69,10 +74,14 @@ class ComponentPage extends StatelessWidget {
         return const BreadcrumbPage();
       case 'button':
         return const ButtonPage();
+      case 'calendar_picker':
+        return const CalendarPickerPage();
       case 'capsule_tabs':
         return const CapsuleTabsPage();
       case 'cascader':
         return const CascaderPage();
+      case 'cascader_view':
+        return const CascaderViewPage();
       case 'checkbox':
         return const CheckboxPage();
       case 'color_picker':
@@ -115,12 +124,16 @@ class ComponentPage extends StatelessWidget {
         return const NoticeBarPage();
       case 'pagination':
         return const PaginationPage();
+      case 'picker':
+        return const PickerPage();
       case 'rate':
         return const RatePage();
       case 'radio':
         return const RadioPage();
       case 'safe_area':
         return const SafeAreaPage();
+      case 'search_bar':
+        return const SearchBarPage();
       case 'select':
         return const SelectPage();
       case 'side_bar':
@@ -131,6 +144,8 @@ class ComponentPage extends StatelessWidget {
         return const SpacePage();
       case 'splitter':
         return const SplitterPage();
+      case 'stepper':
+        return const StepperPage();
       case 'steps':
         return const StepsPage();
       case 'switch':
