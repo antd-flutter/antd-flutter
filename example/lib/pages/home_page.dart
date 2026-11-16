@@ -44,13 +44,24 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // 窄屏：抽屉导航模式，AppBar 自动显示菜单按钮
+    // 窄屏：抽屉导航模式，AntNavBar 左侧菜单按钮打开抽屉
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_selected?.label ?? 'antd-flutter'),
-      ),
       drawer: Drawer(child: _buildSidebarContent(theme, closeOnTap: true)),
-      body: AntLayoutContent(child: content),
+      body: Builder(
+        builder: (scaffoldContext) => Column(
+          children: [
+            AntNavBar(
+              child: Text(_selected?.label ?? 'antd-flutter'),
+              back: false,
+              left: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
+              ),
+            ),
+            Expanded(child: AntLayoutContent(child: content)),
+          ],
+        ),
+      ),
     );
   }
 

@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：15 / 111**
+**总体：21 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -83,7 +83,7 @@ void main() {
 | SafeArea 📱 | ✅ | top/bottom/both + 占位模式/包装模式/键盘适配 |
 | AutoCenter 📱 | ✅ | 自动居中 + expanded 弹性布局占满剩余空间 |
 
-### 导航 — 7/13 完成
+### 导航 — 13/13 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -94,12 +94,12 @@ void main() {
 | Menu | ✅ | vertical/horizontal + SubMenu 展开 + light/dark 主题 + 折叠 + 分组/分割线 |
 | Anchor | ✅ | vertical/horizontal + 嵌套子链接 + controller 受控 + 边框激活指示 |
 | Dropdown | ✅ | hover/click 触发 + 四方向弹出 + 分割线/禁用/危险项 + arrow 箭头 + 受控 |
-| NavBar 📱 | 📋 | 移动端导航栏 |
-| TabBar 📱 | 📋 | 底部 Tab 切换 + Badge |
-| SideBar 📱 | 📋 | 移动端侧边栏 |
-| IndexBar 📱 | 📋 | 字母索引快速定位 |
-| CapsuleTabs 📱 | 📋 | 胶囊选项卡 |
-| JumboTabs 📱 | 📋 | 大块选项卡 |
+| NavBar 📱 | ✅ | 标题居中 + 返回箭头 + 左侧附加 + 右侧操作 + 底部分割线 |
+| TabBar 📱 | ✅ | 底部 Tab 切换 + Badge 角标（圆点/文字）+ 激活图标 + safeArea |
+| SideBar 📱 | ✅ | 左侧高亮条动画 + 激活白底 + 角标 + 禁用项 |
+| IndexBar 📱 | ✅ | 字母索引 + 中央气泡提示 + 精确命中检测 + 点击/拖动 |
+| CapsuleTabs 📱 | ✅ | 胶囊选项卡 + 灰色容器白底激活 + 阴影 + 禁用项 |
+| JumboTabs 📱 | ✅ | 大选项卡 + 主标题/描述 + 底部指示条 |
 
 ### 数据录入 — 0/30 完成
 

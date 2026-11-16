@@ -1,3 +1,17 @@
+## 0.11.0-beta.1
+
+新增 NavBar 导航栏、TabBar 标签栏、SideBar 侧边栏、IndexBar 索引栏、CapsuleTabs 胶囊选项卡与 JumboTabs 大块选项卡组件（Phase 4 导航组件第三批，导航分类全部完成）。
+
+- AntNavBar：移动端导航栏，支持 child 标题居中、back 返回箭头、backArrow 自定义箭头、left 左侧附加、right 右侧操作、onBack 回调、border 底部分割线
+- AntTabBar：底部标签栏，支持 items 列表（key/title/icon/activeIcon/badgeDot/badgeText/disabled）、activeKey 受控与 defaultActiveKey 非受控、onChange 切换回调、border 顶部边框、safeArea 底部安全区
+- AntSideBar：侧边栏，支持 items 列表（key/title/badge/disabled）、activeKey 受控与 defaultActiveKey 非受控、onChange 回调、左侧高亮条动画、激活项白色背景
+- AntIndexBar：字母索引栏，支持 items 列表（key/title）、onChange 回调、中央气泡提示（800ms 自动隐藏）、GlobalKey + RenderBox 精确命中检测、点击与垂直拖动选择
+- AntCapsuleTabs：胶囊选项卡，支持 items 列表（key/title/disabled）、activeKey 受控与 defaultActiveKey 非受控、onChange 回调、灰色容器 + 白色激活胶囊 + 阴影
+- AntJumboTabs：大块选项卡，支持 items 列表（key/title/description/disabled）、activeKey 受控与 defaultActiveKey 非受控、onChange 回调、主标题 + 描述 + 底部指示条
+- Widget test：NavBar 10 个 + TabBar 15 个 + SideBar 12 个 + IndexBar 8 个 + CapsuleTabs 9 个 + JumboTabs 10 个测试用例全量通过
+- Example demo 页：NavBar 6 个 + TabBar 7 个 + SideBar 4 个 + IndexBar 2 个 + CapsuleTabs 4 个 + JumboTabs 4 个展示区块
+- Example 首页窄屏 AppBar 已替换为 AntNavBar
+
 ## 0.10.0-beta.1
 
 新增 Tabs 标签页、Menu 导航菜单、Anchor 锚点与 Dropdown 下拉菜单组件（Phase 4 导航组件第二批）。

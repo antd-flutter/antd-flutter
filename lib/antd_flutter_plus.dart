@@ -40,6 +40,17 @@ export 'src/components/navigation/anchor/ant_anchor.dart';
 export 'src/components/navigation/anchor/ant_anchor_types.dart';
 export 'src/components/navigation/dropdown/ant_dropdown.dart';
 export 'src/components/navigation/dropdown/ant_dropdown_types.dart';
+export 'src/components/navigation/nav_bar/ant_nav_bar.dart';
+export 'src/components/navigation/tab_bar/ant_tab_bar.dart';
+export 'src/components/navigation/tab_bar/ant_tab_bar_types.dart';
+export 'src/components/navigation/side_bar/ant_side_bar.dart';
+export 'src/components/navigation/side_bar/ant_side_bar_types.dart';
+export 'src/components/navigation/index_bar/ant_index_bar.dart';
+export 'src/components/navigation/index_bar/ant_index_bar_types.dart';
+export 'src/components/navigation/capsule_tabs/ant_capsule_tabs.dart';
+export 'src/components/navigation/capsule_tabs/ant_capsule_tabs_types.dart';
+export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
+export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
 
 // L4 组件层 — 通用
 export 'src/components/general/button/ant_button.dart';

@@ -5,7 +5,6 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
