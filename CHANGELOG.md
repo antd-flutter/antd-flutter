@@ -1,3 +1,13 @@
+## 0.9.0-beta.1
+
+新增 Breadcrumb 面包屑、Steps 步骤条与 Pagination 分页组件（Phase 4 导航组件首批）。
+
+- AntBreadcrumb：面包屑，支持 items 列表、separator 自定义分隔符（默认 '/'）、separatorWidget 自定义分隔符组件、title/titleWidget 标题、icon 图标、onClick 点击回调，最后一项为当前页面不可点击
+- AntSteps：步骤条，支持 direction（horizontal/vertical）、status（wait/process/finish/error）、size（normal/small）、current 当前步骤、items 步骤配置（title/description/icon/status/disabled）、onChange 点击切换，finish 显 ✓、error 显 ✗、process 显数字白字蓝底、wait 显数字灰字，连接线颜色随状态变化
+- AntPagination：分页，支持受控 current/pageSize 与非受控 defaultCurrent/defaultPageSize、showSizeChanger 每页条数切换、showQuickJumper 快速跳转、showTotal 显示总条数、simple 简单模式、disabled 禁用、size（normal/small）、pageSizeOptions 可选每页条数、onChange/onPageSizeChange 事件回调，页码生成算法支持首尾固定+当前±2+省略号跳转
+- Widget test：Breadcrumb 11 个 + Steps 14 个 + Pagination 26 个测试用例全量通过
+- Example demo 页：Breadcrumb 5 个 + Steps 7 个 + Pagination 7 个展示区块
+
 ## 0.8.0-beta.1
 
 新增 SafeArea 安全区与 AutoCenter 自动居中组件（Phase 3 布局组件第四批，布局分类全部完成）。

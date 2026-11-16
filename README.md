@@ -57,7 +57,7 @@ void main() {
 
 > 图例：✅ 已实现 ｜ 📋 计划中（📱 为移动端特有组件）
 
-**总体：8 / 111**
+**总体：11 / 111**
 
 ### 通用 — 5/5 完成
 
@@ -83,13 +83,13 @@ void main() {
 | SafeArea 📱 | ✅ | top/bottom/both + 占位模式/包装模式/键盘适配 |
 | AutoCenter 📱 | ✅ | 自动居中 + expanded 弹性布局占满剩余空间 |
 
-### 导航 — 0/13 完成
+### 导航 — 3/13 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
-| Breadcrumb | 📋 | 面包屑 |
-| Steps | 📋 | 步骤条 |
-| Pagination | 📋 | 分页 |
+| Breadcrumb | ✅ | items/separator/separatorWidget/title/titleWidget/icon/onClick |
+| Steps | ✅ | horizontal/vertical/normal/small/wait/process/finish/error/onChange |
+| Pagination | ✅ | 受控/非受控/showSizeChanger/showQuickJumper/showTotal/simple/small |
 | Tabs | 📋 | 卡片/线条样式 + 可拖拽关闭 |
 | Menu | 📋 | 水平/垂直/内嵌 + SubMenu |
 | Anchor | 📋 | 锚点滚动联动 |

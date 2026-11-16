@@ -5,6 +5,7 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
+import 'breadcrumb_page.dart';
 import 'button_page.dart';
 import 'divider_page.dart';
 import 'flex_page.dart';
@@ -14,9 +15,11 @@ import 'icon_page.dart';
 import 'layout_page.dart';
 import 'masonry_page.dart';
 import 'notice_bar_page.dart';
+import 'pagination_page.dart';
 import 'safe_area_page.dart';
 import 'space_page.dart';
 import 'splitter_page.dart';
+import 'steps_page.dart';
 import 'typography_page.dart';
 
 class ComponentPage extends StatelessWidget {
@@ -30,6 +33,8 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'auto_center':
         return const AutoCenterPage();
+      case 'breadcrumb':
+        return const BreadcrumbPage();
       case 'button':
         return const ButtonPage();
       case 'divider':
@@ -48,12 +53,16 @@ class ComponentPage extends StatelessWidget {
         return const MasonryPage();
       case 'notice_bar':
         return const NoticeBarPage();
+      case 'pagination':
+        return const PaginationPage();
       case 'safe_area':
         return const SafeAreaPage();
       case 'space':
         return const SpacePage();
       case 'splitter':
         return const SplitterPage();
+      case 'steps':
+        return const StepsPage();
       case 'typography':
         return const TypographyPage();
       default:

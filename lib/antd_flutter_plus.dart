@@ -25,6 +25,14 @@ export 'package:antd_theme/antd_theme.dart';
 // 图标资源层
 export 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
+// L4 组件层 — 导航
+export 'src/components/navigation/breadcrumb/ant_breadcrumb.dart';
+export 'src/components/navigation/breadcrumb/ant_breadcrumb_types.dart';
+export 'src/components/navigation/pagination/ant_pagination.dart';
+export 'src/components/navigation/pagination/ant_pagination_types.dart';
+export 'src/components/navigation/steps/ant_steps.dart';
+export 'src/components/navigation/steps/ant_steps_types.dart';
+
 // L4 组件层 — 通用
 export 'src/components/general/button/ant_button.dart';
 export 'src/components/general/button/ant_button_types.dart';
