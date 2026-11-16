@@ -6,6 +6,17 @@ import 'package:flutter/material.dart';
 
 import 'auto_center_page.dart';
 import 'avatar_page.dart';
+import 'alert_page.dart';
+import 'drawer_page.dart';
+import 'message_page.dart';
+import 'modal_page.dart';
+import 'notification_page.dart';
+import 'popconfirm_page.dart';
+import 'progress_page.dart';
+import 'result_page.dart';
+import 'skeleton_page.dart';
+import 'spin_page.dart';
+import 'watermark_page.dart';
 import 'ellipsis_page.dart';
 import 'floating_bubble_page.dart';
 import 'floating_panel_page.dart';
@@ -99,6 +110,28 @@ class ComponentPage extends StatelessWidget {
     switch (snakeName) {
       case 'avatar':
         return const AvatarPage();
+      case 'alert':
+        return const AlertPage();
+      case 'drawer':
+        return const DrawerPage();
+      case 'message':
+        return const MessagePage();
+      case 'modal':
+        return const ModalPage();
+      case 'notification':
+        return const NotificationPage();
+      case 'popconfirm':
+        return const PopconfirmPage();
+      case 'progress':
+        return const ProgressPage();
+      case 'result':
+        return const ResultPage();
+      case 'skeleton':
+        return const SkeletonPage();
+      case 'spin':
+        return const SpinPage();
+      case 'watermark':
+        return const WatermarkPage();
       case 'ellipsis':
         return const EllipsisPage();
       case 'floating_bubble':

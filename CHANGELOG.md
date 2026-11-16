@@ -1,3 +1,21 @@
+## 0.21.0-beta.1
+
+新增 Message 全局提示、Modal 对话框、Alert 警告提示、Progress 进度条(+Circle)、Skeleton 骨架屏、Notification 通知提醒框、Drawer 抽屉、Spin 加载中、Result 结果、Popconfirm 气泡确认框与 Watermark 水印组件（Phase 7 反馈组件首批，反馈分类 11/21）。
+
+- AntMessage：Overlay 顶部居中滑入、info/success/warning/error/loading 五类型、队列叠加、duration 自动消失（loading 手动关闭）、AntMessageHandle.close()、安全区适配
+- AntModal：受控 open、遮罩+卡片缩放淡入、title/content、onOk/onCancel、confirmLoading、footer 自定义/null 隐藏、width/centered/maskClosable/closable、showAntModal 函数式（Future<bool?>）
+- AntAlert：四类型语义色背景+左侧色条、description、closable 收起动画、showIcon、action 操作区、banner 变体
+- AntProgress：线性 + Circle CustomPainter 圆弧、percent 动画过渡、status 四状态色、strokeColor/size/format、showInfo
+- AntSkeleton：avatar/title/paragraph 组合、rows 行数、active 闪烁动画、round、children 自定义骨架
+- AntSpin：三档尺寸、tip 文案、child 包裹遮罩模式、自定义 indicator、旋转圆弧指示器
+- AntResult：success/error/info/warning 图标 + 404/403/500 数字大字、title/subTitle/extra/children、icon 自定义
+- AntDrawer：四方向滑入动画、title/closable/onClose、footer、mask/maskClosable、width/height、body 滚动
+- AntPopconfirm：气泡确认卡片、十二方向、title/description、okText/cancelText、onConfirm/onCancel 自动关闭、受控 open、disabled
+- AntNotification：四角 placement 堆叠、title/description 两段结构、四类型图标、duration 自动消失、closable、滑入动画、width
+- AntWatermark：CustomPainter 平铺旋转水印、多行 content、fontSize/fontColor/rotate/gapX/gapY、IgnorePointer 点击穿透
+- Widget test：Message 16 + Modal 17 + Alert 13 + Progress 14 + Skeleton 12 + Spin 12 + Result 12 + Drawer 15 + Popconfirm 15 + Notification 19 + Watermark 12 个测试用例全量通过（累计 1545 个）
+- Example demo 页：十一组件各 5-7 个展示区块
+
 ## 0.20.0-beta.1
 
 新增 Ellipsis 文本省略、Footer 页脚、PageIndicator 页面指示器、ImageViewer 图片查看器、InfiniteScroll 无限滚动、FloatingPanel 浮动面板与 FloatingBubble 浮动气泡组件（Phase 6 数据展示组件第四批，数据展示分类 27/28）。

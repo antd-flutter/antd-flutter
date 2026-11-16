@@ -168,21 +168,21 @@ void main() {
 | FloatingPanel 📱 | ✅ | 锚点拖拽面板 + 把手自定义/吸附动画/onHeightChange/内容滚动 |
 | FloatingBubble 📱 | ✅ | 可拖拽悬浮球 + axis 方向约束/边界钳制/点击展开菜单/自定义图标 |
 
-### 反馈 — 0/21 完成
+### 反馈 — 11/21 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
-| Message | 📋 | 全局提示 |
-| Modal | 📋 | 对话框 + 移动端底部弹出 |
-| Alert | 📋 | 警告提示 |
-| Progress | 📋 | 进度条 + Circle 环形变体 |
-| Skeleton | 📋 | 骨架屏 |
-| Notification | 📋 | 通知提醒框 |
-| Drawer | 📋 | 抽屉 |
-| Spin | 📋 | 加载中 |
-| Result | 📋 | 结果 |
-| Popconfirm | 📋 | 气泡确认框 |
-| Watermark | 📋 | 水印 |
+| Message | ✅ | 顶部全局提示 + 四类型/loading/队列叠加/自动消失/手动关闭 |
+| Modal | ✅ | 居中对话框 + 受控/confirmLoading/footer/遮罩配置 + showAntModal 函数式 |
+| Alert | ✅ | 四类型语义色 + description/closable/showIcon/action/banner |
+| Progress | ✅ | 线性+Circle 自绘圆弧 + 状态色/自定义颜色/format/动画过渡 |
+| Skeleton | ✅ | avatar/title/paragraph 组合 + rows/active 闪烁/自定义骨架 |
+| Notification | ✅ | 四角堆叠通知 + title/description/类型图标/时长/可关闭/滑入动画 |
+| Drawer | ✅ | 四方向侧滑 + 动画/title/closable/footer/遮罩配置 |
+| Spin | ✅ | 转圈 + 三档尺寸/tip/child 包裹遮罩/自定义指示器 |
+| Result | ✅ | 语义状态图标 + 404/403/500 数字 + title/subTitle/extra |
+| Popconfirm | ✅ | 确认气泡 + 十二方向/自定义按钮文案/回调/受控/禁用 |
+| Watermark | ✅ | CustomPainter 平铺水印 + 多行/字号颜色角度/间距/点击穿透 |
 | Toast 📱 | 📋 | 轻提示 |
 | ActionSheet 📱 | 📋 | 动作面板 |
 | PullToRefresh 📱 | 📋 | 下拉刷新 |

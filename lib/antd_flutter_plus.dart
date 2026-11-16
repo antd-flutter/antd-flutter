@@ -207,3 +207,29 @@ export 'src/components/data_display/image_viewer/ant_image_viewer.dart';
 export 'src/components/data_display/image_viewer/ant_image_viewer_types.dart';
 export 'src/components/data_display/floating_panel/ant_floating_panel.dart';
 export 'src/components/data_display/floating_panel/ant_floating_panel_types.dart';
+
+// ============================================================
+// 反馈 Feedback — 批次A
+// ============================================================
+export 'src/components/feedback/alert/ant_alert.dart';
+export 'src/components/feedback/alert/ant_alert_types.dart';
+export 'src/components/feedback/progress/ant_progress.dart';
+export 'src/components/feedback/progress/ant_progress_types.dart';
+export 'src/components/feedback/skeleton/ant_skeleton.dart';
+export 'src/components/feedback/skeleton/ant_skeleton_types.dart';
+export 'src/components/feedback/spin/ant_spin.dart';
+export 'src/components/feedback/spin/ant_spin_types.dart';
+export 'src/components/feedback/result/ant_result.dart';
+export 'src/components/feedback/result/ant_result_types.dart';
+export 'src/components/feedback/drawer/ant_drawer.dart';
+export 'src/components/feedback/drawer/ant_drawer_types.dart';
+export 'src/components/feedback/popconfirm/ant_popconfirm.dart';
+export 'src/components/feedback/popconfirm/ant_popconfirm_types.dart';
+export 'src/components/feedback/message/ant_message.dart';
+export 'src/components/feedback/message/ant_message_types.dart';
+export 'src/components/feedback/modal/ant_modal.dart';
+export 'src/components/feedback/modal/ant_modal_types.dart';
+export 'src/components/feedback/notification/ant_notification.dart';
+export 'src/components/feedback/notification/ant_notification_types.dart';
+export 'src/components/feedback/watermark/ant_watermark.dart';
+export 'src/components/feedback/watermark/ant_watermark_types.dart';
