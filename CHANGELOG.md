@@ -1,3 +1,16 @@
+## 0.22.0-beta.1
+
+新增 Toast 轻提示、ActionSheet 动作面板、PullToRefresh 下拉刷新、Dialog 移动端对话框、Popup 弹出层与 Mask 遮罩层组件（Phase 7 反馈组件第二批，反馈分类 17/21）。
+
+- AntToast：屏幕中央深色半透明卡片、success/fail/loading 内置图标或自定义、duration 自动消失（loading 手动关闭 handle.close）、position(top/center/bottom)、maskClickable 点击穿透配置、onClose
+- AntMask：全屏遮罩、opacity/color 可配、onAction 点击回调、上层 child 内容、淡入淡出动画
+- AntDialog：移动端小卡片（0.7 屏宽）、alert/confirm 双模式、AntDialog.alert/confirm 函数式（Future<bool>）、actions 自定义、closeOnMaskClick、缩放淡入动画
+- AntPopup：bottom/top/left/right 四方向滑入、showCloseIcon、maskClosable、destroyOnClose、AntPopup.show 函数式
+- AntPullToRefresh：手势下拉跟随、threshold 阈值触发 onRefresh、状态机（pulling/canRelease/refreshing/complete）、回弹动画、自定义头部与文案
+- AntActionSheet：底部动作面板、danger/disabled/description、独立取消区 cancelText、closeOnAction、extraDescription、受控 visible
+- Widget test：Toast 18 + Mask 11 + Dialog 17 + Popup 17 + PullToRefresh 12 + ActionSheet 15 个测试用例全量通过（累计 1635 个）
+- Example demo 页：六组件各 5-6 个展示区块
+
 ## 0.21.0-beta.1
 
 新增 Message 全局提示、Modal 对话框、Alert 警告提示、Progress 进度条(+Circle)、Skeleton 骨架屏、Notification 通知提醒框、Drawer 抽屉、Spin 加载中、Result 结果、Popconfirm 气泡确认框与 Watermark 水印组件（Phase 7 反馈组件首批，反馈分类 11/21）。

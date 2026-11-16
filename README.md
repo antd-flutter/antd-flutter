@@ -168,7 +168,7 @@ void main() {
 | FloatingPanel 📱 | ✅ | 锚点拖拽面板 + 把手自定义/吸附动画/onHeightChange/内容滚动 |
 | FloatingBubble 📱 | ✅ | 可拖拽悬浮球 + axis 方向约束/边界钳制/点击展开菜单/自定义图标 |
 
-### 反馈 — 11/21 完成
+### 反馈 — 17/21 完成
 
 | 组件 | 状态 | 说明 |
 |---|---|---|
@@ -183,12 +183,12 @@ void main() {
 | Result | ✅ | 语义状态图标 + 404/403/500 数字 + title/subTitle/extra |
 | Popconfirm | ✅ | 确认气泡 + 十二方向/自定义按钮文案/回调/受控/禁用 |
 | Watermark | ✅ | CustomPainter 平铺水印 + 多行/字号颜色角度/间距/点击穿透 |
-| Toast 📱 | 📋 | 轻提示 |
-| ActionSheet 📱 | 📋 | 动作面板 |
-| PullToRefresh 📱 | 📋 | 下拉刷新 |
-| Dialog 📱 | 📋 | 移动端对话框 |
-| Popup 📱 | 📋 | 弹出层 |
-| Mask 📱 | 📋 | 遮罩层 |
+| Toast 📱 | ✅ | 中央深色卡片 + icon 类型/loading 手动关闭/位置三档/穿透配置 |
+| ActionSheet 📱 | ✅ | 底部动作面板 + danger/disabled/description/取消区/closeOnAction |
+| PullToRefresh 📱 | ✅ | 手势下拉 + 阈值触发/状态机/回弹动画/自定义头部与文案 |
+| Dialog 📱 | ✅ | 移动端小卡片 + alert/confirm 函数式/自定义 actions/遮罩配置 |
+| Popup 📱 | ✅ | 四方向滑入弹层 + 关闭图标/遮罩配置/内容滚动 |
+| Mask 📱 | ✅ | 全屏遮罩 + 透明度/颜色/点击回调/上层内容/淡入淡出 |
 | SwipeAction 📱 | 📋 | 滑动操作 |
 | Loading 📱 | 📋 | 加载 |
 | ErrorBlock 📱 | 📋 | 错误块 |
