@@ -60,6 +60,12 @@
 - R17 任务修改按**子任务模式**执行：一次执行**一个完整子任务**（该任务文件的全部步骤连续做完），**中途不询问**；全部子任务完成后整体验证
 - R18 验证策略（2026-11-17 更新，用户确认：**本地环境已可用，恢复本地验证**）：子任务完成 → 本地 `flutter analyze` 零问题 + 相关 `flutter test` 全量通过（R7）→ 提交推送；**推送后不等 CI**，直接继续下一子任务；CI 仅作事后验证，失败时由主窗口整理修复任务优先处理；提交信息仅描述修改内容本身，不带任务编号/步骤
 - R19 子任务完成并提交后：勾掉 PLAN.md 索引 → **删除任务文件并移除索引行**（按计划约定）
+### P08 进行中状态（2026-11-18 暂停，用户休息）
+- 已完成迁移并合并：ui 建库 + 引擎上移（滚轮/键盘）→ 基础层 10/10（Button/Typography/Flex/Space/Grid/Layout/Divider/SafeArea/AutoCenter/Footer，全部经用户逐组件验收）→ 通用展示 6/26（Empty/Avatar/Badge/Tag/Card）
+- 用户已裁决：争议组件 Carousel/Masonry/ColorPicker/Select/Transfer 独立成包
+- 续接点：分支 task/p08-split（已合并删除）；下一子任务=通用展示组继续（Statistic → NoticeBar → Segmented → Watermark → Ellipsis → Carousel(antd_carousel) → PageIndicator → InfiniteScroll → Image → Popover/Tooltip（随 P15 弹层底座）→ …）
+- 用户反馈待办：MacOS demo 页部分 RenderFlex 溢出（遗留问题已登记）；AntTooltip 箭头异常（记入 P15）
+
 - R27 **子任务代理化执行**：所有子任务一律派发子代理执行，不占用主任务窗口交互；**同一时间只允许一个子任务在跑**，完成后才下发下一个；主窗口收到新任务时若上一子任务仍在进行，将新任务整理成任务文件加入计划**排队等待**，不并行派发
 
 ## 子任务索引
