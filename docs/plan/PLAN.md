@@ -74,6 +74,7 @@ P05 → P11 → P07 → P02 → P06 → P09 → P08（**与原 P11 一键 antd �
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-17 | 双远程由 GitCode 改为 Gitee（push 地址/流水线 .workflow//Gitee Pages publish 脚本/技能文档同步）
 | 2026-11-17 | R22 强化（API 变更同提交更新文档）+ 新增 R28（文档命令化生成）；新增 P12（gen-docs 命令，排队）
 | 2026-11-17 | 新增 R25/R26（dart 细粒度拆分+index 统一导出）；新增 P11（packages 现有包拆分，antd_flutter_plus 重构归 P08） |
 | 2026-11-17 | 建立计划骨架 |

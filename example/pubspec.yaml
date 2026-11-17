@@ -13,7 +13,7 @@ dependencies:
   antd_flutter_plus:
     path: ../
   flutter_screenutil: ^5.9.3
-  device_preview: ^1.2.0
+  device_preview: ^3.0.0
 
   antd_theme: any
   material_ui: any

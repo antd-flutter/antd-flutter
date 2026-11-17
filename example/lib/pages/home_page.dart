@@ -1,12 +1,15 @@
 library;
 
-/// 官网首页 — antd 风格：宽屏左侧分组导航 + 右侧内容区，窄屏抽屉导航
+/// 官网首页 — antd 风格：宽屏 Header + 常驻侧栏，窄屏 NavBar + 抽屉导航
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../data/nav_data.dart';
 import '../main.dart';
 import 'component_page.dart';
+
+/// 宽窄屏布局切换断点（逻辑像素宽，自原 isWide >= 840 逻辑迁移）。
+const double kHomeWideBreakpoint = 840;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +24,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isWide = MediaQuery.sizeOf(context).width >= 840;
+    // AntResponsive 细粒度订阅：宽度 aspect + 设备类型 aspect，
+    // desktop/web 断点常驻侧栏，移动窄屏走 NavBar + Drawer。
+    final deviceType = AntResponsive.deviceTypeOf(context);
+    final isWide = AntResponsive.widthOf(context) >= kHomeWideBreakpoint ||
+        deviceType == AntDeviceType.desktop ||
+        deviceType == AntDeviceType.web;
     final content = _selected == null
         ? _buildOverview(theme)
         : ComponentPage(snakeName: _selected!.snakeName);
