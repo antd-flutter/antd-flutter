@@ -62,8 +62,7 @@
 ## 子任务索引
 
 - [ ] [P02-GitCode CI与静态站点](tasks/P02-gitcode-CI与静态站点.md)
-- [ ] [P11-packages现有包dart文件拆分](tasks/P11-packages现有包dart文件拆分.md)
-- [~] [P12-文档生成命令](tasks/P12-文档生成命令.md)（排队：task-p11 进行中）
+- [ ] [P12-文档生成命令](tasks/P12-文档生成命令.md)
 - [ ] [P06-icons-example正式化优化](tasks/P06-icons-example正式化优化.md)
 - [ ] [P07-screenutil桌面最大宽度与等比放大](tasks/P07-screenutil桌面最大宽度与等比放大.md)
 - [ ] [P08-组件库拆分基础库与独立组件](tasks/P08-组件库拆分基础库与独立组件.md)（**挂起：计划已细化待评审，用户明确说「执行」才开工**）
