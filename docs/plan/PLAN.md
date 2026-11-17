@@ -41,6 +41,10 @@
 - R15 example 内可用组件尽量自举替换为 antd-flutter 组件（对齐根 example 自举约定）
 - R16 三方 SDK/平台 API 必须经中间层隔离（如 `AntOhosChannel` 抽象接口），业务代码不直接触碰 SDK 语义
 
+### Dart 文件拆分规则
+- R25 组件 dart 文件必须**细粒度拆分**，便于 skill/工具按文件读取与检索：一个组件目录内按职责分层放置——`config/`（组件配置类，如 ButtonConfig）、`enum/`（枚举与形态定义，如 button_type/text_button 等各占一个文件）、组件主体（ant_button.dart）、回调/数据类型必要时单独 types 文件；**禁止把配置/枚举/组件主体堆在一个文件里**
+- R26 每个组件目录通过一个统一的 `index.dart`（或同名聚合文件）对外 export 全部公开文件，消费方与 barrel 只引 index.dart；新增/移动文件必须同步维护 index.dart
+
 ### 文档规则
 - R20 **所有库统一 API 文档体系（双轨）**：① dart doc 自动生成——代码 `///` 注释按 Effective Dart 规范补全（参数/返回/示例代码块），随代码维护不欠账；② 人工组件文档页——简介、使用场景、参数表、事件表、代码示例（含亮暗/双端形态）、注意事项，Markdown 放各包 `docs/components/<name>.md`
 - R21 静态页面产出：人工文档 + dart doc 整合为静态页面，供用户网页查看；预留与站点发布（P02）及未来官网整合
