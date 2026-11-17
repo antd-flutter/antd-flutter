@@ -39,26 +39,26 @@ class _HomePageState extends State<HomePage> {
       return Scaffold(
         body: SafeArea(
           child: AntLayout(
-          sider: AntLayoutSider(
-            theme: AntLayoutSiderTheme.light,
-            width: 260,
-            child: _buildSidebarContent(theme),
-          ),
-          header: AntLayoutHeader(
-            child: Row(
-              children: [
-                Expanded(
-                  child: AntText(
-                    text: _selected?.label ?? 'Ant Design v6 · Flutter 实现',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-                const _DarkModeToggle(),
-              ],
+            sider: AntLayoutSider(
+              theme: AntLayoutSiderTheme.light,
+              width: 260,
+              child: _buildSidebarContent(theme),
             ),
+            header: AntLayoutHeader(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AntText(
+                      text: _selected?.label ?? 'Ant Design v6 · Flutter 实现',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  const _DarkModeToggle(),
+                ],
+              ),
+            ),
+            content: AntLayoutContent(child: content),
           ),
-          content: AntLayoutContent(child: content),
-        ),
         ),
       );
     }
@@ -69,20 +69,21 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Builder(
           builder: (scaffoldContext) => Column(
-          children: [
-            AntNavBar(
-              back: false,
-              left: AntButton(
-                type: AntButtonType.text,
-                shape: AntButtonShape.round,
-                icon: const AntdIcon(AntIcons.menuOutlined),
-                onTap: () => Scaffold.of(scaffoldContext).openDrawer(),
+            children: [
+              AntNavBar(
+                back: false,
+                left: AntButton(
+                  type: AntButtonType.text,
+                  shape: AntButtonShape.round,
+                  icon: const AntdIcon(AntIcons.menuOutlined),
+                  onTap: () => Scaffold.of(scaffoldContext).openDrawer(),
+                ),
+                right: const _DarkModeToggle(),
+                child: AntText(text: _selected?.label ?? 'antd-flutter'),
               ),
-              right: const _DarkModeToggle(),
-              child: AntText(text: _selected?.label ?? 'antd-flutter'),
-            ),
-            Expanded(child: AntLayoutContent(child: content)),
-          ],
+              Expanded(child: AntLayoutContent(child: content)),
+            ],
+          ),
         ),
       ),
     );
