@@ -18,6 +18,9 @@ export 'src/engines/keyboard_input_model.dart';
 export 'src/basic/button/ant_button.dart';
 export 'src/basic/button/ant_button_types.dart';
 
+// ── AutoCenter 自动居中 ────────────────────────────────────
+export 'src/basic/auto_center/ant_auto_center.dart';
+
 // ── Flex 弹性布局 ──────────────────────────────────────────
 export 'src/basic/flex/ant_flex.dart';
 export 'src/basic/flex/ant_flex_types.dart';
