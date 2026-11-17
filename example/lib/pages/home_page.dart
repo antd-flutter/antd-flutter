@@ -27,7 +27,8 @@ class _HomePageState extends State<HomePage> {
     // AntResponsive 细粒度订阅：宽度 aspect + 设备类型 aspect，
     // desktop/web 断点常驻侧栏，移动窄屏走 NavBar + Drawer。
     final deviceType = AntResponsive.deviceTypeOf(context);
-    final isWide = AntResponsive.widthOf(context) >= kHomeWideBreakpoint ||
+    final isWide =
+        AntResponsive.widthOf(context) >= kHomeWideBreakpoint ||
         deviceType == AntDeviceType.desktop ||
         deviceType == AntDeviceType.web;
     final content = _selected == null
@@ -36,7 +37,8 @@ class _HomePageState extends State<HomePage> {
 
     if (isWide) {
       return Scaffold(
-        body: AntLayout(
+        body: SafeArea(
+          child: AntLayout(
           sider: AntLayoutSider(
             theme: AntLayoutSiderTheme.light,
             width: 260,
@@ -46,8 +48,8 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 Expanded(
-                  child: AntText(text: 
-                    _selected?.label ?? 'Ant Design v6 · Flutter 实现',
+                  child: AntText(
+                    text: _selected?.label ?? 'Ant Design v6 · Flutter 实现',
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
@@ -57,14 +59,16 @@ class _HomePageState extends State<HomePage> {
           ),
           content: AntLayoutContent(child: content),
         ),
+        ),
       );
     }
 
     // 窄屏：抽屉导航模式，AntNavBar 左侧菜单按钮打开抽屉
     return Scaffold(
       drawer: Drawer(child: _buildSidebarContent(theme, closeOnTap: true)),
-      body: Builder(
-        builder: (scaffoldContext) => Column(
+      body: SafeArea(
+        child: Builder(
+          builder: (scaffoldContext) => Column(
           children: [
             AntNavBar(
               back: false,
@@ -98,8 +102,11 @@ class _HomePageState extends State<HomePage> {
           child: AntFlex(
             gap: const AntFlexGap.all(10),
             children: [
-              AntdIcon(AntIcons.appstoreOutlined,
-                  color: theme.colorScheme.primary, size: 28),
+              AntdIcon(
+                AntIcons.appstoreOutlined,
+                color: theme.colorScheme.primary,
+                size: 28,
+              ),
               Flexible(
                 child: AntText(
                   child: Text(
@@ -123,8 +130,8 @@ class _HomePageState extends State<HomePage> {
               for (final group in navGroups) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 16, 4),
-                  child: AntText(text: 
-                    group.title,
+                  child: AntText(
+                    text: group.title,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       fontWeight: FontWeight.w600,
@@ -142,8 +149,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// 单个导航项
-  Widget _buildNavItem(ThemeData theme, NavItem item,
-      {bool closeOnTap = false}) {
+  Widget _buildNavItem(
+    ThemeData theme,
+    NavItem item, {
+    bool closeOnTap = false,
+  }) {
     final selected = _selected == item;
     return GestureDetector(
       onTap: () {
@@ -156,8 +166,8 @@ class _HomePageState extends State<HomePage> {
             : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: AntText(text: 
-            item.label,
+          child: AntText(
+            text: item.label,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: selected
                   ? theme.colorScheme.onPrimaryContainer
@@ -172,8 +182,7 @@ class _HomePageState extends State<HomePage> {
 
   /// 未选中组件时的总览页
   Widget _buildOverview(ThemeData theme) {
-    final count =
-        navGroups.fold<int>(0, (sum, g) => sum + g.items.length);
+    final count = navGroups.fold<int>(0, (sum, g) => sum + g.items.length);
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -190,8 +199,8 @@ class _HomePageState extends State<HomePage> {
               direction: AntSpaceDirection.vertical,
               size: const AntSpaceSize.small(),
               children: [
-                AntText(text: 
-                  'antd-flutter',
+                AntText(
+                  text: 'antd-flutter',
                   style: theme.textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -207,8 +216,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            AntText(text: 
-              '共 ${navGroups.length} 大分类 · $count 个组件规划中',
+            AntText(
+              text: '共 ${navGroups.length} 大分类 · $count 个组件规划中',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.outline,
               ),
@@ -229,8 +238,12 @@ class _DarkModeToggle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(themeModeController.value ? AntIcons.moonOutlined : AntIcons.sunOutlined,
-            size: 18),
+        Icon(
+          themeModeController.value
+              ? AntIcons.moonOutlined
+              : AntIcons.sunOutlined,
+          size: 18,
+        ),
         const SizedBox(width: 8),
         AntSwitch(
           checked: themeModeController.value,
