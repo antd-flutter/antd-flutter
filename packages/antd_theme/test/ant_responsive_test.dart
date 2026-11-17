@@ -227,31 +227,34 @@ void main() {
       var platformBuilds = 0;
       AntBreakpoint? lastBreakpoint;
 
+      final child = Column(
+        children: [
+          Builder(
+            builder: (context) {
+              breakpointBuilds++;
+              lastBreakpoint = AntResponsive.breakpointOf(context);
+              return SizedBox(
+                key: ValueKey('bp-$lastBreakpoint'),
+                child: const SizedBox(),
+              );
+            },
+          ),
+          Builder(
+            builder: (context) {
+              platformBuilds++;
+              return Text(
+                'platform-${AntResponsive.platformOf(context).name}',
+              );
+            },
+          ),
+        ],
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: AntResponsiveInit(
-            builder: (context, data) => Column(
-              children: [
-                Builder(
-                  builder: (context) {
-                    breakpointBuilds++;
-                    lastBreakpoint = AntResponsive.breakpointOf(context);
-                    return SizedBox(
-                      key: ValueKey('bp-$lastBreakpoint'),
-                      child: const SizedBox(),
-                    );
-                  },
-                ),
-                Builder(
-                  builder: (context) {
-                    platformBuilds++;
-                    return Text(
-                      'platform-${AntResponsive.platformOf(context).name}',
-                    );
-                  },
-                ),
-              ],
-            ),
+            child: child,
+            builder: (context, data, child) => Column(children: [child!]),
           ),
         ),
       );
@@ -261,8 +264,8 @@ void main() {
       final buildsAfterFirst = breakpointBuilds;
       final platformBuildsAfterFirst = platformBuilds;
 
-      // 宽度 500 → 700（同在 xs 断点内，仅 width aspect 变化）
-      tester.view.physicalSize = const Size(700, 800);
+      // 宽度 500 → 560（同在 xs 断点内（<576），仅 width aspect 变化）
+      tester.view.physicalSize = const Size(560, 800);
       await tester.pumpAndSettle();
       // 仅 width aspect 变化：breakpoint/platform 订阅者均不应 rebuild
       expect(breakpointBuilds, buildsAfterFirst);
@@ -286,27 +289,30 @@ void main() {
       var widthBuilds = 0;
       var breakpointBuilds = 0;
 
+      final child = Column(
+        children: [
+          Builder(
+            builder: (context) {
+              widthBuilds++;
+              return Text('w-${AntResponsive.widthOf(context)}');
+            },
+          ),
+          Builder(
+            builder: (context) {
+              breakpointBuilds++;
+              return Text(
+                'bp-${AntResponsive.breakpointOf(context)?.name}',
+              );
+            },
+          ),
+        ],
+      );
+
       await tester.pumpWidget(
         MaterialApp(
           home: AntResponsiveInit(
-            builder: (context, data) => Column(
-              children: [
-                Builder(
-                  builder: (context) {
-                    widthBuilds++;
-                    return Text('w-${AntResponsive.widthOf(context)}');
-                  },
-                ),
-                Builder(
-                  builder: (context) {
-                    breakpointBuilds++;
-                    return Text(
-                      'bp-${AntResponsive.breakpointOf(context)?.name}',
-                    );
-                  },
-                ),
-              ],
-            ),
+            child: child,
+            builder: (context, data, child) => Column(children: [child!]),
           ),
         ),
       );
@@ -326,22 +332,28 @@ void main() {
       addTearDown(tester.view.reset);
 
       var notified = 0;
+      var listenerAttached = false;
       ValueListenable<AntLayoutData>? listenable;
 
       await tester.pumpWidget(
         MaterialApp(
           home: AntResponsiveInit(
-            builder: (context, data) {
+            child: const SizedBox(),
+            builder: (context, data, child) {
               listenable = AntResponsiveScope.layoutListenableOf(context);
-              listenable!.addListener(() => notified++);
-              return const SizedBox();
+              if (!listenerAttached) {
+                listenerAttached = true;
+                listenable!.addListener(() => notified++);
+              }
+              return child!;
             },
           ),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle(); // 等初始 post-frame 同步完成
       expect(listenable, isNotNull);
       expect(listenable!.value.width, 375);
+      notified = 0; // 只统计后续变化
 
       // 宽度变化 → 通知一次
       tester.view.physicalSize = const Size(800, 800);
@@ -377,9 +389,10 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: AntResponsiveInit(
-            builder: (context, d) {
+            child: const SizedBox(),
+            builder: (context, d, child) {
               data = d;
-              return const SizedBox();
+              return child!;
             },
           ),
         ),
@@ -390,7 +403,8 @@ void main() {
       expect(data!.targetPlatform, TargetPlatform.android);
       expect(data!.isOhos, isFalse); // 标准 SDK 下恒为 false
       expect(data!.isDesktop, isFalse);
-      expect(data!.deviceType, AntDeviceType.phone); // android + 375 宽
+      // 测试默认 surface 800x600 → android + 800 宽 → tablet
+      expect(data!.deviceType, AntDeviceType.tablet);
     });
   });
 

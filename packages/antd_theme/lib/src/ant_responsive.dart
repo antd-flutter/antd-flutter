@@ -269,7 +269,9 @@ class AntResponsiveScope extends InheritedWidget {
 ///
 /// ```dart
 /// AntResponsiveInit(
-///   builder: (context, data) => ...,
+///   // child 保持稳定实例，builder 重建时嵌入同一 child 实现局部刷新
+///   child: const MyPage(),
+///   builder: (context, data, child) => MaterialApp(home: child!),
 /// )
 /// ```
 class AntResponsive extends InheritedModel<AntLayoutAspect> {
@@ -378,7 +380,18 @@ typedef AntFoldStateProvider = AntFoldState? Function();
 /// ```
 class AntResponsiveInit extends StatefulWidget {
   /// 构建回调，携带当前布局快照。
-  final Widget Function(BuildContext context, AntLayoutData data) builder;
+  ///
+  /// [child] 为原样透传的子树：builder 重建时应嵌入同一 [child] 实例，
+  /// 保持子树 Element 不重建，使细粒度 aspect 订阅生效
+  /// （与 `MediaQuery(data:, child:)` 同理）。
+  final Widget Function(
+    BuildContext context,
+    AntLayoutData data,
+    Widget? child,
+  ) builder;
+
+  /// 透传子树（稳定实例，配合 [builder] 实现局部刷新）。
+  final Widget? child;
 
   /// 折叠态外部提供器（OHOS channel 等），null 时自动推导。
   final AntFoldStateProvider? foldStateProvider;
@@ -386,6 +399,7 @@ class AntResponsiveInit extends StatefulWidget {
   const AntResponsiveInit({
     super.key,
     required this.builder,
+    this.child,
     this.foldStateProvider,
   });
 
@@ -407,10 +421,6 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
       isDesktop: false,
     ),
   );
-
-  /// builder 结果缓存：数据不变时子树不重建（配合 aspect 去重）。
-  Widget? _cachedChild;
-  AntLayoutData? _cachedData;
 
   @override
   void initState() {
@@ -451,16 +461,15 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
     if (_notifier.value != data) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
     }
-    // 值不变时复用缓存的 builder 结果，子树不重建。
-    if (_cachedData != data || _cachedChild == null) {
-      _cachedData = data;
-      _cachedChild = widget.builder(context, data);
-    }
+    // child 由外部持有（稳定实例）；builder 每次数据变化重建外壳时
+    // 嵌入同一 child 实例，子树 Element 不重建，aspect 隔离生效。
     return AntResponsiveScope(
       notifier: _notifier,
       child: AntResponsive(
         data: data,
-        child: _cachedChild!,
+        child: Builder(
+          builder: (context) => widget.builder(context, data, widget.child),
+        ),
       ),
     );
   }

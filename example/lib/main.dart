@@ -39,7 +39,7 @@ class AntdFlutterExampleApp extends StatelessWidget {
           foldStateProvider: AntPlatform.isOhos
               ? () => AntOhosChannelRegistry.channel.getFoldStateSync()
               : null,
-          builder: (context, data) {
+          builder: (context, data, child) {
             return ValueListenableBuilder<bool>(
               valueListenable: themeModeController,
               builder: (context, isDark, _) {

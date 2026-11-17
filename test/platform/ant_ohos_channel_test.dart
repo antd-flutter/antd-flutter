@@ -3,7 +3,7 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/widgets.dart' show MediaQueryData, Size;
 import 'package:flutter_test/flutter_test.dart';
 
 /// 折叠态 mock 实现
@@ -51,7 +51,7 @@ void main() {
       // 主工程测试环境带 WidgetsBinding，可直接构造 AntLayoutData 验证
       // foldStateProvider 优先于 displayFeatures 推导。
       final data = AntLayoutData.fromMediaQuery(
-        MediaQueryData(size: const Size(800, 1200)),
+        const MediaQueryData(size: Size(800, 1200)),
         foldState: AntOhosChannelRegistry.channel.getFoldStateSync(),
       );
       expect(data.foldState, AntFoldState.halfOpened);
