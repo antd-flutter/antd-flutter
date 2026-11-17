@@ -4,7 +4,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -74,7 +74,11 @@ void main() {
     });
 
     test('字体家族传导', () {
-      expect(materialTheme.fontFamily, theme.fontFamily);
+      // ThemeData(fontFamily:) 会合并进 textTheme 各样式
+      expect(
+        materialTheme.textTheme.bodyMedium!.fontFamily,
+        theme.fontFamily,
+      );
     });
   });
 

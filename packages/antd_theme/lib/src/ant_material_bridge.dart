@@ -7,7 +7,7 @@
 /// 每个映射均注明 antd 规范出处（Seed / Map / Alias Token）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'ant_theme_data.dart';
 
@@ -172,13 +172,13 @@ extension AntMaterialTheme on AntThemeData {
 
   ThemeData _buildThemeData() {
     // antd Button：高度 controlHeight 32（默认）/ 40（LG），圆角 borderRadius 6
-    ButtonStyle baseButtonStyle({Color? foreground, Color? background}) =>
+    ButtonStyle baseButtonStyle({
+      WidgetStateProperty<Color?>? foreground,
+      WidgetStateProperty<Color?>? background,
+    }) =>
         ButtonStyle(
-          backgroundColor: background == null
-              ? null
-              : WidgetStatePropertyAll(background),
-          foregroundColor:
-              foreground == null ? null : WidgetStatePropertyAll(foreground),
+          backgroundColor: background,
+          foregroundColor: foreground,
           elevation: const WidgetStatePropertyAll(0),
           minimumSize: WidgetStatePropertyAll(Size(0, controlHeight)),
           padding: WidgetStatePropertyAll(
@@ -202,25 +202,33 @@ extension AntMaterialTheme on AntThemeData {
       // antd 主按钮（type="primary"）
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: baseButtonStyle(
-          foreground: colorTextLightSolid,
-          background: colorPrimary,
-        ).copyWith(
-          disabledBackgroundColor:
-              WidgetStatePropertyAll(colorBgContainerDisabled),
-          disabledForegroundColor: WidgetStatePropertyAll(colorTextDisabled),
+          foreground: _resolveByDisabled(
+            enabled: colorTextLightSolid,
+            disabled: colorTextDisabled,
+          ),
+          background: _resolveByDisabled(
+            enabled: colorPrimary,
+            disabled: colorBgContainerDisabled,
+          ),
         ),
       ),
       // antd 次按钮（默认按钮：白底灰边）
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: baseButtonStyle(foreground: colorText).copyWith(
-          backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+        style: baseButtonStyle(
+          foreground: _resolveByDisabled(
+            enabled: colorText,
+            disabled: colorTextDisabled,
+          ),
+          background: const WidgetStatePropertyAll(Colors.transparent),
+        ).copyWith(
           side: WidgetStatePropertyAll(BorderSide(color: colorBorder)),
-          disabledForegroundColor: WidgetStatePropertyAll(colorTextDisabled),
         ),
       ),
       // antd 链接按钮（type="link"）
       textButtonTheme: TextButtonThemeData(
-        style: baseButtonStyle(foreground: colorPrimary).copyWith(
+        style: baseButtonStyle(
+          foreground: WidgetStatePropertyAll(colorPrimary),
+        ).copyWith(
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: paddingXS),
           ),
@@ -282,6 +290,15 @@ extension AntMaterialTheme on AntThemeData {
       ),
     );
   }
+
+  /// 按控件禁用态解析颜色：未禁用取 [enabled]，禁用取 [disabled]。
+  WidgetStateProperty<Color?> _resolveByDisabled({
+    required Color enabled,
+    required Color disabled,
+  }) =>
+      WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.disabled) ? disabled : enabled,
+      );
 
   OutlineInputBorder _inputBorder(Color color, double width) =>
       OutlineInputBorder(

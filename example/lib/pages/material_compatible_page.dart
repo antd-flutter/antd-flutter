@@ -1,5 +1,5 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Material 控件兼容演示页 —
 /// 展示 AntTheme 包裹下，原生 Material 控件自动呈现 antd 风格（亮暗可切换）。
