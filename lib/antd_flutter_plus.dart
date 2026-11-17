@@ -53,31 +53,40 @@ export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
 export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
 
 // L4 组件层 — 通用
-export 'src/components/general/button/ant_button.dart';
-export 'src/components/general/button/ant_button_types.dart';
-export 'src/components/general/typography/ant_typography.dart';
-export 'src/components/general/typography/ant_typography_types.dart';
+// Button 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/button/ant_button.dart';
+export 'package:antd_flutter_ui/src/basic/button/ant_button_types.dart';
+// Typography 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/typography/ant_typography.dart';
+export 'package:antd_flutter_ui/src/basic/typography/ant_typography_types.dart';
 export 'src/components/general/float_button/ant_float_button.dart';
 export 'src/components/general/float_button/ant_float_button_types.dart';
 export 'src/components/general/notice_bar/ant_notice_bar.dart';
 export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
 
 // L4 组件层 — 布局
-export 'src/components/layout/auto_center/ant_auto_center.dart';
-export 'src/components/layout/divider/ant_divider.dart';
-export 'src/components/layout/divider/ant_divider_types.dart';
-export 'src/components/layout/flex/ant_flex.dart';
-export 'src/components/layout/flex/ant_flex_types.dart';
-export 'src/components/layout/grid/ant_grid.dart';
-export 'src/components/layout/grid/ant_grid_types.dart';
-export 'src/components/layout/layout/ant_layout.dart';
-export 'src/components/layout/layout/ant_layout_types.dart';
+// AutoCenter 自动居中已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/auto_center/ant_auto_center.dart';
+// Divider 分割线已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/divider/ant_divider.dart';
+export 'package:antd_flutter_ui/src/basic/divider/ant_divider_types.dart';
+// Flex 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/flex/ant_flex.dart';
+export 'package:antd_flutter_ui/src/basic/flex/ant_flex_types.dart';
+// Grid 栅格已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/grid/ant_grid.dart';
+export 'package:antd_flutter_ui/src/basic/grid/ant_grid_types.dart';
+// AntLayout 布局族已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/layout/ant_layout.dart';
+export 'package:antd_flutter_ui/src/basic/layout/ant_layout_types.dart';
 export 'src/components/layout/masonry/ant_masonry.dart';
 export 'src/components/layout/masonry/ant_masonry_types.dart';
-export 'src/components/layout/safe_area/ant_safe_area.dart';
-export 'src/components/layout/safe_area/ant_safe_area_types.dart';
-export 'src/components/layout/space/ant_space.dart';
-export 'src/components/layout/space/ant_space_types.dart';
+// SafeArea 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/safe_area/ant_safe_area.dart';
+export 'package:antd_flutter_ui/src/basic/safe_area/ant_safe_area_types.dart';
+// Space 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/space/ant_space.dart';
+export 'package:antd_flutter_ui/src/basic/space/ant_space_types.dart';
 export 'src/components/layout/splitter/ant_splitter.dart';
 export 'src/components/layout/splitter/ant_splitter_types.dart';
 
@@ -141,16 +150,21 @@ export 'src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart
 // ============================================================
 // 数据展示 Data Display
 // ============================================================
-export 'src/components/data_display/avatar/ant_avatar.dart';
-export 'src/components/data_display/avatar/ant_avatar_types.dart';
-export 'src/components/data_display/badge/ant_badge.dart';
-export 'src/components/data_display/badge/ant_badge_types.dart';
-export 'src/components/data_display/tag/ant_tag.dart';
-export 'src/components/data_display/tag/ant_tag_types.dart';
-export 'src/components/data_display/card/ant_card.dart';
-export 'src/components/data_display/card/ant_card_types.dart';
-export 'src/components/data_display/empty/ant_empty.dart';
-export 'src/components/data_display/empty/ant_empty_types.dart';
+// AntAvatar 头像已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/avatar/ant_avatar.dart';
+export 'package:antd_flutter_ui/src/display/avatar/ant_avatar_types.dart';
+// AntBadge 徽标已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/badge/ant_badge.dart';
+export 'package:antd_flutter_ui/src/display/badge/ant_badge_types.dart';
+// AntTag 标签已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/tag/ant_tag.dart';
+export 'package:antd_flutter_ui/src/display/tag/ant_tag_types.dart';
+// AntCard 卡片已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/card/ant_card.dart';
+export 'package:antd_flutter_ui/src/display/card/ant_card_types.dart';
+// Empty 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
+export 'package:antd_flutter_ui/src/display/empty/ant_empty_types.dart';
 export 'src/components/data_display/statistic/ant_statistic.dart';
 export 'src/components/data_display/statistic/ant_statistic_types.dart';
 
@@ -195,8 +209,9 @@ export 'src/components/data_display/list/ant_list_types.dart';
 // ============================================================
 export 'src/components/data_display/ellipsis/ant_ellipsis.dart';
 export 'src/components/data_display/ellipsis/ant_ellipsis_types.dart';
-export 'src/components/data_display/footer/ant_footer.dart';
-export 'src/components/data_display/footer/ant_footer_types.dart';
+// Footer 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/footer/ant_footer.dart';
+export 'package:antd_flutter_ui/src/basic/footer/ant_footer_types.dart';
 export 'src/components/data_display/page_indicator/ant_page_indicator.dart';
 export 'src/components/data_display/page_indicator/ant_page_indicator_types.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';

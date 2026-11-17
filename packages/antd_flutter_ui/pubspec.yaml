@@ -1,0 +1,45 @@
+name: antd_flutter_ui
+description: Ant Design v6 Flutter UI component library (base layer). Shared engines and basic/generic components, ported from antd and antd-mobile.
+version: 0.1.0-beta.1
+homepage: https://antd-flutter.github.io/antd-flutter/
+repository: https://github.com/antd-flutter/antd-flutter
+issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+
+topics:
+  - ui
+  - components
+  - design-system
+  - ant-design
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # L2/L3 底层子包
+  antd_theme: ^1.0.0
+  antd_color: ^1.0.0
+  antd_icons_flutter: ^1.0.0
+  material_ui: ^1.11.0
+  cupertino_ui: any
+  cached_network_image: ^4.0.7
+  flutter_cache_manager: ^3.3.1
+
+dependency_overrides:
+  antd_theme:
+    path: ../antd_theme
+  antd_color:
+    path: ../antd_color
+  antd_icons_flutter:
+    path: ../antd_icons_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: false

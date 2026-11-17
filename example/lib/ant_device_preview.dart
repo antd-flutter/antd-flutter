@@ -38,7 +38,12 @@ class AntDevicePreview {
 
   /// 1.x 架构无需初始化绑定（模拟经 [wrap] 的 widget 包装完成）。
   /// 保留调用形态与 3.0 接入方式对齐，便于将来升级。
-  static WidgetsBinding bootstrap() => WidgetsBinding.instance;
+  static WidgetsBinding bootstrap() {
+    // runApp 前调用时 binding 尚未初始化，直接取 instance 会抛
+    // "Binding has not yet been initialized"，须先 ensureInitialized。
+    WidgetsFlutterBinding.ensureInitialized();
+    return WidgetsBinding.instance;
+  }
 
   /// 一行接入包装。
   ///

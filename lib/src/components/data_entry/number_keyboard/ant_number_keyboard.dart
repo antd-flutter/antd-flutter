@@ -15,8 +15,7 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/number_keyboard/ant_number_keyboard_types.dart';
-import 'dart:math';
-
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 数字键盘 — 提供数字输入面板。
@@ -76,58 +75,46 @@ class AntNumberKeyboard extends StatefulWidget {
 }
 
 class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
-  late String _text;
+  late KeyboardInputBuffer _buffer;
   late List<String> _keyOrder;
 
   @override
   void initState() {
     super.initState();
-    _text = widget.value ?? widget.defaultValue ?? '';
-    _keyOrder = _buildKeyOrder();
+    _buffer = KeyboardInputBuffer(
+      initialText: widget.value ?? widget.defaultValue ?? '',
+      maxLength: widget.maxLength,
+    );
+    _keyOrder = buildNumberKeyOrder(randomOrder: widget.randomOrder);
   }
 
   @override
   void didUpdateWidget(AntNumberKeyboard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != null && widget.value != _text) {
-      _text = widget.value!;
+    if (widget.value != null && widget.value != _buffer.text) {
+      _buffer.text = widget.value!;
     }
     if (widget.randomOrder != oldWidget.randomOrder) {
-      _keyOrder = _buildKeyOrder();
+      _keyOrder = buildNumberKeyOrder(randomOrder: widget.randomOrder);
     }
   }
 
-  List<String> _buildKeyOrder() {
-    final digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    if (widget.randomOrder) {
-      final random = Random();
-      digits.shuffle(random);
+  void _applyNext(String? next) {
+    if (next == null) return;
+    if (widget.value == null) {
+      setState(() => _buffer.text = next);
+    } else {
+      _buffer.text = next;
     }
-    return digits;
+    widget.onChange?.call(next);
   }
 
   void _onKeyPress(String key) {
-    if (widget.maxLength != null && _text.length >= widget.maxLength!) {
-      return;
-    }
-    final next = _text + key;
-    if (widget.value == null) {
-      setState(() => _text = next);
-    } else {
-      _text = next;
-    }
-    widget.onChange?.call(next);
+    _applyNext(_buffer.append(key));
   }
 
   void _onBackspace() {
-    if (_text.isEmpty) return;
-    final next = _text.substring(0, _text.length - 1);
-    if (widget.value == null) {
-      setState(() => _text = next);
-    } else {
-      _text = next;
-    }
-    widget.onChange?.call(next);
+    _applyNext(_buffer.backspace());
   }
 
   void _onConfirm() {
