@@ -14,8 +14,8 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/empty/ant_empty_types.dart';
-export 'package:antd_flutter_plus/src/components/data_display/empty/ant_empty_types.dart';
+import 'ant_empty_types.dart';
+export 'ant_empty_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================
