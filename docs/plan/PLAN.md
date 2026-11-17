@@ -61,7 +61,6 @@
 ## 子任务索引
 
 - [ ] [P02-GitCode CI与静态站点](tasks/P02-gitcode-CI与静态站点.md)
-- [ ] [P05-布局状态通知与平台信息并入主题](tasks/P05-布局状态通知与平台信息并入主题.md)
 - [ ] [P11-packages现有包dart文件拆分](tasks/P11-packages现有包dart文件拆分.md)
 - [ ] [P06-icons-example正式化优化](tasks/P06-icons-example正式化优化.md)
 - [ ] [P07-screenutil桌面最大宽度与等比放大](tasks/P07-screenutil桌面最大宽度与等比放大.md)
