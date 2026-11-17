@@ -1,0 +1,106 @@
+# GitCode (AtomGit Action) CI：analyze + test + web 构建
+# 命令与 .github/workflows/ci.yml 保持一致；Flutter 3.50.0 stable
+#
+# 平台说明（调研结论）：AtomGit 托管 Runner 仅提供 ubuntu-latest / euler-latest（Linux），
+# 无 macOS/Windows 镜像，故此处仅覆盖 Linux 可执行的 analyze/test/web 构建；
+# 六端构建矩阵仍以 GitHub 侧 CI 为准。
+# Runner 未预装 Flutter，通过下载官方 stable 包安装（版本 3.50.0）。
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  enable: true
+  exceed-action: QUEUE
+
+env:
+  FLUTTER_VERSION: "3.50.0"
+
+jobs:
+  analyze-test:
+    name: Analyze & Test
+    runs-on: [ubuntu-latest, x64, small]
+    env:
+      FLUTTER_HOME: ${{ runner.temp }}/flutter
+    steps:
+      - name: Checkout source code
+        uses: checkout
+
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+        run: |
+          set -e
+          if [ ! -x "$FLUTTER_HOME/bin/flutter" ]; then
+            echo "[信息] 下载 Flutter $FLUTTER_VERSION stable"
+            curl -sSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
+              -o /tmp/flutter.tar.xz
+            mkdir -p "$FLUTTER_HOME"
+            tar -xJf /tmp/flutter.tar.xz --strip-components=1 -C "$FLUTTER_HOME"
+          fi
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          flutter --version
+          flutter config --no-analytics
+          flutter doctor -v
+
+      - name: Install dependencies
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          flutter pub get
+
+      # dart analyze 会递归扫描 packages/*/example 嵌套包，
+      # 需先为每个子包 example 解析依赖，否则 URI 无法解析报错
+      - name: Install subpackage example dependencies
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          for d in packages/*/example; do
+            if [ -f "$d/pubspec.yaml" ]; then
+              echo "flutter pub get in $d"
+              (cd "$d" && flutter pub get)
+            fi
+          done
+
+      - name: Flutter analyze
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          flutter analyze
+
+      - name: Run tests
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          flutter test
+
+  build-web:
+    name: Build web (Linux)
+    runs-on: [ubuntu-latest, x64, small]
+    env:
+      FLUTTER_HOME: ${{ runner.temp }}/flutter
+    steps:
+      - name: Checkout source code
+        uses: checkout
+
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+        run: |
+          set -e
+          if [ ! -x "$FLUTTER_HOME/bin/flutter" ]; then
+            curl -sSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
+              -o /tmp/flutter.tar.xz
+            mkdir -p "$FLUTTER_HOME"
+            tar -xJf /tmp/flutter.tar.xz --strip-components=1 -C "$FLUTTER_HOME"
+          fi
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          flutter --version
+
+      - name: Install example dependencies
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          (cd example && flutter pub get)
+
+      - name: Build web
+        run: |
+          export PATH="$FLUTTER_HOME/bin:$PATH"
+          (cd example && flutter build web --release)
