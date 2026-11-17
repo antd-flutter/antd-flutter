@@ -1,11 +1,6 @@
 # antd_color
 
-> [!WARNING]
-> **Beta 阶段 — 暂不建议在生产环境使用。** antd_color 当前处于 beta 阶段（0.x.0-beta.x），API 在 1.0.0 正式发布前可能随时变动，请仅用于评估、演示或开发体验。
-
 Ant Design v6 color system for Flutter — fast color manipulation, palette generation, and CSS color parsing, precisely ported from [`@ant-design/fast-color`](https://github.com/ant-design/fast-color) v3.
-
-> **Beta** — This package is under active development. APIs may change before the stable release.
 
 ## Features
 
@@ -19,7 +14,7 @@ Ant Design v6 color system for Flutter — fast color manipulation, palette gene
 
 ```yaml
 dependencies:
-  antd_color: ^0.1.0-beta.1
+  antd_color: ^1.0.0
 ```
 
 ```dart
@@ -117,6 +112,13 @@ final antBlueDark = AntColor.fromSeedDark('#1677ff');
 final c1 = antParseColor('#1677ff');
 final c2 = antParseColor('rgba(22, 119, 255, 0.6)');
 ```
+
+## Documentation
+
+- [颜色系统总览](docs/color.md)
+- [色板生成](docs/palette.md)
+- [CSS 颜色解析](docs/parse.md)
+- [API 索引](docs/api-index.md)
 
 ## Porting fidelity
 

@@ -1,11 +1,6 @@
 # antd_tokens
 
-> [!WARNING]
-> **Beta 阶段 — 暂不建议在生产环境使用。** antd_tokens 当前处于 beta 阶段（0.x.0-beta.x），API 在 1.0.0 正式发布前可能随时变动，请仅用于评估、演示或开发体验。
-
 Ant Design v6 Design Token system for Flutter — seed tokens, token generation algorithms, color token maps, and shadow tokens, precisely ported from [Ant Design](https://ant.design/) `components/theme`.
-
-> **Beta** — This package is under active development. APIs may change before the stable release.
 
 ## Features
 
@@ -18,7 +13,7 @@ Ant Design v6 Design Token system for Flutter — seed tokens, token generation 
 
 ```yaml
 dependencies:
-  antd_tokens: ^0.1.0-beta.1
+  antd_tokens: ^1.0.0
 ```
 
 ```dart
@@ -118,6 +113,14 @@ shadows.boxShadowCard;          // card shadow
 shadows.boxShadowDrawerRight;   // drawer directional shadows
 shadows.boxShadowTabsOverflowLeft; // tabs overflow shadows
 ```
+
+## Documentation
+
+- [Seed Token](docs/seed-token.md)
+- [Map Token](docs/map-token.md)
+- [Color Token](docs/color-token.md)
+- [Shadow Token](docs/shadow-token.md)
+- [API 索引](docs/api-index.md)
 
 ## Porting fidelity
 

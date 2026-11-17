@@ -2,7 +2,7 @@
 
 # antd_theme API 索引
 
-> 自动生成时间：2026-11-17T13:07:28.068888；共 41 个顶层导出。
+> 自动生成时间：2026-11-17T14:07:12.498256；共 41 个顶层导出。
 >
 > antd_theme — Ant Design v6 主题系统
 > 
@@ -170,6 +170,7 @@
 | `maybeOf` | 静态方法 | 依赖整体布局数据（任一字段变化即 rebuild） |
 | `of` | 静态方法 | 依赖整体布局数据 |
 | `platformOf` | 静态方法 | 仅依赖平台 aspect |
+| `scaleFactorOf` | 静态方法 | 仅依赖缩放因子 aspect（桌面超宽等比放大时 > 1，默认恒 1.0） |
 | `updateShouldNotify` | 方法 | — |
 | `updateShouldNotifyDependent` | 方法 | — |
 | `widthOf` | 静态方法 | 仅依赖宽度 aspect |
@@ -187,12 +188,19 @@
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `allowScaleUp` | 字段 | 是否允许桌面超宽等比放大 |
 | `builder` | 字段 | 构建回调 |
 | `child` | 字段 | 传入的 child，避免重建 |
 | `createState` | 方法 | — |
+| `defaultMaxScaleFactor` | 静态属性 | 桌面默认放大倍率封顶值 |
 | `designSize` | 字段 | 设计稿尺寸，默认 375×812 |
 | `desktopBreakpoint` | 字段 | 桌面模式宽度阈值（逻辑像素） |
+| `maxScaleFactor` | 字段 | 放大倍率封顶保护 |
+| `maxWidth` | 字段 | 桌面基准宽度上限（逻辑像素） |
 | `minTextAdapt` | 字段 | 是否根据系统字体大小缩放文字 |
+| `resolveDesktopScale` | 静态方法 | 计算桌面模式下生效的 designSize 与缩放因子（纯函数，便于测试） |
+| `scaleFactorListenable` | 静态方法 | 当前桌面缩放因子（只读视图，见 scaleFactorNotifier） |
+| `scaleFactorNotifier` | 静态属性 | 当前桌面缩放因子的全局通知器（非放大时恒为 1.0） |
 | `splitScreenMode` | 字段 | 是否支持分屏模式 |
 
 ### `RPadding`
@@ -380,6 +388,7 @@
 | `foldState` | 枚举值 | 折叠态 |
 | `orientation` | 枚举值 | 方向 |
 | `platform` | 枚举值 | 平台信息（targetPlatform / isOhos / isDesktop） |
+| `scaleFactor` | 枚举值 | 桌面超宽等比缩放因子（scaleFactor） |
 | `width` | 枚举值 | 宽度（任意像素变化） |
 
 ### `AntLayoutData`
@@ -397,6 +406,7 @@
 | `isDesktop` | 字段 | 是否为桌面类平台（web / windows / macos / linux） |
 | `isOhos` | 字段 | 是否为鸿蒙平台 |
 | `orientation` | 字段 | 屏幕方向 |
+| `scaleFactor` | 字段 | 桌面超宽等比缩放因子 |
 | `targetPlatform` | 字段 | 目标平台 |
 | `toString` | 方法 | — |
 | `width` | 字段 | 窗口逻辑宽度 |
