@@ -1,0 +1,22 @@
+{
+  "@@locale": "en",
+  "appTitle": "Ant Design Icons",
+  "searchPlaceholder": "Search icons by name...",
+  "tabOutlined": "Outlined ({count})",
+  "@tabOutlined": { "placeholders": { "count": { "type": "int" } } },
+  "tabFilled": "Filled ({count})",
+  "@tabFilled": { "placeholders": { "count": { "type": "int" } } },
+  "tabTwoTone": "TwoTone ({count})",
+  "@tabTwoTone": { "placeholders": { "count": { "type": "int" } } },
+  "emptyResult": "No icons found for \"{query}\"",
+  "@emptyResult": { "placeholders": { "query": { "type": "String" } } },
+  "copied": "Copied: {name}",
+  "@copied": { "placeholders": { "name": { "type": "String" } } },
+  "aboutTooltip": "About",
+  "aboutTitle": "Ant Design Icons for Flutter",
+  "aboutBody": "Flutter port of the Ant Design icon library.\n\n• Outlined + Filled: TTF font icons (698)\n• TwoTone: SVG two-color icons (150), with customizable primary color\n\nTap any icon to copy its constant name.",
+  "close": "Close",
+  "twoToneColorLabel": "twoToneColor",
+  "themeLight": "Light mode",
+  "themeDark": "Dark mode"
+}

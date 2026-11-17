@@ -1,0 +1,17 @@
+{
+  "@@locale": "zh",
+  "appTitle": "Ant Design 图标",
+  "searchPlaceholder": "按名称搜索图标…",
+  "tabOutlined": "线性（{count}）",
+  "tabFilled": "填充（{count}）",
+  "tabTwoTone": "双色（{count}）",
+  "emptyResult": "未找到与「{query}」匹配的图标",
+  "copied": "已复制：{name}",
+  "aboutTooltip": "关于",
+  "aboutTitle": "Ant Design Icons for Flutter",
+  "aboutBody": "Ant Design 图标库的 Flutter 移植版。\n\n• 线性 + 填充：TTF 字体图标（698 个）\n• 双色：SVG 双色图标（150 个），支持自定义主色\n\n点击任意图标可复制其常量名。",
+  "close": "关闭",
+  "twoToneColorLabel": "twoToneColor",
+  "themeLight": "亮色模式",
+  "themeDark": "暗色模式"
+}
