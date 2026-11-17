@@ -74,8 +74,9 @@ export 'package:antd_flutter_ui/src/basic/flex/ant_flex_types.dart';
 // Grid 栅格已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/grid/ant_grid.dart';
 export 'package:antd_flutter_ui/src/basic/grid/ant_grid_types.dart';
-export 'src/components/layout/layout/ant_layout.dart';
-export 'src/components/layout/layout/ant_layout_types.dart';
+// AntLayout 布局族已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/layout/ant_layout.dart';
+export 'package:antd_flutter_ui/src/basic/layout/ant_layout_types.dart';
 export 'src/components/layout/masonry/ant_masonry.dart';
 export 'src/components/layout/masonry/ant_masonry_types.dart';
 export 'src/components/layout/safe_area/ant_safe_area.dart';
