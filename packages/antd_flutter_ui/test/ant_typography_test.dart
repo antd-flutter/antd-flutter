@@ -9,11 +9,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return MaterialApp(
-    home: Scaffold(
-      body: AntTheme(
-        data: AntThemeData.light(),
-        child: Material(child: child),
+  return AntScreenUtilInit(
+    builder: (context, _) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
+        ),
       ),
     ),
   );
@@ -306,6 +308,35 @@ void main() {
 
       expect(changed, 'Modified');
     });
+
+    testWidgets('edit icons vertically aligned with input box', (tester) async {
+      final theme = AntThemeData.light();
+      await tester.pumpWidget(
+        _wrap(const AntText(text: 'Edit me', editable: true)),
+      );
+      await tester.tap(find.byIcon(AntIcons.editOutlined));
+      await tester.pump();
+
+      // 行容器为 Row，且显式垂直居中对齐
+      final row = tester.widget<Row>(
+        find.ancestor(
+          of: find.byType(TextField),
+          matching: find.byType(Row),
+        ).first,
+      );
+      expect(row.crossAxisAlignment, CrossAxisAlignment.center);
+
+      // 输入框以 controlHeight 为最小高度，与图标同一行内居中
+      final inputCenter = tester.getCenter(find.byType(TextField));
+      final confirmCenter =
+          tester.getCenter(find.byIcon(AntIcons.checkOutlined));
+      final cancelCenter = tester.getCenter(find.byIcon(AntIcons.closeOutlined));
+      expect((confirmCenter.dy - inputCenter.dy).abs(), lessThan(1.0));
+      expect((cancelCenter.dy - inputCenter.dy).abs(), lessThan(1.0));
+      // 输入框高度 ≥ controlHeight（不再小于行高导致图标错位）
+      final inputSize = tester.getSize(find.byType(TextField));
+      expect(inputSize.height, greaterThanOrEqualTo(theme.controlHeight - 0.5));
+    });
   });
 
   group('AntTypography ellipsis', () {
@@ -362,6 +393,68 @@ void main() {
       await tester.pump();
 
       expect(expanded, true);
+    });
+
+    testWidgets('expand icon is inline with text (same RichText WidgetSpan)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const AntParagraph(
+        text: 'A long paragraph that will be truncated at the end of line',
+        ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+      ),),);
+
+      // 文字与展开图标应位于同一 Text.rich（RichText）的 WidgetSpan 中，
+      // 而不是作为独立兄弟节点排在下一行。
+      final richTexts = tester.widgetList<RichText>(find.byType(RichText));
+      final hostRich = richTexts
+          .where((r) =>
+              r.text is TextSpan &&
+              (r.text as TextSpan).children != null &&
+              r.text.toPlainText().contains('A long paragraph'),)
+          .toList();
+      expect(hostRich, hasLength(1));
+      // Text.rich 会将用户 span 包为 TextSpan(style, children:[userSpan])
+      var span = hostRich.first.text as TextSpan;
+      if (span.text == null && span.children != null) {
+        span = span.children!.whereType<TextSpan>().first;
+      }
+      expect(span.text, contains('A long paragraph'));
+      final widgetSpans =
+          span.children!.whereType<WidgetSpan>().toList();
+      expect(widgetSpans, hasLength(1));
+      // WidgetSpan 子树包含展开按钮文本
+      expect(
+        find.descendant(
+          of: find.byWidget(widgetSpans.first.child),
+          matching: find.text('展开'),
+        ),
+        findsOneWidget,
+      );
+      // 展开按钮不是 Row/Wrap 中的独立兄弟（无以“展开”为直接文本的第二个节点行）
+      expect(find.text('展开'), findsOneWidget);
+    });
+
+    testWidgets('collapse icon also inline after expanding', (tester) async {
+      await tester.pumpWidget(_wrap(const AntParagraph(
+        text: 'Content',
+        ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+      ),),);
+      await tester.tap(find.text('展开'));
+      await tester.pump();
+
+      final richTexts = tester.widgetList<RichText>(find.byType(RichText));
+      final hostRich = richTexts
+          .where((r) =>
+              r.text is TextSpan &&
+              (r.text as TextSpan).children != null &&
+              r.text.toPlainText().contains('Content'),)
+          .toList();
+      expect(hostRich, hasLength(1));
+      var span = hostRich.first.text as TextSpan;
+      if (span.text == null && span.children != null) {
+        span = span.children!.whereType<TextSpan>().first;
+      }
+      expect(span.text, contains('Content'));
+      expect(span.children!.whereType<WidgetSpan>(), hasLength(1));
     });
   });
 

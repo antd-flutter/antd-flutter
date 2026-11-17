@@ -21,3 +21,6 @@ export 'src/basic/button/ant_button_types.dart';
 // ── Typography 排版 ────────────────────────────────────────
 export 'src/basic/typography/ant_typography.dart';
 export 'src/basic/typography/ant_typography_types.dart';
+
+export 'src/basic/tooltip/ant_tooltip.dart';
+export 'src/basic/tooltip/ant_tooltip_types.dart';

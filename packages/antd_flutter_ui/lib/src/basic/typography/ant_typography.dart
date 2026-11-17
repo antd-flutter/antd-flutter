@@ -15,6 +15,9 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
+import '../tooltip/ant_tooltip.dart';
+import '../tooltip/ant_tooltip_types.dart';
+
 import 'ant_typography_types.dart';
 
 // ============================================================
@@ -235,6 +238,13 @@ class _AntTypographyState extends State<AntTypography> {
     // ---- 构建 TextStyle ----
     final baseStyle = _buildBaseStyle(theme, color);
 
+    // ---- 展开/收起按钮 ----
+    // 先于 content 构建：expandable 且文本源场景下，图标经 WidgetSpan
+    // 与截断文字同处一个 inline Text.rich，避免单独成行。
+    final expandWidget = _buildExpandWidget(theme, baseStyle, hasEllipsis, ellipsis);
+    final expandInline =
+        expandWidget != null && widget.child == null && !widget.selectable;
+
     // ---- 构建内容 ----
     Widget content;
     if (widget.child != null) {
@@ -248,6 +258,21 @@ class _AntTypographyState extends State<AntTypography> {
         style: baseStyle,
         maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
       );
+    } else if (expandInline) {
+      content = Text.rich(
+        TextSpan(
+          text: widget.text ?? '',
+          children: [
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: expandWidget,
+            ),
+          ],
+        ),
+        style: baseStyle,
+        maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
+        overflow: hasEllipsis && !_expanded ? TextOverflow.ellipsis : null,
+      );
     } else {
       content = Text(
         widget.text ?? '',
@@ -260,10 +285,10 @@ class _AntTypographyState extends State<AntTypography> {
     // ---- code / keyboard / mark 视觉容器 ----
     content = _wrapVisualDecorations(content, theme);
 
-    // ---- ellipsis tooltip ----
+    // ---- ellipsis tooltip（antd 自举：包内 AntTooltip，桌面 hover / 移动点击）----
     if (hasEllipsis && ellipsis.tooltip && !_expanded) {
-      content = Tooltip(
-        message: widget.text ?? _plainText,
+      content = AntTooltip(
+        tooltip: Text(widget.text ?? _plainText),
         child: content,
       );
     }
@@ -279,16 +304,14 @@ class _AntTypographyState extends State<AntTypography> {
       );
     }
 
-    // ---- 展开/收起按钮 ----
-    final expandWidget = _buildExpandWidget(theme, baseStyle, hasEllipsis, ellipsis);
-
     // ---- 复制/编辑图标 ----
     final actions = _buildActions(theme, color);
 
     // ---- 组装行 ----
+    // expandWidget 为 null 时（expandInline）已并入 Text.rich 的 WidgetSpan。
     final List<Widget> rowChildren = [];
     rowChildren.add(content);
-    if (expandWidget != null) rowChildren.add(expandWidget);
+    if (!expandInline && expandWidget != null) rowChildren.add(expandWidget);
     if (actions.isNotEmpty) {
       rowChildren.add(const SizedBox(width: 4));
       rowChildren.addAll(actions);
@@ -416,41 +439,44 @@ class _AntTypographyState extends State<AntTypography> {
   }
 
   /// 构建编辑器。
+  ///
+  /// 对齐约定：输入框以 minHeight=controlHeight 约束撑起行高，
+  /// 图标经 Row 的 crossAxisAlignment.center 与编辑框垂直居中对齐。
   Widget _buildEditor(AntThemeData theme, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: SizedBox(
-            height: theme.controlHeight,
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              style: TextStyle(
-                color: color,
-                fontSize: theme.fontSize,
-                fontFamily: theme.fontFamily,
-              ),
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: theme.paddingXS,
-                  vertical: 4,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(theme.borderRadius),
-                  borderSide: BorderSide(color: theme.colorPrimary),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(theme.borderRadius),
-                  borderSide: BorderSide(
-                    color: theme.colorPrimary,
-                    width: theme.lineWidth,
-                  ),
-                ),
-              ),
-              onSubmitted: (_) => _commitEdit(),
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            style: TextStyle(
+              color: color,
+              fontSize: theme.fontSize,
+              height: 1.0,
+              fontFamily: theme.fontFamily,
             ),
+            decoration: InputDecoration(
+              isDense: true,
+              constraints: BoxConstraints(minHeight: theme.controlHeight),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: theme.paddingXS,
+                vertical: (theme.controlHeight - theme.fontSize) / 2,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(theme.borderRadius),
+                borderSide: BorderSide(color: theme.colorPrimary),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(theme.borderRadius),
+                borderSide: BorderSide(
+                  color: theme.colorPrimary,
+                  width: theme.lineWidth,
+                ),
+              ),
+            ),
+            onSubmitted: (_) => _commitEdit(),
           ),
         ),
         const SizedBox(width: 4),
@@ -560,7 +586,12 @@ class _ActionIcon extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      result = Tooltip(message: tooltip!, child: result);
+      // hover 触发：桌面悬停提示；移动端不吞点击（图标自身 tap 生效）
+      result = AntTooltip(
+        trigger: AntTooltipTrigger.hover,
+        tooltip: Text(tooltip!),
+        child: result,
+      );
     }
 
     if (onTap != null) {
