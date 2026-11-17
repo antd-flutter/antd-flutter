@@ -241,23 +241,23 @@ class _AntSearchBarState extends State<AntSearchBar> {
                 widget.searchIcon ??
                     Icon(
                       Icons.search,
-                      size: 18.sp,
+                      size: 16.sp,
                       color: t.colorTextTertiary,
                     ),
-                SizedBox(width: 6.w),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: TextField(
                     controller: _controller,
                     focusNode: _focusNode,
                     maxLength: widget.maxLength,
                     style: TextStyle(
-                      fontSize: t.fontSizeSM,
+                      fontSize: t.fontSize,
                       color: t.colorText,
                     ),
                     decoration: InputDecoration(
                       hintText: widget.placeholder,
                       hintStyle: TextStyle(
-                        fontSize: t.fontSizeSM,
+                        fontSize: t.fontSize,
                         color: t.colorTextPlaceholder,
                       ),
                       border: InputBorder.none,
