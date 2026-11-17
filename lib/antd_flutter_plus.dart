@@ -80,8 +80,9 @@ export 'package:antd_flutter_ui/src/basic/layout/ant_layout.dart';
 export 'package:antd_flutter_ui/src/basic/layout/ant_layout_types.dart';
 export 'src/components/layout/masonry/ant_masonry.dart';
 export 'src/components/layout/masonry/ant_masonry_types.dart';
-export 'src/components/layout/safe_area/ant_safe_area.dart';
-export 'src/components/layout/safe_area/ant_safe_area_types.dart';
+// SafeArea 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/safe_area/ant_safe_area.dart';
+export 'package:antd_flutter_ui/src/basic/safe_area/ant_safe_area_types.dart';
 // Space 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/space/ant_space.dart';
 export 'package:antd_flutter_ui/src/basic/space/ant_space_types.dart';
