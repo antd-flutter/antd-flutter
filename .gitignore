@@ -33,6 +33,8 @@ Thumbs.db
 .pub/
 build/
 **/doc/api/
+packages/*/doc/
+/doc/api/
 generated_plugin_registrant.dart
 
 # ---- 测试 / 覆盖率 ----

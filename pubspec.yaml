@@ -41,6 +41,7 @@ dependency_overrides:
     path: packages/antd_icons_flutter
 
 dev_dependencies:
+  analyzer: ^8.0.0
   flutter_test:
     sdk: flutter
   device_preview: ^1.2.0
