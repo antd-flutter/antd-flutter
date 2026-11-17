@@ -18,6 +18,10 @@ export 'src/engines/keyboard_input_model.dart';
 export 'src/basic/button/ant_button.dart';
 export 'src/basic/button/ant_button_types.dart';
 
+// ── Flex 弹性布局 ──────────────────────────────────────────
+export 'src/basic/flex/ant_flex.dart';
+export 'src/basic/flex/ant_flex_types.dart';
+
 // ── Typography 排版 ────────────────────────────────────────
 export 'src/basic/typography/ant_typography.dart';
 export 'src/basic/typography/ant_typography_types.dart';
