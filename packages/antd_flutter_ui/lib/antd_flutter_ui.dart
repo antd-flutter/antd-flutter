@@ -30,6 +30,10 @@ export 'src/basic/grid/ant_grid_types.dart';
 export 'src/basic/layout/ant_layout.dart';
 export 'src/basic/layout/ant_layout_types.dart';
 
+// ── Divider 分割线 ─────────────────────────────────────────
+export 'src/basic/divider/ant_divider.dart';
+export 'src/basic/divider/ant_divider_types.dart';
+
 // ── Space 间距 ─────────────────────────────────────────────
 export 'src/basic/space/ant_space.dart';
 export 'src/basic/space/ant_space_types.dart';

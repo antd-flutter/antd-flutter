@@ -66,8 +66,9 @@ export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
 
 // L4 组件层 — 布局
 export 'src/components/layout/auto_center/ant_auto_center.dart';
-export 'src/components/layout/divider/ant_divider.dart';
-export 'src/components/layout/divider/ant_divider_types.dart';
+// Divider 分割线已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/divider/ant_divider.dart';
+export 'package:antd_flutter_ui/src/basic/divider/ant_divider_types.dart';
 // Flex 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/flex/ant_flex.dart';
 export 'package:antd_flutter_ui/src/basic/flex/ant_flex_types.dart';
