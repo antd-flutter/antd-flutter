@@ -65,6 +65,7 @@
 - 用户已裁决：争议组件 Carousel/Masonry/ColorPicker/Select/Transfer 独立成包
 - 续接点：分支 task/p08-split（已合并删除）；下一子任务=通用展示组继续（Statistic → NoticeBar → Segmented → Watermark → Ellipsis → Carousel(antd_carousel) → PageIndicator → InfiniteScroll → Image → Popover/Tooltip（随 P15 弹层底座）→ …）
 - 用户反馈待办：MacOS demo 页部分 RenderFlex 溢出（遗留问题已登记）；AntTooltip 箭头异常（记入 P15）
+- GitCode 相关全部取消（2026-11-18 用户确认）：P02 遗留的流水线内测申请与 Pages 开通待办不再需要，双推已回退 GitHub 单远程
 
 - R27 **子任务代理化执行**：所有子任务一律派发子代理执行，不占用主任务窗口交互；**同一时间只允许一个子任务在跑**，完成后才下发下一个；主窗口收到新任务时若上一子任务仍在进行，将新任务整理成任务文件加入计划**排队等待**，不并行派发
 
