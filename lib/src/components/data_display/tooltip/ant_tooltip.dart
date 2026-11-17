@@ -25,7 +25,6 @@ library;
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:antd_flutter_plus/src/platform/ant_platform.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
