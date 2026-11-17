@@ -38,20 +38,31 @@ class AntSafeArea extends SafeArea {
   ///
   /// [position] 映射为原生 `top` / `bottom` 布尔参数（构造级解析）；
   /// 其余参数原样透传给 [SafeArea]，语义与 Flutter 原生一致。
+  ///
+  /// [child] 为 null 时进入占位模式；原生 [SafeArea.child] 不可为 null，
+  /// 此处向父类传入 `SizedBox.shrink()` 占位（不会实际渲染该占位）。
   const AntSafeArea({
     super.key,
     this.position = AntSafeAreaPosition.both,
-    super.child,
+    Widget? child,
     super.maintainBottomViewPadding = false,
     super.minimum = EdgeInsets.zero,
     super.left = true,
     super.right = true,
-  }) : super(
-         top: position == AntSafeAreaPosition.top ||
-             position == AntSafeAreaPosition.both,
-         bottom: position == AntSafeAreaPosition.bottom ||
-             position == AntSafeAreaPosition.both,
-       );
+  })  : _child = child,
+        super(
+          child: child ?? const SizedBox.shrink(),
+          top: position == AntSafeAreaPosition.top ||
+              position == AntSafeAreaPosition.both,
+          bottom: position == AntSafeAreaPosition.bottom ||
+              position == AntSafeAreaPosition.both,
+        );
+
+  /// 子组件。为 null 时渲染安全区高度的占位 SizedBox。
+  ///
+  /// 注意：父类 [SafeArea.child] 为非空字段，此处以私有字段承载可空语义；
+  /// null 时向父类传入 `SizedBox.shrink()` 占位，不会实际渲染。
+  final Widget? _child;
 
   /// 安全区位置。top 仅顶部，bottom 仅底部，both 顶部和底部。
   ///
@@ -63,7 +74,7 @@ class AntSafeArea extends SafeArea {
   Widget build(BuildContext context) {
     // 占位模式 — child 为 null 时渲染安全区高度的 SizedBox
     // （Flutter 原生 SafeArea 不支持 child 为 null，此处为 antd 增强能力）
-    if (child == null) {
+    if (_child == null) {
       final mediaQuery = MediaQuery.of(context);
       var height = 0.0;
       if (top) {

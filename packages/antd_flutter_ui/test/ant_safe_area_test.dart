@@ -1,7 +1,15 @@
-/// AntSafeArea Widget 测试
+/// AntSafeArea 适配层 Widget 测试
+///
+/// 适配层定位：AntSafeArea 继承 Flutter 原生 SafeArea，Flutter 参数透传 +
+/// antd 增强（position 枚举、child 为 null 的占位模式）。
+/// 本测试覆盖：
+/// - 默认参数值命中 Flutter SafeArea 原生默认（P08 适配层默认参数值单测）
+/// - position 枚举构造级映射 top/bottom
+/// - 占位模式与包装模式行为
 library;
 
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,6 +45,62 @@ double? _placeholderHeight(WidgetTester tester) {
 }
 
 void main() {
+  group('AntSafeArea — 适配层默认参数值（对齐 Flutter SafeArea 原生默认）', () {
+    test('is a SafeArea subtype（类型兼容原生位置）', () {
+      const antSafeArea = AntSafeArea();
+      expect(antSafeArea, isA<SafeArea>());
+    });
+
+    test('defaults match Flutter SafeArea native defaults', () {
+      const antSafeArea = AntSafeArea();
+      const native = SafeArea(child: SizedBox());
+      expect(antSafeArea.left, native.left);
+      expect(antSafeArea.top, native.top);
+      expect(antSafeArea.right, native.right);
+      expect(antSafeArea.bottom, native.bottom);
+      expect(antSafeArea.maintainBottomViewPadding,
+          native.maintainBottomViewPadding,);
+      expect(antSafeArea.minimum, native.minimum);
+    });
+
+    test('minimum 保持 Flutter 原生默认 EdgeInsets.zero', () {
+      const antSafeArea = AntSafeArea();
+      expect(antSafeArea.minimum, EdgeInsets.zero);
+    });
+
+    test('position=both maps to top=true bottom=true (native default)', () {
+      const antSafeArea = AntSafeArea();
+      expect(antSafeArea.top, isTrue);
+      expect(antSafeArea.bottom, isTrue);
+    });
+
+    test('position=top maps to top=true bottom=false', () {
+      const antSafeArea = AntSafeArea(position: AntSafeAreaPosition.top);
+      expect(antSafeArea.top, isTrue);
+      expect(antSafeArea.bottom, isFalse);
+    });
+
+    test('position=bottom maps to top=false bottom=true', () {
+      const antSafeArea = AntSafeArea(position: AntSafeAreaPosition.bottom);
+      expect(antSafeArea.top, isFalse);
+      expect(antSafeArea.bottom, isTrue);
+    });
+
+    test('Flutter 参数经 super 透传（用户显式传参优先）', () {
+      const minPadding = EdgeInsets.all(8);
+      const antSafeArea = AntSafeArea(
+        minimum: minPadding,
+        maintainBottomViewPadding: true,
+        left: false,
+        right: false,
+      );
+      expect(antSafeArea.minimum, minPadding);
+      expect(antSafeArea.maintainBottomViewPadding, isTrue);
+      expect(antSafeArea.left, isFalse);
+      expect(antSafeArea.right, isFalse);
+    });
+  });
+
   group('AntSafeArea — 占位模式', () {
     testWidgets('position=top renders padding.top height', (tester) async {
       await tester.pumpWidget(
@@ -115,7 +179,7 @@ void main() {
         _wrap(const AntSafeArea(child: Text('content'))),
       );
       expect(find.text('content'), findsOneWidget);
-      expect(find.byType(SafeArea), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is SafeArea), findsOneWidget);
     });
 
     testWidgets('position=top sets SafeArea top=true bottom=false',
@@ -128,7 +192,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.top, isTrue);
       expect(safeArea.bottom, isFalse);
     });
@@ -143,7 +207,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.top, isFalse);
       expect(safeArea.bottom, isTrue);
     });
@@ -153,7 +217,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntSafeArea(child: Text('content'))),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.top, isTrue);
       expect(safeArea.bottom, isTrue);
     });
@@ -167,7 +231,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.left, isFalse);
       expect(safeArea.right, isTrue);
     });
@@ -181,7 +245,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.right, isFalse);
       expect(safeArea.left, isTrue);
     });
@@ -196,7 +260,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.minimum, minPadding);
     });
 
@@ -210,7 +274,7 @@ void main() {
           ),
         ),
       );
-      final safeArea = tester.widget<SafeArea>(find.byType(SafeArea));
+      final safeArea = tester.widget<SafeArea>(find.byType(AntSafeArea));
       expect(safeArea.maintainBottomViewPadding, isTrue);
     });
   });
