@@ -22,6 +22,10 @@ export 'src/basic/button/ant_button_types.dart';
 export 'src/basic/flex/ant_flex.dart';
 export 'src/basic/flex/ant_flex_types.dart';
 
+// ── Space 间距 ─────────────────────────────────────────────
+export 'src/basic/space/ant_space.dart';
+export 'src/basic/space/ant_space_types.dart';
+
 // ── Typography 排版 ────────────────────────────────────────
 export 'src/basic/typography/ant_typography.dart';
 export 'src/basic/typography/ant_typography_types.dart';
