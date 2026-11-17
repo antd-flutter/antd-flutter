@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart'
     show ValueListenable;
 import 'package:flutter/widgets.dart';
 
+import 'ant_screen_util.dart';
 import 'enum/ant_breakpoint_type.dart';
 import 'enum/ant_responsive_type.dart';
 import 'types/ant_layout_types.dart';
@@ -145,6 +146,10 @@ class AntResponsive extends InheritedModel<AntLayoutAspect> {
   static double widthOf(BuildContext context) =>
       of(context, aspect: AntLayoutAspect.width).width;
 
+  /// 仅依赖缩放因子 aspect（桌面超宽等比放大时 > 1，默认恒 1.0）。
+  static double scaleFactorOf(BuildContext context) =>
+      of(context, aspect: AntLayoutAspect.scaleFactor).scaleFactor;
+
   @override
   bool updateShouldNotify(AntResponsive oldWidget) => data != oldWidget.data;
 
@@ -166,6 +171,8 @@ class AntResponsive extends InheritedModel<AntLayoutAspect> {
           current.targetPlatform != old.targetPlatform ||
               current.isOhos != old.isOhos ||
               current.isDesktop != old.isDesktop,
+        AntLayoutAspect.scaleFactor =>
+          current.scaleFactor != old.scaleFactor,
       };
       if (changed) return true;
     }
@@ -253,6 +260,8 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
     final data = AntLayoutData.fromMediaQuery(
       mq,
       foldState: widget.foldStateProvider?.call(),
+      // 桌面超宽等比缩放因子（AntScreenUtilInit 计算，非放大恒 1.0）。
+      scaleFactor: AntScreenUtilInit.scaleFactorNotifier.value,
     );
     // 通知去重：值相等不发通知。
     if (_notifier.value != data) {
@@ -268,6 +277,8 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
     final data = AntLayoutData.fromMediaQuery(
       mq,
       foldState: widget.foldStateProvider?.call(),
+      // 桌面超宽等比缩放因子（AntScreenUtilInit 计算，非放大恒 1.0）。
+      scaleFactor: AntScreenUtilInit.scaleFactorNotifier.value,
     );
     if (_notifier.value != data) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
