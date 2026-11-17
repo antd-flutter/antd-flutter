@@ -9,29 +9,65 @@ library;
 import 'dart:math' as math;
 
 /// HSV 颜色模型值。
+///
+/// ```dart
+/// final hsv = AntHsv(h: 210, s: 0.9, v: 1.0);
+/// final color = AntFastColor.of(hsv);
+/// ```
 class AntHsv {
-  final double h; // 0-360
-  final double s; // 0-1
-  final double v; // 0-1
-  final double a; // 0-1
+  /// 色相（0-360）。
+  final double h;
+
+  /// HSV 饱和度（0-1）。
+  final double s;
+
+  /// 明度（0-1）。
+  final double v;
+
+  /// 透明度（0-1），默认 1。
+  final double a;
   const AntHsv({required this.h, required this.s, required this.v, this.a = 1});
 }
 
 /// HSL 颜色模型值。
+///
+/// ```dart
+/// final hsl = AntHsl(h: 210, s: 0.9, l: 0.5);
+/// final color = AntFastColor.of(hsl);
+/// ```
 class AntHsl {
-  final double h; // 0-360
-  final double s; // 0-1
-  final double l; // 0-1
-  final double a; // 0-1
+  /// 色相（0-360）。
+  final double h;
+
+  /// HSL 饱和度（0-1）。
+  final double s;
+
+  /// 亮度（0-1）。
+  final double l;
+
+  /// 透明度（0-1），默认 1。
+  final double a;
   const AntHsl({required this.h, required this.s, required this.l, this.a = 1});
 }
 
 /// RGB 颜色模型值。
+///
+/// ```dart
+/// final rgb = AntRgb(r: 22, g: 119, b: 255);
+/// final color = AntFastColor.of(rgb);
+/// ```
 class AntRgb {
-  final int r; // 0-255
-  final int g; // 0-255
-  final int b; // 0-255
-  final double a; // 0-1
+  /// 红色通道（0-255）。
+  final int r;
+
+  /// 绿色通道（0-255）。
+  final int g;
+
+  /// 蓝色通道（0-255）。
+  final int b;
+
+  /// 透明度（0-1），默认 1。
+  final double a;
   const AntRgb({required this.r, required this.g, required this.b, this.a = 1});
 }
 
@@ -46,6 +82,14 @@ num _limitRange(num value, [num max = 255]) {
 /// 高性能颜色操作类，支持 RGB / HSV / HSL 互转及 darken / lighten / mix 等操作。
 ///
 /// 与 `@ant-design/fast-color` 的 `FastColor` 行为完全一致。
+/// 所有 setter 与颜色变换方法均返回新实例，原实例不可变地保留。
+///
+/// ```dart
+/// final color = AntFastColor('#1677ff');
+/// print(color.toHexString()); // '#1677ff'
+/// print(color.darken(10).toHexString()); // 加深后的 hex
+/// print(color.isDark()); // false
+/// ```
 class AntFastColor {
   /// 红色通道 (0-255)。
   int r = 0;
@@ -68,7 +112,16 @@ class AntFastColor {
   int? _max;
   int? _min;
 
-  /// 从 hex 字符串构造，如 `#1677ff` / `1677ff` / `#fff`。
+  /// 从 hex / rgb / hsl / hsv 字符串构造。
+  ///
+  /// [input] 支持以下格式（允许前导/尾随空白）：
+  /// - hex：`#1677ff`、`1677ff`、`#fff`、`#rrggbbaa`；
+  /// - `rgb(r,g,b)` / `rgba(r,g,b,a)`，分量支持百分比；
+  /// - `hsl(h,s%,l%)` / `hsla(...)`；
+  /// - `hsv(h,s%,v%)` / `hsb(...)`。
+  ///
+  /// 不支持预设色名（如 `red`）；无法识别的输入保持全零黑、alpha 为 1。
+  /// 便捷写法可使用 [AntFastColor.of]。
   AntFastColor.fromString(String input) {
     final trimStr = input.trim();
     if (RegExp(r'^#?[A-F\d]{3,8}$', caseSensitive: false).hasMatch(trimStr)) {
@@ -84,6 +137,9 @@ class AntFastColor {
   }
 
   /// 从 RGB 值构造。
+  ///
+  /// [r]、[g]、[b] 为 0-255 通道值，超出范围时被钳位到边界；
+  /// [alpha] 为 0-1 透明度，超出范围时钳位，传入 `null` 时为 1（不透明）。
   AntFastColor.fromRgb(int r, int g, int b, [double? alpha]) {
     this.r = _limitRange(r).toInt();
     this.g = _limitRange(g).toInt();
@@ -92,16 +148,22 @@ class AntFastColor {
   }
 
   /// 从 HSL 值构造。
+  ///
+  /// [h] 为色相（0-360，越界自动取模），[s] 为 HSL 饱和度（0-1），
+  /// [l] 为亮度（0-1），[alpha] 为透明度（0-1，`null` 时为 1）。
   AntFastColor.fromHsl(double h, double s, double l, [double? alpha]) {
     _fromHsl(h, s, l, alpha ?? 1);
   }
 
   /// 从 HSV 值构造。
+  ///
+  /// [h] 为色相（0-360，越界自动取模），[s] 为 HSV 饱和度（0-1），
+  /// [v] 为明度（0-1），[alpha] 为透明度（0-1，`null` 时为 1）。
   AntFastColor.fromHsv(double h, double s, double v, [double? alpha]) {
     _fromHsv(h, s, v, alpha ?? 1);
   }
 
-  /// 从另一个 AntFastColor 拷贝构造。
+  /// 从另一个 [AntFastColor] 拷贝构造（含 HSV/HSL 缓存）。
   AntFastColor.fromColor(AntFastColor other) {
     r = other.r;
     g = other.g;
@@ -116,10 +178,14 @@ class AntFastColor {
 
   /// 便捷工厂：自动判断输入类型，等同于 [AntFastColor.of]。
   ///
-  /// 允许直接使用 `AntFastColor('#1677ff')` 简化语义。
+  /// [input] 可为 [String]（hex/rgb/hsl/hsv）、[AntRgb]、[AntHsl]、
+  /// [AntHsv] 或 [AntFastColor]。
   factory AntFastColor(Object input) => AntFastColor.of(input);
 
   /// 通用工厂：自动判断输入类型。
+  ///
+  /// [input] 可为 [String]、[AntRgb]、[AntHsl]、[AntHsv] 或 [AntFastColor]；
+  /// 其他类型抛出 [ArgumentError]。
   factory AntFastColor.of(Object input) {
     if (input is AntFastColor) return AntFastColor.fromColor(input);
     if (input is String) return AntFastColor.fromString(input);
@@ -153,6 +219,8 @@ class AntFastColor {
   // ======================= Getter =======================
 
   /// 感知亮度 (0-1)，WCAG 相对亮度。
+  ///
+  /// 可用于判断文字与背景的对比度是否达标。
   double getLuminance() {
     double adjustGamma(num raw) {
       final val = raw / 255;
@@ -232,9 +300,14 @@ class AntFastColor {
 
   // ======================== Func ========================
 
-  /// 降低亮度。amount 为百分比 (0-100)。
+  /// 降低亮度。amount 为降低的百分比 (0-100)，默认 10。
   ///
   /// 注意：与 fast-color 一致，使用 HSV 饱和度作为 HSL 饱和度传入。
+  /// 返回降低亮度后的新实例，原实例不变。
+  ///
+  /// ```dart
+  /// final darker = AntFastColor('#1677ff').darken(10);
+  /// ```
   AntFastColor darken([double amount = 10]) {
     final h = getHue();
     final s = getHsvSaturation();
@@ -243,9 +316,10 @@ class AntFastColor {
     return AntFastColor.fromHsl(h, s, l, a);
   }
 
-  /// 提升亮度。amount 为百分比 (0-100)。
+  /// 提升亮度。amount 为提升的百分比 (0-100)，默认 10。
   ///
   /// 注意：与 fast-color 一致，使用 HSV 饱和度作为 HSL 饱和度传入。
+  /// 返回提升亮度后的新实例，原实例不变。
   AntFastColor lighten([double amount = 10]) {
     final h = getHue();
     final s = getHsvSaturation();
@@ -254,7 +328,10 @@ class AntFastColor {
     return AntFastColor.fromHsl(h, s, l, a);
   }
 
-  /// 与另一个颜色混合。amount 为百分比 (0-100)，0 表示不混合。
+  /// 与另一个颜色混合。amount 为混合比例百分比 (0-100)，0 表示不混合、
+  /// 100 表示完全取 [input] 颜色，默认 50。
+  ///
+  /// [input] 接受与 [AntFastColor.of] 相同的类型；返回混合后的新实例。
   AntFastColor mix(Object input, [double amount = 50]) {
     final color = AntFastColor.of(input);
     final p = amount / 100;
@@ -269,15 +346,18 @@ class AntFastColor {
     );
   }
 
-  /// 与纯白混合。
+  /// 与纯白混合。amount 为混合比例百分比 (0-100)，默认 10。
   AntFastColor tint([double amount = 10]) =>
       mix(const AntRgb(r: 255, g: 255, b: 255), amount);
 
-  /// 与纯黑混合。
+  /// 与纯黑混合。amount 为混合比例百分比 (0-100)，默认 10。
   AntFastColor shade([double amount = 10]) =>
       mix(const AntRgb(r: 0, g: 0, b: 0), amount);
 
   /// 在背景色上合成（alpha blending）。
+  ///
+  /// [background] 接受与 [AntFastColor.of] 相同的类型；返回按
+  /// 本色 alpha 与背景色合成后的不透明等效颜色。
   AntFastColor onBackground(Object background) {
     final bg = AntFastColor.of(background);
     final alpha = a + bg.a * (1 - a);
@@ -320,7 +400,7 @@ class AntFastColor {
 
   // ======================= Format =======================
 
-  /// 输出 hex 字符串 `#rrggbb` 或 `#rrggbbaa`。
+  /// 输出 hex 字符串 `#rrggbb`；alpha 小于 1 时输出 `#rrggbbaa`。
   String toHexString() {
     var hex = '#';
     var rHex = (r).toRadixString(16);

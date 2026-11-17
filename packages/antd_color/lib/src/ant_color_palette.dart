@@ -105,11 +105,19 @@ double _getValue(AntHsv hsv, int i, {bool light = false}) {
 }
 
 /// 色板生成选项。
+///
+/// 用于控制 [antGeneratePalette] 的主题模式与暗色背景色。
+///
+/// ```dart
+/// final opts = AntPaletteOptions(theme: 'dark', backgroundColor: '#000000');
+/// final palette = antGeneratePalette('#1677FF', opts);
+/// ```
 class AntPaletteOptions {
-  /// 主题模式：`dark` 或 `default`。
+  /// 主题模式：`dark` 为暗色主题，其他值（默认 `default`）为亮色主题。
   final String theme;
 
-  /// 暗色主题背景色（默认 `#141414`）。
+  /// 暗色主题背景色（hex 字符串）；`null` 时使用 antd 默认值 `#141414`。
+  /// 仅在 [theme] 为 `dark` 时生效。
   final String? backgroundColor;
 
   const AntPaletteOptions({this.theme = 'default', this.backgroundColor});
@@ -117,12 +125,26 @@ class AntPaletteOptions {
 
 /// 从单一种子色生成 10 阶色板。
 ///
-/// 与 `@ant-design/colors` 的 `generate` 函数行为完全一致。
+/// 与 `@ant-design/colors` 的 `generate` 函数行为完全一致：
+/// 前 5 阶在种子色基础上提升亮度、降低饱和度（浅色），
+/// 第 6 阶为种子色本身，后 4 阶降低亮度（深色）。
 ///
-/// - [color] 种子色（hex 字符串或 [AntFastColor]）。
-/// - [opts] 可选参数，指定暗色主题及背景色。
+/// [color] 为种子色，支持 hex 字符串（如 `'#1677FF'`）、
+/// `rgb()/hsl()/hsv()` 字符串或任意 [AntFastColor] 可接受的输入。
+/// [opts] 为可选的 [AntPaletteOptions]，用于指定暗色主题及背景色。
 ///
-/// 返回长度为 10 的 hex 字符串列表，索引 0-9 对应 antd 的 palette 1-10。
+/// 返回长度为 10 的 hex 字符串列表，索引 0-9 对应 antd 的 palette 1-10
+/// （索引 0 最浅，索引 9 最深）。无法解析的输入按黑色种子处理，不抛出异常。
+///
+/// ```dart
+/// final light = antGeneratePalette('#1677FF');
+/// print(light[5]); // 主色 '#1677ff'
+///
+/// final dark = antGeneratePalette(
+///   '#1677FF',
+///   AntPaletteOptions(theme: 'dark'),
+/// );
+/// ```
 List<String> antGeneratePalette(Object color, [AntPaletteOptions? opts]) {
   final patterns = <AntFastColor>[];
   final pColor = AntFastColor.of(color);
@@ -167,6 +189,12 @@ List<String> antGeneratePalette(Object color, [AntPaletteOptions? opts]) {
 /// Ant Design 预设主色种子值。
 ///
 /// 与 antd `components/theme/themes/seed.ts` 中的 `presetColors` 一致。
+/// 每个常量为该预设色的种子 hex 值，可直接传给 [antGeneratePalette]
+/// 或 [AntColor.fromSeed] 生成对应色板。
+///
+/// ```dart
+/// final palette = antGeneratePalette(AntPresetColors.blue);
+/// ```
 class AntPresetColors {
   AntPresetColors._();
 
@@ -205,7 +233,16 @@ class AntPresetColors {
 
 /// 生成所有预设色板。
 ///
-/// 返回 `Map<String, List<String>>`，键为色名，每个值为 10 阶色板。
+/// [dark] 为 `true` 时生成暗色主题色板；[darkBackground] 为暗色背景色，
+/// `null` 时使用 antd 默认暗色背景 `#141414`。
+///
+/// 返回 `Map<String, List<String>>`，键为色名，每个值为 10 阶色板
+/// （索引 0-9 对应 antd palette 1-10）。
+///
+/// ```dart
+/// final all = antGeneratePresetPalettes();
+/// print(all['blue']![5]); // '#1677ff'
+/// ```
 Map<String, List<String>> antGeneratePresetPalettes({
   bool dark = false,
   String? darkBackground,
