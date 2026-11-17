@@ -22,6 +22,10 @@ export 'src/basic/button/ant_button_types.dart';
 export 'src/basic/flex/ant_flex.dart';
 export 'src/basic/flex/ant_flex_types.dart';
 
+// ── Grid 栅格 ──────────────────────────────────────────────
+export 'src/basic/grid/ant_grid.dart';
+export 'src/basic/grid/ant_grid_types.dart';
+
 // ── Space 间距 ─────────────────────────────────────────────
 export 'src/basic/space/ant_space.dart';
 export 'src/basic/space/ant_space_types.dart';
