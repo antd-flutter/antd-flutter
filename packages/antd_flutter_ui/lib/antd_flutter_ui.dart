@@ -72,6 +72,10 @@ export 'src/display/tag/ant_tag_types.dart';
 export 'src/display/card/ant_card.dart';
 export 'src/display/card/ant_card_types.dart';
 
+// ── Statistic 统计数值 ──────────────────────────────────────
+export 'src/display/statistic/ant_statistic.dart';
+export 'src/display/statistic/ant_statistic_types.dart';
+
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';

@@ -165,8 +165,9 @@ export 'package:antd_flutter_ui/src/display/card/ant_card_types.dart';
 // Empty 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
 export 'package:antd_flutter_ui/src/display/empty/ant_empty_types.dart';
-export 'src/components/data_display/statistic/ant_statistic.dart';
-export 'src/components/data_display/statistic/ant_statistic_types.dart';
+// AntStatistic 统计数值已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/statistic/ant_statistic.dart';
+export 'package:antd_flutter_ui/src/display/statistic/ant_statistic_types.dart';
 
 // ============================================================
 // 数据展示 Data Display — 批次B
