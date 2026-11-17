@@ -56,6 +56,14 @@ export 'src/basic/tooltip/ant_tooltip_types.dart';
 export 'src/display/empty/ant_empty.dart';
 export 'src/display/empty/ant_empty_types.dart';
 
+// ── Avatar 头像 ────────────────────────────────────────────
+export 'src/display/avatar/ant_avatar.dart';
+export 'src/display/avatar/ant_avatar_types.dart';
+
+// ── Badge 徽标 ─────────────────────────────────────────────
+export 'src/display/badge/ant_badge.dart';
+export 'src/display/badge/ant_badge_types.dart';
+
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';

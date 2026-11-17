@@ -20,8 +20,8 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/badge/ant_badge_types.dart';
-export 'package:antd_flutter_plus/src/components/data_display/badge/ant_badge_types.dart';
+import 'ant_badge_types.dart';
+export 'ant_badge_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================

@@ -150,10 +150,12 @@ export 'src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart
 // ============================================================
 // 数据展示 Data Display
 // ============================================================
-export 'src/components/data_display/avatar/ant_avatar.dart';
-export 'src/components/data_display/avatar/ant_avatar_types.dart';
-export 'src/components/data_display/badge/ant_badge.dart';
-export 'src/components/data_display/badge/ant_badge_types.dart';
+// AntAvatar 头像已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/avatar/ant_avatar.dart';
+export 'package:antd_flutter_ui/src/display/avatar/ant_avatar_types.dart';
+// AntBadge 徽标已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/badge/ant_badge.dart';
+export 'package:antd_flutter_ui/src/display/badge/ant_badge_types.dart';
 export 'src/components/data_display/tag/ant_tag.dart';
 export 'src/components/data_display/tag/ant_tag_types.dart';
 export 'src/components/data_display/card/ant_card.dart';
