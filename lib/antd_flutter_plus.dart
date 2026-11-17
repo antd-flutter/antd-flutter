@@ -53,8 +53,9 @@ export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
 export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
 
 // L4 组件层 — 通用
-export 'src/components/general/button/ant_button.dart';
-export 'src/components/general/button/ant_button_types.dart';
+// Button 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/basic/button/ant_button.dart';
+export 'package:antd_flutter_ui/src/basic/button/ant_button_types.dart';
 export 'src/components/general/typography/ant_typography.dart';
 export 'src/components/general/typography/ant_typography_types.dart';
 export 'src/components/general/float_button/ant_float_button.dart';

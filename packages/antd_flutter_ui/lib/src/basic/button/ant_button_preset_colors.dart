@@ -37,9 +37,7 @@ AntColor getPresetPalette(AntButtonColor color, {required bool isDark}) {
   final cache = isDark ? _darkCache : _lightCache;
   return cache.putIfAbsent(color, () {
     final seed = _seedOf(color);
-    return isDark
-        ? AntColor.fromSeedDark(seed)
-        : AntColor.fromSeed(seed);
+    return isDark ? AntColor.fromSeedDark(seed) : AntColor.fromSeed(seed);
   });
 }
 

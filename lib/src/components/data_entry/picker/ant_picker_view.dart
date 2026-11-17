@@ -12,11 +12,9 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';
-import 'package:antd_theme/antd_theme.dart';
-
 export 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';
-import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 内嵌滚轮选择器 — 多列滚轮，选中项实时回调。
@@ -143,7 +141,7 @@ class _AntPickerViewState extends State<AntPickerView> {
         children: [
           for (var i = 0; i < widget.columns.length; i++)
             Expanded(
-              child: _WheelColumn(
+              child: WheelPickerColumn(
                 column: widget.columns[i],
                 controller: _controllers[i],
                 itemHeight: widget.itemHeight,
@@ -154,50 +152,6 @@ class _AntPickerViewState extends State<AntPickerView> {
             ),
         ],
       ),
-    );
-  }
-}
-
-/// 单列滚轮
-class _WheelColumn extends StatelessWidget {
-  const _WheelColumn({
-    required this.column,
-    required this.controller,
-    required this.itemHeight,
-    required this.fontSize,
-    required this.colorText,
-    required this.onSelected,
-  });
-
-  final AntPickerColumn column;
-  final FixedExtentScrollController controller;
-  final double itemHeight;
-  final double fontSize;
-  final Color colorText;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPicker(
-      scrollController: controller,
-      itemExtent: itemHeight,
-      selectionOverlay: CupertinoPickerDefaultSelectionOverlay(
-        background: Colors.black.withValues(alpha: 0.04),
-      ),
-      onSelectedItemChanged: onSelected,
-      children: column.map((item) {
-        return Center(
-          child: Text(
-            item.label,
-            style: TextStyle(
-              fontSize: fontSize,
-              color: colorText,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        );
-      }).toList(),
     );
   }
 }

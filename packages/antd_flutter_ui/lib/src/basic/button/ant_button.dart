@@ -103,8 +103,10 @@ class _AntButtonState extends State<AntButton> {
 
   void _onEnter(PointerEnterEvent _) => setState(() => _hovered = true);
 
-  void _onExit(PointerExitEvent _) =>
-      setState(() { _hovered = false; _pressed = false; });
+  void _onExit(PointerExitEvent _) => setState(() {
+        _hovered = false;
+        _pressed = false;
+      });
 
   void _onTapDown(TapDownDetails _) => setState(() => _pressed = true);
 
@@ -218,7 +220,9 @@ class _AntButtonState extends State<AntButton> {
       onExit: interactive ? _onExit : null,
       cursor: widget.disabled
           ? SystemMouseCursors.forbidden
-          : (widget.loading ? SystemMouseCursors.basic : SystemMouseCursors.click),
+          : (widget.loading
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.click),
       child: GestureDetector(
         onTapDown: interactive ? _onTapDown : null,
         onTapUp: interactive ? _onTapUp : null,

@@ -25,6 +25,8 @@ dependency_overrides:
     path: ../packages/antd_tokens
   antd_theme:
     path: ../packages/antd_theme
+  antd_flutter_ui:
+    path: ../packages/antd_flutter_ui
 
 dev_dependencies:
   flutter_test:

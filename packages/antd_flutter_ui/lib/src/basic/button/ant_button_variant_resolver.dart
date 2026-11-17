@@ -19,8 +19,7 @@ import 'ant_button_types.dart';
 /// link    → [link,     link]
 /// text    → [default,  text]
 /// ```
-const Map<AntButtonType, (AntButtonColor, AntButtonVariant)>
-    _buttonTypeMap = {
+const Map<AntButtonType, (AntButtonColor, AntButtonVariant)> _buttonTypeMap = {
   AntButtonType.normal: (AntButtonColor.normal, AntButtonVariant.outlined),
   AntButtonType.primary: (AntButtonColor.primary, AntButtonVariant.solid),
   AntButtonType.dashed: (AntButtonColor.normal, AntButtonVariant.dashed),

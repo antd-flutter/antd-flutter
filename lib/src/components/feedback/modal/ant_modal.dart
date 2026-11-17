@@ -22,8 +22,7 @@ import 'dart:async';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../general/button/ant_button.dart';
-import '../../general/button/ant_button_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'ant_modal_types.dart';
 export 'ant_modal_types.dart';
 

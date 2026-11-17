@@ -25,6 +25,7 @@ dependencies:
   antd_tokens: ^0.1.0-beta.1
   antd_theme: ^0.1.0-beta.1
   antd_icons_flutter: ^1.0.0
+  antd_flutter_ui: ^0.1.0-beta.1
   qr_flutter: ^4.1.0
   cached_network_image: ^4.0.7
 
@@ -39,6 +40,8 @@ dependency_overrides:
     path: packages/antd_theme
   antd_icons_flutter:
     path: packages/antd_icons_flutter
+  antd_flutter_ui:
+    path: packages/antd_flutter_ui
 
 dev_dependencies:
   analyzer: ^8.0.0
