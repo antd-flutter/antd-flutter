@@ -20,7 +20,7 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_flutter_plus/src/components/data_display/list/ant_list_types.dart';
 export 'package:antd_flutter_plus/src/components/data_display/list/ant_list_types.dart';
 import 'package:material_ui/material_ui.dart';

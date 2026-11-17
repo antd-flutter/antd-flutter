@@ -51,6 +51,9 @@ import 'tree_page.dart';
 import 'carousel_page.dart';
 import 'image_page.dart';
 import 'popover_page.dart';
+import 'result_page_page.dart';
+import 'error_block_page.dart';
+import 'picker_view_page.dart';
 import 'qr_code_page.dart';
 import 'segmented_page.dart';
 import 'tooltip_page.dart';
@@ -170,6 +173,8 @@ class ComponentPage extends StatelessWidget {
       case 'screen_util':
         return const ScreenUtilPage();
       case 'result':
+      case 'result_page':
+        return const ResultPagePage();
         return const ResultPage();
       case 'skeleton':
         return const SkeletonPage();
@@ -244,6 +249,8 @@ class ComponentPage extends StatelessWidget {
       case 'cascader':
         return const CascaderPage();
       case 'cascader_view':
+      case 'picker_view':
+        return const PickerViewPage();
         return const CascaderViewPage();
       case 'checkbox':
         return const CheckboxPage();
@@ -258,6 +265,8 @@ class ComponentPage extends StatelessWidget {
       case 'dropdown':
         return const DropdownPage();
       case 'empty':
+      case 'error_block':
+        return const ErrorBlockPage();
         return const EmptyPage();
       case 'flex':
         return const FlexPage();
