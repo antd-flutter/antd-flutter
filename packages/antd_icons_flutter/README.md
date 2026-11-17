@@ -1,8 +1,5 @@
 # antd_icons_flutter
 
-> [!WARNING]
-> **Beta 阶段 — 暂不建议在生产环境使用。** antd_icons_flutter 当前处于 beta 阶段（0.x.0-beta.x），API 在 1.0.0 正式发布前可能随时变动，请仅用于评估、演示或开发体验。
-
 Ant Design icons for Flutter — 850+ icons covering Outlined, Filled and TwoTone styles, ported from [`@ant-design/icons-svg`](https://github.com/ant-design/ant-design-icons).
 
 **[📚 Icon Gallery](https://antd-flutter.github.io/antd-flutter/icons/)** — browse all 850+ icons with live search and TwoTone color picker.
@@ -18,7 +15,7 @@ Ant Design icons for Flutter — 850+ icons covering Outlined, Filled and TwoTon
 
 ```yaml
 dependencies:
-  antd_icons_flutter: ^1.0.0
+  antd_icons_flutter: ^1.0.1
 ```
 
 ```dart
@@ -65,6 +62,12 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 
 AntButton(icon: AntdIcon(AntIcons.searchOutlined), child: Text('Search'))
 ```
+
+## Documentation
+
+- [使用指南](docs/usage.md)
+- [图标目录](docs/icons-catalog.md) — 498 基础名 × 3 形态，共 698 个图标
+- [API 索引](docs/api-index.md)
 
 ## Regenerating assets
 
