@@ -582,7 +582,8 @@ class _AntTypographyState extends State<AntTypography> {
               // 图标可见边缘与输入框内边缘恰为 8px 安全边距。
               Positioned(
                 right: _editorCornerSafeMargin,
-                bottom: bottomGap,
+                // 用户视觉校准：整体上移 2px
+                bottom: bottomGap + 2,
                 child: _ActionIcon(
                   icon: const Icon(
                     AntIcons.enterOutlined,
