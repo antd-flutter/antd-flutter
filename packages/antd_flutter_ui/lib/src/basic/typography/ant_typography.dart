@@ -10,6 +10,8 @@
 /// code / mark / underline / delete / strong / keyboard / italic。
 library;
 
+import 'dart:math' as math;
+
 import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:material_ui/material_ui.dart';
@@ -27,8 +29,11 @@ import 'ant_typography_types.dart';
 /// 动作图标（复制/编辑）与前方内容（文本或上一个动作）的间距。
 const double _actionGap = 8;
 
-/// 编辑态左下角回车角标图标尺寸。
+/// 编辑态右下角回车角标图标尺寸。
 const double _editorCornerIconSize = 14;
+
+/// 回车角标与输入框内边缘的安全边距（保证图标完全位于输入框边界之内）。
+const double _editorCornerSafeMargin = 8;
 
 // ============================================================
 // AntTypography — 基础组件
@@ -81,9 +86,15 @@ class AntTypography extends StatefulWidget {
   final AntCopyConfig? copyConfig;
 
   /// 是否可编辑（true 时使用默认配置）。
+  ///
+  /// 移动端（compact / 移动断点，AntResponsive.deviceTypeOf 判定
+  /// deviceType == AntDeviceType.phone）下不生效：渲染纯文本展示，
+  /// 无编辑入口；桌面端保持编辑能力。
   final bool editable;
 
   /// 可编辑详细配置。
+  ///
+  /// 移动端（compact / 移动断点）下不生效，同 [editable]。
   final AntEditConfig? editConfig;
 
   /// 省略配置。
@@ -245,7 +256,11 @@ class _AntTypographyState extends State<AntTypography> {
     final hasEllipsis = ellipsis != null && ellipsis.rows > 0;
 
     // ---- 编辑态 ----
-    if (_editing) {
+    // 移动端（compact 断点，deviceType == phone）关闭编辑态：editable /
+    // editConfig 不生效，渲染纯文本展示（无编辑入口、不可进入编辑态）。
+    final editDisabled =
+        AntResponsive.deviceTypeOf(context) == AntDeviceType.phone;
+    if (_editing && !editDisabled) {
       return _buildEditor(theme, color);
     }
 
@@ -499,7 +514,11 @@ class _AntTypographyState extends State<AntTypography> {
   /// 构建编辑器（对齐 antd 桌面交互）。
   ///
   /// 编辑态渲染一个输入框；回车键（keyboard return）图标以角标形式
-  /// 叠加在输入区内部左下角（Stack 定位，输入框左侧留出图标宽度避免遮挡文字），
+  /// 叠加在输入区内部右下角（Stack + Positioned right/bottom 对齐，
+  /// antd 编辑态角标样式）：经 LayoutBuilder 按输入区实际约束计算
+  /// 垂直边距，图标与输入框内边缘保持 [_editorCornerSafeMargin] 安全边距
+  /// （高度不足时压缩边距兜底），确保图标完全位于输入框边界之内，
+  /// 且输入文字右侧预留角标宽度，不被图标遮挡。
   /// 点击回车图标或键盘回车确认提交；Esc / 失焦取消。
   Widget _buildEditor(AntThemeData theme, Color color) {
     return Focus(
@@ -512,57 +531,71 @@ class _AntTypographyState extends State<AntTypography> {
         }
         return KeyEventResult.ignored;
       },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            style: TextStyle(
-              color: color,
-              fontSize: theme.fontSize,
-              height: 1.0,
-              fontFamily: theme.fontFamily,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              constraints: BoxConstraints(minHeight: theme.controlHeight),
-              // 左侧留出角标宽度，避免输入文字被左下角图标遮挡
-              contentPadding: EdgeInsets.only(
-                left: theme.paddingXS + _editorCornerIconSize + 4,
-                right: theme.paddingXS,
-                top: (theme.controlHeight - theme.fontSize) / 2,
-                bottom: (theme.controlHeight - theme.fontSize) / 2,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 垂直边距：高度足够时取安全边距贴右下角；
+          // 高度不足时压缩为垂直居中（最小 2px），保证图标不越出输入框边界。
+          final centeredGap =
+              (constraints.maxHeight - _editorCornerIconSize) / 2;
+          final bottomGap = centeredGap >= _editorCornerSafeMargin
+              ? _editorCornerSafeMargin
+              : math.max(2.0, centeredGap);
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                style: TextStyle(
+                  color: color,
+                  fontSize: theme.fontSize,
+                  height: 1.0,
+                  fontFamily: theme.fontFamily,
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  constraints: BoxConstraints(minHeight: theme.controlHeight),
+                  // 右侧留出角标宽度 + 安全边距，避免输入文字被右下角图标遮挡
+                  contentPadding: EdgeInsets.only(
+                    left: theme.paddingXS,
+                    right:
+                        theme.paddingXS + _editorCornerIconSize + _editorCornerSafeMargin,
+                    top: (theme.controlHeight - theme.fontSize) / 2,
+                    bottom: (theme.controlHeight - theme.fontSize) / 2,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
+                    borderSide: BorderSide(color: theme.colorPrimary),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
+                    borderSide: BorderSide(
+                      color: theme.colorPrimary,
+                      width: theme.lineWidth,
+                    ),
+                  ),
+                ),
+                onSubmitted: (_) => _commitEdit(),
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(theme.borderRadius),
-                borderSide: BorderSide(color: theme.colorPrimary),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(theme.borderRadius),
-                borderSide: BorderSide(
+              // 回车确认图标（keyboard return）：输入区内部右下角叠加角标。
+              // _ActionIcon 自带的左内边距向左扩展，不影响图标右缘，
+              // 图标可见边缘与输入框内边缘恰为 8px 安全边距。
+              Positioned(
+                right: _editorCornerSafeMargin,
+                bottom: bottomGap,
+                child: _ActionIcon(
+                  icon: const Icon(
+                    AntIcons.enterOutlined,
+                    size: _editorCornerIconSize,
+                  ),
+                  onTap: _commitEdit,
                   color: theme.colorPrimary,
-                  width: theme.lineWidth,
+                  tooltip: '确认',
                 ),
               ),
-            ),
-            onSubmitted: (_) => _commitEdit(),
-          ),
-          // 回车确认图标（keyboard return）：输入区内部左下角叠加角标
-          Positioned(
-            left: 3,
-            bottom: 2,
-            child: _ActionIcon(
-              icon: const Icon(
-                AntIcons.enterOutlined,
-                size: _editorCornerIconSize,
-              ),
-              onTap: _commitEdit,
-              color: theme.colorPrimary,
-              tooltip: '确认',
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -717,8 +750,15 @@ class _AntTypographyState extends State<AntTypography> {
   }
 
   /// 构建编辑操作图标。
+  ///
+  /// 移动端（compact / 移动断点，经 [AntResponsive.deviceTypeOf] 判定
+  /// deviceType == [AntDeviceType.phone]）下 editable / editConfig 不生效：
+  /// 不渲染编辑入口，保持纯文本展示；桌面 / 平板 / Web 端保持现有编辑能力。
   Widget? _buildEditAction(AntThemeData theme) {
     if (!widget.editable && widget.editConfig == null) return null;
+    if (AntResponsive.deviceTypeOf(context) == AntDeviceType.phone) {
+      return null;
+    }
     return _ActionIcon(
       icon: const Icon(AntIcons.editOutlined, size: 14),
       onTap: widget.disabled ? null : _startEdit,

@@ -11,14 +11,25 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
     builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
+      home: AntResponsiveInit(
+        builder: (context, data, _) => Scaffold(
+          body: AntTheme(
+            data: AntThemeData.light(),
+            child: Material(child: child),
+          ),
         ),
       ),
     ),
   );
+}
+
+/// 手机尺寸视口（compact / 移动断点，deviceType == phone）。
+Future<void> _pumpPhone(WidgetTester tester, Widget child) async {
+  tester.view.physicalSize = const Size(400, 800);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(_wrap(child));
+  await tester.pump();
 }
 
 /// 窄容器（强制触发省略溢出，用于展开/收起相关用例）。
@@ -442,7 +453,7 @@ void main() {
       expect(changed, 'Modified');
     });
 
-    testWidgets('edit state renders input box + enter icon overlaid bottom-left',
+    testWidgets('edit state renders input box + enter icon overlaid bottom-right',
         (tester) async {
       String? changed;
       await tester.pumpWidget(
@@ -454,22 +465,49 @@ void main() {
       await tester.tap(find.byIcon(AntIcons.editOutlined));
       await tester.pump();
 
-      // 编辑态：输入框 + 左下角叠加的回车（keyboard return）角标图标
+      // 编辑态：输入框 + 右下角叠加的回车（keyboard return）角标图标
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byIcon(AntIcons.enterOutlined), findsOneWidget);
-      // 角标位于输入框区域内部左下角（不超出输入框边界）
+      // 角标 rect 完全位于输入框 rect 内部（不越出输入框边界）
       final inputRect = tester.getRect(find.byType(TextField));
       final enterRect = tester.getRect(find.byIcon(AntIcons.enterOutlined));
-      expect(enterRect.top, greaterThan(inputRect.top));
-      expect(enterRect.bottom, lessThanOrEqualTo(inputRect.bottom + 0.5));
-      expect(enterRect.left, greaterThanOrEqualTo(inputRect.left - 0.5));
-      expect(enterRect.right, lessThanOrEqualTo(inputRect.right + 0.5));
+      expect(enterRect.top, greaterThanOrEqualTo(inputRect.top));
+      expect(enterRect.bottom, lessThanOrEqualTo(inputRect.bottom));
+      expect(enterRect.left, greaterThanOrEqualTo(inputRect.left));
+      expect(enterRect.right, lessThanOrEqualTo(inputRect.right));
+      // 与输入框内边缘保持 8px 安全边距
+      expect((inputRect.right - enterRect.right).round(), greaterThanOrEqualTo(8));
+      expect(inputRect.bottom - enterRect.bottom, greaterThanOrEqualTo(0));
+      // 靠右下角：图标位于输入区右半区域，底边贴近输入区底边
+      expect(enterRect.left, greaterThan(inputRect.center.dx));
+      expect(inputRect.bottom - enterRect.bottom, lessThan(inputRect.center.dy));
 
       // 点击回车图标确认提交
       await tester.enterText(find.byType(TextField), 'Modified');
       await tester.tap(find.byIcon(AntIcons.enterOutlined));
       await tester.pump();
       expect(changed, 'Modified');
+    });
+
+    testWidgets('mobile (phone breakpoint) disables editing entirely',
+        (tester) async {
+      var changed = false;
+      await _pumpPhone(
+        tester,
+        AntText(
+          text: 'Mobile text',
+          editable: true,
+          editConfig: AntEditConfig(onChange: (_) => changed = true),
+        ),
+      );
+
+      // 移动端纯文本展示：无编辑入口、无输入框、无回车角标
+      expect(find.byIcon(AntIcons.editOutlined), findsNothing);
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byIcon(AntIcons.enterOutlined), findsNothing);
+      expect(find.text('Mobile text'), findsOneWidget);
+      // 无任何入口触发 onChange
+      expect(changed, isFalse);
     });
 
     testWidgets('esc key cancels edit without onChange', (tester) async {
