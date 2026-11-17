@@ -26,6 +26,7 @@ import 'modal_page.dart';
 import 'notification_page.dart';
 import 'popconfirm_page.dart';
 import 'progress_page.dart';
+import 'responsive_page.dart';
 import 'result_page.dart';
 import 'skeleton_page.dart';
 import 'spin_page.dart';
@@ -162,6 +163,8 @@ class ComponentPage extends StatelessWidget {
         return const PopconfirmPage();
       case 'progress':
         return const ProgressPage();
+      case 'responsive':
+        return const ResponsivePage();
       case 'result':
         return const ResultPage();
       case 'skeleton':
@@ -353,14 +356,23 @@ class _PlaceholderPage extends StatelessWidget {
         align: AntSpaceAlign.center,
         size: const AntSpaceSize.middle(),
         children: [
-          Icon(AntIcons.toolOutlined, size: 64, color: theme.colorTextQuaternary),
-          Text(snakeName,
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorTextHeading)),
-          Text('该组件正在开发中，敬请期待',
-              style: TextStyle(fontSize: 14, color: theme.colorTextQuaternary)),
+          Icon(
+            AntIcons.toolOutlined,
+            size: 64,
+            color: theme.colorTextQuaternary,
+          ),
+          Text(
+            snakeName,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: theme.colorTextHeading,
+            ),
+          ),
+          Text(
+            '该组件正在开发中，敬请期待',
+            style: TextStyle(fontSize: 14, color: theme.colorTextQuaternary),
+          ),
         ],
       ),
     );

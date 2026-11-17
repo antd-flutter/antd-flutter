@@ -297,10 +297,14 @@ class AntThemeData {
   List<BoxShadow> get boxShadowDrawerLeft => shadows.boxShadowDrawerLeft;
   List<BoxShadow> get boxShadowDrawerUp => shadows.boxShadowDrawerUp;
   List<BoxShadow> get boxShadowDrawerDown => shadows.boxShadowDrawerDown;
-  List<BoxShadow> get boxShadowTabsOverflowLeft => shadows.boxShadowTabsOverflowLeft;
-  List<BoxShadow> get boxShadowTabsOverflowRight => shadows.boxShadowTabsOverflowRight;
-  List<BoxShadow> get boxShadowTabsOverflowTop => shadows.boxShadowTabsOverflowTop;
-  List<BoxShadow> get boxShadowTabsOverflowBottom => shadows.boxShadowTabsOverflowBottom;
+  List<BoxShadow> get boxShadowTabsOverflowLeft =>
+      shadows.boxShadowTabsOverflowLeft;
+  List<BoxShadow> get boxShadowTabsOverflowRight =>
+      shadows.boxShadowTabsOverflowRight;
+  List<BoxShadow> get boxShadowTabsOverflowTop =>
+      shadows.boxShadowTabsOverflowTop;
+  List<BoxShadow> get boxShadowTabsOverflowBottom =>
+      shadows.boxShadowTabsOverflowBottom;
 
   // ============================================================
   // Z-Index / 透明度
@@ -360,9 +364,8 @@ class AntThemeData {
 
   factory AntThemeData._fromSeed(AntSeedToken seed, {required bool isDark}) {
     // ---- 颜色 ----
-    final colors = isDark
-        ? AntColorTokens.dark(seed)
-        : AntColorTokens.light(seed);
+    final colors =
+        isDark ? AntColorTokens.dark(seed) : AntColorTokens.light(seed);
 
     // ---- 字体 ----
     final fontMap = antGenFontMapToken(seed.fontSize);
@@ -471,7 +474,8 @@ class AntThemeData {
   static Curve _parseCubicBezier(String css) {
     final match = RegExp(r'cubic-bezier\(([^)]+)\)').firstMatch(css);
     if (match == null) return Curves.ease;
-    final parts = match.group(1)!.split(',').map((s) => double.parse(s.trim())).toList();
+    final parts =
+        match.group(1)!.split(',').map((s) => double.parse(s.trim())).toList();
     if (parts.length != 4) return Curves.ease;
     return Cubic(parts[0], parts[1], parts[2], parts[3]);
   }

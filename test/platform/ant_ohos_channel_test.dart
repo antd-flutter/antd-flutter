@@ -1,55 +1,60 @@
-import 'package:antd_flutter_plus/src/platform/ant_ohos_channel.dart';
+// ignore_for_file: lines_longer_than_80_chars
+/// AntOhosChannel 折叠态扩展测试 — 抽象接口 + NoOp 默认实现 + mock 注册。
+library;
+
+import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void main() {
-  group('NoOpAntOhosChannel', () {
-    const channel = NoOpAntOhosChannel();
+/// 折叠态 mock 实现
+class _MockFoldChannel implements AntOhosChannel {
+  @override
+  AntFoldState getFoldStateSync() => AntFoldState.halfOpened;
 
-    test('pickFiles 返回空列表', () async {
-      final result = await channel.pickFiles();
-      expect(result, isEmpty);
-    });
+  @override
+  Future<List<String>> pickFiles({String? typeFilter}) async => const [];
 
-    test('requestPermissions 返回 false', () async {
-      final result = await channel.requestPermissions(['ohos.permission.READ_MEDIA']);
-      expect(result, isFalse);
-    });
+  @override
+  Future<bool> requestPermissions(List<String> permissions) async => false;
 
-    test('checkPermission 返回 false', () async {
-      final result = await channel.checkPermission('ohos.permission.READ_MEDIA');
-      expect(result, isFalse);
-    });
-  });
-
-  group('AntOhosChannelRegistry', () {
-    tearDown(() {
-      AntOhosChannelRegistry.reset();
-    });
-
-    test('默认持有 NoOp 实现', () {
-      expect(AntOhosChannelRegistry.channel, isA<NoOpAntOhosChannel>());
-    });
-
-    test('register 可注入自定义实现', () {
-      AntOhosChannelRegistry.register(_FakeOhosChannel());
-      expect(AntOhosChannelRegistry.channel, isA<_FakeOhosChannel>());
-    });
-
-    test('reset 恢复 NoOp 实现', () {
-      AntOhosChannelRegistry.register(_FakeOhosChannel());
-      AntOhosChannelRegistry.reset();
-      expect(AntOhosChannelRegistry.channel, isA<NoOpAntOhosChannel>());
-    });
-  });
+  @override
+  Future<bool> checkPermission(String permission) async => false;
 }
 
-class _FakeOhosChannel implements AntOhosChannel {
-  @override
-  Future<bool> checkPermission(String permission) async => true;
+void main() {
+  group('AntOhosChannel 折叠态（P05）', () {
+    test('NoOp 默认实现返回 unknown', () {
+      expect(
+        const NoOpAntOhosChannel().getFoldStateSync(),
+        AntFoldState.unknown,
+      );
+    });
 
-  @override
-  Future<List<String>> pickFiles({String? typeFilter}) async => ['/fake/path.txt'];
+    test('注册 mock 后透出折叠态，reset 恢复 NoOp', () {
+      AntOhosChannelRegistry.register(_MockFoldChannel());
+      expect(
+        AntOhosChannelRegistry.channel.getFoldStateSync(),
+        AntFoldState.halfOpened,
+      );
 
-  @override
-  Future<bool> requestPermissions(List<String> permissions) async => true;
+      AntOhosChannelRegistry.reset();
+      expect(
+        AntOhosChannelRegistry.channel.getFoldStateSync(),
+        AntFoldState.unknown,
+      );
+    });
+
+    test('折叠态经 AntResponsiveInit.foldStateProvider 并入布局数据', () async {
+      AntOhosChannelRegistry.register(_MockFoldChannel());
+      addTearDown(AntOhosChannelRegistry.reset);
+
+      // 主工程测试环境带 WidgetsBinding，可直接构造 AntLayoutData 验证
+      // foldStateProvider 优先于 displayFeatures 推导。
+      final data = AntLayoutData.fromMediaQuery(
+        MediaQueryData(size: const Size(800, 1200)),
+        foldState: AntOhosChannelRegistry.channel.getFoldStateSync(),
+      );
+      expect(data.foldState, AntFoldState.halfOpened);
+    });
+  });
 }

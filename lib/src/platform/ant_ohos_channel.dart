@@ -8,6 +8,8 @@
 /// 当前 NoOp 空实现确保未接入鸿蒙时不触发任何 ohos 代码路径。
 library;
 
+import 'package:antd_theme/antd_theme.dart' show AntFoldState;
+
 /// ohos 平台能力抽象接口
 ///
 /// 定义鸿蒙专属能力的业务语义接口，
@@ -26,6 +28,13 @@ abstract interface class AntOhosChannel {
 
   /// 检查权限是否已授权
   Future<bool> checkPermission(String permission);
+
+  /// 获取折叠屏状态（同步返回最近一次查询结果）。
+  ///
+  /// 鸿蒙侧经 ArkTS `display` 模块查询折叠姿势
+  /// （展开 flat / 半折 halfOpened / 折叠 folded）；
+  /// 无法获取时返回 [AntFoldState.unknown]。
+  AntFoldState getFoldStateSync() => AntFoldState.unknown;
 }
 
 /// AntOhosChannel 的 NoOp 空实现
@@ -49,6 +58,9 @@ class NoOpAntOhosChannel implements AntOhosChannel {
   Future<bool> checkPermission(String permission) async {
     return false;
   }
+
+  @override
+  AntFoldState getFoldStateSync() => AntFoldState.unknown;
 }
 
 /// ohos 能力通道注册器

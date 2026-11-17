@@ -1,8 +1,15 @@
 import 'package:antd_flutter_plus/src/platform/ant_platform.dart';
+import 'package:antd_theme/antd_theme.dart' as theme;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('AntPlatform re-export 兼容（P05 下沉 antd_theme）', () {
+    test('主工程 AntPlatform 与 antd_theme AntPlatform 为同一实现', () {
+      expect(identical(AntPlatform, theme.AntPlatform), isTrue);
+    });
+  });
+
   group('AntPlatform', () {
     test('isWeb 与 kIsWeb 一致', () {
       expect(AntPlatform.isWeb, kIsWeb);
