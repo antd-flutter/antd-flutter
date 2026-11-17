@@ -1,9 +1,11 @@
 # Git 双地址推送约定
 
-本仓库配置了双 push 地址，一次 `git push` 同时推送到 GitHub 与 GitCode：
+> **现状（2026-11-17）**：目标约定，**尚未配置完成**。GitHub 单地址可用；GitCode SSH 密钥已就绪（`~/.ssh/chenlei_gitcode`，config 已配 Host gitcode.com），待公钥添加到 GitCode 账号后按下方命令配置双地址。落地工作在 P02 任务中完成，完成后删除本段现状说明。
 
-- GitHub：`https://github.com/antd-flutter/antd-flutter.git`
-- GitCode：`git@gitcode.com:antd-flutter/antd-flutter.git`（SSH，密钥 `~/.ssh/gitcode_ed25519`，config 已配置）
+目标：一次 `git push` 同时推送到 GitHub 与 GitCode：
+
+- GitHub：`git@github.com:antd-flutter/antd-flutter.git`
+- GitCode：`git@gitcode.com:antd-flutter/antd-flutter.git`（SSH，密钥 `~/.ssh/chenlei_gitcode`，config 已配置）
 
 ## 日常使用
 
@@ -11,8 +13,8 @@
 - 首次配置命令（仅初始化时需要）：
 
 ```bash
-git remote set-url --add --push origin https://github.com/antd-flutter/antd-flutter.git
-git remote set-url --add --push origin https://gitcode.com/antd-flutter/antd-flutter.git
+git remote set-url --add --push origin git@github.com:antd-flutter/antd-flutter.git
+git remote set-url --add --push origin git@gitcode.com:antd-flutter/antd-flutter.git
 ```
 
 - 校验：`git remote -v` 应显示 fetch 1 条 + push 2 条
