@@ -17,3 +17,7 @@ export 'src/engines/keyboard_input_model.dart';
 // ── 基础层 ────────────────────────────────────────────────
 export 'src/basic/button/ant_button.dart';
 export 'src/basic/button/ant_button_types.dart';
+
+// ── Typography 排版 ────────────────────────────────────────
+export 'src/basic/typography/ant_typography.dart';
+export 'src/basic/typography/ant_typography_types.dart';
