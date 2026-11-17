@@ -2,6 +2,24 @@
 ///
 /// 精确移植 antd `alias.ts` 中的 boxShadow 生成公式，
 /// 将 CSS box-shadow 字符串转换为 Flutter [BoxShadow] 列表。
+///
+/// 阴影颜色由基色 [AntSeedToken.colorShadow]（经 [AntShadowTokens.generate]
+/// 传入）按各层 alpha 系数派生；暗色主题传 `rgba(255, 255, 255, 0.2)` 即可
+/// 得到白色系阴影，与 antd `theme.darkAlgorithm` 输出一致。
+///
+/// ```dart
+/// final shadows = AntShadowTokens.generate('#000');
+/// Container(
+///   decoration: BoxDecoration(
+///     boxShadow: shadows.boxShadow, // 弹出层主阴影（3 层）
+///   ),
+/// );
+/// ```
+///
+/// 注意：Tabs 溢出阴影在 antd 中为 CSS `inset` 阴影，Flutter [BoxShadow]
+/// 不支持 inset，本实现用普通阴影近似模拟边缘渐隐效果。
+///
+/// @docImport 'ant_seed_token.dart';
 library;
 
 import 'package:flutter/painting.dart';
