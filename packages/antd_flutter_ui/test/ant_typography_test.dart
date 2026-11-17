@@ -359,6 +359,48 @@ void main() {
       expect(span.toPlainText(), startsWith('A'));
       expect(span.children!.whereType<WidgetSpan>(), hasLength(2));
     });
+
+    // ---- 复制/展开三态单测 ----
+    testWidgets('copy only (no ellipsis): only copy icon, no expand',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntText(text: 'Short', copyable: true)),
+      );
+      expect(find.byIcon(AntIcons.copyOutlined), findsOneWidget);
+      expect(find.text('展开'), findsNothing);
+      expect(find.text('收起'), findsNothing);
+    });
+
+    testWidgets('expand only (overflow): expand shown, no copy icon',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_narrow(const AntParagraph(
+        text: 'A fairly long content line that overflows the narrow box',
+        ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+      ),),),);
+      expect(find.text('展开'), findsOneWidget);
+      expect(find.byIcon(AntIcons.copyOutlined), findsNothing);
+    });
+
+    testWidgets('copy + expand: icons side by side with 8px gap',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_narrow(const AntParagraph(
+        text: 'A fairly long content line that overflows the narrow box',
+        ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+        copyable: true,
+      ),),),);
+      expect(find.text('展开'), findsOneWidget);
+      expect(find.byIcon(AntIcons.copyOutlined), findsOneWidget);
+      // 两个动作 WidgetSpan 相邻排列于同一 TextSpan
+      final span = _hostSpan(tester, '');
+      final spans = span.children!.whereType<WidgetSpan>().toList();
+      expect(spans, hasLength(2));
+      // 展开在前、复制在后（antd 顺序：展开 → 复制）
+      final expandRect = tester.getRect(find.text('展开'));
+      final copyRect = tester.getRect(find.byIcon(AntIcons.copyOutlined));
+      expect(copyRect.left, greaterThan(expandRect.left));
+      // 图标间距 8px（复制图标自带 8px 左内边距）
+      expect((copyRect.left - expandRect.right).round(), 8);
+    });
   });
 
   group('AntTypography editable', () {
@@ -400,7 +442,7 @@ void main() {
       expect(changed, 'Modified');
     });
 
-    testWidgets('edit state renders input box + enter icon below, commit works',
+    testWidgets('edit state renders input box + enter icon overlaid bottom-left',
         (tester) async {
       String? changed;
       await tester.pumpWidget(
@@ -412,14 +454,16 @@ void main() {
       await tester.tap(find.byIcon(AntIcons.editOutlined));
       await tester.pump();
 
-      // 编辑态：输入框 + 下方回车（keyboard return）图标
+      // 编辑态：输入框 + 左下角叠加的回车（keyboard return）角标图标
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byIcon(AntIcons.enterOutlined), findsOneWidget);
-      // 回车图标位于输入框下方（垂直对齐：左边缘不超出输入框）
+      // 角标位于输入框区域内部左下角（不超出输入框边界）
       final inputRect = tester.getRect(find.byType(TextField));
       final enterRect = tester.getRect(find.byIcon(AntIcons.enterOutlined));
       expect(enterRect.top, greaterThan(inputRect.top));
+      expect(enterRect.bottom, lessThanOrEqualTo(inputRect.bottom + 0.5));
       expect(enterRect.left, greaterThanOrEqualTo(inputRect.left - 0.5));
+      expect(enterRect.right, lessThanOrEqualTo(inputRect.right + 0.5));
 
       // 点击回车图标确认提交
       await tester.enterText(find.byType(TextField), 'Modified');

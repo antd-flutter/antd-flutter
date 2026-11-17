@@ -21,6 +21,16 @@ import '../tooltip/ant_tooltip_types.dart';
 import 'ant_typography_types.dart';
 
 // ============================================================
+// 常量
+// ============================================================
+
+/// 动作图标（复制/编辑）与前方内容（文本或上一个动作）的间距。
+const double _actionGap = 8;
+
+/// 编辑态左下角回车角标图标尺寸。
+const double _editorCornerIconSize = 14;
+
+// ============================================================
 // AntTypography — 基础组件
 // ============================================================
 
@@ -488,7 +498,8 @@ class _AntTypographyState extends State<AntTypography> {
 
   /// 构建编辑器（对齐 antd 桌面交互）。
   ///
-  /// 编辑态渲染一个输入框；输入框下方显示回车键（keyboard return）图标，
+  /// 编辑态渲染一个输入框；回车键（keyboard return）图标以角标形式
+  /// 叠加在输入区内部左下角（Stack 定位，输入框左侧留出图标宽度避免遮挡文字），
   /// 点击回车图标或键盘回车确认提交；Esc / 失焦取消。
   Widget _buildEditor(AntThemeData theme, Color color) {
     return Focus(
@@ -501,9 +512,8 @@ class _AntTypographyState extends State<AntTypography> {
         }
         return KeyEventResult.ignored;
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
           TextField(
             controller: _controller,
@@ -517,9 +527,12 @@ class _AntTypographyState extends State<AntTypography> {
             decoration: InputDecoration(
               isDense: true,
               constraints: BoxConstraints(minHeight: theme.controlHeight),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: theme.paddingXS,
-                vertical: (theme.controlHeight - theme.fontSize) / 2,
+              // 左侧留出角标宽度，避免输入文字被左下角图标遮挡
+              contentPadding: EdgeInsets.only(
+                left: theme.paddingXS + _editorCornerIconSize + 4,
+                right: theme.paddingXS,
+                top: (theme.controlHeight - theme.fontSize) / 2,
+                bottom: (theme.controlHeight - theme.fontSize) / 2,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(theme.borderRadius),
@@ -535,12 +548,15 @@ class _AntTypographyState extends State<AntTypography> {
             ),
             onSubmitted: (_) => _commitEdit(),
           ),
-          const SizedBox(height: 4),
-          // 回车确认图标（keyboard return），与输入框左对齐、宽度撑满可点
-          Align(
-            alignment: Alignment.centerLeft,
+          // 回车确认图标（keyboard return）：输入区内部左下角叠加角标
+          Positioned(
+            left: 3,
+            bottom: 2,
             child: _ActionIcon(
-              icon: const Icon(AntIcons.enterOutlined, size: 16),
+              icon: const Icon(
+                AntIcons.enterOutlined,
+                size: _editorCornerIconSize,
+              ),
               onTap: _commitEdit,
               color: theme.colorPrimary,
               tooltip: '确认',
@@ -670,6 +686,7 @@ class _AntTypographyState extends State<AntTypography> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Padding(
+          // 与文字之间 4px、与后续动作图标之间再由图标自带的 8px 左间距补足
           padding: const EdgeInsets.only(left: 4),
           child: DefaultTextStyle.merge(
             style: linkStyle,
@@ -756,7 +773,8 @@ class _ActionIcon extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      // 左侧 _actionGap：图标与文本/上一个动作图标之间统一 8px 间距
+      padding: const EdgeInsets.only(left: _actionGap),
       child: result,
     );
   }
