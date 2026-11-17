@@ -1,7 +1,17 @@
 import 'package:antd_flutter_ui/src/display/avatar/ant_avatar.dart';
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// 始终抛错的缓存源：模拟网络加载失败。
+class _ThrowingFileService extends FileService {
+  @override
+  Future<FileServiceResponse> get(String url,
+      {Map<String, String>? headers,}) async {
+    throw Exception('mock network error');
+  }
+}
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -108,13 +118,27 @@ void main() {
 
     testWidgets('image error triggers onError and shows fallback', (tester) async {
       var errorCalled = false;
+      // 单测环境无法真实请求网络，注入始终抛错的缓存源模拟网络加载失败
+      final errorCacheManager = CacheManager(
+        Config(
+          'ant_avatar_test_error',
+          // 无存储元信息仓库：避免单测 fake async 等待真实文件 IO
+          repo: NonStoringObjectProvider(),
+          fileService: _ThrowingFileService(),
+        ),
+      );
       await tester.pumpWidget(
         _wrap(AntAvatar(
           src: 'https://example.com/bad.png',
+          cacheManager: errorCacheManager,
           onError: () => errorCalled = true,
         ),),
       );
-      await tester.pumpAndSettle();
+      // cached_network_image 默认重试且占位含动画，pumpAndSettle 会超时；
+      // 固定步进 pump 直至重试耗尽、错误态渲染完成。
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
       expect(errorCalled, isTrue);
       expect(find.byIcon(Icons.person), findsOneWidget);
     });

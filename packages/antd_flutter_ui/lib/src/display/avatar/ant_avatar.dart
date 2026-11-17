@@ -23,6 +23,8 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'ant_avatar_types.dart';
 export 'ant_avatar_types.dart';
@@ -49,6 +51,7 @@ class AntAvatar extends StatelessWidget {
     this.onError,
     this.backgroundColor,
     this.fit,
+    this.cacheManager,
   });
 
   /// 图片地址，优先级最高。
@@ -84,6 +87,10 @@ class AntAvatar extends StatelessWidget {
   /// 图片填充模式。
   final BoxFit? fit;
 
+  /// 网络图缓存管理器，默认使用 cached_network_image 内置缓存；
+  /// 可注入自定义缓存策略（如单测注入错误缓存源）。
+  final BaseCacheManager? cacheManager;
+
   /// 解析实际尺寸。
   double _resolveSize() {
     if (size != null) return size!;
@@ -112,15 +119,10 @@ class AntAvatar extends StatelessWidget {
     if (src != null) {
       content = ClipRRect(
         borderRadius: radius,
-        child: Image.network(
-          src!,
+        child: SizedBox(
           width: px,
           height: px,
-          fit: fit ?? BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            if (onError != null) onError!();
-            return _buildFallback(px, bg, fg);
-          },
+          child: _buildSrcImage(context, src!, px),
         ),
       );
     } else if (icon != null) {
@@ -158,21 +160,115 @@ class AntAvatar extends StatelessWidget {
         ),
       );
     } else {
-      content = _buildFallback(px, bg, fg);
+      content = _buildFallback(px, theme);
     }
 
     return content;
   }
 
-  Widget _buildFallback(double px, Color bg, Color fg) {
+  /// 加载失败 fallback：与头像尺寸/形状一致的自绘占位
+  /// （主题色浅底 + 居中 person 图标），不出现破图或空白。
+  Widget _buildFallback(double px, AntThemeData theme) {
     return Container(
       width: px,
       height: px,
-      decoration: BoxDecoration(color: bg, borderRadius: _resolveBorderRadius(px)),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? theme.colorPrimaryBg,
+        borderRadius: _resolveBorderRadius(px),
+      ),
       alignment: Alignment.center,
-      child: Icon(Icons.person, color: fg, size: px * 0.5),
+      child: Icon(
+        Icons.person,
+        color: theme.colorPrimary,
+        size: px * 0.5,
+      ),
     );
   }
+
+  /// 图片地址分发：网络图走 cached_network_image 中间件封装，
+  /// 本地资源走 Image.asset，与 AntImage 的网络前缀判断一致。
+  Widget _buildSrcImage(
+    BuildContext context,
+    String src,
+    double px,
+  ) {
+    final theme = AntTheme.of(context);
+    if (src.startsWith(_networkSrcPrefix)) {
+      return _cachedNetworkImage(
+        url: src,
+        width: px,
+        height: px,
+        fit: fit ?? BoxFit.cover,
+        cacheManager: cacheManager,
+        placeholder: (_, __) => _buildLoadingPlaceholder(theme, px),
+        errorWidget: (_, __, ___) {
+          // 错误回调延迟到帧末，避免宿主在 build 期间更新状态（如 showSnackBar）报错
+          if (onError != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => onError!());
+          }
+          return _buildFallback(px, theme);
+        },
+      );
+    }
+    return Image.asset(
+      src,
+      width: px,
+      height: px,
+      fit: fit ?? BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        if (onError != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => onError!());
+        }
+        return _buildFallback(px, theme);
+      },
+    );
+  }
+
+  /// 加载中占位：主题色淡入的圆形进度指示器，尺寸随头像大小缩放。
+  Widget _buildLoadingPlaceholder(AntThemeData theme, double px) {
+    final spinnerSize = (px * 0.5).clamp(12.0, 24.0);
+    return Container(
+      decoration: BoxDecoration(color: theme.colorFillQuaternary),
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: spinnerSize,
+        height: spinnerSize,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: theme.colorPrimary,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// 网络图中间件封装（cached_network_image 隔离层）
+// ============================================================
+
+/// 图片地址的网络前缀判断关键字（与 AntImage 网络判断一致）。
+const String _networkSrcPrefix = 'http';
+
+/// cached_network_image 中间件封装：AntAvatar 所有的 SDK 调用
+/// 集中在此一处，组件代码只使用该封装。
+Widget _cachedNetworkImage({
+  required String url,
+  required BoxFit fit,
+  double? width,
+  double? height,
+  BaseCacheManager? cacheManager,
+  Widget Function(BuildContext context, String url)? placeholder,
+  Widget Function(BuildContext context, String url, Object error)? errorWidget,
+}) {
+  return CachedNetworkImage(
+    imageUrl: url,
+    width: width,
+    height: height,
+    fit: fit,
+    cacheManager: cacheManager,
+    placeholder: placeholder,
+    errorWidget: errorWidget,
+  );
 }
 
 // ============================================================

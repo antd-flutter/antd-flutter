@@ -119,13 +119,17 @@ class AvatarPage extends StatelessWidget {
             child: Row(
               children: [
                 AntAvatar(
-                  src: 'https://avatars.githubusercontent.com/u/12102236?v=4',
+                  src:
+                      'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                 ),
                 SizedBox(width: 16.w),
                 AntAvatar(
-                  src: 'https://avatars.githubusercontent.com/u/12102236?v=4',
+                  src:
+                      'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                   shape: AntAvatarShape.square,
                 ),
+                SizedBox(width: 16.w),
+                AntAvatar(src: 'assets/avatar_demo.png'),
                 SizedBox(width: 16.w),
                 AntAvatar(
                   src: 'https://invalid.example.com/bad.png',
