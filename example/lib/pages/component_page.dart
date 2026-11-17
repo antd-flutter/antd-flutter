@@ -10,6 +10,7 @@ import 'affix_page.dart';
 import 'app_page.dart';
 import 'border_beam_page.dart';
 import 'config_provider_page.dart';
+import 'material_compatible_page.dart';
 import 'loading_page.dart';
 import 'swipe_action_page.dart';
 import 'action_sheet_page.dart';
@@ -129,6 +130,8 @@ class ComponentPage extends StatelessWidget {
         return const BorderBeamPage();
       case 'config_provider':
         return const ConfigProviderPage();
+      case 'material_compatible':
+        return const MaterialCompatiblePage();
       case 'loading':
         return const LoadingPage();
       case 'swipe_action':

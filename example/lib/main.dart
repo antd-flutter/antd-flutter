@@ -43,11 +43,9 @@ class AntdFlutterExampleApp extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 locale: DevicePreview.locale(context),
                 builder: DevicePreview.appBuilder,
-                theme: ThemeData(
-                  brightness: isDark ? Brightness.dark : Brightness.light,
-                  colorSchemeSeed: const Color(0xFF1677FF),
-                  useMaterial3: true,
-                ),
+                themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                theme: AntThemeData.light().toThemeData(),
+                darkTheme: AntThemeData.dark().toThemeData(),
                 home: const HomePage(),
               ),
             );

@@ -142,6 +142,7 @@ const List<NavGroup> navGroups = [
     NavItem('Affix 固钉', 'affix'),
     NavItem('App 应用', 'app'),
     NavItem('ConfigProvider 全局化配置', 'config_provider'),
+    NavItem('MaterialBridge Material主题桥接', 'material_compatible'),
     NavItem('FloatButton 浮动按钮', 'float_button'),
   ]),
 ];
