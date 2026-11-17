@@ -10,11 +10,27 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   antd_icons_flutter:
     path: ../
+  antd_flutter_plus:
+    path: ../../../
+  antd_theme: any
+  intl: any
 
   material_ui: any
   cupertino_ui: any
+
+dependency_overrides:
+  antd_color:
+    path: ../../antd_color
+  antd_tokens:
+    path: ../../antd_tokens
+  antd_theme:
+    path: ../../antd_theme
+  antd_icons_flutter:
+    path: ../
 dev_dependencies:
   flutter_test:
     sdk: flutter

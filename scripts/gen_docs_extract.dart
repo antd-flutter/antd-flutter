@@ -116,7 +116,7 @@ Future<void> main(List<String> args) async {
     }
     try {
       final result = await _processPackage(
-          sessionFor, pkgDir, name, checkOnly, report);
+          sessionFor, pkgDir, name, checkOnly, report,);
       jsonResults.add(result);
       if ((result['missing'] as List).isNotEmpty ||
           (result['extra'] as List).isNotEmpty) {
@@ -181,7 +181,7 @@ Future<Map<String, dynamic>> _processPackage(
   final files = await _collectExportedFiles((path) async {
     final r = await sessionFor(path).getResolvedUnit(path);
     return r is ResolvedUnitResult ? r : null;
-  }, barrelPath);
+  }, barrelPath,);
 
   final exportedNames = <String>{};
   final topLevel = <ApiEntry>[];
@@ -262,11 +262,11 @@ Future<Map<String, dynamic>> _processPackage(
   stdout.writeln('$status $name: $statLine');
   if (missing.isNotEmpty) {
     stdout.writeln(
-        '  缺失（新 API 未写入人工文档）: ${missing.take(20).join(", ")}${missing.length > 20 ? " …共${missing.length}项" : ""}');
+        '  缺失（新 API 未写入人工文档）: ${missing.take(20).join(", ")}${missing.length > 20 ? " …共${missing.length}项" : ""}',);
   }
   if (extra.isNotEmpty) {
     stdout.writeln(
-        '  多余（文档提及但已不存在）: ${extra.take(20).join(", ")}${extra.length > 20 ? " …共${extra.length}项" : ""}');
+        '  多余（文档提及但已不存在）: ${extra.take(20).join(", ")}${extra.length > 20 ? " …共${extra.length}项" : ""}',);
   }
   return {
     'package': name,
@@ -390,8 +390,6 @@ String? _libraryDoc(CompilationUnit unit) {
         '构造',
         cd.documentationComment?.tokens.map((t) => t.lexeme).join('\n'),
       );
-    default:
-      return null;
   }
 }
 
@@ -420,12 +418,12 @@ String _renderIndex(
 ) {
   final buf = StringBuffer();
   buf.writeln(
-      '<!-- 由 scripts/gen_docs.{sh,ps1} 机械生成，勿手工编辑；源码 barrel 变更后重跑 gen-docs 命令 -->');
+      '<!-- 由 scripts/gen_docs.{sh,ps1} 机械生成，勿手工编辑；源码 barrel 变更后重跑 gen-docs 命令 -->',);
   buf.writeln();
   buf.writeln('# $name API 索引');
   buf.writeln();
   buf.writeln(
-      '> 自动生成时间：${DateTime.now().toIso8601String()}；共 ${topLevel.length} 个顶层导出。');
+      '> 自动生成时间：${DateTime.now().toIso8601String()}；共 ${topLevel.length} 个顶层导出。',);
   if (libDoc != null && libDoc.trim().isNotEmpty) {
     buf.writeln('>');
     for (final line in libDoc.trim().split('\n')) {
@@ -464,7 +462,7 @@ String _renderIndex(
     if (g.entries.isEmpty) continue;
     if (g.entries.length > kMaxMembersPerClass) {
       buf.writeln(
-          '### `${g.owner}`（${g.entries.length} 个公开成员，超过 $kMaxMembersPerClass 不逐项展开，完整清单见包内 catalog 文档）');
+          '### `${g.owner}`（${g.entries.length} 个公开成员，超过 $kMaxMembersPerClass 不逐项展开，完整清单见包内 catalog 文档）',);
       buf.writeln();
       continue;
     }
