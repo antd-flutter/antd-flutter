@@ -42,6 +42,12 @@ class AntLayoutData {
   /// 是否为桌面类平台（web / windows / macos / linux）。
   final bool isDesktop;
 
+  /// 桌面超宽等比缩放因子。
+  ///
+  /// 由 [AntScreenUtilInit] 计算（超宽放大开启且窗口超过 maxWidth 时
+  /// > 1，受 maxScaleFactor 封顶），非放大状态恒为 1.0。
+  final double scaleFactor;
+
   const AntLayoutData({
     required this.width,
     required this.breakpoint,
@@ -51,6 +57,7 @@ class AntLayoutData {
     required this.targetPlatform,
     required this.isOhos,
     required this.isDesktop,
+    this.scaleFactor = 1.0,
   });
 
   /// 从 [MediaQueryData] 构建布局快照。
@@ -61,6 +68,7 @@ class AntLayoutData {
   factory AntLayoutData.fromMediaQuery(
     MediaQueryData mq, {
     AntFoldState? foldState,
+    double scaleFactor = 1.0,
   }) {
     final platform =
         AntPlatform.isWeb ? TargetPlatform.android : defaultTargetPlatform;
@@ -75,6 +83,7 @@ class AntLayoutData {
       targetPlatform: platform,
       isOhos: AntPlatform.isOhos,
       isDesktop: AntPlatform.isDesktop,
+      scaleFactor: scaleFactor,
     );
   }
 
@@ -131,7 +140,8 @@ class AntLayoutData {
         other.foldState == foldState &&
         other.targetPlatform == targetPlatform &&
         other.isOhos == isOhos &&
-        other.isDesktop == isDesktop;
+        other.isDesktop == isDesktop &&
+        other.scaleFactor == scaleFactor;
   }
 
   @override
@@ -144,13 +154,14 @@ class AntLayoutData {
         targetPlatform,
         isOhos,
         isDesktop,
+        scaleFactor,
       );
 
   @override
   String toString() => 'AntLayoutData(width: $width, breakpoint: $breakpoint, '
       'deviceType: $deviceType, orientation: $orientation, '
       'foldState: $foldState, platform: $targetPlatform, '
-      'isOhos: $isOhos)';
+      'isOhos: $isOhos, scaleFactor: $scaleFactor)';
 }
 
 /// 折叠态外部提供器签名（如 OHOS 经 AntOhosChannel 同步返回）。

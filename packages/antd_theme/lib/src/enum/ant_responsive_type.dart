@@ -59,4 +59,7 @@ enum AntLayoutAspect {
 
   /// 平台信息（targetPlatform / isOhos / isDesktop）
   platform,
+
+  /// 桌面超宽等比缩放因子（scaleFactor）
+  scaleFactor,
 }
