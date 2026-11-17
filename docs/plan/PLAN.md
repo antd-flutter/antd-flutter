@@ -48,7 +48,8 @@
 ### 文档规则
 - R20 **所有库统一 API 文档体系（双轨）**：① dart doc 自动生成——代码 `///` 注释按 Effective Dart 规范补全（参数/返回/示例代码块），随代码维护不欠账；② 人工组件文档页——简介、使用场景、参数表、事件表、代码示例（含亮暗/双端形态）、注意事项，Markdown 放各包 `docs/components/<name>.md`
 - R21 静态页面产出：人工文档 + dart doc 整合为静态页面，供用户网页查看；预留与站点发布（P02）及未来官网整合
-- R22 文档随代码走：文档放各自包内随包迁移，不放伞包；改组件 API 必须同步改双轨文档
+- R22 文档随代码走：文档放各自包内随包迁移，不放伞包；**改组件 API 的同一次提交必须同步更新双轨文档**，不允许文档欠账
+- R28 **文档命令化生成（降消耗）**：API 文档的机械部分（dart doc HTML 产出、公开 API 清单/参数表提取、双轨文档一致性校验）由沉淀的生成命令执行（见 commands 技能 gen-docs），人工只撰写简介/场景/注意事项等非机械内容；命令随 P12 任务实现后沉淀
 - R23 **禁用 golden（图像快照）测试**（用户确认：token/积分成本高，跨平台字体渲染易 flaky）：组件默认参数值用普通单测断言；视觉效果由用户在 example 页人工抽查验收
 - R24 **import 统一用 `package:material_ui/material_ui.dart` 替代 `flutter/material.dart`**（官方迁移方向，防止 material.dart 遗弃问题；cupertino 同理用 cupertino_ui）；所有子包/主包/example/测试文件一律遵守，新代码禁止出现 `flutter/material.dart` import
 
@@ -62,6 +63,7 @@
 
 - [ ] [P02-GitCode CI与静态站点](tasks/P02-gitcode-CI与静态站点.md)
 - [ ] [P11-packages现有包dart文件拆分](tasks/P11-packages现有包dart文件拆分.md)
+- [~] [P12-文档生成命令](tasks/P12-文档生成命令.md)（排队：task-p11 进行中）
 - [ ] [P06-icons-example正式化优化](tasks/P06-icons-example正式化优化.md)
 - [ ] [P07-screenutil桌面最大宽度与等比放大](tasks/P07-screenutil桌面最大宽度与等比放大.md)
 - [ ] [P08-组件库拆分基础库与独立组件](tasks/P08-组件库拆分基础库与独立组件.md)（**挂起：计划已细化待评审，用户明确说「执行」才开工**）
@@ -76,6 +78,7 @@ P05 → P11 → P07 → P02 → P06 → P09 → P08（**与原 P11 一键 antd �
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-17 | R22 强化（API 变更同提交更新文档）+ 新增 R28（文档命令化生成）；新增 P12（gen-docs 命令，排队）
 | 2026-11-17 | 新增 R25/R26（dart 细粒度拆分+index 统一导出）；新增 P11（packages 现有包拆分，antd_flutter_plus 重构归 P08） |
 | 2026-11-17 | 建立计划骨架 |
 | 2026-11-17 | 新增 P01/P02（双地址+GitCode CI）、P03（主题桥接） |
