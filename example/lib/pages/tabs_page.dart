@@ -66,12 +66,18 @@ class _BasicDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabs(
-      items: const [
-        AntTabsItem(key: '1', label: 'Tab 1', child: Text('Content of Tab Pane 1')),
-        AntTabsItem(key: '2', label: 'Tab 2', child: Text('Content of Tab Pane 2')),
-        AntTabsItem(key: '3', label: 'Tab 3', child: Text('Content of Tab Pane 3')),
-      ],
+    // material_ui AntTabs 内部含 Expanded（垂直内容区），在无界高度
+    // （SingleChildScrollView）下会溢出抛异常，demo 页加有界高度约束。
+    return const SizedBox(
+      height: 220,
+      width: double.infinity,
+      child: AntTabs(
+        items: [
+          AntTabsItem(key: '1', label: 'Tab 1', child: Text('Content of Tab Pane 1')),
+          AntTabsItem(key: '2', label: 'Tab 2', child: Text('Content of Tab Pane 2')),
+          AntTabsItem(key: '3', label: 'Tab 3', child: Text('Content of Tab Pane 3')),
+        ],
+      ),
     );
   }
 }
@@ -85,13 +91,17 @@ class _CardDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabs(
-      type: AntTabsType.card,
-      items: const [
-        AntTabsItem(key: '1', label: 'Tab 1', child: Text('Card content 1')),
-        AntTabsItem(key: '2', label: 'Tab 2', child: Text('Card content 2')),
-        AntTabsItem(key: '3', label: 'Tab 3', child: Text('Card content 3')),
-      ],
+    return const SizedBox(
+      height: 220,
+      width: double.infinity,
+      child: AntTabs(
+        type: AntTabsType.card,
+        items: [
+          AntTabsItem(key: '1', label: 'Tab 1', child: Text('Card content 1')),
+          AntTabsItem(key: '2', label: 'Tab 2', child: Text('Card content 2')),
+          AntTabsItem(key: '3', label: 'Tab 3', child: Text('Card content 3')),
+        ],
+      ),
     );
   }
 }
@@ -120,18 +130,22 @@ class _EditableDemoState extends State<_EditableDemo> {
         child: Text('Content of Tab ${i + 1}'),
       ),
     );
-    return AntTabs(
-      type: AntTabsType.editableCard,
-      items: items,
-      onEdit: (key, action) {
-        setState(() {
-          if (action == AntTabsEditAction.add) {
-            _count++;
-          } else if (_count > 1) {
-            _count--;
-          }
-        });
-      },
+    return SizedBox(
+      height: 220,
+      width: double.infinity,
+      child: AntTabs(
+        type: AntTabsType.editableCard,
+        items: items,
+        onEdit: (key, action) {
+          setState(() {
+            if (action == AntTabsEditAction.add) {
+              _count++;
+            } else if (_count > 1) {
+              _count--;
+            }
+          });
+        },
+      ),
     );
   }
 }
@@ -186,20 +200,26 @@ class _SizeDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntTabs(
-          size: AntTabsSize.small,
-          items: const [
-            AntTabsItem(key: '1', label: 'Small Tab 1', child: Text('Small content 1')),
-            AntTabsItem(key: '2', label: 'Small Tab 2', child: Text('Small content 2')),
-          ],
+        SizedBox(
+          height: 220,
+          child: AntTabs(
+            size: AntTabsSize.small,
+            items: const [
+              AntTabsItem(key: '1', label: 'Small Tab 1', child: Text('Small content 1')),
+              AntTabsItem(key: '2', label: 'Small Tab 2', child: Text('Small content 2')),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
-        AntTabs(
-          centered: true,
-          items: const [
-            AntTabsItem(key: '1', label: 'Centered 1', child: Text('Centered content 1')),
-            AntTabsItem(key: '2', label: 'Centered 2', child: Text('Centered content 2')),
-          ],
+        SizedBox(
+          height: 220,
+          child: AntTabs(
+            centered: true,
+            items: const [
+              AntTabsItem(key: '1', label: 'Centered 1', child: Text('Centered content 1')),
+              AntTabsItem(key: '2', label: 'Centered 2', child: Text('Centered content 2')),
+            ],
+          ),
         ),
       ],
     );
@@ -215,27 +235,31 @@ class _IconDisabledDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabs(
-      items: const [
-        AntTabsItem(
-          key: '1',
-          label: 'Tab 1',
-          icon: AntdIcon(AntIcons.androidOutlined, size: 16),
-          child: Text('Content with icon'),
-        ),
-        AntTabsItem(
-          key: '2',
-          label: 'Tab 2',
-          icon: AntdIcon(AntIcons.appleOutlined, size: 16),
-          child: Text('Another content'),
-        ),
-        AntTabsItem(
-          key: '3',
-          label: 'Disabled',
-          child: Text('Disabled content'),
-          disabled: true,
-        ),
-      ],
+    return SizedBox(
+      height: 220,
+      width: double.infinity,
+      child: AntTabs(
+        items: const [
+          AntTabsItem(
+            key: '1',
+            label: 'Tab 1',
+            icon: AntdIcon(AntIcons.androidOutlined, size: 16),
+            child: Text('Content with icon'),
+          ),
+          AntTabsItem(
+            key: '2',
+            label: 'Tab 2',
+            icon: AntdIcon(AntIcons.appleOutlined, size: 16),
+            child: Text('Another content'),
+          ),
+          AntTabsItem(
+            key: '3',
+            label: 'Disabled',
+            child: Text('Disabled content'),
+            disabled: true,
+          ),
+        ],
+      ),
     );
   }
 }

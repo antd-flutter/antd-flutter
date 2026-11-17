@@ -2,10 +2,9 @@ library;
 
 /// antd-flutter 官网示例应用入口
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'ant_device_preview.dart';
 import 'pages/home_page.dart';
 
 /// 全局亮暗模式切换（demo 演示用）
@@ -17,12 +16,10 @@ class ThemeModeController extends ValueNotifier<bool> {
 final themeModeController = ThemeModeController();
 
 void main() {
-  runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => const AntdFlutterExampleApp(),
-    ),
-  );
+  // device_preview 中间件隔离接入（仅 desktop/web 启用，不区分
+  // debug/release；移动端原样返回默认绑定，零影响）。
+  AntDevicePreview.bootstrap();
+  runApp(const AntdFlutterExampleApp());
 }
 
 /// antd-flutter 官网根组件
@@ -45,15 +42,19 @@ class AntdFlutterExampleApp extends StatelessWidget {
               builder: (context, isDark, _) {
                 return AntTheme(
                   data: isDark ? AntThemeData.dark() : AntThemeData.light(),
-                  child: MaterialApp(
-                    title: 'antd-flutter',
-                    debugShowCheckedModeBanner: false,
-                    locale: DevicePreview.locale(context),
-                    builder: DevicePreview.appBuilder,
-                    themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                    theme: AntThemeData.light().toThemeData(),
-                    darkTheme: AntThemeData.dark().toThemeData(),
-                    home: const HomePage(),
+                  // device_preview 一行接入（3.0 绑定层模拟，透传即可）。
+                  child: AntDevicePreview.wrap(
+                    context,
+                    MaterialApp(
+                      title: 'antd-flutter',
+                      debugShowCheckedModeBanner: false,
+                      locale: AntDevicePreview.localeOf(context),
+                      builder: AntDevicePreview.appBuilder,
+                      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                      theme: AntThemeData.light().toThemeData(),
+                      darkTheme: AntThemeData.dark().toThemeData(),
+                      home: const HomePage(),
+                    ),
                   ),
                 );
               },

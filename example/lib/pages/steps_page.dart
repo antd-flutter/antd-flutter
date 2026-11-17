@@ -78,15 +78,21 @@ class _VerticalDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AntSteps(
-      current: 1,
-      direction: AntStepsDirection.vertical,
-      items: [
-        AntStepsItem(title: '填写信息', description: '填写基本个人信息'),
-        AntStepsItem(title: '验证身份', description: '短信验证码验证'),
-        AntStepsItem(title: '注册成功', description: '完成注册流程'),
-      ],
-    );
+    // material_ui AntSteps 垂直方向内部含 Expanded，在无界高度
+    // （SingleChildScrollView）下会溢出抛异常，demo 页加有界高度约束。
+    return const SizedBox(
+      height: 320,
+      width: double.infinity,
+        child: AntSteps(
+          current: 1,
+          direction: AntStepsDirection.vertical,
+          items: [
+            AntStepsItem(title: '填写信息', description: '填写基本个人信息'),
+            AntStepsItem(title: '验证身份', description: '短信验证码验证'),
+            AntStepsItem(title: '注册成功', description: '完成注册流程'),
+          ],
+        ),
+      );
   }
 }
 

@@ -1,13 +1,23 @@
 # P09. 伞包 example 重构：响应式布局 + device_preview
 
-- 状态：`[ ]`
+- 状态：`[x]`
 - 目标：重构 `antd_flutter_plus`（伞包）的 example demo 为响应式布局，接入 device_preview 设备模拟；移动端不使用 device_preview，其余端（desktop/web）使用且**不区分 debug/release**；支持折叠屏预览
 - 前置依赖：P08（伞包与拆分定案后重构才有意义，建议排在 P08 之后；响应式部分依赖 P05 AntResponsive）
 
-## device_preview 调研结论（已查证，pub.dev device_preview 3.0.0）
-- **折叠屏：支持** ✅ — 官方特性表明确列出「Folds & hinges: Display features for foldables」，可模拟折叠屏（含半折形态），折叠设备类型还自动启用触摸输入模拟
-- **debug/release**：默认 `enable()` 只在 debug/profile 生效（release 关闭），但支持 `DevicePreview.enable(enabled: true)` **强制全模式开启**——满足「不区分 debug/release」要求
-- 注意：3.0 为全新架构，模拟在 widget 层之下进行，接入仅需 `DevicePreview.enable()` 一行，无需旧版三行 MaterialApp 包装
+## device_preview 调研结论（2026-11-17 实测更新）
+- **3.0.0 已发布但当前不可用** ✅❌ — 绑定层新架构（folds/hinges 折叠模拟 ✔、
+  `DevicePreview.enable(enabled: true)` 全模式开启 ✔），但其
+  `PreviewPlatformDispatcher` 未实现 Flutter 3.50 新增的
+  `PlatformDispatcher.resetInternalState`，在本工程 Flutter 3.50.0 下
+  **无法编译**（flutter test / build web 均失败）；上游 master
+  （aloisdeniel/flutter_device_preview，截至 2026-11-17 最新 commit
+  2026-08-25 Release 3.0.0）尚无适配修复
+- **退回 1.3.1**（按任务约定）：三行包装接入（`DevicePreview` widget +
+  `locale/appBuilder` 透传），`enabled: true` 不区分 debug/release；
+  1.x 不支持 folds/hinges 折叠模拟，折叠屏形态验证改经 AntResponsive
+  半折模拟尺寸（681×841）的布局断言覆盖
+- 待上游适配 Flutter 3.50 后可升级回 3.0（wrapper 已保留 bootstrap/wrap
+  API 形态，升级只改中间件层）
 
 ## 步骤
 1. 响应式布局改造：example 布局改用 AntResponsive 断点/设备类型驱动（宽屏 Header/侧栏、窄屏 NavBar/底部导航），复用根 example 已有亮暗切换与自举组件
@@ -29,3 +39,7 @@
 
 ## 备注
 - device_preview 3.0 UI 在 DevTools 中（无应用内工具栏），如需应用内切换面板需经 controller 自建——先不加，保持简单
+- 执行记录（2026-11-17）：3.0 不可编译 → 实际接入 1.3.1（见调研结论）；
+  demo 页修复 tabs_page（AntTabs 无界高度）/steps_page（AntSteps 垂直
+  无界高度）加有界 SizedBox 约束；组件库（material_ui 包 AntTabs/AntSteps
+  内部 Expanded 对无界上下文不友好）问题记录不修包
