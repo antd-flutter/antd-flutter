@@ -27,6 +27,15 @@ enum AntTitleLevel {
   h5,
 }
 
+/// 复制图标显示位置（相对文字，默认后）。
+enum AntCopyIconPosition {
+  /// 文字之前。
+  before,
+
+  /// 文字之后。
+  after,
+}
+
 /// 可复制配置 — 对应 antd `CopyConfig`。
 class AntCopyConfig {
   const AntCopyConfig({
@@ -34,6 +43,8 @@ class AntCopyConfig {
     this.onCopy,
     this.icon,
     this.tooltips,
+    this.tooltip = true,
+    this.position = AntCopyIconPosition.after,
   });
 
   /// 自定义复制文本（默认取子节点纯文本）。
@@ -47,6 +58,12 @@ class AntCopyConfig {
 
   /// 复制按钮的 tooltip 文本（默认 ["复制", "已复制"]）。
   final List<String>? tooltips;
+
+  /// 是否显示 tooltip 提示（对齐 antd tooltips=false 能力，默认开启）。
+  final bool tooltip;
+
+  /// 复制图标显示位置（前/后，默认后）。
+  final AntCopyIconPosition position;
 }
 
 /// 省略配置 — 对应 antd `EllipsisConfig`。

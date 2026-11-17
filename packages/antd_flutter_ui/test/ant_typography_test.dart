@@ -21,6 +21,38 @@ Widget _wrap(Widget child) {
   );
 }
 
+/// 窄容器（强制触发省略溢出，用于展开/收起相关用例）。
+Widget _narrow(Widget child, {double width = 150}) {
+  return Align(
+    alignment: Alignment.centerLeft,
+    child: SizedBox(width: width, child: child),
+  );
+}
+
+
+/// 在 span 树中定位直接持有 WidgetSpan 的业务 span。
+TextSpan? _findHostSpan(TextSpan span) {
+  if (span.children == null) return null;
+  if (span.children!.any((c) => c is WidgetSpan)) return span;
+  for (final child in span.children!.whereType<TextSpan>()) {
+    final found = _findHostSpan(child);
+    if (found != null) return found;
+  }
+  return null;
+}
+
+/// 找到包含 [match] 文本且带内联 WidgetSpan 图标的业务 TextSpan。
+TextSpan _hostSpan(WidgetTester tester, String match) {
+  final hosts = tester
+      .widgetList<RichText>(find.byType(RichText))
+      .map((r) => _findHostSpan(r.text as TextSpan))
+      .whereType<TextSpan>()
+      .where((s) => s.toPlainText().contains(match))
+      .toList();
+  expect(hosts, hasLength(1));
+  return hosts.first;
+}
+
 void main() {
   group('AntTitle', () {
     testWidgets('renders text content', (tester) async {
@@ -268,6 +300,65 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
     });
+
+    testWidgets('copy icon is inline WidgetSpan in the same Text.rich',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntText(text: 'Copy me', copyable: true)),
+      );
+      // 主文本与复制图标同处一个 RichText（WidgetSpan 内联）
+      final span = _hostSpan(tester, 'Copy me');
+      expect(span.toPlainText(), contains('Copy me'));
+      expect(span.children!.whereType<WidgetSpan>(), hasLength(1));
+      expect(
+        find.descendant(
+          of: find.byType(RichText),
+          matching: find.byIcon(AntIcons.copyOutlined),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('copyConfig.position=before puts icon before text',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntText(
+          text: 'Copy me',
+          copyConfig: AntCopyConfig(position: AntCopyIconPosition.before),
+        ),),
+      );
+      final span = _hostSpan(tester, 'Copy me');
+      // 第一个 WidgetSpan（复制图标）应排在文本 TextSpan 之前
+      final children = span.children!;
+      expect(children.first, isA<WidgetSpan>());
+      expect(children.last, isA<TextSpan>());
+    });
+
+    testWidgets('copyConfig.tooltip=false hides tooltip', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntText(
+          text: 'Copy me',
+          copyConfig: AntCopyConfig(tooltip: false),
+        ),),
+      );
+      expect(find.byType(AntTooltip), findsNothing);
+    });
+
+    testWidgets('copy and expand actions show together when overflowing',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_narrow(const AntParagraph(
+        text: 'A fairly long content line that overflows the narrow container',
+        ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+        copyable: true,
+      ),),),);
+      expect(find.text('展开'), findsOneWidget);
+      expect(find.byIcon(AntIcons.copyOutlined), findsOneWidget);
+      // 同一 Text.rich 内含文本 + 展开 + 复制共 2 个 WidgetSpan
+      final span = _hostSpan(tester, '');
+      // 截断文本保留前缀且与展开/复制图标同处一个 span
+      expect(span.toPlainText(), startsWith('A'));
+      expect(span.children!.whereType<WidgetSpan>(), hasLength(2));
+    });
   });
 
   group('AntTypography editable', () {
@@ -309,33 +400,56 @@ void main() {
       expect(changed, 'Modified');
     });
 
-    testWidgets('edit icons vertically aligned with input box', (tester) async {
-      final theme = AntThemeData.light();
+    testWidgets('edit state renders input box + enter icon below, commit works',
+        (tester) async {
+      String? changed;
       await tester.pumpWidget(
-        _wrap(const AntText(text: 'Edit me', editable: true)),
+        _wrap(AntText(
+          text: 'Original',
+          editConfig: AntEditConfig(onChange: (v) => changed = v),
+        ),),
       );
       await tester.tap(find.byIcon(AntIcons.editOutlined));
       await tester.pump();
 
-      // 行容器为 Row，且显式垂直居中对齐
-      final row = tester.widget<Row>(
-        find.ancestor(
-          of: find.byType(TextField),
-          matching: find.byType(Row),
-        ).first,
-      );
-      expect(row.crossAxisAlignment, CrossAxisAlignment.center);
+      // 编辑态：输入框 + 下方回车（keyboard return）图标
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byIcon(AntIcons.enterOutlined), findsOneWidget);
+      // 回车图标位于输入框下方（垂直对齐：左边缘不超出输入框）
+      final inputRect = tester.getRect(find.byType(TextField));
+      final enterRect = tester.getRect(find.byIcon(AntIcons.enterOutlined));
+      expect(enterRect.top, greaterThan(inputRect.top));
+      expect(enterRect.left, greaterThanOrEqualTo(inputRect.left - 0.5));
 
-      // 输入框以 controlHeight 为最小高度，与图标同一行内居中
-      final inputCenter = tester.getCenter(find.byType(TextField));
-      final confirmCenter =
-          tester.getCenter(find.byIcon(AntIcons.checkOutlined));
-      final cancelCenter = tester.getCenter(find.byIcon(AntIcons.closeOutlined));
-      expect((confirmCenter.dy - inputCenter.dy).abs(), lessThan(1.0));
-      expect((cancelCenter.dy - inputCenter.dy).abs(), lessThan(1.0));
-      // 输入框高度 ≥ controlHeight（不再小于行高导致图标错位）
-      final inputSize = tester.getSize(find.byType(TextField));
-      expect(inputSize.height, greaterThanOrEqualTo(theme.controlHeight - 0.5));
+      // 点击回车图标确认提交
+      await tester.enterText(find.byType(TextField), 'Modified');
+      await tester.tap(find.byIcon(AntIcons.enterOutlined));
+      await tester.pump();
+      expect(changed, 'Modified');
+    });
+
+    testWidgets('esc key cancels edit without onChange', (tester) async {
+      String? changed;
+      var cancelled = false;
+      await tester.pumpWidget(
+        _wrap(AntText(
+          text: 'Original',
+          editConfig: AntEditConfig(
+            onChange: (v) => changed = v,
+            onCancel: () => cancelled = true,
+          ),
+        ),),
+      );
+      await tester.tap(find.byIcon(AntIcons.editOutlined));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'Draft');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+
+      expect(cancelled, true);
+      expect(changed, isNull);
+      expect(find.byType(TextField), findsNothing);
     });
   });
 
@@ -354,20 +468,57 @@ void main() {
 
     testWidgets('expandable shows expand button', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntParagraph(
+        _wrap(_narrow(const AntParagraph(
           text: 'Long paragraph content here',
           ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
-        ),),
+        ),),),
       );
       expect(find.text('展开'), findsOneWidget);
     });
 
-    testWidgets('tapping expand toggles to collapse', (tester) async {
+    testWidgets('no expand button when text does not overflow',
+        (tester) async {
       await tester.pumpWidget(
         _wrap(const AntParagraph(
-          text: 'Long paragraph content here',
+          text: 'Short',
           ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
         ),),
+      );
+      expect(find.text('展开'), findsNothing);
+    });
+
+    testWidgets('overflow re-measured on width change', (tester) async {
+      // 初始窄容器：溢出 → 显示展开按钮
+      await tester.pumpWidget(
+        _wrap(_narrow(
+          const AntParagraph(
+            text: 'Long paragraph content here',
+            ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+          ),
+          width: 120,
+        ),),
+      );
+      expect(find.text('展开'), findsOneWidget);
+
+      // 容器变宽：不再溢出 → 展开按钮消失
+      await tester.pumpWidget(
+        _wrap(_narrow(
+          const AntParagraph(
+            text: 'Long paragraph content here',
+            ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+          ),
+          width: 800,
+        ),),
+      );
+      expect(find.text('展开'), findsNothing);
+    });
+
+    testWidgets('tapping expand toggles to collapse', (tester) async {
+      await tester.pumpWidget(
+        _wrap(_narrow(const AntParagraph(
+          text: 'Long paragraph content here',
+          ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
+        ),),),
       );
 
       await tester.tap(find.text('展开'));
@@ -379,14 +530,14 @@ void main() {
     testWidgets('onExpand callback fires', (tester) async {
       bool? expanded;
       await tester.pumpWidget(
-        _wrap(AntParagraph(
-          text: 'Content',
+        _wrap(_narrow(AntParagraph(
+          text: 'A fairly long content line that overflows the narrow container',
           ellipsis: AntEllipsisConfig(
             rows: 1,
             expandable: true,
             onExpand: (v) => expanded = v,
           ),
-        ),),
+        ),),),
       );
 
       await tester.tap(find.text('展开'));
@@ -397,27 +548,15 @@ void main() {
 
     testWidgets('expand icon is inline with text (same RichText WidgetSpan)',
         (tester) async {
-      await tester.pumpWidget(_wrap(const AntParagraph(
+      await tester.pumpWidget(_wrap(_narrow(const AntParagraph(
         text: 'A long paragraph that will be truncated at the end of line',
         ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
-      ),),);
+      ),),),);
 
       // 文字与展开图标应位于同一 Text.rich（RichText）的 WidgetSpan 中，
       // 而不是作为独立兄弟节点排在下一行。
-      final richTexts = tester.widgetList<RichText>(find.byType(RichText));
-      final hostRich = richTexts
-          .where((r) =>
-              r.text is TextSpan &&
-              (r.text as TextSpan).children != null &&
-              r.text.toPlainText().contains('A long paragraph'),)
-          .toList();
-      expect(hostRich, hasLength(1));
-      // Text.rich 会将用户 span 包为 TextSpan(style, children:[userSpan])
-      var span = hostRich.first.text as TextSpan;
-      if (span.text == null && span.children != null) {
-        span = span.children!.whereType<TextSpan>().first;
-      }
-      expect(span.text, contains('A long paragraph'));
+      final span = _hostSpan(tester, 'A lo');
+      expect(span.toPlainText(), contains('A lon'));
       final widgetSpans =
           span.children!.whereType<WidgetSpan>().toList();
       expect(widgetSpans, hasLength(1));
@@ -434,26 +573,15 @@ void main() {
     });
 
     testWidgets('collapse icon also inline after expanding', (tester) async {
-      await tester.pumpWidget(_wrap(const AntParagraph(
-        text: 'Content',
+      await tester.pumpWidget(_wrap(_narrow(const AntParagraph(
+        text: 'A fairly long content line that overflows the narrow container',
         ellipsis: AntEllipsisConfig(rows: 1, expandable: true),
-      ),),);
+      ),),),);
       await tester.tap(find.text('展开'));
       await tester.pump();
 
-      final richTexts = tester.widgetList<RichText>(find.byType(RichText));
-      final hostRich = richTexts
-          .where((r) =>
-              r.text is TextSpan &&
-              (r.text as TextSpan).children != null &&
-              r.text.toPlainText().contains('Content'),)
-          .toList();
-      expect(hostRich, hasLength(1));
-      var span = hostRich.first.text as TextSpan;
-      if (span.text == null && span.children != null) {
-        span = span.children!.whereType<TextSpan>().first;
-      }
-      expect(span.text, contains('Content'));
+      final span = _hostSpan(tester, 'A fairly');
+      expect(span.toPlainText(), contains('A fairly'));
       expect(span.children!.whereType<WidgetSpan>(), hasLength(1));
     });
   });

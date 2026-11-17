@@ -118,6 +118,7 @@ class _AntTypographyState extends State<AntTypography> {
   bool _editing = false;
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  late FocusNode _editorFocusNode; // 编辑态 Esc 捕获
   bool _expanded = false;
 
   @override
@@ -128,6 +129,7 @@ class _AntTypographyState extends State<AntTypography> {
     );
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
+    _editorFocusNode = FocusNode();
     _expanded = widget.ellipsis?.expanded ?? false;
   }
 
@@ -136,12 +138,14 @@ class _AntTypographyState extends State<AntTypography> {
     _controller.dispose();
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
+    _editorFocusNode.dispose();
     super.dispose();
   }
 
   void _onFocusChange() {
+    // 对齐 antd 桌面交互：失焦取消编辑（回车确认）
     if (!_focusNode.hasFocus && _editing) {
-      _commitEdit();
+      _cancelEdit();
     }
   }
 
@@ -238,58 +242,125 @@ class _AntTypographyState extends State<AntTypography> {
     // ---- 构建 TextStyle ----
     final baseStyle = _buildBaseStyle(theme, color);
 
-    // ---- 展开/收起按钮 ----
-    // 先于 content 构建：expandable 且文本源场景下，图标经 WidgetSpan
-    // 与截断文字同处一个 inline Text.rich，避免单独成行。
+    // ---- inline 动作节点 ----
+    // 全部走 Text.rich（TextSpan 文本 + WidgetSpan 图标），动作天然 inline
+    // 跟随文字末尾，不单独成行。
     final expandWidget = _buildExpandWidget(theme, baseStyle, hasEllipsis, ellipsis);
-    final expandInline =
-        expandWidget != null && widget.child == null && !widget.selectable;
+    final copyIcon = _buildCopyAction(theme);
+    final editIcon = _buildEditAction(theme);
+    final copyBefore = widget.copyConfig?.position == AntCopyIconPosition.before;
+    final leadingIcons = <Widget>[
+      if (copyIcon != null && copyBefore) copyIcon,
+    ];
+    // antd 顺序：展开 → 复制 → 编辑
+    final trailingIcons = <Widget>[
+      if (copyIcon != null && !copyBefore) copyIcon,
+      if (editIcon != null) editIcon,
+    ];
 
-    // ---- 构建内容 ----
-    Widget content;
-    if (widget.child != null) {
-      content = DefaultTextStyle.merge(
-        style: baseStyle,
-        child: widget.child!,
-      );
-    } else if (widget.selectable) {
-      content = SelectableText(
-        widget.text ?? '',
-        style: baseStyle,
-        maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
-      );
-    } else if (expandInline) {
-      content = Text.rich(
-        TextSpan(
-          text: widget.text ?? '',
-          children: [
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: expandWidget,
-            ),
-          ],
+    List<InlineSpan> buildSpans(String text, {Widget? expand}) => [
+          for (final icon in leadingIcons)
+            WidgetSpan(alignment: PlaceholderAlignment.middle, child: icon),
+          TextSpan(text: text),
+          if (expand != null)
+            WidgetSpan(alignment: PlaceholderAlignment.middle, child: expand),
+          for (final icon in trailingIcons)
+            WidgetSpan(alignment: PlaceholderAlignment.middle, child: icon),
+        ];
+
+    // ---- 自定义 child / selectable：无法内联 WidgetSpan，退化为 Wrap 组合 ----
+    if (widget.child != null || widget.selectable) {
+      Widget content = widget.child != null
+          ? DefaultTextStyle.merge(style: baseStyle, child: widget.child!)
+          : SelectableText(
+              widget.text ?? '',
+              style: baseStyle,
+              maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
+            );
+      content = _wrapVisualDecorations(content, theme);
+      final rowChildren = <Widget>[content, ...leadingIcons, ...trailingIcons];
+      if (expandWidget != null) rowChildren.insert(1, expandWidget);
+      if (rowChildren.length == 1) {
+        return _wrapInteractive(rowChildren.first, theme);
+      }
+      return _wrapInteractive(
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: rowChildren,
         ),
-        style: baseStyle,
-        maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
-        overflow: hasEllipsis && !_expanded ? TextOverflow.ellipsis : null,
-      );
-    } else {
-      content = Text(
-        widget.text ?? '',
-        style: baseStyle,
-        maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
-        overflow: hasEllipsis && !_expanded ? TextOverflow.ellipsis : null,
+        theme,
       );
     }
 
-    // ---- code / keyboard / mark 视觉容器 ----
-    content = _wrapVisualDecorations(content, theme);
+    // ---- 文本模式主体 ----
+    // 溢出测量：只有文字确实被截断才挂展开/收起与 tooltip；
+    // 未溢出时纯文本 + 动作图标。窗口尺寸变化由 LayoutBuilder 自动重判。
+    final needsOverflowMeasure = hasEllipsis &&
+        !_expanded &&
+        (ellipsis.expandable || ellipsis.tooltip);
 
-    // ---- ellipsis tooltip（antd 自举：包内 AntTooltip，桌面 hover / 移动点击）----
-    if (hasEllipsis && ellipsis.tooltip && !_expanded) {
-      content = AntTooltip(
-        tooltip: Text(widget.text ?? _plainText),
-        child: content,
+    Widget content;
+    if (needsOverflowMeasure) {
+      content = LayoutBuilder(builder: (context, constraints) {
+        final direction = Directionality.of(context);
+        final scaler = MediaQuery.textScalerOf(context);
+        if (!_measureTextOverflow(
+          context,
+          baseStyle,
+          ellipsis.rows,
+          constraints.maxWidth,
+        )) {
+          // 未溢出：纯文本 + 动作图标，无展开/tooltip
+          return _wrapVisualDecorations(
+            Text.rich(
+              TextSpan(children: buildSpans(widget.text ?? '')),
+              style: baseStyle,
+            ),
+            theme,
+          );
+        }
+        // 溢出：为末行预留 inline 图标空间，按测量截断文本
+        // （不用 maxLines+ellipsis，否则 WidgetSpan 会被 ellipsis 挤到隐藏行）。
+        final showExpand = ellipsis.expandable && expandWidget != null;
+        final reservedIcons = leadingIcons.length +
+            trailingIcons.length +
+            (showExpand ? 1 : 0);
+        final displayText = showExpand
+            ? _truncateTextForExpand(
+                widget.text ?? '',
+                baseStyle,
+                ellipsis.rows,
+                constraints.maxWidth,
+                reservedIcons,
+                direction,
+                scaler,
+              )
+            : (widget.text ?? '');
+        Widget inner = Text.rich(
+          TextSpan(
+            children:
+                buildSpans(displayText, expand: showExpand ? expandWidget : null),
+          ),
+          style: baseStyle,
+        );
+        // antd 自举：包内 AntTooltip（桌面 hover / 移动点击）
+        if (ellipsis.tooltip) {
+          inner = AntTooltip(
+            tooltip: Text(widget.text ?? _plainText),
+            child: inner,
+          );
+        }
+        return _wrapVisualDecorations(inner, theme);
+      },);
+    } else {
+      content = _wrapVisualDecorations(
+        Text.rich(
+          TextSpan(children: buildSpans(widget.text ?? '', expand: expandWidget)),
+          style: baseStyle,
+          maxLines: hasEllipsis && !_expanded ? ellipsis.rows : null,
+          overflow: hasEllipsis && !_expanded ? TextOverflow.ellipsis : null,
+        ),
+        theme,
       );
     }
 
@@ -304,30 +375,7 @@ class _AntTypographyState extends State<AntTypography> {
       );
     }
 
-    // ---- 复制/编辑图标 ----
-    final actions = _buildActions(theme, color);
-
-    // ---- 组装行 ----
-    // expandWidget 为 null 时（expandInline）已并入 Text.rich 的 WidgetSpan。
-    final List<Widget> rowChildren = [];
-    rowChildren.add(content);
-    if (!expandInline && expandWidget != null) rowChildren.add(expandWidget);
-    if (actions.isNotEmpty) {
-      rowChildren.add(const SizedBox(width: 4));
-      rowChildren.addAll(actions);
-    }
-
-    if (rowChildren.length == 1) {
-      return _wrapInteractive(rowChildren.first, theme);
-    }
-
-    return _wrapInteractive(
-      Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: rowChildren,
-      ),
-      theme,
-    );
+    return _wrapInteractive(content, theme);
   }
 
   /// code / keyboard / mark 的视觉装饰容器。
@@ -438,17 +486,26 @@ class _AntTypographyState extends State<AntTypography> {
     return style;
   }
 
-  /// 构建编辑器。
+  /// 构建编辑器（对齐 antd 桌面交互）。
   ///
-  /// 对齐约定：输入框以 minHeight=controlHeight 约束撑起行高，
-  /// 图标经 Row 的 crossAxisAlignment.center 与编辑框垂直居中对齐。
+  /// 编辑态渲染一个输入框；输入框下方显示回车键（keyboard return）图标，
+  /// 点击回车图标或键盘回车确认提交；Esc / 失焦取消。
   Widget _buildEditor(AntThemeData theme, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: TextField(
+    return Focus(
+      focusNode: _editorFocusNode,
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          _cancelEdit();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
             controller: _controller,
             focusNode: _focusNode,
             style: TextStyle(
@@ -478,23 +535,120 @@ class _AntTypographyState extends State<AntTypography> {
             ),
             onSubmitted: (_) => _commitEdit(),
           ),
-        ),
-        const SizedBox(width: 4),
-        _ActionIcon(
-          icon: const Icon(AntIcons.checkOutlined, size: 14),
-          onTap: _commitEdit,
-          color: theme.colorSuccess,
-          tooltip: '确认',
-        ),
-        const SizedBox(width: 2),
-        _ActionIcon(
-          icon: const Icon(AntIcons.closeOutlined, size: 14),
-          onTap: _cancelEdit,
-          color: theme.colorError,
-          tooltip: '取消',
-        ),
-      ],
+          const SizedBox(height: 4),
+          // 回车确认图标（keyboard return），与输入框左对齐、宽度撑满可点
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _ActionIcon(
+              icon: const Icon(AntIcons.enterOutlined, size: 16),
+              onTap: _commitEdit,
+              color: theme.colorPrimary,
+              tooltip: '确认',
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  /// 用 TextPainter 按当前宽度与 maxRows 判定文字是否真正溢出。
+  bool _measureTextOverflow(
+    BuildContext context,
+    TextStyle style,
+    int maxLines,
+    double maxWidth,
+  ) {
+    if (maxWidth <= 0 || maxLines <= 0) return false;
+    final text = widget.text ?? '';
+    if (text.isEmpty) return false;
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: maxLines,
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout(maxWidth: maxWidth);
+    final clippedHeight = painter.height;
+    final maxIntrinsicWidth = painter.maxIntrinsicWidth;
+    // 不限行数再排一次：高度更高说明被 rows 截断
+    painter.maxLines = null;
+    painter.layout(maxWidth: maxWidth);
+    final fullHeight = painter.height;
+    painter.dispose();
+    // 高度被压低（多行被截）或存在无法换行的超宽内容（末行被截）
+    return fullHeight > clippedHeight + 0.5 || maxIntrinsicWidth > maxWidth;
+  }
+
+  double _measureTextWidth(
+    String text,
+    TextStyle style,
+    TextDirection direction,
+    TextScaler scaler,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: direction,
+      textScaler: scaler,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
+  /// 计算为末行预留 inline 图标空间所需的截断文本（含省略号）。
+  ///
+  /// 二分搜索最大可容纳前缀：截断后整体不超过 rows 行，
+  /// 且末行剩余宽度足够放下全部 inline 图标（展开/复制/编辑）。
+  String _truncateTextForExpand(
+    String text,
+    TextStyle style,
+    int rows,
+    double maxWidth,
+    int reservedIcons,
+    TextDirection direction,
+    TextScaler scaler,
+  ) {
+    final fontSize = style.fontSize ?? 14;
+    final lineHeight = fontSize * (style.height ?? 1.2);
+    final maxHeight = rows * lineHeight;
+    // 展开按钮（按“展开”文字宽度）+ 其余图标按固定估算宽（14px 图标 + padding）
+    final expandWidth =
+        _measureTextWidth('展开', style, direction, scaler) + 12;
+    final reserveWidth =
+        expandWidth + reservedIcons * 26;
+
+    bool fits(String prefix) {
+      final painter = TextPainter(
+        text: TextSpan(text: '$prefix…', style: style),
+        textDirection: direction,
+        textScaler: scaler,
+      )..layout(maxWidth: maxWidth);
+      if (painter.height > maxHeight + 0.5) {
+        painter.dispose();
+        return false;
+      }
+      final metrics = painter.computeLineMetrics();
+      final lastLineWidth = metrics.isEmpty ? 0.0 : metrics.last.width;
+      painter.dispose();
+      return lastLineWidth + reserveWidth <= maxWidth;
+    }
+
+    // 全文已经放得下（不溢出）则不截断
+    if (fits(text.replaceAll(RegExp(r'…$'), ''))) return text;
+
+    var lo = 0;
+    var hi = text.length - 1;
+    var best = 0;
+    while (lo <= hi) {
+      final mid = (lo + hi) >> 1;
+      if (fits(text.substring(0, mid))) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    if (best <= 0) return '…';
+    return '${text.substring(0, best)}…';
   }
 
   /// 构建展开/收起按钮。
@@ -526,38 +680,34 @@ class _AntTypographyState extends State<AntTypography> {
     );
   }
 
-  /// 构建复制/编辑操作图标。
-  List<Widget> _buildActions(AntThemeData theme, Color color) {
-    final List<Widget> actions = [];
+  /// 构建复制操作图标（可配置 tooltip 开关；位置由 copyConfig.position 决定）。
+  Widget? _buildCopyAction(AntThemeData theme) {
+    if (!widget.copyable && widget.copyConfig == null) return null;
+    final config = widget.copyConfig ?? const AntCopyConfig();
+    final tooltipText = _copied
+        ? (config.tooltips?.elementAtOrNull(1) ?? '已复制')
+        : (config.tooltips?.elementAtOrNull(0) ?? '复制');
+    return _ActionIcon(
+      icon: config.icon ??
+          Icon(
+            _copied ? AntIcons.checkOutlined : AntIcons.copyOutlined,
+            size: 14,
+          ),
+      onTap: _copied ? null : _handleCopy,
+      color: _copied ? theme.colorSuccess : theme.colorTextTertiary,
+      tooltip: config.tooltip ? tooltipText : null,
+    );
+  }
 
-    // 复制
-    if (widget.copyable || widget.copyConfig != null) {
-      final config = widget.copyConfig ?? const AntCopyConfig();
-      actions.add(_ActionIcon(
-        icon: config.icon ??
-            Icon(
-              _copied ? AntIcons.checkOutlined : AntIcons.copyOutlined,
-              size: 14,
-            ),
-        onTap: _copied ? null : _handleCopy,
-        color: _copied ? theme.colorSuccess : theme.colorTextTertiary,
-        tooltip: _copied
-            ? (config.tooltips?.elementAtOrNull(1) ?? '已复制')
-            : (config.tooltips?.elementAtOrNull(0) ?? '复制'),
-      ),);
-    }
-
-    // 编辑
-    if (widget.editable || widget.editConfig != null) {
-      actions.add(_ActionIcon(
-        icon: const Icon(AntIcons.editOutlined, size: 14),
-        onTap: widget.disabled ? null : _startEdit,
-        color: widget.disabled ? theme.colorTextDisabled : theme.colorTextTertiary,
-        tooltip: '编辑',
-      ),);
-    }
-
-    return actions;
+  /// 构建编辑操作图标。
+  Widget? _buildEditAction(AntThemeData theme) {
+    if (!widget.editable && widget.editConfig == null) return null;
+    return _ActionIcon(
+      icon: const Icon(AntIcons.editOutlined, size: 14),
+      onTap: widget.disabled ? null : _startEdit,
+      color: widget.disabled ? theme.colorTextDisabled : theme.colorTextTertiary,
+      tooltip: '编辑',
+    );
   }
 }
 
