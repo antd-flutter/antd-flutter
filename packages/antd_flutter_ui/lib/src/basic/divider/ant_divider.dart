@@ -251,15 +251,19 @@ class AntDivider extends StatelessWidget {
     return Container(
       width: effectiveSpacing,
       margin: EdgeInsets.symmetric(horizontal: effectiveSpacing / 2),
-      child: Center(
-        // 默认高度 0.9em（对齐 antd web）：Row 内松约束下高度为 0 会不可见
-        child: SizedBox(
-          height: theme.fontSize * 0.9,
-          child: _VariantLine(
-            variant: effectiveVariant,
-            color: lineColor,
-            thickness: lineThickness,
-            direction: Axis.vertical,
+      child: SizedBox(
+        // 撑起文字行高：start 对齐的 Row 中线条垂直居中于文字
+        height: theme.fontSize * theme.lineHeight,
+        child: Center(
+          // 线条本体 0.9em（对齐 antd web）
+          child: SizedBox(
+            height: theme.fontSize * 0.9,
+            child: _VariantLine(
+              variant: effectiveVariant,
+              color: lineColor,
+              thickness: lineThickness,
+              direction: Axis.vertical,
+            ),
           ),
         ),
       ),
