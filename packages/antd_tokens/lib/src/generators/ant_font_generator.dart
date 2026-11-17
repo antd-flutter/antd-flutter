@@ -38,6 +38,9 @@ double antGetLineHeight(double fontSize) => (fontSize + 8) / fontSize;
 /// - `index > 1` 时 floor，否则 ceil
 /// - 再 `floor(intSize / 2) * 2` 取偶
 /// - `fontSizes[1] = base`（index=1，即数组第 2 位）
+///
+/// 注意：取整方向与取偶规则与 antd 逐行对齐，请勿"顺手优化"，
+/// 否则输出值无法与 antd Web 端对拍。
 List<AntFontSizePair> antGenFontSizes(double base) {
   final fontSizes = List<AntFontSizePair>.generate(10, (index) {
     final i = index - 1;

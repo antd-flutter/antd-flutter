@@ -21,6 +21,12 @@ import 'config/ant_palette_options.dart';
 /// 亮色与暗色主题分别通过 [AntColor.fromSeed] 与 [AntColor.fromSeedDark] 生成，
 /// 步阶语义与 antd Token（如 `colorPrimaryBg`、`colorPrimaryHover`）一一对应。
 ///
+/// 使用场景：从种子色生成主题色板后，按语义取色——
+/// `colorPrimaryBg`（第 1 阶）、`colorPrimaryHover`（第 5 阶）、
+/// `colorPrimary`（第 6 阶）、`colorPrimaryActive`（第 7 阶）等；
+/// 需要暗色 Token 映射时优先使用 [AntColor.fromSeedDark]，不要直接复用亮色色板。
+/// 亮色主题步阶 8-10 复用第 5-7 阶是 antd 亮色映射的既定行为，非重复计算错误。
+///
 /// ```dart
 /// final palette = AntColor.fromSeed('#1677FF');
 /// print(palette.main); // 第 6 阶 hex，如 '#1677ff'

@@ -125,6 +125,11 @@ double _getValue(AntHsv hsv, int i, {bool light = false}) {
 /// 返回长度为 10 的 hex 字符串列表，索引 0-9 对应 antd 的 palette 1-10
 /// （索引 0 最浅，索引 9 最深）。无法解析的输入按黑色种子处理，不抛出异常。
 ///
+/// 注意：阶梯常量（色相 / 饱和度 / 明度步长）与 antd `generate` 逐位对齐，
+/// 请勿"顺手优化"，否则会破坏与 antd Web 端色板的一致性；
+/// 灰度种子（饱和度为 0）生成时饱和度保持不变，色板为同色系明度渐变。
+/// 需要带语义的包装（主色 / hover / active）时，使用 [AntColor]。
+///
 /// ```dart
 /// final light = antGeneratePalette('#1677FF');
 /// print(light[5]); // 主色 '#1677ff'

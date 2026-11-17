@@ -6,7 +6,8 @@
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-import 'package:cupertino_ui/cupertino_ui.dart' show GlobalCupertinoLocalizations;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
 import 'package:material_ui/material_ui.dart';
@@ -47,47 +48,52 @@ class AntdIconsGalleryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: themeModeController,
-      builder: (context, isDark, _) {
-        final antThemeData = AntThemeData.fromSeed(
-          AntSeedToken(
-            colorPrimary: _toSeedHex(launchConfig.primaryColor),
-          ),
-          isDark: isDark,
-        );
-        // 与根 example 约定一致：AntTheme 包裹 + MaterialApp 挂
-        // toThemeData() 派生主题，Material 控件自动呈现 antd 风格。
-        return AntTheme(
-          data: antThemeData,
-          child: MaterialApp(
-            title: 'Ant Design Icons',
-            debugShowCheckedModeBanner: false,
-            themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-            theme: AntThemeData.fromSeed(
-              AntSeedToken(colorPrimary: _toSeedHex(launchConfig.primaryColor)),
-              isDark: false,
-            ).toThemeData(),
-            darkTheme: AntThemeData.fromSeed(
-              AntSeedToken(colorPrimary: _toSeedHex(launchConfig.primaryColor)),
-              isDark: true,
-            ).toThemeData(),
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('en'), Locale('zh')],
-            home: GalleryPage(embedded: launchConfig.embedded),
-            builder: (context, child) => AppLocalizations(
-              strings: AppLocalizations.resolve(
-                Localizations.maybeLocaleOf(context),
+    return AntScreenUtilInit(
+      designSize: const Size(375, 812),
+      builder: (ctx, _) => ValueListenableBuilder<bool>(
+        valueListenable: themeModeController,
+        builder: (context, isDark, _) {
+          final antThemeData = AntThemeData.fromSeed(
+            AntSeedToken(colorPrimary: _toSeedHex(launchConfig.primaryColor)),
+            isDark: isDark,
+          );
+          // 与根 example 约定一致：AntTheme 包裹 + MaterialApp 挂
+          // toThemeData() 派生主题，Material 控件自动呈现 antd 风格。
+          return AntTheme(
+            data: antThemeData,
+            child: MaterialApp(
+              title: 'Ant Design Icons',
+              debugShowCheckedModeBanner: false,
+              themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+              theme: AntThemeData.fromSeed(
+                AntSeedToken(
+                  colorPrimary: _toSeedHex(launchConfig.primaryColor),
+                ),
+                isDark: false,
+              ).toThemeData(),
+              darkTheme: AntThemeData.fromSeed(
+                AntSeedToken(
+                  colorPrimary: _toSeedHex(launchConfig.primaryColor),
+                ),
+                isDark: true,
+              ).toThemeData(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('en'), Locale('zh')],
+              home: GalleryPage(embedded: launchConfig.embedded),
+              builder: (context, child) => AppLocalizations(
+                strings: AppLocalizations.resolve(
+                  Localizations.maybeLocaleOf(context),
+                ),
+                child: child ?? const SizedBox.shrink(),
               ),
-              child: child ?? const SizedBox.shrink(),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

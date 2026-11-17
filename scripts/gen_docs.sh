@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# gen_docs.sh — 文档生成命令（dart doc + API 索引 + 双轨一致性校验）
+# gen_docs.sh — 文档生成命令（dart doc + API 索引 + 单轨一致性校验）
 # 用法: ./scripts/gen_docs.sh [--pkg <name>] [--check-only] [--skip-dart-doc]
 # 平台: macOS/Linux 完整实现（Windows 用 gen_docs.bat/gen_docs.ps1，逻辑一致）
 set -euo pipefail
@@ -84,7 +84,7 @@ else
 fi
 
 # ---- 2+3. API 索引提取 + 一致性校验（Dart 工具脚本）----
-echo "$INFO 步骤 2/3: 生成 docs/api-index.md 并执行步骤 3/3 一致性校验"
+echo "$INFO 步骤 2/3: 生成 docs/api-index.md + docs/api/*.md 并执行步骤 3/3 一致性校验"
 EXTRACT_ARGS=(--root "$ROOT")
 if [ "$CHECK_ONLY" -eq 1 ]; then
   EXTRACT_ARGS+=(--check-only)

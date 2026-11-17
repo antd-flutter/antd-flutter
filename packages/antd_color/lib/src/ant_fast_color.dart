@@ -28,6 +28,19 @@ num _limitRange(num value, [num max = 255]) {
 /// 与 `@ant-design/fast-color` 的 `FastColor` 行为完全一致。
 /// 所有 setter 与颜色变换方法均返回新实例，原实例不可变地保留。
 ///
+/// 使用场景：
+/// - hover / active 态颜色的派生（[darken]、[lighten]）；
+/// - 颜色混合与色调调整（[mix]、[tint]、[shade]）；
+/// - 半透明色在不透明背景上的等效合成（[onBackground]）；
+/// - RGB / HSV / HSL 互转及各类格式化输出。
+///
+/// 注意：
+/// - 跨模块共享时建议只使用返回值链式调用，不要直接修改 `r` / `g` / `b` / `a` 字段；
+/// - [AntFastColor.fromString] 对无法识别的输入静默回退为黑色，
+///   严格场景请自行校验输入格式；
+/// - 输出字符串的 alpha 按两位小数精度序列化（如 `0.5`、`0.25`），
+///   以保证与 Web 端表现一致。
+///
 /// ```dart
 /// final color = AntFastColor('#1677ff');
 /// print(color.toHexString()); // '#1677ff'

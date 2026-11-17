@@ -1,4 +1,4 @@
-﻿# gen_docs.ps1 - 文档生成命令（dart doc + API 索引 + 双轨一致性校验）
+﻿# gen_docs.ps1 - 文档生成命令（dart doc + API 索引 + 单轨一致性校验）
 # 用法: .\scripts\gen_docs.ps1 [-Pkg <name>] [-CheckOnly] [-SkipDartDoc]
 # 平台: Windows 完整实现（与 gen_docs.sh / gen_docs.bat 逻辑一致）
 [CmdletBinding()]
@@ -86,7 +86,7 @@ if (-not $CheckOnly -and -not $SkipDartDoc) {
 }
 
 # 步骤 2+3: API 索引提取 + 一致性校验
-Write-Output "$INFO 步骤 2/3: 生成 docs/api-index.md 并执行步骤 3/3 一致性校验"
+Write-Output "$INFO 步骤 2/3: 生成 docs/api-index.md + docs\api\*.md 并执行步骤 3/3 一致性校验"
 $extractArgs = @("run", "scripts/gen_docs_extract.dart", "--root", $Root)
 if ($CheckOnly) { $extractArgs += "--check-only" }
 if ($Pkg) { $extractArgs += @("--pkg", $Pkg) }

@@ -38,6 +38,19 @@ class _ShadowLayer {
 }
 
 /// Ant Design 阴影令牌集。
+///
+/// 使用场景：
+/// - 弹出层（Dropdown / Tooltip / Popover / Modal）使用 [boxShadow]；
+/// - Card、Drawer（四个方向）、Tabs 溢出渐隐使用对应方向令牌；
+/// - 暗色主题切换时用暗色阴影基色（`rgba(255, 255, 255, 0.2)`）重新生成。
+///
+/// 注意：
+/// - 仅能通过 [AntShadowTokens.generate] 创建，保证所有令牌来自同一基色；
+/// - 颜色生成特意经过 CSS 字符串序列化（而非直接构造 `Color`），以复现
+///   antd `_formatAlpha` 的两位小数舍入（如暗色 `0.2 × 0.08 → 0.02`），
+///   请勿改为直接计算；
+/// - `antd_theme` 在装配主题时按亮暗模式自动生成，业务代码一般直接从
+///   主题读取，无需自行调用 [AntShadowTokens.generate]。
 class AntShadowTokens {
   /// 弹出层主阴影。
   final List<BoxShadow> boxShadow;

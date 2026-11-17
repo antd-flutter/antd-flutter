@@ -93,7 +93,19 @@ List<String> _mapDark(List<String> colors) => [
 ///
 /// 亮/暗主题的差异体现在：
 /// - 色板使用 `dark` 主题算法生成，且 `colorPrimaryBg` 映射为 `colorPrimaryBorder`；
-/// - 中性色（文字/填充/背景/边框）采用不同的 alpha / 亮度系数。
+/// - 中性色（文字/填充/背景/边框）采用不同的 alpha / 亮度系数；
+/// - 实色调整在亮色为 darken、暗色为 lighten，以在暗背景上保持层次感；
+/// - `colorBgBlur` 亮色为透明（与 antd 一致，亮色主题不提供毛玻璃背景色）。
+///
+/// 使用场景：
+/// - 通过 `antd_theme` 装配亮色 / 暗色主题（本类是主题颜色的唯一来源）；
+/// - Widget 层按语义取色，如 `colorBgContainer`、`colorTextSecondary`；
+/// - 定制品牌色后借助 [css] 与 antd Web 端令牌值对拍。
+///
+/// 性能提示：getter 每次调用都会解析 `css` 字符串为 `Color`；热点路径
+/// （如 build 方法高频执行）请先取出 `Color` 缓存为局部变量，或由
+/// `antd_theme` 层统一缓存。业务代码应优先通过 `antd_theme` 获取当前
+/// `AntColorTokens`，而非自行调用工厂。
 ///
 /// ```dart
 /// const seed = AntSeedToken(colorPrimary: '#6a3ce8');

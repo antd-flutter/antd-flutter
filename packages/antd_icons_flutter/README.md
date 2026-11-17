@@ -65,9 +65,7 @@ AntButton(icon: AntdIcon(AntIcons.searchOutlined), child: Text('Search'))
 
 ## Documentation
 
-- [使用指南](docs/usage.md)
-- [图标目录](docs/icons-catalog.md) — 498 基础名 × 3 形态，共 698 个图标
-- [API 索引](docs/api-index.md)
+- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）— 698 图标常量见 AntIcons / AntIconsTwotone 类页成员表
 
 ## Regenerating assets
 
