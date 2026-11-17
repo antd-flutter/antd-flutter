@@ -20,6 +20,20 @@ library;
 /// 修改任意种子值（如 [colorPrimary]）都会逐层传播到生成的
 /// 色板、字号阶梯、圆角阶梯与阴影，从而得到一套完整的自定义主题。
 ///
+/// 使用场景：
+/// - 品牌定制：仅覆盖 `colorPrimary`（可连同 `colorSuccess` / `colorWarning` /
+///   `colorError` / `colorInfo`），派生出整套装件色板；
+/// - 暗色主题：[AntSeedToken.dark] 工厂生成暗色种子，交给 `AntColorTokens.dark()`；
+/// - 密度/形态调整：修改 `fontSize`、`borderRadius`、`controlHeight`、`sizeStep` 等；
+/// - 运行时动态换肤：借助 `copyWith` 派生新种子。
+///
+/// 注意：
+/// - 所有字段为 `final`，定制请通过构造参数或 `copyWith`，不要原地修改；
+/// - `colorLink` / `colorTextBase` / `colorBgBase` / `colorShadow` 用空字符串
+///   表示"交由算法按主题回退"，等价于 antd 的 `undefined`；
+/// - 本包只负责令牌定义与派生算法；主题装配与 Widget 层消费在 `antd_theme`
+///   包中完成，业务代码通常不直接构造本类。
+///
 /// 示例：以品牌色派生完整主题种子：
 ///
 /// ```dart

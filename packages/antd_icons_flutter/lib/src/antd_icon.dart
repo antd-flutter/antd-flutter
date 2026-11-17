@@ -10,6 +10,20 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// - [IconData] → TTF 字体渲染（[AntIcons] 常量）
 /// - [String] → SVG 资产渲染（[AntIconsTwotone] 常量）
 ///
+/// 使用场景：
+/// - 与 antd 设计规范保持视觉一致的 Flutter 应用；
+/// - 用线框 / 实心 / 双色三形态表达选中、强调等状态差异；
+/// - 迁移自 antd React 项目，沿用既有图标命名。
+///
+/// 注意：
+/// - `color` 只影响 TTF 图标，`twoToneColor` 只影响 TwoTone 图标，
+///   传错模式不会生效也不会报错；
+/// - TwoTone 首次渲染需异步读取 SVG 资产，避免在 `build` 中同步依赖其
+///   像素结果（替换结果已按「路径 + 主色 + 次色」缓存）；
+/// - 功能性图标务必传 [semanticLabel]，纯装饰图标可省略；
+/// - TTF 模式同步无首帧延迟、适合高频单色小图标；TwoTone 适合需要
+///   双色视觉层次的品牌化、强调性场景。
+///
 /// ```dart
 /// // TTF 字体图标（Outlined / Filled）
 /// AntdIcon(AntIcons.checkOutlined)

@@ -39,6 +39,7 @@ class AntRadiusToken {
 ///
 /// 与 antd `genRadius` 一致：按基数所在区间分别推导
 /// XS/SM/LG/Outer 各档位（如基数 6 → LG 8、SM 6、XS 2、Outer 4）。
+/// 区间阈值请勿调整，否则会破坏与 antd 的一致性。
 ///
 /// ```dart
 /// final radius = antGenRadius(6);

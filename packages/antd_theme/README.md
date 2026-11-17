@@ -109,7 +109,7 @@ On desktop (window width ≥ 768 by default), the scale factor is automatically 
 
 ## Documentation
 
-- [API 索引](docs/api-index.md)
+- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
 
 ## License
 

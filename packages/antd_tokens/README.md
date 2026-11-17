@@ -116,11 +116,7 @@ shadows.boxShadowTabsOverflowLeft; // tabs overflow shadows
 
 ## Documentation
 
-- [Seed Token](docs/seed-token.md)
-- [Map Token](docs/map-token.md)
-- [Color Token](docs/color-token.md)
-- [Shadow Token](docs/shadow-token.md)
-- [API 索引](docs/api-index.md)
+- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
 
 ## Porting fidelity
 

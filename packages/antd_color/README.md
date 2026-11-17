@@ -115,10 +115,7 @@ final c2 = antParseColor('rgba(22, 119, 255, 0.6)');
 
 ## Documentation
 
-- [颜色系统总览](docs/color.md)
-- [色板生成](docs/palette.md)
-- [CSS 颜色解析](docs/parse.md)
-- [API 索引](docs/api-index.md)
+- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
 
 ## Porting fidelity
 
