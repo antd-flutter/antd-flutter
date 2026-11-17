@@ -62,7 +62,6 @@
 
 ## 子任务索引
 
-- [ ] [P02-GitCode CI与静态站点](tasks/P02-gitcode-CI与静态站点.md)
 - [ ] [P06-icons-example正式化优化](tasks/P06-icons-example正式化优化.md)
 - [ ] [P08-组件库拆分基础库与独立组件](tasks/P08-组件库拆分基础库与独立组件.md)（**挂起：计划已细化待评审，用户明确说「执行」才开工**）
 - [ ] [P09-伞包example响应式与device_preview](tasks/P09-伞包example响应式与device_preview.md)
