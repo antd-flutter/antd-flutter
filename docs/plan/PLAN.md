@@ -49,6 +49,7 @@
 - R20 **所有库统一 API 文档体系（双轨）**：① dart doc 自动生成——代码 `///` 注释按 Effective Dart 规范补全（参数/返回/示例代码块），随代码维护不欠账；② 人工组件文档页——简介、使用场景、参数表、事件表、代码示例（含亮暗/双端形态）、注意事项，Markdown 放各包 `docs/components/<name>.md`
 - R21 静态页面产出：人工文档 + dart doc 整合为静态页面，供用户网页查看；预留与站点发布（P02）及未来官网整合
 - R22 文档随代码走：文档放各自包内随包迁移，不放伞包；**改组件 API 的同一次提交必须同步更新双轨文档**，不允许文档欠账
+- R29 **编码基类沉淀**：编写组件/功能代码时必须先识别共性并沉淀基类——重复的构建逻辑、状态管理、手势处理、动画模式、样式解析等抽取为基类/抽象类（如 Typography 系列的 `AntTypography` 基类 + `AntText/AntLink` 子类模式）；多个组件存在相同行为时优先在基类扩展而非子类复制；新增组件前先检索既有基类可复用，禁止复制粘贴式实现
 - R28 **文档命令化生成（降消耗）**：API 文档的机械部分（dart doc HTML 产出、公开 API 清单/参数表提取、双轨文档一致性校验）由沉淀的生成命令执行（见 commands 技能 gen-docs），人工只撰写简介/场景/注意事项等非机械内容；命令随 P12 任务实现后沉淀
 - R23 **禁用 golden（图像快照）测试**（用户确认：token/积分成本高，跨平台字体渲染易 flaky）：组件默认参数值用普通单测断言；视觉效果由用户在 example 页人工抽查验收
 - R24 **import 统一用 `package:material_ui/material_ui.dart` 替代 `flutter/material.dart`**（官方迁移方向，防止 material.dart 遗弃问题；cupertino 同理用 cupertino_ui）；所有子包/主包/example/测试文件一律遵守，新代码禁止出现 `flutter/material.dart` import
