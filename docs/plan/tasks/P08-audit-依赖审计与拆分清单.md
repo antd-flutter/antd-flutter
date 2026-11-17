@@ -287,17 +287,17 @@
 | antd_number_keyboard | passcode_input | data_entry/passcode_input | 249/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
 | antd_number_keyboard | virtual_input | data_entry/virtual_input | 242/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
 
-### B3. 争议组件（待用户裁决）
+### B3. 争议组件（✅ 用户已裁决，2026-11-17）
 
-以下组件接近独立阈值，默认按目标结构留在 `antd_flutter_ui`，双方理由列出，**标注「待用户裁决」，用户确认前不动代码**：
+| 组件 | 裁决 | 去向包 |
+|---|---|---|
+| Carousel | 独立 | `antd_carousel` |
+| Masonry | 独立 | `antd_masonry` |
+| Ellipsis | 留基础库 | `antd_flutter_ui`（通用展示） |
+| ColorPicker | 独立 | `antd_color_picker` |
+| Select / Transfer | 独立 | `antd_select` / `antd_transfer` |
 
-| 组件 | 留 ui 的理由 | 拆独立的理由 | 扫描数据 | 默认倾向 |
-|---|---|---|---|---|
-| Carousel | 上游 antd-mobile 为 swiper，与 PageIndicator 联动；无自带三方依赖；ui 通用展示已规划包含 | 自含轮播状态机+手势+指示器逻辑（实现较重）；独立使用场景真实 | data_display/carousel 目录 | 留 ui，待裁决 |
-| Masonry | 上游文档目标结构已在「通用展示」列出；纯布局组件无手势 | 上游 antd v6 有独立 masonry 组件；瀑布流分配算法是自含引擎，命中①④ | layout/masonry 目录 | 留 ui，待裁决 |
-| Ellipsis | 纯文本截断，实现轻，拆出无使用增益 | 上游 antd-mobile 独立组件；含 ResizeObserver/省略测量逻辑，有一定复杂度 | data_display/ellipsis 目录 | 留 ui，待裁决 |
-| ColorPicker | 纯录入组件，目标结构已列入「通用录入」 | 代码量 932 行（全库第 6），含取色面板/色板引擎，命中① | data_entry/color_picker 目录 | 留 ui，待裁决 |
-| Select / Transfer | 输入型组件，目标结构明确留基础库（Transfer 复用 Checkbox） | Select 707 行/Transfer 757 行偏重；Select 桌面下拉 vs 移动端无对应物 | data_entry/select、data_entry/transfer | 留 ui，待裁决 |
+> 独立包依赖 ui 内公共组件（Button/Empty/Checkbox 等），符合「独立包 → ui」依赖方向约定。原争议理由表见 git 历史（8df57dc）。
 
 ## C. 双端兼容决策表
 
