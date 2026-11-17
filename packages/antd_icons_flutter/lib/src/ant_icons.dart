@@ -5,15 +5,48 @@ import 'package:flutter/widgets.dart';
 
 /// Ant Design 图标集（TTF 字体模式）。
 ///
-/// 命名规则与 antd React 版对齐（camelCase + Outlined/Filled 后缀）：
+/// 覆盖 Outlined（线框，447 个）与 Filled（实心，251 个）两种风格，共 698 个
+/// [IconData] 常量，源 [`@ant-design/icons-svg`](https://github.com/ant-design/ant-design-icons)。
+///
+/// ## 命名规则
+///
+/// 与 antd React 版对齐（camelCase + 风格后缀）：
 /// - `<CheckOutlined />` → [AntIcons.checkOutlined]
 /// - `<CheckCircleFilled />` → [AntIcons.checkCircleFilled]
 ///
-/// 直接用于 Flutter [Icon] 组件：
+/// 同名图标若两种风格均有，则后缀不同、基础名一致（如 `heartOutlined` / `heartFilled`）。
+///
+/// ## 字体资产加载
+///
+/// 全部 Outlined/Filled 图标打包在单一字体文件 `fonts/AntIcons.ttf` 中，
+/// 已在包内 `pubspec.yaml` 注册为字体族 `AntIcons`（`fontPackage: 'antd_icons_flutter'`）。
+/// 常量通过 `fontFamily` + PUA（私用区）码点引用字形，宿主应用引入本包后
+/// 无需任何额外配置，Flutter 引擎会在首次渲染时按需加载字体。
+///
+/// ## Tree-shaking 说明
+///
+/// 与 Material Icons 不同，**本字体不做按码点 tree-shaking**：字体文件整体
+/// 打入应用（约数百 KB 级）。若对包体积敏感，可考虑：
+/// - 仅使用 [AntIconsTwotone]（SVG 资产，按文件粒度打包）；
+/// - 自行使用 `flutter icon_font` 类工具裁剪字体。
+///
+/// 但无论使用其中多少个常量，字体均以整文件形式随应用发布，未引用的码点
+/// 不会额外占用运行时内存，仅占用安装包体积。
+///
+/// ## 用法
+///
+/// 直接用于 Flutter [Icon] 组件，或经由统一组件 [AntdIcon]：
 ///
 /// ```dart
 /// Icon(AntIcons.checkOutlined)
 /// Icon(AntIcons.searchOutlined, size: 24, color: Colors.blue)
+/// AntdIcon(AntIcons.checkCircleFilled, size: 32, color: Colors.green)
+/// ```
+///
+/// 枚举辅助列表（用于图标选择器等场景）：
+///
+/// ```dart
+/// for (final (name, icon) in AntIcons.outlinedIcons) { /* ... */ }
 /// ```
 abstract final class AntIcons {
 
