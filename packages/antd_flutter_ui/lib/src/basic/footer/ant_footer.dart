@@ -14,7 +14,7 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-export 'package:antd_flutter_plus/src/components/data_display/footer/ant_footer_types.dart';
+export 'ant_footer_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 默认底部文案。
