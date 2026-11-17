@@ -4,8 +4,7 @@
 library;
 
 import 'package:antd_color/antd_color.dart';
-// ignore: deprecated_member_use
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const AntdColorExampleApp());
@@ -39,17 +38,21 @@ class ColorExamplePage extends StatelessWidget {
         children: [
           // ==================== 预设色板 ====================
           const _SectionTitle('预设色板（亮色）'),
-          ...palettes.entries.map((e) => _PaletteRow(
-                name: e.key,
-                palette: e.value,
-              ),),
+          ...palettes.entries.map(
+            (e) => _PaletteRow(
+              name: e.key,
+              palette: e.value,
+            ),
+          ),
           const SizedBox(height: 24),
 
           const _SectionTitle('预设色板（暗色）'),
-          ...darkPalettes.entries.take(5).map((e) => _PaletteRow(
-                name: e.key,
-                palette: e.value,
-              ),),
+          ...darkPalettes.entries.take(5).map(
+                (e) => _PaletteRow(
+                  name: e.key,
+                  palette: e.value,
+                ),
+              ),
           const SizedBox(height: 24),
 
           // ==================== FastColor 操作 ====================
@@ -87,18 +90,20 @@ class _PaletteRow extends StatelessWidget {
             width: 72,
             child: Text(name, style: Theme.of(context).textTheme.labelMedium),
           ),
-          ...palette.map((hex) => Expanded(
-                child: Container(
-                  height: 36,
-                  color: antParseColor(hex),
-                  child: Center(
-                    child: Text(
-                      hex == palette[5] ? '主色' : '',
-                      style: const TextStyle(fontSize: 9, color: Colors.white),
-                    ),
+          ...palette.map(
+            (hex) => Expanded(
+              child: Container(
+                height: 36,
+                color: antParseColor(hex),
+                child: Center(
+                  child: Text(
+                    hex == palette[5] ? '主色' : '',
+                    style: const TextStyle(fontSize: 9, color: Colors.white),
                   ),
                 ),
-              ),),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -146,9 +151,13 @@ class _FastColorDemo extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(label, style: Theme.of(context).textTheme.labelSmall),
-            Text(color.toHexString(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.grey, fontFeatures: [const FontFeature.tabularFigures()],),),
+            Text(
+              color.toHexString(),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.grey,
+                fontFeatures: [const FontFeature.tabularFigures()],
+              ),
+            ),
           ],
         );
       }).toList(),

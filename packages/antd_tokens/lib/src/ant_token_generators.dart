@@ -15,18 +15,27 @@ import 'dart:math' as math;
 // ============================================================
 
 /// 字号-行高对。
+///
+/// 由 [antGenFontSizes] 生成，对应 antd 字号阶梯中的单项。
 class AntFontSizePair {
+  /// 字号（逻辑像素），恒为偶数（除 [antGenFontSizes] 中回填的基准字号外）。
   final double size;
+
+  /// 推荐行高，按 `(size + 8) / size` 计算。
   final double lineHeight;
   const AntFontSizePair(this.size, this.lineHeight);
 }
 
-/// 计算行高。
+/// Computes the line height for a font size.
 ///
-/// 与 antd `getLineHeight` 一致: `(fontSize + 8) / fontSize`。
+/// 与 antd `getLineHeight` 一致：`(fontSize + 8) / fontSize`。
+///
+/// ```dart
+/// antGetLineHeight(14); // 22 / 14 ≈ 1.5714
+/// ```
 double antGetLineHeight(double fontSize) => (fontSize + 8) / fontSize;
 
-/// 生成 10 阶字号表。
+/// Generates the 10-step font size ladder from a base size.
 ///
 /// 与 antd `genFontSizes` 一致:
 /// - `size = base * e^(i/5)`，`i = index - 1`
@@ -54,30 +63,56 @@ List<AntFontSizePair> antGenFontSizes(double base) {
 // genFontMapToken — 字号映射令牌
 // ============================================================
 
-/// 字号映射令牌。
+/// 字号映射令牌，对应 antd Map Token 的字体部分（`genFontMapToken`）。
+///
+/// 由 [antGenFontMapToken] 从基准字号派生，包含组件字号、
+/// 标题字号、行高与 fontHeight 三组映射。
 class AntFontMapToken {
+  /// 小号组件字号（阶梯 index 0）。
   final double fontSizeSM;
+  /// 默认组件字号（等于基准字号）。
   final double fontSize;
+
+  /// 大号组件字号（阶梯 index 2）。
   final double fontSizeLG;
+  /// 特大号组件字号（阶梯 index 3）。
   final double fontSizeXL;
+  /// 标题 1 字号（阶梯 index 6，最大）。
   final double fontSizeHeading1;
+  /// 标题 2 字号（阶梯 index 5）。
   final double fontSizeHeading2;
+  /// 标题 3 字号（阶梯 index 4）。
   final double fontSizeHeading3;
+  /// 标题 4 字号（阶梯 index 3）。
   final double fontSizeHeading4;
+  /// 标题 5 字号（阶梯 index 2）。
   final double fontSizeHeading5;
 
+  /// 默认行高（对应 [AntFontSizePair.lineHeight] index 1）。
   final double lineHeight;
+
+  /// 大号文本行高（阶梯 index 2）。
   final double lineHeightLG;
+  /// 小号文本行高（阶梯 index 0）。
   final double lineHeightSM;
 
+  /// 默认 fontHeight（`lineHeight * fontSize` 四舍五入取整）。
   final double fontHeight;
+
+  /// 大号 fontHeight。
   final double fontHeightLG;
+  /// 小号 fontHeight。
   final double fontHeightSM;
 
+  /// 标题 1 行高。
   final double lineHeightHeading1;
+  /// 标题 2 行高。
   final double lineHeightHeading2;
+  /// 标题 3 行高。
   final double lineHeightHeading3;
+  /// 标题 4 行高。
   final double lineHeightHeading4;
+  /// 标题 5 行高。
   final double lineHeightHeading5;
 
   const AntFontMapToken({
@@ -104,7 +139,16 @@ class AntFontMapToken {
   });
 }
 
-/// 从基准字号生成字号映射令牌。
+/// Generates the font map token from a base font size.
+///
+/// 对应 antd `genFontMapToken`：先经 [antGenFontSizes] 生成阶梯，
+/// 再按固定索引映射为组件字号 / 标题字号 / 行高 / fontHeight。
+///
+/// ```dart
+/// final font = antGenFontMapToken(14);
+/// font.fontSize;        // 14
+/// font.fontSizeHeading1; // 38
+/// ```
 AntFontMapToken antGenFontMapToken(double fontSize) {
   final pairs = antGenFontSizes(fontSize);
   final fontSizes = pairs.map((p) => p.size).toList();
@@ -145,7 +189,9 @@ AntFontMapToken antGenFontMapToken(double fontSize) {
 // genRadius — 圆角阶梯算法
 // ============================================================
 
-/// 圆角令牌。
+/// 圆角令牌，对应 antd Map Token 的圆角部分（`genRadius`）。
+///
+/// 由 [antGenRadius] 从圆角基数派生各档位圆角。
 class AntRadiusToken {
   /// 基础圆角。
   final double borderRadius;
@@ -171,9 +217,15 @@ class AntRadiusToken {
   });
 }
 
-/// 从圆角基数生成圆角令牌。
+/// Generates the radius token ladder from a base radius.
 ///
-/// 与 antd `genRadius` 一致。
+/// 与 antd `genRadius` 一致：按基数所在区间分别推导
+/// XS/SM/LG/Outer 各档位（如基数 6 → LG 8、SM 6、XS 2、Outer 4）。
+///
+/// ```dart
+/// final radius = antGenRadius(6);
+/// radius.borderRadiusLG; // 8
+/// ```
 AntRadiusToken antGenRadius(double radiusBase) {
   var radiusLG = radiusBase;
   var radiusSM = radiusBase;
@@ -229,16 +281,28 @@ AntRadiusToken antGenRadius(double radiusBase) {
 // genSizeMapToken — 尺寸映射令牌
 // ============================================================
 
-/// 尺寸映射令牌。
+/// 尺寸映射令牌，对应 antd Map Token 的尺寸部分（`genSizeMapToken`）。
+///
+/// 由 [antGenSizeMapToken] 从 `sizeUnit × sizeStep` 派生 XXS…XXL 间距阶梯。
 class AntSizeMapToken {
+  /// 特大间距（`unit × (step + 8)`，默认 48）。
   final double sizeXXL;
+  /// 超大间距（`unit × (step + 4)`，默认 32）。
   final double sizeXL;
+  /// 大间距（`unit × (step + 2)`，默认 24）。
   final double sizeLG;
+  /// 中间距（`unit × (step + 1)`，默认 20）。
   final double sizeMD;
+  /// 中小间距（`unit × step`，默认 16）。
   final double sizeMS;
+  /// 默认间距（`unit × step`，默认 16）。
   final double size;
+
+  /// 小间距（`unit × (step - 1)`，默认 12）。
   final double sizeSM;
+  /// 特小间距（`unit × (step - 2)`，默认 8）。
   final double sizeXS;
+  /// 极小间距（`unit × (step - 3)`，默认 4）。
   final double sizeXXS;
 
   const AntSizeMapToken({
@@ -254,7 +318,15 @@ class AntSizeMapToken {
   });
 }
 
-/// 从种子生成尺寸映射令牌。
+/// Generates the size map token from seed size values.
+///
+/// 对应 antd `genSizeMapToken`，公式为 `sizeUnit * (sizeStep ± n)`。
+///
+/// ```dart
+/// final size = antGenSizeMapToken(sizeUnit: 4, sizeStep: 4);
+/// size.sizeXXL; // 48
+/// size.sizeXXS; // 4
+/// ```
 AntSizeMapToken antGenSizeMapToken({
   required double sizeUnit,
   required double sizeStep,
@@ -276,10 +348,17 @@ AntSizeMapToken antGenSizeMapToken({
 // genControlHeight — 控件高度令牌
 // ============================================================
 
-/// 控件高度令牌。
+/// 控件高度令牌，对应 antd Map Token 的控件高度部分（`genControlHeight`）。
+///
+/// 由 [antGenControlHeight] 从基准高度按比例派生。
 class AntControlHeightToken {
+  /// 小号控件高度（基准 × 0.75）。
   final double controlHeightSM;
+
+  /// 特小号控件高度（基准 × 0.5）。
   final double controlHeightXS;
+
+  /// 大号控件高度（基准 × 1.25）。
   final double controlHeightLG;
 
   const AntControlHeightToken({
@@ -289,7 +368,14 @@ class AntControlHeightToken {
   });
 }
 
-/// 从基准控件高度生成高度令牌。
+/// Generates control height variants from a base height.
+///
+/// 对应 antd `genControlHeight`：SM = 0.75 ×、XS = 0.5 ×、LG = 1.25 ×。
+///
+/// ```dart
+/// final h = antGenControlHeight(32);
+/// h.controlHeightLG; // 40
+/// ```
 AntControlHeightToken antGenControlHeight(double controlHeight) {
   return AntControlHeightToken(
     controlHeightSM: controlHeight * 0.75,
@@ -302,7 +388,9 @@ AntControlHeightToken antGenControlHeight(double controlHeight) {
 // genCommonMapToken — 通用映射令牌（动效 + 线宽 + 圆角）
 // ============================================================
 
-/// 动效时长令牌。
+/// 动效时长令牌，对应 antd Map Token 的 `motionDuration*` 系列。
+///
+/// 由 [antGenMotionDuration] 从 `motionBase + motionUnit × n` 派生。
 class AntMotionDurationToken {
   /// 快速动效时长（秒）。
   final double fast;
@@ -320,7 +408,16 @@ class AntMotionDurationToken {
   });
 }
 
-/// 从种子生成动效时长令牌。
+/// Generates motion duration tokens from seed motion values.
+///
+/// 对应 antd `genCommonMapToken` 中的动效部分：
+/// fast = base + unit、mid = base + 2 × unit、slow = base + 3 × unit，
+/// 结果保留一位小数；`motion` 为 `false` 时全部归零。
+///
+/// ```dart
+/// final m = antGenMotionDuration(motionUnit: 0.1, motionBase: 0, motion: true);
+/// m.mid; // 0.2
+/// ```
 AntMotionDurationToken antGenMotionDuration({
   required double motionUnit,
   required double motionBase,

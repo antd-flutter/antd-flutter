@@ -110,12 +110,16 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                               Checkbox(value: true, onChanged: (_) {}),
                               const Text('Checkbox'),
                               SizedBox(width: 16.w),
-                              Radio<bool>(
-                                value: true,
+                              RadioGroup<bool>(
                                 groupValue: true,
                                 onChanged: (_) {},
+                                child: const Row(
+                                  children: [
+                                    Radio<bool>(value: true),
+                                    Text('Radio'),
+                                  ],
+                                ),
                               ),
-                              const Text('Radio'),
                             ],
                           ),
                         ],

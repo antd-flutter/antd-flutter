@@ -3,16 +3,44 @@
 
 /// Ant Design TwoTone 双色图标集（SVG 资产路径）。
 ///
-/// 命名规则与 antd React 版对齐（camelCase + TwoTone 后缀）：
+/// 共 150 个双色图标，源 [`@ant-design/icons-svg`](https://github.com/ant-design/ant-design-icons)。
+///
+/// ## 命名规则
+///
+/// 与 antd React 版对齐（camelCase + `TwoTone` 后缀）：
 /// - `<CheckCircleTwoTone />` → [AntIconsTwotone.checkCircleTwoTone]
 ///
-/// 通过 [AntdIcon] 组件渲染（内部使用 flutter_svg + 动态双色替换）：
+/// ## 渲染方式
+///
+/// 常量值为包内 SVG 资产路径（如 `assets/twotone/check-circle.svg`），
+/// 经由 [AntdIcon] 组件渲染（内部使用 `flutter_svg` + 运行时双色替换）：
 ///
 /// ```dart
 /// AntdIcon(AntIconsTwotone.checkCircleTwoTone)
 /// AntdIcon(AntIconsTwotone.heartTwoTone,
 ///     twoToneColor: Colors.red)
 /// ```
+///
+/// 也可不经过 [AntdIcon]，用 `flutter_svg` 的 `SvgPicture.asset` 直接加载
+/// （注意传入 `package: 'antd_icons_flutter'`）：
+///
+/// ```dart
+/// SvgPicture.asset(
+///   AntIconsTwotone.checkCircleTwoTone,
+///   package: 'antd_icons_flutter',
+/// )
+/// ```
+///
+/// ## 资产加载说明
+///
+/// SVG 文件随包内 `pubspec.yaml` 的 `assets` 声明整体打包，通过
+/// `rootBundle` 按需异步加载；自定义 [AntdIcon.twoToneColor] 时首次渲染
+/// 有一帧异步等待，且替换结果会按「路径 + 主色 + 次色」缓存。
+///
+/// ## Tree-shaking 说明
+///
+/// 与 [AntIcons]（TTF 整字体打包）不同，SVG 资产按文件粒度进入安装包；
+/// 但由于资产以目录形式声明，当前版本为全量打包，不做按引用裁剪。
 abstract final class AntIconsTwotone {
 
   // ── TwoTone（双色风格） 150 个 ──────────────────────────

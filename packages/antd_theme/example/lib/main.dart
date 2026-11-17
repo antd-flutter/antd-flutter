@@ -5,8 +5,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-// ignore: deprecated_member_use
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const AntdThemeExampleApp());
@@ -322,9 +321,13 @@ class _RadiusAndSizeDemo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('圆角',
-              style: TextStyle(
-                  color: theme.colorTextLabel, fontSize: 12.sp,),),
+          Text(
+            '圆角',
+            style: TextStyle(
+              color: theme.colorTextLabel,
+              fontSize: 12.sp,
+            ),
+          ),
           SizedBox(height: 8.w),
           Row(
             children: radii.map((item) {
@@ -339,20 +342,23 @@ class _RadiusAndSizeDemo extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: theme.colorPrimaryBg,
                           borderRadius: BorderRadius.circular(r.r),
-                          border:
-                              Border.all(color: theme.colorPrimaryBorder),
+                          border: Border.all(color: theme.colorPrimaryBorder),
                         ),
                       ),
                       SizedBox(height: 4.w),
                       Text(
                         label.isEmpty ? 'base' : label,
                         style: TextStyle(
-                            color: theme.colorTextTertiary, fontSize: 10.sp,),
+                          color: theme.colorTextTertiary,
+                          fontSize: 10.sp,
+                        ),
                       ),
                       Text(
                         r.toStringAsFixed(0),
                         style: TextStyle(
-                            color: theme.colorTextQuaternary, fontSize: 9.sp,),
+                          color: theme.colorTextQuaternary,
+                          fontSize: 9.sp,
+                        ),
                       ),
                     ],
                   ),
@@ -361,9 +367,13 @@ class _RadiusAndSizeDemo extends StatelessWidget {
             }).toList(),
           ),
           SizedBox(height: 12.w),
-          Text('尺寸阶梯',
-              style: TextStyle(
-                  color: theme.colorTextLabel, fontSize: 12.sp,),),
+          Text(
+            '尺寸阶梯',
+            style: TextStyle(
+              color: theme.colorTextLabel,
+              fontSize: 12.sp,
+            ),
+          ),
           SizedBox(height: 8.w),
           Wrap(
             spacing: 8.w,
@@ -385,15 +395,16 @@ class _RadiusAndSizeDemo extends StatelessWidget {
                   height: entry.$2.w,
                   decoration: BoxDecoration(
                     color: theme.colorPrimary.withValues(alpha: 0.15),
-                    borderRadius:
-                        BorderRadius.circular(theme.borderRadiusXS.r),
+                    borderRadius: BorderRadius.circular(theme.borderRadiusXS.r),
                     border: Border.all(color: theme.colorPrimaryBorder),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     entry.$1.isEmpty ? 'S' : entry.$1,
                     style: TextStyle(
-                        color: theme.colorPrimary, fontSize: 8.sp,),
+                      color: theme.colorPrimary,
+                      fontSize: 8.sp,
+                    ),
                   ),
                 ),
             ],
@@ -446,9 +457,13 @@ class _ShadowDemo extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 6.w),
-              Text(label,
-                  style: TextStyle(
-                      color: theme.colorTextTertiary, fontSize: 10.sp,),),
+              Text(
+                label,
+                style: TextStyle(
+                  color: theme.colorTextTertiary,
+                  fontSize: 10.sp,
+                ),
+              ),
             ],
           );
         }).toList(),
@@ -487,14 +502,21 @@ class _MotionDemo extends StatelessWidget {
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            title: Text(label,
-                style: TextStyle(
-                    color: theme.colorTextSecondary,
-                    fontSize: 12.sp,
-                    fontFamily: 'monospace',),),
-            trailing: Text('${duration.inMilliseconds}ms',
-                style: TextStyle(
-                    color: theme.colorText, fontSize: 13.sp,),),
+            title: Text(
+              label,
+              style: TextStyle(
+                color: theme.colorTextSecondary,
+                fontSize: 12.sp,
+                fontFamily: 'monospace',
+              ),
+            ),
+            trailing: Text(
+              '${duration.inMilliseconds}ms',
+              style: TextStyle(
+                color: theme.colorText,
+                fontSize: 13.sp,
+              ),
+            ),
           );
         }).toList(),
       ),
@@ -538,7 +560,9 @@ class _BreakpointDemo extends StatelessWidget {
           Text(
             '屏幕宽度: ${width.toStringAsFixed(0)}',
             style: TextStyle(
-                color: theme.colorTextSecondary, fontSize: 12.sp,),
+              color: theme.colorTextSecondary,
+              fontSize: 12.sp,
+            ),
           ),
           SizedBox(height: 12.w),
           Wrap(
@@ -547,12 +571,10 @@ class _BreakpointDemo extends StatelessWidget {
             children: AntBreakpoint.values.map((b) {
               final active = bp != null && bp >= b;
               return Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.w),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.w),
                 decoration: BoxDecoration(
-                  color: active
-                      ? theme.colorPrimaryBg
-                      : theme.colorFillQuaternary,
+                  color:
+                      active ? theme.colorPrimaryBg : theme.colorFillQuaternary,
                   borderRadius: BorderRadius.circular(theme.borderRadiusXS.r),
                   border: Border.all(
                     color: active
@@ -577,9 +599,10 @@ class _BreakpointDemo extends StatelessWidget {
             'isUp(md): ${AntBreakpoints.isUp(context, AntBreakpoint.md)}  '
             'isDown(lg): ${AntBreakpoints.isDown(context, AntBreakpoint.lg)}',
             style: TextStyle(
-                color: theme.colorTextTertiary,
-                fontSize: 11.sp,
-                fontFamily: 'monospace',),
+              color: theme.colorTextTertiary,
+              fontSize: 11.sp,
+              fontFamily: 'monospace',
+            ),
           ),
         ],
       ),

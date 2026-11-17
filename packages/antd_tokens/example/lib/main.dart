@@ -4,8 +4,7 @@
 library;
 
 import 'package:antd_tokens/antd_tokens.dart';
-// ignore: deprecated_member_use
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const AntdTokensExampleApp());
@@ -37,9 +36,8 @@ class _TokensExamplePageState extends State<TokensExamplePage> {
   @override
   Widget build(BuildContext context) {
     final seed = _isDark ? AntSeedToken.dark() : const AntSeedToken();
-    final colorTokens = _isDark
-        ? AntColorTokens.dark(seed)
-        : AntColorTokens.light(seed);
+    final colorTokens =
+        _isDark ? AntColorTokens.dark(seed) : AntColorTokens.light(seed);
     final shadowTokens = AntShadowTokens.generate(seed.colorShadow);
 
     return Theme(
@@ -71,7 +69,8 @@ class _TokensExamplePageState extends State<TokensExamplePage> {
 
             // ==================== 阴影令牌 ====================
             const _SectionTitle('阴影令牌 (AntShadowTokens)'),
-            _ShadowDemo(shadows: shadowTokens, bg: colorTokens.colorBgContainer),
+            _ShadowDemo(
+                shadows: shadowTokens, bg: colorTokens.colorBgContainer),
             const SizedBox(height: 32),
           ],
         ),
@@ -122,10 +121,16 @@ class _SeedTokenTable extends StatelessWidget {
                     ),
                   )
                 : null,
-            title: Text(key, style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
-            trailing: Text(value,
-                style: TextStyle(
-                    fontFamily: 'monospace', fontSize: 13, color: Colors.grey.shade700,),),
+            title: Text(key,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+            trailing: Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 13,
+                color: Colors.grey.shade700,
+              ),
+            ),
           );
         }).toList(),
       ),
@@ -194,9 +199,11 @@ class _ColorTokenGrid extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            Text(name,
-                style: const TextStyle(fontSize: 8, fontFamily: 'monospace'),
-                overflow: TextOverflow.ellipsis,),
+            Text(
+              name,
+              style: const TextStyle(fontSize: 8, fontFamily: 'monospace'),
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         );
       }).toList(),
@@ -240,8 +247,10 @@ class _ShadowDemo extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(label,
-                style: const TextStyle(fontSize: 10, fontFamily: 'monospace'),),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 10, fontFamily: 'monospace'),
+            ),
           ],
         );
       }).toList(),

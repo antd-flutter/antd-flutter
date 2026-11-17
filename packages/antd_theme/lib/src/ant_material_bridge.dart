@@ -113,12 +113,14 @@ extension AntMaterialTheme on AntThemeData {
         height: lineHeightHeading3,
         color: colorText,
       ),
-      headlineLarge: heading(size: fontSizeHeading1, height: lineHeightHeading1),
+      headlineLarge:
+          heading(size: fontSizeHeading1, height: lineHeightHeading1),
       headlineMedium: heading(
         size: fontSizeHeading2,
         height: lineHeightHeading2,
       ),
-      headlineSmall: heading(size: fontSizeHeading3, height: lineHeightHeading3),
+      headlineSmall:
+          heading(size: fontSizeHeading3, height: lineHeightHeading3),
       titleLarge: heading(size: fontSizeHeading4, height: lineHeightHeading4),
       titleMedium: heading(size: fontSizeHeading5, height: lineHeightHeading5),
       // antd 正文加粗（fontSize 14 / lineHeight 1.5714 / fontWeightStrong 600）

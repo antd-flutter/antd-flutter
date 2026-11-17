@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-export 'package:flutter_screenutil/flutter_screenutil.dart'
-    hide ScreenUtilInit;
+export 'package:flutter_screenutil/flutter_screenutil.dart' hide ScreenUtilInit;
 
 /// AntScreenUtil 初始化 Widget。
 ///

@@ -37,25 +37,58 @@ class AntdIcon extends StatelessWidget {
           'icon 必须是 IconData（TTF 模式）或 String（TwoTone SVG 路径）',
         );
 
-  /// 图标定义：[IconData]（TTF）或 [String]（TwoTone SVG 资产路径）。
+  /// 图标定义，决定渲染模式。
+  ///
+  /// - 传 [IconData]（如 [AntIcons.checkOutlined]）→ TTF 字体渲染；
+  /// - 传 [String]（如 [AntIconsTwotone.checkCircleTwoTone]）→ TwoTone SVG 资产渲染。
+  ///
+  /// 传入其他类型会在调试期断言失败。
   final Object icon;
 
-  /// 图标尺寸（逻辑像素）。
+  /// 图标尺寸（逻辑像素），默认值因模式而异。
   ///
-  /// TTF 模式默认继承 [IconTheme]；TwoTone 模式默认 24.0。
+  /// - TTF 模式：未设置时继承 [IconTheme]（通常为 24.0）；
+  /// - TwoTone 模式：未设置时同样先取 [IconTheme]，兜底 24.0。
+  ///
+  /// ```dart
+  /// AntdIcon(AntIcons.starOutlined, size: 32)
+  /// AntdIcon(AntIconsTwotone.starTwoTone, size: 32)
+  /// ```
   final double? size;
 
-  /// 图标颜色（仅 TTF 模式生效）。
+  /// 图标颜色，仅 TTF 字体模式生效。
+  ///
+  /// 未设置时继承 [IconTheme] 的颜色；TwoTone 模式下此参数被忽略，
+  /// 着色请使用 [twoToneColor]。
+  ///
+  /// ```dart
+  /// AntdIcon(AntIcons.heartFilled, color: Colors.red)
+  /// ```
   final Color? color;
 
-  /// TwoTone 主色（仅 TwoTone 模式生效）。
+  /// TwoTone 主色（仅 TwoTone SVG 模式生效）。
   ///
   /// 设置后 SVG 中 `#333` 替换为此色，次色由主色自动提亮生成
   /// （近似 antd React 的 `generate(primary)[0]`）。
   /// 未设置时使用 SVG 原始双色（`#333` + `#E6E6E6`）。
+  ///
+  /// ```dart
+  /// // 主色红色，次色自动生成浅红
+  /// AntdIcon(AntIconsTwotone.heartTwoTone, twoToneColor: Colors.red)
+  /// ```
+  ///
+  /// 首次渲染需异步加载 SVG 资产并做色彩替换（结果按
+  /// 「路径 + 主色 + 次色」缓存，后续同参渲染无额外开销）。
   final Color? twoToneColor;
 
-  /// 语义标签（无障碍）。
+  /// 语义标签（无障碍），供屏幕阅读器朗读。
+  ///
+  /// 设为 `null` 时图标对无障碍服务不可见（视为纯装饰）；传入描述性
+  /// 文本可让视障用户理解图标含义。
+  ///
+  /// ```dart
+  /// AntdIcon(AntIcons.searchOutlined, semanticLabel: '搜索')
+  /// ```
   final String? semanticLabel;
 
   /// TwoTone SVG 色彩化缓存：`path@primary@secondary` → SVG 字符串。

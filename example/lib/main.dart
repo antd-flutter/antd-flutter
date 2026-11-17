@@ -33,21 +33,30 @@ class AntdFlutterExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntScreenUtilInit(
       builder: (context, child) {
-        return ValueListenableBuilder<bool>(
-          valueListenable: themeModeController,
-          builder: (context, isDark, _) {
-            return AntTheme(
-              data: isDark ? AntThemeData.dark() : AntThemeData.light(),
-              child: MaterialApp(
-                title: 'antd-flutter',
-                debugShowCheckedModeBanner: false,
-                locale: DevicePreview.locale(context),
-                builder: DevicePreview.appBuilder,
-                themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                theme: AntThemeData.light().toThemeData(),
-                darkTheme: AntThemeData.dark().toThemeData(),
-                home: const HomePage(),
-              ),
+        return AntResponsiveInit(
+          // OHOS 折叠态经 AntOhosChannel 透出；其他平台自动从
+          // displayFeatures 推导，无法获取时为 unknown/flat。
+          foldStateProvider: AntPlatform.isOhos
+              ? () => AntOhosChannelRegistry.channel.getFoldStateSync()
+              : null,
+          builder: (context, data, child) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: themeModeController,
+              builder: (context, isDark, _) {
+                return AntTheme(
+                  data: isDark ? AntThemeData.dark() : AntThemeData.light(),
+                  child: MaterialApp(
+                    title: 'antd-flutter',
+                    debugShowCheckedModeBanner: false,
+                    locale: DevicePreview.locale(context),
+                    builder: DevicePreview.appBuilder,
+                    themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                    theme: AntThemeData.light().toThemeData(),
+                    darkTheme: AntThemeData.dark().toThemeData(),
+                    home: const HomePage(),
+                  ),
+                );
+              },
             );
           },
         );
