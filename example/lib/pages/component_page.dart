@@ -31,6 +31,7 @@ import 'responsive_page.dart';
 import 'result_page.dart';
 import 'skeleton_page.dart';
 import 'spin_page.dart';
+import 'statistic_page.dart';
 import 'watermark_page.dart';
 import 'ellipsis_page.dart';
 import 'floating_bubble_page.dart';
@@ -174,6 +175,8 @@ class ComponentPage extends StatelessWidget {
         return const SkeletonPage();
       case 'spin':
         return const SpinPage();
+      case 'statistic':
+        return const StatisticPage();
       case 'watermark':
         return const WatermarkPage();
       case 'ellipsis':
