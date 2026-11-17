@@ -127,6 +127,46 @@ void main() {
       expect(find.byType(Container), findsNothing);
     });
 
+    testWidgets('standalone count does not expand to parent width', (tester) async {
+      await tester.pumpWidget(_wrap(const Center(
+        child: AntBadge(count: 25),
+      ),),);
+      await tester.pump();
+      // 圆角矩形徽标宽度：内容宽 + 左右对称 padding，且不超过 minWidth(20) 与
+      // 内容宽度之和；绝不可在松散宽度约束下撑满父容器（回归独立模式横撑满）。
+      final badgeFinder = find.ancestor(
+        of: find.text('25'),
+        matching: find.byType(Container),
+      );
+      expect(badgeFinder, findsOneWidget);
+      final size = tester.getSize(badgeFinder);
+      const badgeSize = 20.0;
+      // 徽标必须保持内容自适应宽度，而非在松散宽度约束下撑满父容器。
+      expect(size.width, lessThan(100));
+      expect(size.height, badgeSize);
+    });
+
+    testWidgets('standalone count number fully rendered', (tester) async {
+      await tester.pumpWidget(_wrap(const Center(
+        child: AntBadge(count: 99),
+      ),),);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      // 数字文字宽度必须完整落在徽标容器内（无裁剪/溢出）
+      final textRect = tester.getRect(find.text('99'));
+      final badgeRect = tester.getRect(find.ancestor(
+        of: find.text('99'),
+        matching: find.byType(Container),
+      ),);
+      expect(
+        badgeRect.contains(textRect.center),
+        isTrue,
+        reason: '数字中心应位于徽标容器内（文字居中且不溢出）',
+      );
+      expect(textRect.left, greaterThanOrEqualTo(badgeRect.left));
+      expect(textRect.right, lessThanOrEqualTo(badgeRect.right));
+    });
+
     testWidgets('status with child shows badge on child', (tester) async {
       await tester.pumpWidget(_wrap(const AntBadge(
         status: AntBadgeStatus.processing,

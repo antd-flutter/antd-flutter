@@ -171,26 +171,28 @@ class AntBadge extends StatelessWidget {
     final displayCount = count! > overflowCount ? '$overflowCount+' : '$count';
 
     return Container(
-      constraints: BoxConstraints(
-        minWidth: size,
-        minHeight: size,
-      ),
+      height: size,
+      constraints: BoxConstraints(minWidth: size),
       padding: EdgeInsets.symmetric(horizontal: size * 0.2),
       decoration: BoxDecoration(
         color: badgeColor,
         borderRadius: BorderRadius.circular(size / 2),
       ),
-      alignment: Alignment.center,
-      child: Text(
-        displayCount,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.6,
-          fontWeight: FontWeight.w500,
-          height: 1,
+      // widthFactor: 1 使宽度跟随内容收缩，仅受 minWidth 下限约束，
+      // 避免独立使用时在松散宽度约束（Column/Wrap）下横向撑满父容器。
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          displayCount,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.6,
+            fontWeight: FontWeight.w500,
+            height: 1,
+          ),
+          maxLines: 1,
+          textAlign: TextAlign.center,
         ),
-        maxLines: 1,
-        textAlign: TextAlign.center,
       ),
     );
   }
