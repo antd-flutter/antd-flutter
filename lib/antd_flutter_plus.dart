@@ -156,10 +156,12 @@ export 'package:antd_flutter_ui/src/display/avatar/ant_avatar_types.dart';
 // AntBadge 徽标已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/badge/ant_badge.dart';
 export 'package:antd_flutter_ui/src/display/badge/ant_badge_types.dart';
-export 'src/components/data_display/tag/ant_tag.dart';
-export 'src/components/data_display/tag/ant_tag_types.dart';
-export 'src/components/data_display/card/ant_card.dart';
-export 'src/components/data_display/card/ant_card_types.dart';
+// AntTag 标签已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/tag/ant_tag.dart';
+export 'package:antd_flutter_ui/src/display/tag/ant_tag_types.dart';
+// AntCard 卡片已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/card/ant_card.dart';
+export 'package:antd_flutter_ui/src/display/card/ant_card_types.dart';
 // Empty 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
 export 'package:antd_flutter_ui/src/display/empty/ant_empty_types.dart';

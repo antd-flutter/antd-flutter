@@ -64,6 +64,14 @@ export 'src/display/avatar/ant_avatar_types.dart';
 export 'src/display/badge/ant_badge.dart';
 export 'src/display/badge/ant_badge_types.dart';
 
+// ── Tag 标签 ────────────────────────────────────────────────
+export 'src/display/tag/ant_tag.dart';
+export 'src/display/tag/ant_tag_types.dart';
+
+// ── Card 卡片 ───────────────────────────────────────────────
+export 'src/display/card/ant_card.dart';
+export 'src/display/card/ant_card_types.dart';
+
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';
