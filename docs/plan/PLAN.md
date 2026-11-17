@@ -48,10 +48,8 @@
 
 ## 子任务索引
 
-- [ ] [P01-Git双地址推送](tasks/P01-git双地址推送.md)
 - [ ] [P02-GitCode CI与静态站点](tasks/P02-gitcode-CI与静态站点.md)
 - [ ] [P03-antd_theme桥接Flutter默认主题](tasks/P03-antd_theme桥接Flutter默认主题.md)
-- [ ] [P04-清理CHANGELOG的beta条目](tasks/P04-清理CHANGELOG的beta条目.md)
 - [ ] [P05-布局状态通知与平台信息并入主题](tasks/P05-布局状态通知与平台信息并入主题.md)
 - [ ] [P06-icons-example正式化优化](tasks/P06-icons-example正式化优化.md)
 - [ ] [P07-screenutil桌面最大宽度与等比放大](tasks/P07-screenutil桌面最大宽度与等比放大.md)
