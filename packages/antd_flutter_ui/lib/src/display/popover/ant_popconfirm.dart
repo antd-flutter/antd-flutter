@@ -242,7 +242,7 @@ class _AntPopconfirmState extends State<AntPopconfirm> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AntPopupTriggerRegion(
       onTap: _handleTap,
       child: KeyedSubtree(
         key: _childKey,

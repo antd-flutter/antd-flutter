@@ -179,18 +179,16 @@ class _AntDropdownState extends State<AntDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    Widget result = MouseRegion(
-      onEnter: (_) => _handleHoverEnter(),
-      onExit: (_) => _handleHoverExit(),
-      child: GestureDetector(
-        onTap: widget.trigger == AntDropdownTrigger.click ? _handleTap : null,
-        child: KeyedSubtree(
-          key: _childKey,
-          child: widget.child,
-        ),
+    return AntPopupTriggerRegion(
+      onTap: widget.trigger == AntDropdownTrigger.click ? _handleTap : null,
+      hoverEnabled: widget.trigger == AntDropdownTrigger.hover,
+      onHoverEnter: _handleHoverEnter,
+      onHoverExit: _handleHoverExit,
+      child: KeyedSubtree(
+        key: _childKey,
+        child: widget.child,
       ),
     );
-    return result;
   }
 }
 

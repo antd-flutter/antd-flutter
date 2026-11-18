@@ -187,15 +187,14 @@ class _AntPopoverState extends State<AntPopover> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => _handleHoverEnter(),
-      onExit: (_) => _handleHoverExit(),
-      child: GestureDetector(
-        onTap: widget.trigger == AntPopoverTrigger.click ? _handleTap : null,
-        child: KeyedSubtree(
-          key: _childKey,
-          child: widget.child,
-        ),
+    return AntPopupTriggerRegion(
+      onTap: widget.trigger == AntPopoverTrigger.click ? _handleTap : null,
+      hoverEnabled: widget.trigger == AntPopoverTrigger.hover,
+      onHoverEnter: _handleHoverEnter,
+      onHoverExit: _handleHoverExit,
+      child: KeyedSubtree(
+        key: _childKey,
+        child: widget.child,
       ),
     );
   }

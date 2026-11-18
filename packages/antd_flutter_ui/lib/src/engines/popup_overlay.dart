@@ -230,6 +230,50 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
   }
 }
 
+/// 统一触发区域（点击 + 悬停）。
+///
+/// 用 [Listener] 而非 [GestureDetector] 检测点击：Listener 不参与手势竞技场，
+/// 当触发元素是 AntButton 等自带手势识别的组件时，子组件手势仍正常生效，
+/// 同时弹层触发不会被竞技场判负（GestureDetector 会被最内层识别器抢走 tap）。
+class AntPopupTriggerRegion extends StatelessWidget {
+  const AntPopupTriggerRegion({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.onHoverEnter,
+    this.onHoverExit,
+    this.hoverEnabled = false,
+  });
+
+  /// 触发元素。
+  final Widget child;
+
+  /// 点击（指针抬起）回调。
+  final VoidCallback? onTap;
+
+  /// 鼠标移入回调（仅 [hoverEnabled] 时接线）。
+  final VoidCallback? onHoverEnter;
+
+  /// 鼠标移出回调（仅 [hoverEnabled] 时接线）。
+  final VoidCallback? onHoverExit;
+
+  /// 是否启用悬停触发。
+  final bool hoverEnabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: hoverEnabled && onHoverEnter != null ? (_) => onHoverEnter!() : null,
+      onExit: hoverEnabled && onHoverExit != null ? (_) => onHoverExit!() : null,
+      child: Listener(
+        onPointerUp: onTap == null ? null : (_) => onTap!(),
+        behavior: HitTestBehavior.opaque,
+        child: child,
+      ),
+    );
+  }
+}
+
 /// 视口矩形：MediaQuery 尺寸扣除 safe area / 额外内边距。
 Rect _viewportRect(EdgeInsets insets, Size mediaSize) {
   return Rect.fromLTRB(
