@@ -1,11 +1,11 @@
 {
-    "name": "antd_refresh_example",
-    "short_name": "antd_refresh_example",
+    "name": "AntdRefresh",
+    "short_name": "AntdRefresh",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "AntdRefresh — refresh component preview gallery.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

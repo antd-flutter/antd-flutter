@@ -1,11 +1,11 @@
 {
-    "name": "antd_qrcode_example",
-    "short_name": "antd_qrcode_example",
+    "name": "AntdQrcode",
+    "short_name": "AntdQrcode",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "AntdQrcode — QR code component preview gallery.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

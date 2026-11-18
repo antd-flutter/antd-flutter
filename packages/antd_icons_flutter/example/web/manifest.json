@@ -1,6 +1,6 @@
 {
-    "name": "Ant Design Icons for Flutter",
-    "short_name": "AntD Icons",
+    "name": "AntdIcons",
+    "short_name": "AntdIcons",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
