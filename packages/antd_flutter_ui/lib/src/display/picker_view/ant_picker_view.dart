@@ -1,6 +1,8 @@
-/// AntPickerView — antd-mobile PickerView 内嵌滚轮选择器的 Flutter 实现
+/// AntPickerView — antd-mobile PickerView 内嵌滚轮选择器的 Flutter 实现（antd_flutter_ui 基础库）
 ///
 /// 嵌入页面的多列滚轮选择器，基于 CupertinoPicker 实现 iOS 风格滚轮。
+/// 作为通用滚轮视图沉淀于 ui 基础库，供 Picker / CalendarPicker /
+/// 后续 Date/Time Picker 等组件复用。
 ///
 /// ```dart
 /// AntPickerView(
@@ -12,7 +14,7 @@
 /// ```
 library;
 
-export 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';
+export 'package:antd_flutter_ui/src/engines/wheel_column_model.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';

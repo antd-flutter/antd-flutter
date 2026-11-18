@@ -144,9 +144,10 @@ export 'src/components/data_entry/search_bar/ant_search_bar.dart';
 export 'src/components/data_entry/search_bar/ant_search_bar_types.dart';
 export 'src/components/data_entry/picker/ant_picker.dart';
 export 'src/components/data_entry/picker/ant_picker_types.dart';
-export 'src/components/data_entry/picker/ant_picker_view.dart';
-export 'src/components/data_entry/calendar_picker/ant_calendar_picker.dart';
-export 'src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart';
+// P08 拆分：AntCalendarPicker（含内嵌视图）与 AntCalendar 经独立包 antd_calendar
+// re-export；AntPickerView 已沉淀 antd_flutter_ui 基础库，经 antd_calendar
+// barrel 保持符号兼容（下方「Calendar 日历」区同样经该 re-export 覆盖）。
+export 'package:antd_calendar/antd_calendar.dart';
 
 // ============================================================
 // 数据展示 Data Display
@@ -194,8 +195,6 @@ export 'src/components/data_display/table/ant_table.dart';
 export 'src/components/data_display/table/ant_table_types.dart';
 export 'src/components/data_display/tree/ant_tree.dart';
 export 'src/components/data_display/tree/ant_tree_types.dart';
-export 'src/components/data_display/calendar/ant_calendar.dart';
-export 'src/components/data_display/calendar/ant_calendar_types.dart';
 export 'src/components/data_display/tour/ant_tour.dart';
 export 'src/components/data_display/tour/ant_tour_types.dart';
 export 'src/components/data_display/carousel/ant_carousel.dart';

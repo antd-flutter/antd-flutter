@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/calendar/ant_calendar.dart';
+import 'package:antd_calendar/antd_calendar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,10 +28,12 @@ AntCalendar _calendar({
   bool fullscreen = false,
   AntCalendarDateCellBuilder? dateCell,
   bool Function(DateTime)? disabledDate,
+  AntCalendarLayout? layout,
   Key? key,
 }) {
   return AntCalendar(
     key: key,
+    layout: layout ?? AntCalendarLayout.card,
     value: value,
     defaultValue: defaultValue,
     onSelect: onSelect,
@@ -242,7 +244,13 @@ void main() {
         _wrap(
           Column(
             children: [
-              _calendar(value: june2024, key: const Key('card')),
+              _calendar(
+                value: june2024,
+                // 测试环境无手机端 AntResponsive 断点，auto 解析为桌面形态；
+                // 本用例断言 card 形态，显式指定。
+                layout: AntCalendarLayout.card,
+                key: const Key('card'),
+              ),
             ],
           ),
         ),
@@ -266,8 +274,15 @@ void main() {
       expect(fullscreenSize.height, greaterThan(cardSize.height));
     });
 
-    testWidgets('card mode is default (compact cells)', (tester) async {
-      await tester.pumpWidget(_wrap(_calendar(value: june2024)));
+    testWidgets('card mode renders compact cells', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _calendar(
+            value: june2024,
+            layout: AntCalendarLayout.card,
+          ),
+        ),
+      );
       final containers = tester.widgetList<Container>(
         find.byWidgetPredicate(
           (w) => w is Container && w.constraints?.minHeight != null,

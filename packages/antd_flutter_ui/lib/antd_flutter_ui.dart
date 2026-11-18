@@ -13,6 +13,7 @@ library;
 export 'src/engines/wheel_column_model.dart';
 export 'src/engines/wheel_picker_engine.dart';
 export 'src/engines/keyboard_input_model.dart';
+export 'src/engines/calendar_grid_engine.dart';
 
 // ── 基础层 ────────────────────────────────────────────────
 export 'src/basic/button/ant_button.dart';
@@ -97,3 +98,6 @@ export 'src/display/segmented/ant_segmented_types.dart';
 // ── Image 图片 ─────────────────────────────────────────────
 export 'src/display/image/ant_image.dart';
 export 'src/display/image/ant_image_types.dart';
+
+// ── PickerView 内嵌滚轮选择器（通用滚轮视图，供 Picker/CalendarPicker 等） ──
+export 'src/display/picker_view/ant_picker_view.dart';

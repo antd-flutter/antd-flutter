@@ -11,7 +11,7 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_view.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';

@@ -1,7 +1,7 @@
 /// AntCalendarPicker — antd-mobile CalendarPicker 日历选择器的 Flutter 实现。
 ///
 /// 提供内嵌视图（AntCalendarPickerView）和底部弹窗（AntCalendarPicker）两种形态，
-/// 支持单选和范围选择模式。
+/// 支持单选和范围选择模式。内嵌视图支持左右滑动手势翻月（antd-mobile 惯例）。
 ///
 /// ```dart
 /// AntCalendarPicker(
@@ -12,11 +12,15 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart';
+import 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
+import 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/calendar_picker/ant_calendar_picker_types.dart';
+export 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
+export 'package:antd_calendar/src/calendar/ant_calendar_types.dart'
+    show AntCalendarSelectionMode, AntCalendarWeekStartsOn;
 
 // ============================================================
 // AntCalendarPickerView — 内嵌日历视图
@@ -34,10 +38,14 @@ class AntCalendarPickerView extends StatefulWidget {
     this.max,
     this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
     this.allowClear = true,
+    this.locale,
   });
 
   /// 选择模式。
   final AntCalendarSelectionMode selectionMode;
+
+  /// 国际化文案；null 时经 [AntCalendarLocaleProvider] 注入读取，回退中文预设。
+  final AntCalendarLocale? locale;
 
   /// 受控值（单选 0~1 个元素，范围 0~2 个元素）。
   final List<DateTime>? value;
@@ -168,18 +176,12 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
     });
   }
 
-  List<DateTime> _getDaysInMonth() {
-    final first = DateTime(_currentMonth.year, _currentMonth.month, 1);
-    final offset = widget.weekStartsOn == AntCalendarWeekStartsOn.monday
-        ? first.weekday - 1
-        : first.weekday % 7;
-    final start = first.subtract(Duration(days: offset));
-    final daysInMonth =
-        DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
-    final totalCells =
-        ((offset + daysInMonth) / 7).ceil() * 7;
-    return List.generate(totalCells, (i) => start.add(Duration(days: i)));
-  }
+  /// 月份网格计算委托 ui 日历网格引擎（紧凑自适应整周行数）。
+  List<DateTime> _getDaysInMonth() => buildCalendarCompactMonthGrid(
+        _currentMonth,
+        weekStartsOnMonday:
+            widget.weekStartsOn == AntCalendarWeekStartsOn.monday,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -188,9 +190,11 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
     final today = _dateOnly(DateTime.now());
     final selected = _currentValue.map(_dateOnly).toList();
 
-    final weekLabels = widget.weekStartsOn == AntCalendarWeekStartsOn.monday
-        ? const ['一', '二', '三', '四', '五', '六', '日']
-        : const ['日', '一', '二', '三', '四', '五', '六'];
+    final loc = widget.locale ?? AntCalendarLocale.of(context);
+    final weekLabels = loc.weekLabelsFor(
+      weekStartsOnMonday:
+          widget.weekStartsOn == AntCalendarWeekStartsOn.monday,
+    );
 
     final isRange = widget.selectionMode == AntCalendarSelectionMode.range;
     final hasRange = isRange && selected.length == 2;
@@ -212,6 +216,20 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
           DateTime(_currentMonth.year, _currentMonth.month + 1),
           DateTime(widget.max!.year, widget.max!.month),
         );
+
+    final grid = Column(
+      children: List.generate(
+        (days.length / 7).ceil(),
+        (row) => Row(
+          children: List.generate(7, (col) {
+            final day = days[row * 7 + col];
+            return Expanded(
+              child: _buildDayCell(t, day, today, isStart, isEnd, isMiddle, isSingleSelected),
+            );
+          }),
+        ),
+      ),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -257,19 +275,17 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
             }).toList(),
           ),
         ),
-        // 日期网格
-        Column(
-          children: List.generate(
-            (days.length / 7).ceil(),
-            (row) => Row(
-              children: List.generate(7, (col) {
-                final day = days[row * 7 + col];
-                return Expanded(
-                  child: _buildDayCell(t, day, today, isStart, isEnd, isMiddle, isSingleSelected),
-                );
-              }),
-            ),
-          ),
+        // 日期网格（支持左右滑动手势翻月）
+        GestureDetector(
+          onHorizontalDragEnd: (details) {
+            final v = details.primaryVelocity ?? 0;
+            if (v < 0) {
+              _goToMonth(1);
+            } else if (v > 0) {
+              _goToMonth(-1);
+            }
+          },
+          child: grid,
         ),
       ],
     );
@@ -387,18 +403,22 @@ class AntCalendarPicker extends StatefulWidget {
     this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
     this.allowClear = true,
     this.title,
-    this.confirmText = '确定',
-    this.cancelText = '取消',
+    this.confirmText,
+    this.cancelText,
     this.onConfirm,
     this.onCancel,
     this.visible,
     this.onClose,
     this.closeOnMaskClick = true,
     this.child,
+    this.locale,
   });
 
   /// 选择模式。
   final AntCalendarSelectionMode selectionMode;
+
+  /// 国际化文案；null 时经 [AntCalendarLocaleProvider] 注入读取，回退中文预设。
+  final AntCalendarLocale? locale;
 
   /// 受控值。
   final List<DateTime>? value;
@@ -424,11 +444,11 @@ class AntCalendarPicker extends StatefulWidget {
   /// 面板标题。
   final String? title;
 
-  /// 确认按钮文本。
-  final String confirmText;
+  /// 确认按钮文本；null 时取 locale 确认文案。
+  final String? confirmText;
 
-  /// 取消按钮文本。
-  final String cancelText;
+  /// 取消按钮文本；null 时取 locale 取消文案。
+  final String? cancelText;
 
   /// 确认回调。
   final ValueChanged<List<DateTime>>? onConfirm;
@@ -482,6 +502,7 @@ class _AntCalendarPickerState extends State<AntCalendarPicker> {
 
   void _open() {
     final themeData = AntTheme.of(context);
+    final loc = widget.locale ?? AntCalendarLocale.of(context);
     _currentValue = List<DateTime>.from(_lastConfirmed ?? []);
     showModalBottomSheet<void>(
       context: context,
@@ -497,8 +518,8 @@ class _AntCalendarPickerState extends State<AntCalendarPicker> {
         return _CalendarSheet(
           themeData: themeData,
           title: widget.title,
-          confirmText: widget.confirmText,
-          cancelText: widget.cancelText,
+          confirmText: widget.confirmText ?? loc.effectiveConfirmText,
+          cancelText: widget.cancelText ?? loc.effectiveCancelText,
           selectionMode: widget.selectionMode,
           value: _currentValue,
           min: widget.min,

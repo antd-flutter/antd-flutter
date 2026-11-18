@@ -1,4 +1,4 @@
-/// AntPicker / AntPickerView widget tests
+/// AntPicker widget tests（AntPickerView 已迁 antd_flutter_ui）
 library;
 
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
@@ -13,12 +13,6 @@ const _seasons = <AntPickerColumnItem>[
   AntPickerColumnItem(label: '冬', value: 'winter'),
 ];
 
-const _weekdays = <AntPickerColumnItem>[
-  AntPickerColumnItem(label: '周一', value: 'mon'),
-  AntPickerColumnItem(label: '周二', value: 'tue'),
-  AntPickerColumnItem(label: '周三', value: 'wed'),
-];
-
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
         home: Scaffold(
@@ -31,86 +25,6 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
     );
 
 void main() {
-  group('AntPickerView', () {
-    testWidgets('renders column items', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(columns: [_seasons]),
-      ),);
-      expect(find.text('春'), findsOneWidget);
-      expect(find.text('夏'), findsOneWidget);
-      expect(find.text('秋'), findsOneWidget);
-      expect(find.text('冬'), findsOneWidget);
-    });
-
-    testWidgets('renders multiple columns', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(columns: [_seasons, _weekdays]),
-      ),);
-      expect(find.text('春'), findsOneWidget);
-      expect(find.text('周一'), findsOneWidget);
-    });
-
-    testWidgets('defaultValue selects correct item', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(
-          columns: [_seasons],
-          defaultValue: ['autumn'],
-        ),
-      ),);
-      await tester.pumpAndSettle();
-      // The selected item should be '秋' (autumn at index 2)
-      // CupertinoPicker centers the selected item
-      final picker = tester.widget<CupertinoPicker>(find.byType(CupertinoPicker));
-      expect(picker.scrollController!.initialItem, 2);
-    });
-
-    testWidgets('controlled value selects correct item', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(
-          columns: [_seasons],
-          value: ['winter'],
-        ),
-      ),);
-      await tester.pumpAndSettle();
-      final picker = tester.widget<CupertinoPicker>(find.byType(CupertinoPicker));
-      expect(picker.scrollController!.initialItem, 3);
-    });
-
-    testWidgets('null value defaults to first item', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(columns: [_seasons]),
-      ),);
-      final picker = tester.widget<CupertinoPicker>(find.byType(CupertinoPicker));
-      expect(picker.scrollController!.initialItem, 0);
-    });
-
-    testWidgets('invalid value defaults to first item', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntPickerView(
-          columns: [_seasons],
-          defaultValue: ['nonexistent'],
-        ),
-      ),);
-      final picker = tester.widget<CupertinoPicker>(find.byType(CupertinoPicker));
-      expect(picker.scrollController!.initialItem, 0);
-    });
-
-    testWidgets('onChange fires on scroll', (tester) async {
-      List<String?>? changed;
-      await tester.pumpWidget(_wrap(
-        AntPickerView(
-          columns: [_seasons],
-          onChange: (vals) => changed = vals,
-        ),
-      ),);
-      // Drag the picker down to select next item
-      await tester.drag(find.byType(CupertinoPicker), const Offset(0, -40));
-      await tester.pumpAndSettle();
-      expect(changed, isNotNull);
-      expect(changed!.first, 'summer');
-    });
-  });
-
   group('AntPicker', () {
     testWidgets('renders trigger child', (tester) async {
       await tester.pumpWidget(_wrap(
