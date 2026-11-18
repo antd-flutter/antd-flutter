@@ -138,7 +138,7 @@ class _AntSegmentedState extends State<AntSegmented> {
     // 水平：轨道定高（32.w）；垂直 inline / block：宽度取最宽项（IntrinsicWidth，
     // hug 内容；父级给出有界宽度时仍遵父级，外部 SizedBox 可控宽），
     // 垂直 block：高度 = 项数 × 单项轨道高（紧约束）。
-    // 注意不能用 IntrinsicHeight：block 的 Stack 子节点均为 Positioned.fill，
+    // 注意不能用 IntrinsicHeight：block 的选项层为 Expanded 填充，
     // 固有高度为 0，会导致轨道高度塌陷、选项被压扁。
     Widget child = track;
     if (_isVertical) {
@@ -163,7 +163,12 @@ class _AntSegmentedState extends State<AntSegmented> {
   }
 
   Widget _buildBlock(AntThemeData theme) {
+    // 选项层作为非 positioned 基础子节点：为 Stack 提供固有宽度（垂直模式
+    // IntrinsicWidth hug 最宽 label 的依据），同时绘制在滑块之上（文字不被遮盖）。
+    // 滑块 Positioned.fill 置底，仅作背景高亮。
+    // StackFit.expand 保证有界宽度（外部 SizedBox）紧约束下选项层撑满。
     return Stack(
+      fit: StackFit.expand,
       children: [
         Positioned.fill(
           child: _Slider(
@@ -176,25 +181,23 @@ class _AntSegmentedState extends State<AntSegmented> {
             vertical: _isVertical,
           ),
         ),
-        Positioned.fill(
-          child: Flex(
-            direction: _isVertical ? Axis.vertical : Axis.horizontal,
-            children: [
-              for (var i = 0; i < _items.length; i++)
-                Expanded(
-                  child: _SegmentItem(
-                    item: _items[i],
-                    selected: i == _indexOf(_selectedValue),
-                    disabled: widget.disabled || _items[i].disabled,
-                    theme: theme,
-                    size: widget.size,
-                    withBackground: false,
-                    vertical: _isVertical,
-                    onTap: () => _handleTap(_items[i]),
-                  ),
+        Flex(
+          direction: _isVertical ? Axis.vertical : Axis.horizontal,
+          children: [
+            for (var i = 0; i < _items.length; i++)
+              Expanded(
+                child: _SegmentItem(
+                  item: _items[i],
+                  selected: i == _indexOf(_selectedValue),
+                  disabled: widget.disabled || _items[i].disabled,
+                  theme: theme,
+                  size: widget.size,
+                  withBackground: false,
+                  vertical: _isVertical,
+                  onTap: () => _handleTap(_items[i]),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ],
     );
@@ -350,16 +353,20 @@ class _SegmentItem extends StatelessWidget {
           if (item.label?.isNotEmpty ?? false) SizedBox(width: 4.w),
         ],
         if (item.label?.isNotEmpty ?? false)
-          Text(
-            item.label!,
-            style: TextStyle(
-              fontSize: fontSize.sp,
-              color: fg,
-              fontWeight: selected && !disabled ? FontWeight.w500 : FontWeight.w400,
-              height: 1.0,
+          // Flexible：外部宽度小于内容宽时省略号截断，避免 Row 溢出异常；
+          // 固有宽度计算不受影响（hug 内容语义不变）。
+          Flexible(
+            child: Text(
+              item.label!,
+              style: TextStyle(
+                fontSize: fontSize.sp,
+                color: fg,
+                fontWeight: selected && !disabled ? FontWeight.w500 : FontWeight.w400,
+                height: 1.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
       ],
     );

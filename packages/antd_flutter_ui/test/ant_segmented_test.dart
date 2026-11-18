@@ -319,8 +319,60 @@ void main() {
       // 四项垂直高度应约为单项水平轨道高的 4 倍
       expect(size.height, greaterThan(refHeight * 3));
       expect(size.height, lessThan(refHeight * 5));
-      // block 宽度撑满可用宽度，不塌陷
-      expect(size.width, greaterThan(100));
+      // 无界宽度（Center）下 hug 最宽项内容，不塌陷为 0、不溢出
+      expect(size.width, greaterThan(20));
+    });
+
+    testWidgets('vertical block width hugs widest label content',
+        (tester) async {
+      // 不同父容器宽度（松约束）下轨道宽一致 → hug 内容，不强制撑满
+      Future<double> pumpHugWidth(double parentMaxWidth) async {
+        await tester.pumpWidget(
+          _wrap(SizedBox(
+            width: parentMaxWidth,
+            child: const Align(
+              alignment: Alignment.topLeft,
+              child: AntSegmented(
+                options: ['日', '周', '月', '年'],
+                block: true,
+                direction: AntSegmentedDirection.vertical,
+              ),
+            ),
+          ),),
+        );
+        await tester.pumpAndSettle();
+        return tester.getSize(find.byType(AntSegmented)).width;
+      }
+
+      final hug300 = await pumpHugWidth(300);
+      final hug800 = await pumpHugWidth(800);
+      // hug 基准与上面 300 宽松约束一致
+      // 容器变宽，轨道宽不变（自适应内容宽）
+      expect(hug300, closeTo(hug800, 0.5));
+      // hug 内容宽（约一个 label + 内边距），不强制撑满父容器、不塌陷
+      expect(hug300, greaterThan(20));
+      expect(hug300, lessThan(200));
+    });
+
+    testWidgets('vertical block respects external SizedBox width',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const SizedBox(
+          width: 160,
+          child: AntSegmented(
+            options: ['日', '周', '月', '年'],
+            block: true,
+            direction: AntSegmentedDirection.vertical,
+          ),
+        ),),
+      );
+      await tester.pumpAndSettle();
+      // 用户设置宽度生效：轨道宽 = 160（有界约束遵父级）
+      expect(
+        tester.getRect(find.byType(AntSegmented)).width,
+        closeTo(160, 0.5),
+      );
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('vertical block slider occupies selected item slot',
@@ -367,6 +419,73 @@ void main() {
       await tester.pumpAndSettle();
       expect(_sliderAlignment(tester).y, closeTo(0, 0.01));
       expect(_sliderAlignment(tester).x, lessThan(-0.5));
+    });
+
+    group('vertical block no horizontal overflow', () {
+      // 收集布局阶段报出的所有错误（溢出错误经 FlutterError.onError 上报，
+      // 不抛异常，takeException 只能取到第一个）。
+      Future<List<FlutterErrorDetails>> pumpSegmented(
+        WidgetTester tester,
+        Widget child,
+      ) async {
+        final errors = <FlutterErrorDetails>[];
+        final originalOnError = FlutterError.onError;
+        FlutterError.onError = (details) => errors.add(details);
+        addTearDown(() => FlutterError.onError = originalOnError);
+        await tester.pumpWidget(_wrap(child));
+        await tester.pumpAndSettle();
+        return errors;
+      }
+
+      const verticalBlock = AntSegmented(
+        options: ['日', '周', '月', '年'],
+        direction: AntSegmentedDirection.vertical,
+        block: true,
+      );
+
+      testWidgets('160-wide container renders without overflow', (tester) async {
+        final errors = await pumpSegmented(
+          tester,
+          const SizedBox(width: 160, child: verticalBlock),
+        );
+        // 验收回归：RIGHT OVERFLOWED BY 22 PIXELS —— 必须零溢出
+        expect(errors, isEmpty);
+        expect(tester.takeException(), isNull);
+
+        final track = tester.getRect(find.byType(AntSegmented));
+        expect(track.width, closeTo(160, 0.5));
+        // 白色滑块必须被轨道包住，不塌陷为 0
+        final slider = tester.getRect(
+          find.ancestor(
+            of: find.byType(AnimatedContainer).first,
+            matching: find.byType(FractionallySizedBox),
+          ),
+        );
+        expect(slider.width, greaterThan(0));
+        expect(slider.right, lessThanOrEqualTo(track.right + 0.5));
+
+        // 每个选项文字都落在轨道水平范围内
+        for (final label in const ['日', '周', '月', '年']) {
+          final rect = tester.getRect(find.text(label));
+          expect(rect.left, greaterThanOrEqualTo(track.left - 0.5));
+          expect(rect.right, lessThanOrEqualTo(track.right + 0.5));
+        }
+      });
+
+      testWidgets('unbounded-width parent (Row child) hugs content, '
+          'no collapse no overflow', (tester) async {
+        final errors = await pumpSegmented(
+          tester,
+          const Column(children: [Row(children: [verticalBlock])]),
+        );
+        expect(errors, isEmpty);
+        expect(tester.takeException(), isNull);
+
+        final size = tester.getSize(find.byType(AntSegmented));
+        // 不塌陷为 0（约等于最宽项内容 + 轨道 padding），也不溢出
+        expect(size.width, greaterThan(20));
+        expect(size.height, greaterThan(120));
+      });
     });
 
     group('horizontal block width adapts to parent', () {

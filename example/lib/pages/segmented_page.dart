@@ -146,34 +146,30 @@ class _SegmentedPageState extends State<SegmentedPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 垂直形态用固定窄宽呈现（Expanded 拉伸会变成超宽竖排，观感错误）
-                SizedBox(
-                  width: 160.w,
-                  child: AntSegmented(
-                    options: const ['列表', '看板', '日历'],
-                    direction: AntSegmentedDirection.vertical,
-                    onChange: (v) => _showMsg(context, '方向：$v'),
-                  ),
+                // 默认 hug 内容宽度（自适应最宽项），不强制撑满父容器
+                AntSegmented(
+                  options: const ['列表', '看板', '日历'],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, '方向：$v'),
                 ),
                 SizedBox(width: 24.w),
-                SizedBox(
-                  width: 64.w,
-                  child: AntSegmented(
-                    options: const [
-                      AntSegmentedItem(
-                        value: 'list',
-                        icon: AntdIcon(AntIcons.barsOutlined),
-                      ),
-                      AntSegmentedItem(
-                        value: 'kanban',
-                        icon: AntdIcon(AntIcons.appstoreOutlined),
-                      ),
-                    ],
-                    direction: AntSegmentedDirection.vertical,
-                    onChange: (v) => _showMsg(context, 'icon-only：$v'),
-                  ),
+                // icon-only：无宽度约束，同样 hug 内容
+                AntSegmented(
+                  options: const [
+                    AntSegmentedItem(
+                      value: 'list',
+                      icon: AntdIcon(AntIcons.barsOutlined),
+                    ),
+                    AntSegmentedItem(
+                      value: 'kanban',
+                      icon: AntdIcon(AntIcons.appstoreOutlined),
+                    ),
+                  ],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, 'icon-only：$v'),
                 ),
                 SizedBox(width: 24.w),
+                // 外部 SizedBox 可自行设置宽度（有界约束生效，不足处省略号）
                 SizedBox(
                   width: 160.w,
                   child: AntSegmented(
