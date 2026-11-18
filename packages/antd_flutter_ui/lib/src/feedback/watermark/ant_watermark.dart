@@ -220,7 +220,7 @@ class _AntWatermarkState extends State<AntWatermark>
       return Stack(
         key: kAntWatermarkLayerKey,
         fit: StackFit.expand,
-        children: [overlay],
+        children: [ClipRect(child: overlay)],
       );
     }
     return Stack(
