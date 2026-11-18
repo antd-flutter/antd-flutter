@@ -16,6 +16,10 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  'picker_view',
+  'popover',
+  'popconfirm',
+  'dropdown',
 ];
 const kMigratedVerified = <String>[
   'image',
