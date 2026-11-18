@@ -368,5 +368,65 @@ void main() {
       expect(_sliderAlignment(tester).y, closeTo(0, 0.01));
       expect(_sliderAlignment(tester).x, lessThan(-0.5));
     });
+
+    group('horizontal block width adapts to parent', () {
+      // 读取滑块（FractionallySizedBox）的矩形。
+      Rect sliderRect(WidgetTester tester) => tester.getRect(
+            find.ancestor(
+              of: find.byType(AnimatedContainer).first,
+              matching: find.byType(FractionallySizedBox),
+            ),
+          );
+
+      Future<void> pumpBlockInWidth(WidgetTester tester, double width) async {
+        await tester.pumpWidget(
+          _wrap(
+            SizedBox(
+              width: width,
+              child: const AntSegmented(
+                options: ['A', 'B', 'C'],
+                block: true,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('track fills 400-wide and 800-wide containers',
+          (tester) async {
+        await pumpBlockInWidth(tester, 400);
+        expect(tester.getRect(find.byType(AntSegmented)).width, closeTo(400, 1));
+
+        await pumpBlockInWidth(tester, 800);
+        expect(tester.getRect(find.byType(AntSegmented)).width, closeTo(800, 1));
+      });
+
+      testWidgets('slider x position scales proportionally with width',
+          (tester) async {
+        await pumpBlockInWidth(tester, 400);
+        final track400 = tester.getRect(find.byType(AntSegmented));
+        // 3 项、首项选中：滑块中心相对轨道 x = 400 * 1/6
+        expect(
+          sliderRect(tester).center.dx - track400.left,
+          closeTo(400 / 6, 2.5),
+        );
+
+        await pumpBlockInWidth(tester, 800);
+        final track800 = tester.getRect(find.byType(AntSegmented));
+        expect(
+          sliderRect(tester).center.dx - track800.left,
+          closeTo(800 / 6, 2.5),
+        );
+
+        // 切到第 2 项：滑块中心相对轨道 x = 宽度 * 3/6
+        await tester.tap(find.text('B'));
+        await tester.pumpAndSettle();
+        expect(
+          sliderRect(tester).center.dx - track800.left,
+          closeTo(800 / 2, 1),
+        );
+      });
+    });
   });
 }

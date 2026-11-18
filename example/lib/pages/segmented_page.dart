@@ -42,6 +42,8 @@ class _SegmentedPageState extends State<SegmentedPage> {
           _Section(
             title: 'Block 占满整行',
             theme: theme,
+            // block 模式随父容器宽度自适应，卡片不限宽以便演示窗口拉伸。
+            fullWidth: true,
             child: AntSegmented(
               options: const ['列表', '看板', '日历'],
               block: true,
@@ -192,18 +194,29 @@ class _SegmentedPageState extends State<SegmentedPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+    this.fullWidth = false,
+  });
 
   final String title;
   final AntThemeData theme;
   final Widget child;
 
+  /// 是否不限宽（block 等自适应组件的演示需要跟随窗口宽度伸缩）。
+  final bool fullWidth;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      // 桌面宽窗口下限宽卡片，避免 demo 区块被拉得过宽影响观感。
-      constraints: BoxConstraints(maxWidth: 560.w),
+      // 桌面宽窗口下限宽卡片，避免 demo 区块被拉得过宽影响观感；
+      // fullWidth 的卡片不限宽，保证 block 组件宽度自适应可验证。
+      constraints: fullWidth
+          ? null
+          : BoxConstraints(maxWidth: 560.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
