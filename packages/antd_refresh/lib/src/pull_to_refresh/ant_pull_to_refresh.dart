@@ -203,6 +203,45 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
   /// 内层可滚动组件最近一次的滚动度量（判定是否在拉动边缘）。
   ScrollMetrics? _lastMetrics;
 
+  /// Bouncing 系物理过冲进行中标记：过冲把 pixels 写出滚动范围
+  /// （不产生 OverscrollNotification），期间以滚动度量同步头部位移；
+  /// ScrollEnd 时用峰值做释放决策（弹回动画会在 ScrollEnd 前把 pixels
+  /// 拉回范围内，不能用实时值）。
+  /// 本次手势的物理过冲峰值。
+  double _physicsMaxAmount = 0;
+
+  /// 从滚动度量同步 Bouncing 过冲位移（iOS/macOS/web Bouncing 物理路径）。
+  void _syncPhysicsOverscroll(ScrollUpdateNotification notification) {
+    final ScrollMetrics metrics = notification.metrics;
+    if (!widget.enableRefresh) return;
+    final bool beyond = _isTop
+        ? metrics.pixels < metrics.minScrollExtent
+        : metrics.pixels > metrics.maxScrollExtent;
+    if (beyond) {
+      final double amount = _isTop
+          ? metrics.minScrollExtent - metrics.pixels
+          : metrics.pixels - metrics.maxScrollExtent;
+      if (amount > _physicsMaxAmount) _physicsMaxAmount = amount;
+      if (amount > 0 && _indicator.canPull) {
+        _indicator.syncOverscroll(amount);
+      }
+    }
+  }
+
+  /// 物理过冲手势结束：按峰值做释放决策（过阈值刷新，否则回弹）。
+  void _endPhysicsOverscroll() {
+    if (_physicsMaxAmount <= 0) return;
+    final double amount = _physicsMaxAmount;
+    _physicsMaxAmount = 0;
+    if (!widget.enableRefresh || !_indicator.canPull) return;
+    if (amount >= widget.threshold && widget.onRefresh != null) {
+      _indicator.runRefresh(widget.onRefresh);
+    } else {
+      _indicator.syncOverscroll(0);
+      _indicator.animateTo(0);
+    }
+  }
+
   /// 滚轮停止滚动 → 触发 release 的延时计时器。
   Timer? _wheelSettleTimer;
 
@@ -311,6 +350,9 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
       _lastMetrics = notification.metrics;
     } else if (notification is ScrollUpdateNotification) {
       _lastMetrics = notification.metrics;
+      // Bouncing 系物理过冲（真机 iOS/macOS）：过冲不走 OverscrollNotification，
+      // 从滚动度量同步头部位移（Clamping 平台 metrics 在范围内，不触发）。
+      _syncPhysicsOverscroll(notification);
     }
     if (notification is! ScrollNotification) return false;
 
@@ -326,6 +368,12 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
       return false;
     }
     if (notification is ScrollEndNotification) {
+      // 物理过冲手势结束：按峰值决策（Bouncing 弹回会在本通知前把
+      // pixels 拉回范围内，实时 offset 已不可用）。
+      if (_physicsMaxAmount > 0) {
+        _endPhysicsOverscroll();
+        return false;
+      }
       // 滚轮每个 tick 都会产生 ScrollEndNotification（pointerScroll
       // 内部 didStartScroll/didEndScroll），滚轮拉动由停止计时触发
       // release，不能在这里提前回弹。

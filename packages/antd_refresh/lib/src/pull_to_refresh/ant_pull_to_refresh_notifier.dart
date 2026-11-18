@@ -47,6 +47,9 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
   /// 当前回弹动画（Tween 驱动，见 [animateTo]）。
   Animation<double>? _offsetAnimation;
 
+  /// 当前动画目标位移（0 = 回弹复位，到位后状态机回 idle）。
+  double _animTarget = 0;
+
   AntPullToRefreshStatus _mode = AntPullToRefreshStatus.idle;
 
   /// 当前头部状态。
@@ -146,6 +149,31 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
     _accumulate(step);
   }
 
+  /// 物理层过冲同步（Bouncing 系物理：过冲直接写入 pixels 超出范围，
+  /// 不产生 OverscrollNotification，由组件层从滚动度量换算位移后同步）。
+  ///
+  /// [amount] 为过冲量（拉动方向为正）；≤0 表示已回到范围内（回弹/回拉），
+  /// 位移清零并回 idle。刷新中/完成阶段不响应（由 runRefresh 接管动画）。
+  void syncOverscroll(double amount) {
+    if (!canPull) return;
+    if (amount <= 0) {
+      if (_offset > 0) {
+        _offset = 0;
+        wheelDriven = false;
+        _setMode(AntPullToRefreshStatus.idle);
+        notifyListeners();
+      }
+      return;
+    }
+    _offset = amount.clamp(0.0, _headHeight * maxPullFactor);
+    _setMode(
+      _offset >= _threshold
+          ? AntPullToRefreshStatus.canRelease
+          : AntPullToRefreshStatus.pulling,
+    );
+    notifyListeners();
+  }
+
   /// 松手：超过阈值触发刷新，否则回弹（滚动结束路径）。
   void release(Future<void> Function()? onRefresh) {
     wheelDriven = false;
@@ -184,6 +212,7 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
   /// 回弹到目标位移（Notifier 内部持有动画控制器，
   /// 对应 ER IndicatorNotifier 的 clamping 动画控制器思路）。
   void animateTo(double target) {
+    _animTarget = target;
     _offsetAnimation = Tween<double>(
       begin: _offset,
       end: target,
@@ -200,6 +229,13 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
     final anim = _offsetAnimation;
     if (anim == null) return;
     _offset = anim.value;
+    // 回弹复位动画（目标 0）到位后状态机回 idle：complete/pulling/canRelease
+    // 残留会让 canPull 恒为 false，导致后续手势永久失效。
+    // （展开动画目标 > 0，不能复位。）
+    if (_animTarget <= 0 && _offset <= 0 && _mode != AntPullToRefreshStatus.idle) {
+      wheelDriven = false;
+      _setMode(AntPullToRefreshStatus.idle);
+    }
     notifyListeners();
   }
 

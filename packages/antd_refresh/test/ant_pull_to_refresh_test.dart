@@ -540,8 +540,9 @@ void main() {
         expect(statuses, contains(AntPullToRefreshStatus.refreshing));
         await tester.pumpAndSettle();
         expect(refreshed, isTrue);
-        // 刷新后回弹：头部与转圈均消失，内容回到原位。
-        expect(statuses.last, AntPullToRefreshStatus.complete);
+        // 刷新后回弹：状态机经 complete 回到 idle（后续手势可用）。
+        expect(statuses, contains(AntPullToRefreshStatus.complete));
+        expect(statuses.last, AntPullToRefreshStatus.idle);
         expect(find.byType(CircularProgressIndicator), findsNothing);
         expect(find.text('item 0'), findsOneWidget);
       });
@@ -596,6 +597,81 @@ void main() {
         await tester.pumpAndSettle();
         expect(refreshedA, isTrue);
         expect(refreshedB, isFalse);
+      });
+    });
+
+    group('physics overscroll (Bouncing)', () {
+      /// 构建 BouncingScrollPhysics 列表（模拟真机 iOS/macOS 物理路径：
+      /// 过冲直接写 pixels 出界，不产生 OverscrollNotification）。
+      Widget buildBouncing({
+        Future<void> Function()? onRefresh,
+        ValueChanged<AntPullToRefreshStatus>? pullStatusChange,
+      }) {
+        return SizedBox(
+          height: 300,
+          child: AntPullToRefresh(
+            onRefresh: onRefresh,
+            pullStatusChange: pullStatusChange,
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: 100,
+              itemBuilder: (context, index) =>
+                  ListTile(title: Text('item $index')),
+            ),
+          ),
+        );
+      }
+
+      testWidgets(
+          'Bouncing physics: touch pull beyond top shows header and refreshes',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        var refreshed = false;
+        final statuses = <AntPullToRefreshStatus>[];
+        await tester.pumpWidget(
+          _wrap(buildBouncing(
+            onRefresh: () async {
+              refreshed = true;
+              await Future<void>.delayed(const Duration(milliseconds: 50));
+            },
+            pullStatusChange: statuses.add,
+          ),),
+        );
+        await tester.drag(find.byType(ListView), const Offset(0, 150));
+        await tester.pump();
+        // 过冲经滚动度量同步进状态机（不走 OverscrollNotification）。
+        expect(statuses, contains(AntPullToRefreshStatus.pulling));
+        expect(statuses, contains(AntPullToRefreshStatus.canRelease));
+        await tester.pumpAndSettle();
+        expect(refreshed, isTrue);
+      });
+
+      testWidgets('refresh can be triggered again after complete (idle reset)',
+          (tester) async {
+        var refreshCount = 0;
+        final statuses = <AntPullToRefreshStatus>[];
+        await tester.pumpWidget(
+          _wrap(_buildList(
+            onRefresh: () async {
+              refreshCount++;
+              await Future<void>.delayed(const Duration(milliseconds: 50));
+            },
+            pullStatusChange: statuses.add,
+          ),),
+        );
+        // 第一次刷新
+        await tester.drag(find.byType(ListView), const Offset(0, 80));
+        await tester.pumpAndSettle();
+        expect(refreshCount, 1);
+        expect(statuses, contains(AntPullToRefreshStatus.complete));
+        await tester.pumpAndSettle();
+        // 回弹归零后状态机必须回到 idle，否则后续手势永久失效
+        expect(statuses.last, AntPullToRefreshStatus.idle);
+        // 第二次下拉仍能触发
+        await tester.drag(find.byType(ListView), const Offset(0, 80));
+        await tester.pumpAndSettle();
+        expect(refreshCount, 2);
       });
     });
 

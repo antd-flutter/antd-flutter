@@ -274,6 +274,29 @@ void main() {
       expect(callCount, 0);
     });
 
+    testWidgets('idle with more data does not render persistent footer',
+        (tester) async {
+      // 短列表：初始自动加载一次后正确复位，footer 不常驻。
+      var loadCount = 0;
+      await tester.pumpWidget(_wrap(
+        _scrollable(
+          child: AntInfiniteScroll(
+            hasMoreText: '上拉看更多',
+            loadMore: () async {
+              loadCount++;
+              return true;
+            },
+            child: const Column(children: [Text('内容')]),
+          ),
+        ),
+      ),);
+      await tester.pumpAndSettle();
+      // 首帧在底部（内容不足一屏）触发一次加载。
+      expect(loadCount, 1);
+      // 加载完成回 idle：不渲染常驻「还有更多」footer。
+      expect(find.text('上拉看更多'), findsNothing);
+    });
+
     testWidgets('supports custom texts', (tester) async {
       final completer = Completer<bool>();
       await tester.pumpWidget(_wrap(

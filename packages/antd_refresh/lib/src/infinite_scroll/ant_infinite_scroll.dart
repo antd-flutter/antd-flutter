@@ -210,6 +210,9 @@ class _AntInfiniteScrollState extends State<AntInfiniteScroll> {
   }
 
   /// 底部状态区：加载中 / 失败重试 / 没有更多 / 还有更多。
+  ///
+  /// idle 且还有更多时不渲染常驻提示（对齐 antd-mobile：footer 仅在
+  /// 加载中 / 失败 / 没有更多三个状态展示，避免未触发时底部常驻占位）。
   Widget _buildFooter(BuildContext context) {
     final theme = AntTheme.of(context);
     final style = TextStyle(
@@ -278,13 +281,7 @@ class _AntInfiniteScrollState extends State<AntInfiniteScroll> {
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.w),
-      child: Text(
-        widget.hasMoreText ?? AntInfiniteScrollDefaults.hasMoreText,
-        style: style,
-        textAlign: TextAlign.center,
-      ),
-    );
+    // idle 且还有更多：不渲染常驻 footer。
+    return const SizedBox.shrink();
   }
 }
