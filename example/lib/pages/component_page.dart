@@ -28,7 +28,6 @@ import 'popconfirm_page.dart';
 import 'progress_page.dart';
 import 'screen_util_page.dart';
 import 'responsive_page.dart';
-import 'result_page.dart';
 import 'skeleton_page.dart';
 import 'spin_page.dart';
 import 'statistic_page.dart';
@@ -175,7 +174,6 @@ class ComponentPage extends StatelessWidget {
       case 'result':
       case 'result_page':
         return const ResultPagePage();
-        return const ResultPage();
       case 'skeleton':
         return const SkeletonPage();
       case 'spin':
@@ -249,9 +247,9 @@ class ComponentPage extends StatelessWidget {
       case 'cascader':
         return const CascaderPage();
       case 'cascader_view':
+        return const CascaderViewPage();
       case 'picker_view':
         return const PickerViewPage();
-        return const CascaderViewPage();
       case 'checkbox':
         return const CheckboxPage();
       case 'check_list':
@@ -265,9 +263,9 @@ class ComponentPage extends StatelessWidget {
       case 'dropdown':
         return const DropdownPage();
       case 'empty':
+        return const EmptyPage();
       case 'error_block':
         return const ErrorBlockPage();
-        return const EmptyPage();
       case 'flex':
         return const FlexPage();
       case 'form':
