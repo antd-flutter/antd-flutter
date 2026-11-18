@@ -146,4 +146,85 @@ void main() {
     expect(find.text('回调气泡'), findsNothing);
     expect(states, [false]);
   });
+
+  testWidgets('Popover 受控显示→隐藏→再显示循环，隐藏后无残留', (tester) async {
+    bool open = false;
+    var cycle = 0;
+    late StateSetter setter;
+    await tester.pumpWidget(_wrap(
+      StatefulBuilder(builder: (context, s) {
+        setter = s;
+        return Column(children: [
+          AntButton(
+            onTap: () => setter(() {
+              cycle += 1;
+              open = !open;
+            }),
+            child: Text(open ? '关' : '开'),
+          ),
+          AntPopover(
+            open: open,
+            onOpenChange: (v) => setter(() => open = v),
+            content: const Text('循环气泡'),
+            child: const Text('受控触发'),
+          ),
+        ],);
+      },),
+    ),);
+    await tester.pumpAndSettle();
+    expect(find.text('循环气泡'), findsNothing);
+
+    // 显示
+    await tester.tap(find.byType(AntButton));
+    await tester.pumpAndSettle();
+    expect(find.text('循环气泡'), findsOneWidget);
+
+    // 隐藏（点击空白 → onOpenChange(false) → 外部状态关闭 → entry 移除）
+    await tester.tapAt(const Offset(15, 15));
+    await tester.pumpAndSettle();
+    expect(find.text('循环气泡'), findsNothing);
+
+    // 再显示（隐藏后 open false→true 恢复）
+    await tester.tap(find.byType(AntButton));
+    await tester.pumpAndSettle();
+    expect(find.text('循环气泡'), findsOneWidget);
+
+    // 再隐藏
+    await tester.tapAt(const Offset(15, 15));
+    await tester.pumpAndSettle();
+    expect(find.text('循环气泡'), findsNothing);
+    expect(cycle, 2);
+  });
+
+  testWidgets('Dropdown 受控关闭后再打开', (tester) async {
+    bool open = false;
+    late StateSetter setter;
+    await tester.pumpWidget(_wrap(
+      StatefulBuilder(builder: (context, s) {
+        setter = s;
+        return Column(children: [
+          AntButton(
+            onTap: () => setter(() => open = !open),
+            child: Text(open ? '关' : '开'),
+          ),
+          AntDropdown(
+            open: open,
+            onOpenChange: (v) => setter(() => open = v),
+            items: const [AntDropdownItem(key: 'b', label: '再开菜单')],
+            child: const Text('受控触发'),
+          ),
+        ],);
+      },),
+    ),);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(AntButton));
+    await tester.pumpAndSettle();
+    expect(find.text('再开菜单'), findsOneWidget);
+    await tester.tapAt(const Offset(15, 15));
+    await tester.pumpAndSettle();
+    expect(find.text('再开菜单'), findsNothing);
+    await tester.tap(find.byType(AntButton));
+    await tester.pumpAndSettle();
+    expect(find.text('再开菜单'), findsOneWidget);
+  });
 }

@@ -151,12 +151,13 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
 
     return Stack(
       children: [
+        // 点击空白处关闭：围绕触发元素的四块镂空遮挡（antd web 等价语义）。
+        // 触发元素区域不遮挡——同一手势不会既 dismiss 又穿透触发元素
+        // toggle（此前 translucent 全屏遮挡会让关闭点击同时命中按钮/
+        // 触发元素，状态被翻回导致气泡残留）；镂空也保证触发元素上的
+        // MouseRegion 保持 hover 命中（hover 气泡不误关）。
         if (widget.dismissOnTapOutside)
-          GestureDetector(
-            onTap: widget.onDismiss,
-            behavior: HitTestBehavior.translucent,
-            child: const SizedBox.expand(),
-          ),
+          ..._buildDismissBarrier(targetRect, widget.onDismiss),
         Positioned(
           left: layout.offset.dx,
           top: layout.offset.dy,
@@ -307,6 +308,30 @@ class AntPopupTriggerRegion extends StatelessWidget {
 }
 
 /// 视口矩形：MediaQuery 尺寸扣除 safe area / 额外内边距。
+/// 触发元素镂空的四块点击关闭遮挡（上 / 下 / 左 / 右，互不重叠）。
+List<Widget> _buildDismissBarrier(Rect targetRect, VoidCallback? onDismiss) {
+  final screen =
+      Offset.zero & MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first).size;
+  Rect r(double l, double t, double rt, double b) =>
+      Rect.fromLTRB(l, t, rt, b).intersect(screen);
+  Widget block(Rect rect) => Positioned.fromRect(
+        rect: rect,
+        child: GestureDetector(
+          onTap: onDismiss,
+          behavior: HitTestBehavior.opaque,
+          child: const SizedBox.expand(),
+        ),
+      );
+  return <Widget>[
+    block(r(0, 0, screen.width, targetRect.top)),
+    block(r(0, targetRect.bottom, screen.width, screen.height)),
+    block(r(0, targetRect.top, targetRect.left, targetRect.bottom)),
+    block(
+      r(targetRect.right, targetRect.top, screen.width, targetRect.bottom),
+    ),
+  ];
+}
+
 Rect _viewportRect(EdgeInsets insets, Size mediaSize) {
   return Rect.fromLTRB(
     insets.left,
