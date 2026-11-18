@@ -1,8 +1,8 @@
 /// AntPopover widget 测试
 library;
 
-import 'package:antd_flutter_plus/src/components/data_display/popover/ant_popover.dart';
-import 'package:antd_flutter_plus/src/components/data_display/popover/ant_popover_types.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popover.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popover_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';

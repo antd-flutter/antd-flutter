@@ -10,6 +10,14 @@
 library;
 
 // ── 共享引擎 ────────────────────────────────────────────────
+export 'src/display/popover/ant_popover.dart';
+export 'src/display/popover/ant_popover_types.dart';
+export 'src/display/popover/ant_popconfirm.dart';
+export 'src/display/popover/ant_popconfirm_types.dart';
+export 'src/display/popover/ant_dropdown.dart';
+export 'src/display/popover/ant_dropdown_types.dart';
+export 'src/engines/popup_engine.dart';
+export 'src/engines/popup_overlay.dart';
 export 'src/engines/wheel_column_model.dart';
 export 'src/engines/wheel_picker_engine.dart';
 export 'src/engines/keyboard_input_model.dart';

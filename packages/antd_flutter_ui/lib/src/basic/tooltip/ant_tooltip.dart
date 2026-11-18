@@ -23,8 +23,9 @@
 library;
 
 import 'dart:async';
-import 'dart:math' as math;
 
+import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -124,7 +125,6 @@ class AntTooltip extends StatefulWidget {
 
 class _AntTooltipState extends State<AntTooltip> {
   final GlobalKey _childKey = GlobalKey();
-  final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
   FocusNode? _focusNode;
@@ -196,7 +196,7 @@ class _AntTooltipState extends State<AntTooltip> {
     final overlay = Overlay.of(context, rootOverlay: true);
     _overlayEntry = OverlayEntry(
       builder: (context) => _TooltipOverlay(
-        layerLink: _layerLink,
+        childKey: _childKey,
         content: widget.tooltip,
         placement: widget.placement,
         arrow: widget.arrow,
@@ -264,12 +264,9 @@ class _AntTooltipState extends State<AntTooltip> {
   Widget build(BuildContext context) {
     final trigger = widget.effectiveTrigger;
 
-    Widget result = CompositedTransformTarget(
-      link: _layerLink,
-      child: KeyedSubtree(
-        key: _childKey,
-        child: widget.child,
-      ),
+    Widget result = KeyedSubtree(
+      key: _childKey,
+      child: widget.child,
     );
 
     // 点击 / 长按（移动端主交互，click 触发时全平台生效）；焦点触发时点击请求焦点
@@ -307,12 +304,12 @@ class _AntTooltipState extends State<AntTooltip> {
 }
 
 // ============================================================
-// _TooltipOverlay — 气泡浮层（Overlay + 自定义 position，带出现动画）
+// _TooltipOverlay — 气泡浮层（基于统一弹层底座 AntPopupOverlay）
 // ============================================================
 
-class _TooltipOverlay extends StatefulWidget {
+class _TooltipOverlay extends StatelessWidget {
   const _TooltipOverlay({
-    required this.layerLink,
+    required this.childKey,
     required this.content,
     required this.placement,
     required this.arrow,
@@ -322,7 +319,7 @@ class _TooltipOverlay extends StatefulWidget {
     required this.onDismiss,
   });
 
-  final LayerLink layerLink;
+  final GlobalKey childKey;
   final Widget content;
   final AntTooltipPlacement placement;
   final bool arrow;
@@ -332,195 +329,9 @@ class _TooltipOverlay extends StatefulWidget {
   final VoidCallback onDismiss;
 
   @override
-  State<_TooltipOverlay> createState() => _TooltipOverlayState();
-}
-
-class _TooltipOverlayState extends State<_TooltipOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _animationController;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  // ---- 位置锚点 ----
-
-  bool get _isVertical {
-    return switch (widget.placement) {
-      AntTooltipPlacement.top ||
-      AntTooltipPlacement.topLeft ||
-      AntTooltipPlacement.topRight ||
-      AntTooltipPlacement.bottom ||
-      AntTooltipPlacement.bottomLeft ||
-      AntTooltipPlacement.bottomRight =>
-        true,
-      _ => false,
-    };
-  }
-
-  /// 是否朝向触发元素（气泡在上方 / 左侧）。
-  bool get _isBefore {
-    return switch (widget.placement) {
-      AntTooltipPlacement.top ||
-      AntTooltipPlacement.topLeft ||
-      AntTooltipPlacement.topRight ||
-      AntTooltipPlacement.left ||
-      AntTooltipPlacement.leftTop ||
-      AntTooltipPlacement.leftBottom =>
-        true,
-      _ => false,
-    };
-  }
-
-  /// 触发元素上的锚点（跟随 placement 的主方向与对齐）。
-  Alignment get _targetAnchor {
-    final (vertical, align, before) = _anchors;
-    if (vertical) {
-      return switch ((before, align)) {
-        (true, 0) => Alignment.topCenter,
-        (true, -1) => Alignment.topLeft,
-        (true, 1) => Alignment.topRight,
-        (false, 0) => Alignment.bottomCenter,
-        (false, -1) => Alignment.bottomLeft,
-        _ => Alignment.bottomRight,
-      };
-    }
-    return switch ((before, align)) {
-      (true, 0) => Alignment.centerLeft,
-      (true, -1) => Alignment.topLeft,
-      (true, 1) => Alignment.bottomLeft,
-      (false, 0) => Alignment.centerRight,
-      (false, -1) => Alignment.topRight,
-      _ => Alignment.bottomRight,
-    };
-  }
-
-  /// 气泡上的锚点（与触发元素锚点相对）。
-  Alignment get _followerAnchor {
-    final (vertical, align, before) = _anchors;
-    if (vertical) {
-      return switch ((before, align)) {
-        (true, 0) => Alignment.bottomCenter,
-        (true, -1) => Alignment.bottomLeft,
-        (true, 1) => Alignment.bottomRight,
-        (false, 0) => Alignment.topCenter,
-        (false, -1) => Alignment.topLeft,
-        _ => Alignment.topRight,
-      };
-    }
-    return switch ((before, align)) {
-      (true, 0) => Alignment.centerRight,
-      (true, -1) => Alignment.topRight,
-      (true, 1) => Alignment.bottomRight,
-      (false, 0) => Alignment.centerLeft,
-      (false, -1) => Alignment.topLeft,
-      _ => Alignment.bottomLeft,
-    };
-  }
-
-  /// (是否垂直方向, 对齐：-1 起始 / 0 居中 / 1 末尾, 是否朝向触发元素)
-  (bool, int, bool) get _anchors {
-    final vertical = _isVertical;
-    final before = _isBefore;
-    final align = switch (widget.placement) {
-      AntTooltipPlacement.top ||
-      AntTooltipPlacement.bottom ||
-      AntTooltipPlacement.left ||
-      AntTooltipPlacement.right =>
-        0,
-      AntTooltipPlacement.topLeft ||
-      AntTooltipPlacement.bottomLeft ||
-      AntTooltipPlacement.leftTop ||
-      AntTooltipPlacement.rightTop =>
-        -1,
-      _ => 1,
-    };
-    return (vertical, align, before);
-  }
-
-  /// 气泡与触发元素之间的间距偏移。
-  Offset get _gapOffset {
-    final gap = _tooltipGap + (widget.arrow ? _arrowSize * 0.7 : 0);
-    return switch (widget.placement) {
-      AntTooltipPlacement.top ||
-      AntTooltipPlacement.topLeft ||
-      AntTooltipPlacement.topRight =>
-        Offset(0, -gap),
-      AntTooltipPlacement.bottom ||
-      AntTooltipPlacement.bottomLeft ||
-      AntTooltipPlacement.bottomRight =>
-        Offset(0, gap),
-      AntTooltipPlacement.left ||
-      AntTooltipPlacement.leftTop ||
-      AntTooltipPlacement.leftBottom =>
-        Offset(-gap, 0),
-      _ => Offset(gap, 0),
-    };
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = widget.themeData;
-
-    return Stack(
-      children: [
-        // 点击空白处关闭（translucent 允许 hover 事件穿透到下层 MouseRegion）
-        GestureDetector(
-          onTap: widget.onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
-        ),
-        FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            alignment: _isVertical
-                ? (_isBefore ? Alignment.bottomCenter : Alignment.topCenter)
-                : (_isBefore ? Alignment.centerRight : Alignment.centerLeft),
-            child: CompositedTransformFollower(
-              link: widget.layerLink,
-              targetAnchor: _targetAnchor,
-              followerAnchor: _followerAnchor,
-              offset: _gapOffset,
-              showWhenUnlinked: false,
-              child: TapRegion(
-                onTapOutside: (_) => widget.onDismiss(),
-                child: Material(
-                  color: Colors.transparent,
-                  child: _buildBubble(theme),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBubble(AntThemeData theme) {
-    final bgColor = widget.color ?? _defaultTooltipBg;
-    final decoration = widget.overlayStyle ??
+    final bgColor = color ?? _defaultTooltipBg;
+    final decoration = overlayStyle ??
         BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(_tooltipRadius.r),
@@ -533,81 +344,35 @@ class _TooltipOverlayState extends State<_TooltipOverlay>
           ],
         );
 
+    return AntPopupOverlay(
+      targetKey: childKey,
+      placement: AntPopupPlacement.values.byName(placement.name),
+      arrow: arrow,
+      arrowColor: overlayStyle?.color ?? bgColor,
+      arrowKey: arrow ? _tooltipArrowKey : null,
+      gap: _tooltipGap,
+      arrowSize: _arrowSize,
+      onDismiss: onDismiss,
+      child: _buildBubble(bgColor, decoration),
+    );
+  }
+  Widget _buildBubble(Color bgColor, BoxDecoration decoration) {
     return Container(
       key: _tooltipContentKey,
       decoration: decoration,
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.w),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // 气泡内容
-          Container(
-            constraints: BoxConstraints(maxWidth: 250.w),
-            child: DefaultTextStyle(
-              style: TextStyle(
-                fontSize: theme.fontSize,
-                color: widget.color == null
-                    ? Colors.white
-                    : bgColor.computeLuminance() > 0.5
-                        ? const Color(0xFF141414)
-                        : Colors.white,
-              ),
-              child: widget.content,
-            ),
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 250.w),
+        child: DefaultTextStyle(
+          style: TextStyle(
+            fontSize: themeData.fontSize,
+            color: color == null
+                ? Colors.white
+                : bgColor.computeLuminance() > 0.5
+                    ? const Color(0xFF141414)
+                    : Colors.white,
           ),
-          // 箭头
-          if (widget.arrow) _buildArrow(bgColor, decoration),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildArrow(Color bgColor, BoxDecoration decoration) {
-    final rotation = switch (widget.placement) {
-      AntTooltipPlacement.top ||
-      AntTooltipPlacement.topLeft ||
-      AntTooltipPlacement.topRight =>
-        math.pi / 4, // 指向上方
-      AntTooltipPlacement.bottom ||
-      AntTooltipPlacement.bottomLeft ||
-      AntTooltipPlacement.bottomRight =>
-        -math.pi / 4, // 指向下方
-      AntTooltipPlacement.left ||
-      AntTooltipPlacement.leftTop ||
-      AntTooltipPlacement.leftBottom =>
-        math.pi / 4, // 指向左侧
-      _ => -math.pi / 4, // 指向右侧
-    };
-
-    final offset = switch (widget.placement) {
-      AntTooltipPlacement.top => const Alignment(0, -1.6),
-      AntTooltipPlacement.topLeft => const Alignment(-0.8, -1.6),
-      AntTooltipPlacement.topRight => const Alignment(0.8, -1.6),
-      AntTooltipPlacement.bottom => const Alignment(0, 1.6),
-      AntTooltipPlacement.bottomLeft => const Alignment(-0.8, 1.6),
-      AntTooltipPlacement.bottomRight => const Alignment(0.8, 1.6),
-      AntTooltipPlacement.left => const Alignment(-1.6, 0),
-      AntTooltipPlacement.leftTop => const Alignment(-1.6, -0.8),
-      AntTooltipPlacement.leftBottom => const Alignment(-1.6, 0.8),
-      AntTooltipPlacement.right => const Alignment(1.6, 0),
-      AntTooltipPlacement.rightTop => const Alignment(1.6, -0.8),
-      AntTooltipPlacement.rightBottom => const Alignment(1.6, 0.8),
-    };
-
-    return Positioned.fill(
-      child: Align(
-        alignment: offset,
-        child: Transform.rotate(
-          angle: rotation,
-          child: Container(
-            key: _tooltipArrowKey,
-            width: _arrowSize,
-            height: _arrowSize,
-            decoration: BoxDecoration(
-              color: widget.overlayStyle?.color ?? bgColor,
-              borderRadius: BorderRadius.circular(2.r),
-            ),
-          ),
+          child: content,
         ),
       ),
     );

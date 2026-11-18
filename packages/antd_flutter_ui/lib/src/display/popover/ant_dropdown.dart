@@ -11,8 +11,8 @@
 /// - [disabled] — 是否禁用
 library;
 
-import 'dart:math' as math;
-
+import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -195,8 +195,11 @@ class _AntDropdownState extends State<AntDropdown> {
 }
 
 // ============================================================
-// _DropdownOverlay — 下拉浮层
+// _DropdownOverlay — 下拉浮层（基于统一弹层底座 AntPopupOverlay）
 // ============================================================
+
+/// 下拉菜单箭头标记 key。
+const Key kAntDropdownArrowKey = ValueKey<String>('AntDropdownArrow');
 
 class _DropdownOverlay extends StatelessWidget {
   const _DropdownOverlay({
@@ -220,68 +223,20 @@ class _DropdownOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = themeData;
-    final mediaSize = MediaQuery.sizeOf(context);
 
-    // 获取触发元素位置
-    final childCtx = childKey.currentContext;
-    if (childCtx == null) return const SizedBox.shrink();
-    final childBox = childCtx.findRenderObject() as RenderBox?;
-    if (childBox == null || !childBox.hasSize) return const SizedBox.shrink();
-    final childPos = childBox.localToGlobal(Offset.zero);
-
-    // 计算浮层位置
-    double left = childPos.dx;
-    double top = childPos.dy + childBox.size.height;
-    if (placement == AntDropdownPlacement.bottomRight ||
-        placement == AntDropdownPlacement.topRight) {
-      // 右对齐：先估算宽度，右对齐到 child 右边
-      left = childPos.dx + childBox.size.width - 160;
-    }
-    if (placement == AntDropdownPlacement.topLeft ||
-        placement == AntDropdownPlacement.topRight) {
-      top = childPos.dy - _estimateHeight();
-    }
-
-    // 边界保护
-    left = left.clamp(8.0, math.max(8.0, mediaSize.width - 168));
-    top = top.clamp(8.0, math.max(8.0, mediaSize.height - 100));
-
-    return Stack(
-      children: [
-        // 点击空白处关闭（translucent 允许 hover 事件穿透到下层 MouseRegion）
-        GestureDetector(
-          onTap: onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
-        ),
-        Positioned(
-          left: left,
-          top: top,
-          child: TapRegion(
-            onTapOutside: (_) => onDismiss(),
-            child: Material(
-              color: Colors.transparent,
-              child: _buildMenuContainer(context, theme),
-            ),
-          ),
-        ),
-      ],
+    return AntPopupOverlay(
+      targetKey: childKey,
+      placement: AntPopupPlacement.values.byName(placement.name),
+      arrow: arrow,
+      arrowColor: theme.colorBgContainer,
+      arrowKey: arrow ? kAntDropdownArrowKey : null,
+      gap: 0,
+      onDismiss: onDismiss,
+      child: _buildMenuContainer(theme),
     );
   }
 
-  double _estimateHeight() {
-    var h = 16.0; // padding
-    for (final item in items) {
-      if (item.type == AntDropdownItemType.divider) {
-        h += 9;
-      } else {
-        h += 32;
-      }
-    }
-    return h;
-  }
-
-  Widget _buildMenuContainer(BuildContext context, AntThemeData theme) {
+  Widget _buildMenuContainer(AntThemeData theme) {
     return Container(
       width: 160,
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -307,17 +262,13 @@ class _DropdownOverlay extends StatelessWidget {
               child: Divider(height: 1, color: theme.colorSplit),
             );
           }
-          return _buildItem(context, theme, item);
+          return _buildItem(theme, item);
         }).toList(),
       ),
     );
   }
 
-  Widget _buildItem(
-    BuildContext context,
-    AntThemeData theme,
-    AntDropdownItem item,
-  ) {
+  Widget _buildItem(AntThemeData theme, AntDropdownItem item) {
     final labelWidgets = <Widget>[];
     if (item.icon != null) {
       labelWidgets.add(Icon(

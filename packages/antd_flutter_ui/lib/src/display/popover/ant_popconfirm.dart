@@ -21,13 +21,13 @@
 /// ```
 library;
 
-import 'dart:math' as math;
-
+import 'package:antd_flutter_ui/src/basic/button/ant_button.dart';
+import 'package:antd_flutter_ui/src/basic/button/ant_button_types.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm_types.dart';
+import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
-
-import 'package:antd_flutter_ui/antd_flutter_ui.dart';
-import 'ant_popconfirm_types.dart';
 
 // ============================================================
 // 测试定位 Key 与默认文案
@@ -253,10 +253,10 @@ class _AntPopconfirmState extends State<AntPopconfirm> {
 }
 
 // ============================================================
-// _PopconfirmOverlay — 气泡浮层
+// _PopconfirmOverlay — 气泡浮层（基于统一弹层底座 AntPopupOverlay）
 // ============================================================
 
-class _PopconfirmOverlay extends StatefulWidget {
+class _PopconfirmOverlay extends StatelessWidget {
   const _PopconfirmOverlay({
     required this.childKey,
     required this.title,
@@ -290,192 +290,31 @@ class _PopconfirmOverlay extends StatefulWidget {
   final VoidCallback onDismiss;
 
   @override
-  State<_PopconfirmOverlay> createState() => _PopconfirmOverlayState();
-}
-
-class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 150),
-  )..forward();
-  late final CurvedAnimation _curve =
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-
-  final GlobalKey _bubbleKey = GlobalKey();
-  double _bubbleHeight = 0;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = widget.themeData;
-    final mediaSize = MediaQuery.sizeOf(context);
-    final gap = 8.w;
+    final style = overlayStyle;
+    final bubbleColor = style?.backgroundColor ?? themeData.colorBgContainer;
 
-    // 触发元素位置
-    final childCtx = widget.childKey.currentContext;
-    if (childCtx == null) return const SizedBox.shrink();
-    final childBox = childCtx.findRenderObject() as RenderBox?;
-    if (childBox == null || !childBox.hasSize) return const SizedBox.shrink();
-    final childPos = childBox.localToGlobal(Offset.zero);
-    final childW = childBox.size.width;
-    final childH = childBox.size.height;
-
-    // 气泡尺寸（高度首帧估算，post-frame 校正）
-    final bubbleW = 240.w;
-    if (_bubbleHeight <= 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final ctx = _bubbleKey.currentContext;
-        final box = ctx?.findRenderObject() as RenderBox?;
-        if (box != null &&
-            box.hasSize &&
-            box.size.height != _bubbleHeight) {
-          setState(() => _bubbleHeight = box.size.height);
-        }
-      });
-      _bubbleHeight = _estimateHeight();
-    }
-    final bubbleH = _bubbleHeight;
-
-    final childLeft = childPos.dx;
-    final childTop = childPos.dy;
-    final childBottom = childPos.dy + childH;
-    final childRight = childPos.dx + childW;
-    final childCenterX = childPos.dx + childW / 2;
-    final childCenterY = childPos.dy + childH / 2;
-
-    double left;
-    double? top;
-    double? bottom;
-    switch (widget.placement) {
-      case AntPopconfirmPlacement.topLeft:
-        left = childLeft;
-        bottom = mediaSize.height - childTop + gap;
-        break;
-      case AntPopconfirmPlacement.topCenter:
-        left = childCenterX - bubbleW / 2;
-        bottom = mediaSize.height - childTop + gap;
-        break;
-      case AntPopconfirmPlacement.topRight:
-        left = childRight - bubbleW;
-        bottom = mediaSize.height - childTop + gap;
-        break;
-      case AntPopconfirmPlacement.bottomLeft:
-        left = childLeft;
-        top = childBottom + gap;
-        break;
-      case AntPopconfirmPlacement.bottomCenter:
-        left = childCenterX - bubbleW / 2;
-        top = childBottom + gap;
-        break;
-      case AntPopconfirmPlacement.bottomRight:
-        left = childRight - bubbleW;
-        top = childBottom + gap;
-        break;
-      case AntPopconfirmPlacement.leftTop:
-        left = childLeft - gap - bubbleW;
-        top = childTop;
-        break;
-      case AntPopconfirmPlacement.leftCenter:
-        left = childLeft - gap - bubbleW;
-        top = childCenterY - bubbleH / 2;
-        break;
-      case AntPopconfirmPlacement.leftBottom:
-        left = childLeft - gap - bubbleW;
-        bottom = mediaSize.height - childBottom + gap;
-        break;
-      case AntPopconfirmPlacement.rightTop:
-        left = childRight + gap;
-        top = childTop;
-        break;
-      case AntPopconfirmPlacement.rightCenter:
-        left = childRight + gap;
-        top = childCenterY - bubbleH / 2;
-        break;
-      case AntPopconfirmPlacement.rightBottom:
-        left = childRight + gap;
-        bottom = mediaSize.height - childBottom + gap;
-        break;
-    }
-
-    // 边界保护
-    left = left.clamp(8.0, math.max(8.0, mediaSize.width - bubbleW - 8.0));
-    if (top != null) {
-      top = top.clamp(8.0, math.max(8.0, mediaSize.height - bubbleH - 8.0));
-    }
-
-    return Stack(
-      children: [
-        // 点击气泡外空白处关闭（translucent 允许事件穿透触发元素）
-        GestureDetector(
-          onTap: widget.onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
-        ),
-        Positioned(
-          left: left,
-          top: top,
-          bottom: bottom,
-          child: Material(
-            color: Colors.transparent,
-            child: FadeTransition(
-              opacity: _curve,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.92, end: 1).animate(_curve),
-                alignment: _scaleAlignment(widget.placement),
-                child: _buildBubble(theme),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return AntPopupOverlay(
+      targetKey: childKey,
+      placement: _mapPlacement(placement),
+      arrow: true,
+      arrowColor: bubbleColor,
+      arrowSize: 8.w,
+      gap: 8.w,
+      onDismiss: onDismiss,
+      child: _buildBubble(themeData, bubbleColor),
     );
   }
 
-  Alignment _scaleAlignment(AntPopconfirmPlacement placement) {
-    switch (placement) {
-      case AntPopconfirmPlacement.topLeft:
-      case AntPopconfirmPlacement.topCenter:
-      case AntPopconfirmPlacement.topRight:
-        return Alignment.bottomCenter;
-      case AntPopconfirmPlacement.leftTop:
-      case AntPopconfirmPlacement.leftCenter:
-      case AntPopconfirmPlacement.leftBottom:
-        return Alignment.centerRight;
-      case AntPopconfirmPlacement.rightTop:
-      case AntPopconfirmPlacement.rightCenter:
-      case AntPopconfirmPlacement.rightBottom:
-        return Alignment.centerLeft;
-      case AntPopconfirmPlacement.bottomLeft:
-      case AntPopconfirmPlacement.bottomCenter:
-      case AntPopconfirmPlacement.bottomRight:
-        return Alignment.topCenter;
-    }
-  }
-
-  double _estimateHeight() {
-    final titleH = 24.w;
-    final descH = widget.description != null ? 36.w : 0;
-    final actionsH = 36.w;
-    final padV = 12.w * 2;
-    return titleH + descH + actionsH + padV;
-  }
-
-  Widget _buildBubble(AntThemeData theme) {
-    final style = widget.overlayStyle;
-    final bubbleColor = style?.backgroundColor ?? theme.colorBgContainer;
+  Widget _buildBubble(AntThemeData theme, Color bubbleColor) {
+    final style = overlayStyle;
     final radius = style?.borderRadius ??
         BorderRadius.circular(theme.borderRadiusLG.r);
     final padding = style?.padding ??
         EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w);
 
-    final bubble = Container(
+    return Container(
+      key: kAntPopconfirmBubbleKey,
       width: 240.w,
       padding: padding,
       decoration: BoxDecoration(
@@ -492,7 +331,6 @@ class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
             ],
       ),
       child: Column(
-        key: _bubbleKey,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -500,10 +338,10 @@ class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.icon != null)
+              if (icon != null)
                 Padding(
                   padding: EdgeInsets.only(right: 8.w),
-                  child: widget.icon!,
+                  child: icon!,
                 )
               else
                 Padding(
@@ -516,7 +354,7 @@ class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
                 ),
               Expanded(
                 child: Text(
-                  widget.title,
+                  title,
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -526,11 +364,11 @@ class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
               ),
             ],
           ),
-          if (widget.description != null)
+          if (description != null)
             Padding(
               padding: EdgeInsets.only(top: 4.w, left: 24.w),
               child: Text(
-                widget.description!,
+                description!,
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: theme.colorTextSecondary,
@@ -546,25 +384,40 @@ class _PopconfirmOverlayState extends State<_PopconfirmOverlay>
                 key: kAntPopconfirmCancelButtonKey,
                 type: AntButtonType.normal,
                 size: AntButtonSize.small,
-                disabled: widget.cancelDisabled,
-                onTap: widget.onCancel,
-                child: Text(widget.cancelText),
+                disabled: cancelDisabled,
+                onTap: onCancel,
+                child: Text(cancelText),
               ),
               SizedBox(width: 8.w),
               AntButton(
                 key: kAntPopconfirmOkButtonKey,
                 type: AntButtonType.primary,
                 size: AntButtonSize.small,
-                disabled: widget.okDisabled,
-                onTap: widget.onConfirm,
-                child: Text(widget.okText),
+                disabled: okDisabled,
+                onTap: onConfirm,
+                child: Text(okText),
               ),
             ],
           ),
         ],
       ),
     );
-
-    return KeyedSubtree(key: kAntPopconfirmBubbleKey, child: bubble);
   }
 }
+
+/// AntPopconfirmPlacement（topCenter/leftCenter 等变体）→ 引擎统一 12 方向。
+AntPopupPlacement _mapPlacement(AntPopconfirmPlacement placement) =>
+    switch (placement) {
+      AntPopconfirmPlacement.topLeft => AntPopupPlacement.topLeft,
+      AntPopconfirmPlacement.topCenter => AntPopupPlacement.top,
+      AntPopconfirmPlacement.topRight => AntPopupPlacement.topRight,
+      AntPopconfirmPlacement.bottomLeft => AntPopupPlacement.bottomLeft,
+      AntPopconfirmPlacement.bottomCenter => AntPopupPlacement.bottom,
+      AntPopconfirmPlacement.bottomRight => AntPopupPlacement.bottomRight,
+      AntPopconfirmPlacement.leftTop => AntPopupPlacement.leftTop,
+      AntPopconfirmPlacement.leftCenter => AntPopupPlacement.left,
+      AntPopconfirmPlacement.leftBottom => AntPopupPlacement.leftBottom,
+      AntPopconfirmPlacement.rightTop => AntPopupPlacement.rightTop,
+      AntPopconfirmPlacement.rightCenter => AntPopupPlacement.right,
+      AntPopconfirmPlacement.rightBottom => AntPopupPlacement.rightBottom,
+    };
