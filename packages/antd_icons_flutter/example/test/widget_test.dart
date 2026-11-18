@@ -1,30 +1,16 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// antd_icons_flutter example 画廊烟囱测试。
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
 
 import 'package:antd_icons_example/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('画廊启动展示图标分区', (WidgetTester tester) async {
+    // main() 未执行，需先初始化全局主题控制器
+    themeModeController = ThemeController(initialDark: false);
+    await tester.pumpWidget(const AntdIconsGalleryApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 侧栏/画廊内容渲染即可（具体文案经国际化，不直接断言字符串）
+    expect(find.byType(AntdIconsGalleryApp), findsOneWidget);
   });
 }

@@ -7,7 +7,7 @@ library;
 
 import 'package:antd_qrcode/antd_qrcode.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const AntdQrcodeGalleryApp());
@@ -44,20 +44,22 @@ class _AntdQrcodeGalleryAppState extends State<AntdQrcodeGalleryApp> {
 
   @override
   Widget build(BuildContext context) {
-    final theme =
-        _isDark ? AntThemeData.dark() : AntThemeData.light();
+    final theme = _isDark ? AntThemeData.dark() : AntThemeData.light();
     return AntTheme(
       data: theme,
-      child: MaterialApp(
-        title: 'Ant Design QRCode',
-        debugShowCheckedModeBanner: false,
-        themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
-        theme: AntThemeData.light().toThemeData(),
-        darkTheme: AntThemeData.dark().toThemeData(),
-        home: _GalleryPage(
-          sections: _sections,
-          isDark: _isDark,
-          onToggleDark: () => setState(() => _isDark = !_isDark),
+      child: AntScreenUtilInit(
+        designSize: const Size(375, 812),
+        builder: (context, child) => MaterialApp(
+          title: 'Ant Design QRCode',
+          debugShowCheckedModeBanner: false,
+          themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
+          theme: AntThemeData.light().toThemeData(),
+          darkTheme: AntThemeData.dark().toThemeData(),
+          home: _GalleryPage(
+            sections: _sections,
+            isDark: _isDark,
+            onToggleDark: () => setState(() => _isDark = !_isDark),
+          ),
         ),
       ),
     );
@@ -129,18 +131,21 @@ class _GalleryPageState extends State<_GalleryPage> {
                   child: ListView(
                     children: [
                       for (var i = 0; i < widget.sections.length; i++)
-                        ListTile(
-                          selected: i == _selectedIndex,
-                          selectedTileColor: theme.colorPrimaryBg,
-                          title: Text(
-                            widget.sections[i].title,
-                            style: TextStyle(
-                              color: i == _selectedIndex
-                                  ? theme.colorPrimary
-                                  : theme.colorText,
+                        Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            selected: i == _selectedIndex,
+                            selectedTileColor: theme.colorPrimaryBg,
+                            title: Text(
+                              widget.sections[i].title,
+                              style: TextStyle(
+                                color: i == _selectedIndex
+                                    ? theme.colorPrimary
+                                    : theme.colorText,
+                              ),
                             ),
+                            onTap: () => setState(() => _selectedIndex = i),
                           ),
-                          onTap: () => setState(() => _selectedIndex = i),
                         ),
                     ],
                   ),
@@ -181,7 +186,11 @@ class _GalleryPageState extends State<_GalleryPage> {
 
 /// 分区通用展示容器（标题 + 说明 + 示例区）。
 class _DemoCard extends StatelessWidget {
-  const _DemoCard({required this.title, required this.description, required this.child});
+  const _DemoCard({
+    required this.title,
+    required this.description,
+    required this.child,
+  });
 
   final String title;
   final String description;
@@ -260,7 +269,10 @@ Widget _errorLevelSection(BuildContext context) {
       for (final level in AntQRCodeErrorLevel.values)
         _LabeledExample(
           label: level.name.toUpperCase(),
-          child: AntQRCode(value: 'antd-error-level-${level.name}', errorLevel: level),
+          child: AntQRCode(
+            value: 'antd-error-level-${level.name}',
+            errorLevel: level,
+          ),
         ),
     ]),
   );
@@ -281,13 +293,18 @@ Widget _colorSection(BuildContext context) {
       ),
       _LabeledExample(
         label: '自定义码点',
-        child: AntQRCode(value: 'antd-color-green', color: const Color(0xFF00B96B)),
+        child: AntQRCode(
+          value: 'antd-color-green',
+          color: const Color(0xFF00B96B),
+        ),
       ),
       _LabeledExample(
         label: '自定义背景',
         child: AntQRCode(
           value: 'antd-color-bg',
-          bgColor: theme.isDark ? const Color(0xFF1F1F1F) : const Color(0xFFEFF8F1),
+          bgColor: theme.isDark
+              ? const Color(0xFF1F1F1F)
+              : const Color(0xFFEFF8F1),
         ),
       ),
     ]),
@@ -359,8 +376,7 @@ class _StatusDemoState extends State<_StatusDemo> {
   Widget build(BuildContext context) {
     return _DemoCard(
       title: '状态：expired / scanned',
-      description:
-          'expired 覆盖层点击「点击刷新」重新激活；scanned 显示已扫描覆盖层。',
+      description: 'expired 覆盖层点击「点击刷新」重新激活；scanned 显示已扫描覆盖层。',
       child: _DemoRow([
         _LabeledExample(
           label: _refreshCount == 0 ? '已过期' : '已刷新 $_refreshCount 次',
@@ -378,7 +394,8 @@ class _StatusDemoState extends State<_StatusDemo> {
           child: AntQRCode(
             value: 'antd-status-scanned',
             status: _scannedStatus,
-            onRefresh: () => setState(() => _scannedStatus = AntQRCodeStatus.active),
+            onRefresh: () =>
+                setState(() => _scannedStatus = AntQRCodeStatus.active),
           ),
         ),
         _LabeledExample(
@@ -414,7 +431,10 @@ class _LabeledExample extends StatelessWidget {
       children: [
         child,
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 12, color: theme.colorTextDescription)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: theme.colorTextDescription),
+        ),
       ],
     );
   }

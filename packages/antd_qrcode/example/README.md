@@ -1,17 +1,53 @@
 # antd_qrcode_example
 
-A new Flutter project.
+Ant Design v6 QRCode（antd_qrcode 独立包）组件演示画廊，覆盖全部关键形态：
 
-## Getting Started
+- 基础二维码（默认参数）
+- 纠错等级 L / M / Q / H 四档
+- 自定义颜色（color / bgColor，暗色模式适配）
+- 尺寸对比（64 / 96 / 128 / 160）
+- bordered 开关
+- 中心图标模式（icon / iconSize）
+- 状态演示：expired（点击刷新）与 scanned 覆盖层
 
-This project is a starting point for a Flutter application.
+## 运行
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+cd packages/antd_qrcode/example
+flutter pub get
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+# iOS
+flutter run -d ios
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Android
+flutter run -d android
+
+# macOS
+flutter run -d macos
+
+# Windows
+flutter run -d windows
+
+# Linux
+flutter run -d linux
+
+# Web
+flutter run -d chrome
+```
+
+## 构建
+
+```bash
+flutter build web --release
+flutter build macos --debug      # macOS
+flutter build apk --debug        # Android
+flutter build ios --debug --no-codesign
+```
+
+## 截图
+
+> TODO: 各平台运行截图（占位）
+
+| 亮色 | 暗色 |
+| ---- | ---- |
+| ![light](../../doc/screenshots/qrcode_example_light.png) | ![dark](../../doc/screenshots/qrcode_example_dark.png) |

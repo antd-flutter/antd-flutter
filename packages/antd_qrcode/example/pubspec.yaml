@@ -16,6 +16,10 @@ dependencies:
     path: ../../antd_theme
   material_ui: ^1.11.0
 
+dependency_overrides:
+  antd_theme:
+    path: ../../antd_theme
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

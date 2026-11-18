@@ -1,17 +1,47 @@
 # antd_icons_example
 
-A new Flutter project.
+Ant Design Icons for Flutter 图标预览画廊应用。
 
-## Getting Started
+## 支持平台
 
-This project is a starting point for a Flutter application.
+全平台：iOS / Android / macOS / Windows / Linux / Web
 
-A few resources to get you started if this is your first Flutter project:
+## 运行
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+cd packages/antd_icons_flutter/example
+flutter pub get
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# iOS
+flutter run -d ios
+
+# Android
+flutter run -d android
+
+# macOS
+flutter run -d macos
+
+# Windows
+flutter run -d windows
+
+# Linux
+flutter run -d linux
+
+# Web
+flutter run -d chrome
+```
+
+## 构建
+
+```bash
+flutter build web --release
+flutter build macos --debug      # macOS
+flutter build apk --debug        # Android
+flutter build ios --debug --no-codesign
+flutter build windows --debug    # Windows
+flutter build linux --debug      # Linux（需 clang/cmake/ninja/pkg-config/libgtk-3-dev）
+```
+
+## 嵌入模式（Web）
+
+URL 查询参数：`?theme=dark`、`?primary=#1677ff`、`?embedded=true`，见 `lib/app_launch_config.dart`。
