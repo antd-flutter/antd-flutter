@@ -10,13 +10,19 @@
 ///   [AntPullToRefresh.releasingText] / [AntPullToRefresh.finishingText] — 各阶段文案
 /// - [AntPullToRefresh.pointer] — 指针位置（top 下拉 / bottom 上拉，默认 top）
 /// - [AntPullToRefresh.enableLoadMore] / [AntPullToRefresh.onLoadMore] —
-///   底部加载更多（参照 easy_refresh 的 footer 能力）
+///   底部加载更多（easy_refresh footer 能力）
 ///
-/// 实现参照 [easy_refresh](https://pub.dev/packages/easy_refresh)
-/// （MIT License）二次改造：
-/// - 通过 [ScrollConfiguration] 注入滚动行为（物理保留平台默认 +
-///   `AlwaysScrollableScrollPhysics`，允许空列表下拉；桌面端允许鼠标拖拽）
-/// - 头部/底部指示器以 Stack 挂载在内容之上
+/// 实现架构参考 [easy_refresh](https://pub.dev/packages/easy_refresh)
+/// （MIT License）整体重写（零新增依赖，吸收其架构思路）：
+/// - **Notifier 状态机**：状态（mode/offset/footer mode）与任务编排
+///   （refresh/load）收敛在 [AntPullToRefreshIndicator]（对应 ER 的
+///   `IndicatorNotifier`），指示器组件只消费状态渲染；
+/// - **ScrollBehavior 注入**（对应 ER 的 `ERScrollBehavior`）：物理保留
+///   平台默认 + `AlwaysScrollableScrollPhysics`（空列表也可下拉），
+///   `dragDevices` 包含鼠标（桌面端允许鼠标拖拽）；
+/// - **Stack 指示器挂载**：头部/底部指示器以 Stack 挂载，随位移滑入，
+///   组件经 ListenableBuilder 订阅 Notifier（对应 ER custom position
+///   指示器的 Listenable 形态）。
 ///
 /// 交互来源：
 /// - 移动端：触摸拖拽过冲（OverscrollNotification）驱动
@@ -41,7 +47,6 @@ library;
 import 'dart:async';
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:flutter/foundation.dart' show precisionErrorTolerance;
 import 'package:flutter/gestures.dart'
     show
         GestureBinding,
@@ -52,9 +57,11 @@ import 'package:material_ui/material_ui.dart';
 
 import 'ant_pull_to_refresh_footer.dart';
 import 'ant_pull_to_refresh_header.dart';
+import 'ant_pull_to_refresh_notifier.dart';
 import 'ant_pull_to_refresh_types.dart';
 export 'ant_pull_to_refresh_footer.dart';
 export 'ant_pull_to_refresh_header.dart';
+export 'ant_pull_to_refresh_notifier.dart';
 export 'ant_pull_to_refresh_types.dart';
 
 // ============================================================
@@ -80,10 +87,11 @@ const double kAntPullToRefreshHeadHeight = 40;
 const double kAntPullToRefreshThreshold = 60;
 
 /// 回弹动画时长。
-const Duration kAntPullToRefreshDuration = Duration(milliseconds: 300);
+const Duration kAntPullToRefreshDuration = kIndicatorAnimationDuration;
 
 /// 最大下拉距离 = headHeight * 3（参照轮子 maxOverScrollExtent 思路）。
-const double kAntPullToRefreshMaxPullFactor = 3;
+const double kAntPullToRefreshMaxPullFactor =
+    AntPullToRefreshIndicator.maxPullFactor;
 
 /// 桌面端滚轮拉动后停止滚动到触发刷新的等待时长。
 const Duration kAntPullToRefreshWheelSettleDuration =
@@ -214,120 +222,66 @@ class AntPullToRefresh extends StatefulWidget {
   final Widget? footer;
 
   @override
-  State<AntPullToRefresh> createState() => _AntPullToRefreshState();
+  AntPullToRefreshState createState() => AntPullToRefreshState();
 }
 
-class _AntPullToRefreshState extends State<AntPullToRefresh>
+/// [AntPullToRefresh] 的 State（公开以便外部经 GlobalKey 程序化触发刷新，
+/// 对应 easy_refresh controller 的 `callRefresh` 能力）。
+class AntPullToRefreshState extends State<AntPullToRefresh>
     with SingleTickerProviderStateMixin {
-  /// 当前头部/内容位移量。
-  double _offset = 0;
+  /// 程序化触发下拉刷新（对应 easy_refresh controller 的 `callRefresh`）：
+  /// 头部展开 → 等待 [AntPullToRefresh.onRefresh] 完成 → 回弹。
+  Future<void> callRefresh() => _indicator.runRefresh(widget.onRefresh);
 
-  AntPullToRefreshStatus _status = AntPullToRefreshStatus.idle;
-
-  AntPullToRefreshFooterStatus _footerStatus =
-      AntPullToRefreshFooterStatus.idle;
-
-  /// 当前一次拉动是否由桌面滚轮驱动（滚轮没有「松手」事件，
-  /// 由停止滚动计时触发 release，需屏蔽滚轮事件流中的 ScrollEndNotification）。
-  bool _wheelDriven = false;
-
-  /// 滚轮停止滚动 → 触发 release 的延时计时器。
-  Timer? _wheelSettleTimer;
+  /// 指示器状态机（架构参考 easy_refresh IndicatorNotifier）：
+  /// 状态/动画/任务编排全部收敛于此，本 State 只做事件路由与布局。
+  late final AntPullToRefreshIndicator _indicator = AntPullToRefreshIndicator(
+    vsync: this,
+    onModeChanged: (status) => widget.pullStatusChange?.call(status),
+  );
 
   /// 内层可滚动组件最近一次的滚动度量（判定是否在拉动边缘）。
   ScrollMetrics? _lastMetrics;
 
-  /// 加载更多触发臂：滚动离开底部边缘后重新武装，防止短列表在底部
-  /// 反复触发。
-  bool _loadArmed = true;
-
-  /// 加载更多执行中标记（防重入）。
-  bool _loadingMore = false;
-
-  late final AnimationController _bounceController = AnimationController(
-    vsync: this,
-    duration: kAntPullToRefreshDuration,
-  );
-
-  Animation<double>? _bounceAnimation;
-
-  bool get _isTop => widget.pointer == AntPullToRefreshPointer.top;
+  /// 滚轮停止滚动 → 触发 release 的延时计时器。
+  Timer? _wheelSettleTimer;
 
   @override
   void initState() {
     super.initState();
-    _bounceController.addListener(_handleBounceTick);
+    _indicator.configure(
+      headHeight: widget.headHeight,
+      threshold: widget.threshold,
+      isTop: widget.pointer == AntPullToRefreshPointer.top,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant AntPullToRefresh oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _indicator.configure(
+      headHeight: widget.headHeight,
+      threshold: widget.threshold,
+      isTop: widget.pointer == AntPullToRefreshPointer.top,
+    );
   }
 
   @override
   void dispose() {
     _wheelSettleTimer?.cancel();
-    _bounceController.removeListener(_handleBounceTick);
-    _bounceController.dispose();
+    _indicator.dispose();
     super.dispose();
   }
 
-  void _handleBounceTick() {
-    final anim = _bounceAnimation;
-    if (anim == null) return;
-    setState(() => _offset = anim.value);
-  }
+  bool get _isTop => _indicator.isTop;
 
-  /// 回弹到目标位移。
-  void _animateTo(double target) {
-    _bounceAnimation = Tween<double>(begin: _offset, end: target).animate(
-      CurvedAnimation(parent: _bounceController, curve: Curves.easeOutCubic),
-    );
-    _bounceController.forward(from: 0);
-  }
-
-  /// 更新状态并通知回调。
-  void _updateStatus(AntPullToRefreshStatus status) {
-    if (_status == status) return;
-    _status = status;
-    widget.pullStatusChange?.call(status);
-  }
-
-  /// 更新 footer 状态。
-  void _updateFooterStatus(AntPullToRefreshFooterStatus status) {
-    if (_footerStatus == status) return;
-    setState(() => _footerStatus = status);
-  }
-
-  /// 是否允许响应下拉手势。
-  bool get _canPull =>
-      widget.enableRefresh &&
-      (_status == AntPullToRefreshStatus.idle ||
-          _status == AntPullToRefreshStatus.pulling ||
-          _status == AntPullToRefreshStatus.canRelease);
+  // ============================================================
+  // 桌面端滚轮（PointerSignalResolver 竞争模式）
+  // ============================================================
 
   /// 内层可滚动组件是否停在拉动边缘（top：顶部；bottom：底部）。
-  ///
-  /// 滚轮事件被 Scrollable 的 PointerSignalResolver 消费后，
-  /// 在边缘处会被 clamp 成 no-op，不会产生任何过冲通知，
-  /// 因此需要用滚动度量自行判定「继续滚动即是拉动」。
-  bool get _atPullEdge {
-    final metrics = _lastMetrics;
-    if (metrics == null) return true;
-    return _isTop
-        ? metrics.pixels <= metrics.minScrollExtent + precisionErrorTolerance
-        : metrics.pixels >= metrics.maxScrollExtent - precisionErrorTolerance;
-  }
-
-  /// 处理滚动过冲位移（触摸拖拽路径，移动端不变）。
-  void _handleOverscroll(double overscroll) {
-    if (!_canPull) return;
-    final double delta = _isTop ? -overscroll : overscroll;
-    setState(() {
-      _offset = (_offset + delta)
-          .clamp(0.0, widget.headHeight * kAntPullToRefreshMaxPullFactor);
-      _updateStatus(
-        _offset >= widget.threshold
-            ? AntPullToRefreshStatus.canRelease
-            : AntPullToRefreshStatus.pulling,
-      );
-    });
-  }
+  bool get _atPullEdge =>
+      atPullEdge(_lastMetrics, isTop: _isTop);
 
   /// 滚轮事件处理（非消费式入口）。
   ///
@@ -339,17 +293,21 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
   void _handlePointerSignalWrapper(PointerSignalEvent event) {
     if (event is! PointerScrollEvent) return;
     if (!AntPlatform.isDesktop) return;
-    if (!_canPull) return;
-    final double step = _isTop ? -event.scrollDelta.dy : event.scrollDelta.dy;
+    if (!widget.enableRefresh) return;
+    if (!_indicator.canPull) return;
+    final double delta = event.scrollDelta.dy;
+    if (delta == 0) return;
+    // top：向上滚（dy < 0）为拉动；bottom：向下滚（dy > 0）为拉动。
+    final double step = _isTop ? -delta : delta;
     final bool wantsPull = step > 0 && _atPullEdge;
-    final bool wantsRetract = step < 0 && _offset > 0;
+    final bool wantsRetract = step < 0 && _indicator.offset > 0;
     if (wantsPull) {
       GestureBinding.instance.pointerSignalResolver.register(
         event,
         _handleResolvedWheel,
       );
     } else if (wantsRetract) {
-      _handleWheelPull(event);
+      _handleWheelEvent(event);
     }
   }
 
@@ -357,7 +315,7 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
   void _handleResolvedWheel(PointerSignalEvent event) {
     if (event is! PointerScrollEvent) return;
     event.respond(allowPlatformDefault: false);
-    _handleWheelPull(event);
+    _handleWheelEvent(event);
   }
 
   /// 桌面端鼠标滚轮拉动（与触摸共用同一状态机）。
@@ -365,113 +323,26 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
   /// - 朝拉动方向滚动且内层滚动停在边缘 → 累积位移；
   /// - 反向滚动 → 回退位移（回到 0 即回 idle）；
   /// - 停止滚动 [kAntPullToRefreshWheelSettleDuration] 后 → 走 release。
-  void _handleWheelPull(PointerScrollEvent event) {
-    if (!_canPull) return;
+  void _handleWheelEvent(PointerScrollEvent event) {
+    if (!widget.enableRefresh || !_indicator.canPull) return;
     final double delta = event.scrollDelta.dy;
     if (delta == 0) return;
-    // top：向上滚（dy < 0）为拉动；bottom：向下滚（dy > 0）为拉动。
     final double step = _isTop ? -delta : delta;
     if (step > 0 && !_atPullEdge) return;
-    if (step < 0 && _offset <= 0) return;
+    if (step < 0 && _indicator.offset <= 0) return;
 
     _wheelSettleTimer?.cancel();
-    setState(() {
-      _offset = (_offset + step)
-          .clamp(0.0, widget.headHeight * kAntPullToRefreshMaxPullFactor);
-      if (_offset <= 0) {
-        _wheelDriven = false;
-        _updateStatus(AntPullToRefreshStatus.idle);
-        return;
-      }
-      _wheelDriven = true;
-      _updateStatus(
-        _offset >= widget.threshold
-            ? AntPullToRefreshStatus.canRelease
-            : AntPullToRefreshStatus.pulling,
-      );
-    });
+    _indicator.wheelPull(step);
     // 滚轮停止滚动即视为「松手」。
     _wheelSettleTimer = Timer(kAntPullToRefreshWheelSettleDuration, () {
-      if (!mounted || !_wheelDriven || !_canPull) return;
-      _handleRelease();
+      if (!mounted || !_indicator.wheelDriven || !_indicator.canPull) return;
+      _indicator.release(widget.onRefresh);
     });
   }
 
-  void _cancelWheelSettle() {
-    _wheelSettleTimer?.cancel();
-    _wheelSettleTimer = null;
-  }
-
-  /// 松手：超过阈值触发刷新，否则回弹。
-  void _handleRelease() {
-    _cancelWheelSettle();
-    if (!_canPull) return;
-    _wheelDriven = false;
-    if (_offset >= widget.threshold && widget.onRefresh != null) {
-      _runRefresh();
-    } else {
-      _updateStatus(AntPullToRefreshStatus.idle);
-      _animateTo(0);
-    }
-  }
-
-  /// 执行刷新：头部展开到 headHeight → 等待 onRefresh → 完成后回弹。
-  Future<void> _runRefresh() async {
-    _updateStatus(AntPullToRefreshStatus.refreshing);
-    _animateTo(widget.headHeight);
-    try {
-      await widget.onRefresh?.call();
-    } catch (_) {
-      // 刷新回调异常不阻塞流程，照常完成回弹。
-    }
-    if (!mounted) return;
-    _updateStatus(AntPullToRefreshStatus.complete);
-    // 刷新成功后重置 footer 的 noMore/failed 状态（对齐 easy_refresh：
-    // callRefresh 会重置 footer）。
-    if (_footerStatus != AntPullToRefreshFooterStatus.idle &&
-        _footerStatus != AntPullToRefreshFooterStatus.loading) {
-      _updateFooterStatus(AntPullToRefreshFooterStatus.idle);
-    }
-    _animateTo(0);
-  }
-
-  /// 触发加载更多（滚动到底部 / 失败重试）。
-  Future<void> _startLoadMore({bool fromRetry = false}) async {
-    final onLoadMore = widget.onLoadMore;
-    if (!widget.enableLoadMore || onLoadMore == null) return;
-    if (_loadingMore) return;
-    if (_status == AntPullToRefreshStatus.refreshing ||
-        _status == AntPullToRefreshStatus.complete) {
-      return;
-    }
-    if (!fromRetry && _footerStatus == AntPullToRefreshFooterStatus.noMore) {
-      return;
-    }
-    _loadingMore = true;
-    _updateFooterStatus(AntPullToRefreshFooterStatus.loading);
-    AntPullToRefreshLoadResult result;
-    try {
-      result = await onLoadMore();
-    } catch (_) {
-      // 回调异常视为加载失败，展示重试。
-      result = AntPullToRefreshLoadResult.failed;
-    }
-    _loadingMore = false;
-    if (!mounted) return;
-    switch (result) {
-      case AntPullToRefreshLoadResult.more:
-        // 回到 idle；需滚动离开底部后重新武装，避免短列表循环触发。
-        _updateFooterStatus(AntPullToRefreshFooterStatus.idle);
-        _loadArmed = false;
-        break;
-      case AntPullToRefreshLoadResult.noMore:
-        _updateFooterStatus(AntPullToRefreshFooterStatus.noMore);
-        break;
-      case AntPullToRefreshLoadResult.failed:
-        _updateFooterStatus(AntPullToRefreshFooterStatus.failed);
-        break;
-    }
-  }
+  // ============================================================
+  // 滚动通知路由
+  // ============================================================
 
   bool _handleNotification(Notification notification) {
     // 记录内层滚动度量，供滚轮判定拉动边缘。
@@ -480,151 +351,168 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
     } else if (notification is ScrollUpdateNotification) {
       _lastMetrics = notification.metrics;
       // 滚动离开底部边缘 → 重新武装加载更多。
-      final metrics = notification.metrics;
-      if (metrics.pixels < metrics.maxScrollExtent - precisionErrorTolerance) {
-        _loadArmed = true;
-      }
+      _indicator.armLoadIfScrolled(notification.metrics);
     }
     if (notification is! ScrollNotification) return false;
 
-    // 刷新中/完成阶段不响应新的下拉。
-    if (_status == AntPullToRefreshStatus.refreshing ||
-        _status == AntPullToRefreshStatus.complete) {
-      return false;
-    }
     if (notification is OverscrollNotification) {
       final bool hit =
           _isTop ? notification.overscroll < 0 : notification.overscroll > 0;
-      if (hit) _handleOverscroll(notification.overscroll);
+      if (hit && widget.enableRefresh) _indicator.drag(notification.overscroll);
       return false;
     }
     if (notification is ScrollEndNotification) {
       // 滚轮每个 tick 都会产生 ScrollEndNotification（pointerScroll
       // 内部 didStartScroll/didEndScroll），滚轮拉动由停止计时触发
       // release，不能在这里提前回弹。
-      if (!_wheelDriven) _handleRelease();
+      if (!_indicator.wheelDriven && widget.enableRefresh) {
+        _indicator.release(widget.onRefresh);
+      }
       _maybeLoadMore(notification.metrics);
     }
     return false;
   }
 
-  /// 滚动结束停在底部边缘时触发加载更多。
-  void _maybeLoadMore(ScrollMetrics metrics) {
+  /// 滚动结束停在底部边缘时触发加载更多（结果由 Notifier 回写 footer）。
+  Future<void> _maybeLoadMore(ScrollMetrics metrics) async {
     if (!widget.enableLoadMore) return;
-    if (!_loadArmed || _loadingMore) return;
-    if (_footerStatus == AntPullToRefreshFooterStatus.noMore) return;
-    if (metrics.pixels < metrics.maxScrollExtent - precisionErrorTolerance) {
-      return;
-    }
-    _startLoadMore();
+    if (!_indicator.shouldLoadMore(metrics)) return;
+    await _indicator.startLoad(
+      enableLoadMore: true,
+      onLoadMore: widget.onLoadMore,
+    );
   }
+
+  /// 失败态点击重试。
+  Future<void> _retryLoad() async {
+    await _indicator.startLoad(
+      enableLoadMore: true,
+      onLoadMore: widget.onLoadMore,
+      fromRetry: true,
+    );
+  }
+
+  // ============================================================
+  // 布局（Stack 指示器挂载，ListenableBuilder 订阅 Notifier）
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     final bool isTop = _isTop;
-    final bool showFooter = widget.enableLoadMore &&
-        _footerStatus != AntPullToRefreshFooterStatus.idle;
 
-    return NotificationListener<Notification>(
-      onNotification: _handleNotification,
-      child: ScrollConfiguration(
-        // 参照 easy_refresh ERScrollBehavior：注入滚动行为，
-        // 平台物理兜底 AlwaysScrollable（空列表也可下拉），
-        // 关闭默认过冲指示器，桌面端允许鼠标拖拽滚动。
-        behavior: const _AntPullToRefreshScrollBehavior(),
-        child: Stack(
-          children: [
-            // 内容区（随下拉位移整体下移/上移）
-            Positioned.fill(
-              key: const ValueKey<String>('AntPullToRefreshContent'),
-              child: NotificationListener<OverscrollIndicatorNotification>(
-                onNotification: (notification) {
-                  // 吞掉默认的 Material 拉伸/波纹过冲指示器，避免与头部提示冲突。
-                  notification.disallowIndicator();
-                  return true;
-                },
-                child: Transform.translate(
-                  offset: Offset(0, isTop ? _offset : -_offset),
-                  child: Listener(
-                    // 滚轮竞争监听器下沉到 child 内层：命中测试比
-                    // Scrollable 的监听器更深，pointerSignalResolver
-                    // 深度优先注册保证本组件只在自身条件下接管事件，
-                    // 不与同页其他滚动容器冲突。
-                    onPointerSignal: _handlePointerSignalWrapper,
-                    child: widget.child,
+    return ListenableBuilder(
+      listenable: _indicator,
+      builder: (context, _) {
+        final double offset = _indicator.offset.clamp(
+          0.0,
+          widget.headHeight * kAntPullToRefreshMaxPullFactor,
+        );
+        final bool showFooter = widget.enableLoadMore &&
+            _indicator.footerMode != AntPullToRefreshFooterStatus.idle;
+
+        return NotificationListener<Notification>(
+          onNotification: _handleNotification,
+          child: ScrollConfiguration(
+            // 架构参考 easy_refresh ERScrollBehavior：注入滚动行为，
+            // 平台物理兜底 AlwaysScrollable（空列表也可下拉），
+            // 关闭默认过冲指示器，桌面端允许鼠标拖拽滚动。
+            behavior: const _AntPullToRefreshScrollBehavior(),
+            child: Stack(
+              children: [
+                // 内容区（随下拉位移整体下移/上移）
+                Positioned.fill(
+                  key: const ValueKey<String>('AntPullToRefreshContent'),
+                  child: NotificationListener<OverscrollIndicatorNotification>(
+                    onNotification: (notification) {
+                      // 吞掉默认的 Material 拉伸/波纹过冲指示器，
+                      // 避免与头部提示冲突（对应 ER 关闭过冲指示器）。
+                      notification.disallowIndicator();
+                      return true;
+                    },
+                    child: Transform.translate(
+                      offset: Offset(0, isTop ? offset : -offset),
+                      child: Listener(
+                        // 滚轮竞争监听器下沉到 child 内层：命中测试比
+                        // Scrollable 的监听器更深，pointerSignalResolver
+                        // 深度优先注册保证本组件只在自身条件下接管事件，
+                        // 不与同页其他滚动容器冲突。
+                        onPointerSignal: _handlePointerSignalWrapper,
+                        child: widget.child,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            // 头部（下拉时从边缘滑入）
-            Positioned(
-              key: kAntPullToRefreshHeaderKey,
-              left: 0,
-              right: 0,
-              top: isTop ? 0 : null,
-              bottom: isTop ? null : 0,
-              height: widget.headHeight,
-              child: Transform.translate(
-                offset: Offset(
-                  0,
-                  isTop
-                      ? _offset - widget.headHeight
-                      : widget.headHeight - _offset,
-                ),
-                child: Container(
-                  alignment: Alignment.center,
-                  color: theme.colorBgLayout,
-                  // 未下拉时头部整体移出可视区，内容不参与命中与语义树。
-                  child: Visibility(
-                    visible: _offset > 0,
-                    child: widget.header ??
-                        AntPullToRefreshHeader(
-                          status: _status,
-                          pullingText: widget.pullingText,
-                          releasingText: widget.releasingText,
-                          finishingText: widget.finishingText,
-                          completeText: widget.completeText,
-                        ),
+                // 头部（下拉时从边缘滑入）
+                Positioned(
+                  key: kAntPullToRefreshHeaderKey,
+                  left: 0,
+                  right: 0,
+                  top: isTop ? 0 : null,
+                  bottom: isTop ? null : 0,
+                  height: widget.headHeight,
+                  child: Transform.translate(
+                    offset: Offset(
+                      0,
+                      isTop
+                          ? offset - widget.headHeight
+                          : widget.headHeight - offset,
+                    ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      color: theme.colorBgLayout,
+                      // 未下拉时头部整体移出可视区，内容不参与命中与语义树。
+                      child: Visibility(
+                        visible: offset > 0,
+                        child: widget.header ??
+                            AntPullToRefreshHeader(
+                              status: _indicator.mode,
+                              pullingText: widget.pullingText,
+                              releasingText: widget.releasingText,
+                              finishingText: widget.finishingText,
+                              completeText: widget.completeText,
+                            ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            // 底部（加载更多）指示器
-            Positioned(
-              key: kAntPullToRefreshFooterKey,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: widget.headHeight,
-              child: IgnorePointer(
-                ignoring: !showFooter,
-                child: Visibility(
-                  visible: showFooter,
-                  child: Container(
-                    alignment: Alignment.center,
-                    color: theme.colorBgLayout,
-                    child: widget.footer ??
-                        AntPullToRefreshFooter(
-                          status: _footerStatus,
-                          loadingText: widget.loadingText,
-                          noMoreText: widget.noMoreText,
-                          failedText: widget.failedText,
-                          retryText: widget.retryText,
-                          onRetry: () => _startLoadMore(fromRetry: true),
-                        ),
+                // 底部（加载更多）指示器
+                Positioned(
+                  key: kAntPullToRefreshFooterKey,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: widget.headHeight,
+                  child: IgnorePointer(
+                    ignoring: !showFooter,
+                    child: Visibility(
+                      visible: showFooter,
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: theme.colorBgLayout,
+                        child: widget.footer ??
+                            AntPullToRefreshFooter(
+                              status: _indicator.footerMode,
+                              loadingText: widget.loadingText,
+                              noMoreText: widget.noMoreText,
+                              failedText: widget.failedText,
+                              retryText: widget.retryText,
+                              onRetry: _retryLoad,
+                            ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-/// AntPullToRefresh 的滚动行为（参照 easy_refresh `ERScrollBehavior` 整理）。
+/// AntPullToRefresh 的滚动行为（架构参考 easy_refresh `ERScrollBehavior`）。
 ///
 /// - 物理保留平台默认（Clamping/Bouncing），外层包 `AlwaysScrollableScrollPhysics`
 ///   保证空列表也能下拉；

@@ -1,5 +1,6 @@
 import 'package:antd_pull_to_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
 import 'package:antd_theme/antd_theme.dart';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
@@ -644,6 +645,101 @@ void main() {
         await scrollToEnd(tester);
         expect(find.text('自定义底部'), findsOneWidget);
         expect(find.byType(AntPullToRefreshFooter), findsNothing);
+      });
+    });
+
+    group('programmatic refresh (callRefresh)', () {
+      testWidgets('callRefresh triggers onRefresh and settles back',
+          (tester) async {
+        var refreshed = false;
+        final statuses = <AntPullToRefreshStatus>[];
+        final key = GlobalKey<AntPullToRefreshState>();
+        await tester.pumpWidget(
+          _wrap(
+            AntPullToRefresh(
+              key: key,
+              onRefresh: () async {
+                refreshed = true;
+                await Future<void>.delayed(
+                  const Duration(milliseconds: 50),
+                );
+              },
+              pullStatusChange: statuses.add,
+              child: ListView.builder(
+                itemCount: 100,
+                itemBuilder: (context, index) =>
+                    ListTile(title: Text('item $index')),
+              ),
+            ),
+          ),
+        );
+        // 程序化触发（对应 easy_refresh controller.callRefresh）：
+        // 头部展开 → 刷新中转圈 → 完成回弹。
+        // 不 await：onRefresh 的 Future 在测试假时钟下需由 pump 推进。
+        unawaited(key.currentState!.callRefresh());
+        // 推进至进入 refreshing（任务 50ms 后完成）。
+        // 注：假时钟下动画帧有滞后，不在中途断言头部 UI；
+        // 头部转圈展示由触摸路径用例覆盖。
+        await tester.pump(const Duration(milliseconds: 10));
+        expect(statuses, contains(AntPullToRefreshStatus.refreshing));
+        await tester.pumpAndSettle();
+        expect(refreshed, isTrue);
+        // 刷新后回弹：头部与转圈均消失，内容回到原位。
+        expect(statuses.last, AntPullToRefreshStatus.complete);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.text('item 0'), findsOneWidget);
+      });
+    });
+
+    group('multi-container wheel refresh isolation', () {
+      testWidgets('wheel triggers refresh only on hovered container',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        var refreshedA = false;
+        var refreshedB = false;
+        Widget buildOne(Key key, VoidCallback onRefresh) {
+          return SizedBox(
+            height: 300,
+            child: AntPullToRefresh(
+              key: key,
+              onRefresh: () async {
+                onRefresh();
+                await Future<void>.delayed(
+                  const Duration(milliseconds: 50),
+                );
+              },
+              child: ListView.builder(
+                itemCount: 100,
+                itemBuilder: (context, index) =>
+                    ListTile(title: Text('item $index')),
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(
+          _wrap(
+            Column(
+              children: [
+                buildOne(const ValueKey<String>('list-a'), () => refreshedA = true),
+                buildOne(const ValueKey<String>('list-b'), () => refreshedB = true),
+              ],
+            ),
+          ),
+        );
+
+        // 滚轮悬停列表 A 并持续滚动到阈值 → 停止后仅 A 触发刷新。
+        await sendWheelScroll(
+          tester,
+          finder: find.byKey(const ValueKey<String>('list-a')),
+          ticks: 3,
+          deltaPerTick: -30,
+        );
+        await tester.pump(kAntPullToRefreshWheelSettleDuration);
+        await tester.pumpAndSettle();
+        expect(refreshedA, isTrue);
+        expect(refreshedB, isFalse);
       });
     });
   });
