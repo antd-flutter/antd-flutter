@@ -13,9 +13,16 @@
 /// 水印层通过 [CustomPainter] 平铺绘制，使用 [IgnorePointer]
 /// 包裹，不拦截子内容的手势。
 ///
+/// 尺寸方案：通过 [GlobalKey] 在 post-frame 阶段测量 [child]
+/// 的实际渲染尺寸，水印层以等尺寸 [SizedBox.fromSize] 叠放，
+/// 不调用 intrinsic 尺寸、不假设父约束有界，
+/// 因此兼容滚动容器（SingleChildScrollView/ListView 等）
+/// 与任意父级；窗口尺寸变化（[didChangeMetrics]）时自动重测。
+///
 /// ```dart
 /// AntWatermark(content: '水印文字', child: ListView(...))
 /// AntWatermark(content: ['多行', '水印'], child: ...)
+/// AntWatermark(content: '水印文字') // 填充满父级模式
 /// ```
 library;
 
@@ -46,11 +53,15 @@ const Key kAntWatermarkLayerKey = ValueKey<String>('AntWatermarkLayer');
 ///
 /// 对齐 antd React Watermark 组件：文字平铺、可旋转、
 /// 可配置字号颜色与间距，水印层不拦截手势。
-class AntWatermark extends StatelessWidget {
+///
+/// [child] 可空：
+/// - 传入 child：水印层自动测量 child 尺寸并等尺寸叠放；
+/// - 传 null：填充满父级模式，要求父级约束有界。
+class AntWatermark extends StatefulWidget {
   const AntWatermark({
     super.key,
     required this.content,
-    required this.child,
+    this.child,
     this.fontSize,
     this.fontColor,
     this.rotate = kAntWatermarkRotate,
@@ -64,7 +75,10 @@ class AntWatermark extends StatelessWidget {
   final Object content;
 
   /// 被水印覆盖的内容。
-  final Widget child;
+  ///
+  /// 可空：传 null 时进入填充满父级模式，
+  /// 此时要求父级约束有界（如 Scaffold body 已被约束的区域）。
+  final Widget? child;
 
   /// 字体大小。
   final double? fontSize;
@@ -99,7 +113,7 @@ class AntWatermark extends StatelessWidget {
   factory AntWatermark.text(
     String text, {
     Key? key,
-    required Widget child,
+    Widget? child,
     double? fontSize,
     Color? fontColor,
     double rotate = kAntWatermarkRotate,
@@ -123,34 +137,100 @@ class AntWatermark extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = AntTheme.of(context);
+  State<AntWatermark> createState() => _AntWatermarkState();
+}
 
-    return Stack(
-      key: kAntWatermarkLayerKey,
-      fit: StackFit.expand,
-      children: [
-        child,
-        // 水印层：不拦截手势
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Opacity(
-              opacity: opacity.clamp(0.0, 1.0),
-              child: CustomPaint(
-                key: kAntWatermarkPaintKey,
-                painter: _WatermarkPainter(
-                  content: lines,
-                  fontSize: fontSize ?? kAntWatermarkFontSize,
-                  fontColor: fontColor ?? theme.colorText,
-                  rotate: rotate,
-                  gapX: gapX,
-                  gapY: gapY,
-                  zIndex: zIndex,
-                ),
-              ),
-            ),
+// ============================================================
+// _AntWatermarkState — 尺寸测量与水印层叠放
+// ============================================================
+
+class _AntWatermarkState extends State<AntWatermark>
+    with WidgetsBindingObserver {
+  final GlobalKey _childKey = GlobalKey();
+  Size _childSize = Size.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureChild());
+  }
+
+  @override
+  void didUpdateWidget(AntWatermark old) {
+    super.didUpdateWidget(old);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureChild());
+  }
+
+  @override
+  void didChangeMetrics() {
+    // 窗口尺寸变化时重测 child 尺寸
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureChild());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _measureChild() {
+    final box = _childKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final boxSize = box.size;
+    // 复制一份纯 Size：box.size 在 debug 模式带 _DebugSize 归属标记，
+    // 直接存入 state 再作为 CustomPaint.preferredSize 参与布局，
+    // 会触发 debugAdoptSize 断言（尺寸归属协议违规）。
+    final size = Size(boxSize.width, boxSize.height);
+    if (size != _childSize) {
+      setState(() => _childSize = size); // 相等跳过，避免循环
+    }
+  }
+
+  /// 构建水印覆盖层（不依赖父约束，按测量尺寸绘制）。
+  Widget _buildOverlay(AntThemeData theme) {
+    return IgnorePointer(
+      child: Opacity(
+        opacity: widget.opacity.clamp(0.0, 1.0),
+        child: CustomPaint(
+          key: kAntWatermarkPaintKey,
+          size: _childSize,
+          painter: _WatermarkPainter(
+            content: widget.lines,
+            fontSize: widget.fontSize ?? kAntWatermarkFontSize,
+            fontColor: widget.fontColor ?? theme.colorText,
+            rotate: widget.rotate,
+            gapX: widget.gapX,
+            gapY: widget.gapY,
+            zIndex: widget.zIndex,
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    final overlay = _buildOverlay(theme);
+
+    final child = widget.child;
+    if (child == null) {
+      // 填充模式：父级有界
+      return Stack(
+        key: kAntWatermarkLayerKey,
+        fit: StackFit.expand,
+        children: [overlay],
+      );
+    }
+    return Stack(
+      key: kAntWatermarkLayerKey,
+      children: [
+        KeyedSubtree(key: _childKey, child: child),
+        // 水印层与 child 等尺寸居中叠放（尺寸相等即完全覆盖）；
+        // 首帧测量完成前暂不展示水印层。
+        if (_childSize != Size.zero)
+          SizedBox.fromSize(size: _childSize, child: overlay),
       ],
     );
   }
@@ -231,8 +311,9 @@ class _WatermarkPainter extends CustomPainter {
 
     // 旋转后覆盖整个画布所需的绘制半径
     final radius = math.sqrt(
-      size.width * size.width + size.height * size.height,
-    ) / 2;
+          size.width * size.width + size.height * size.height,
+        ) /
+        2;
 
     final cols = (radius * 2 / stepX).ceil() + 1;
     final rows = (radius * 2 / stepY).ceil() + 1;
