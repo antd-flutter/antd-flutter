@@ -10,6 +10,13 @@
 ///   [AntPullToRefresh.releasingText] / [AntPullToRefresh.finishingText] — 各阶段文案
 /// - [AntPullToRefresh.pointer] — 指针位置（top 下拉 / bottom 上拉，默认 top）
 ///
+/// 交互来源：
+/// - 移动端：触摸拖拽过冲（OverscrollNotification）驱动
+/// - 桌面端（macOS/Windows/Linux/web）：鼠标滚轮在顶部继续向上滚动
+///   累积位移，停止滚动约 400ms 后按阈值触发刷新（参照
+///   [pull_to_refresh_flutter3](https://github.com/xxzj990-game/flutter_pulltorefresh)
+///   「滚轮位移累积 + 停止即 ballistic 触发」的思路）
+///
 /// ```dart
 /// AntPullToRefresh(
 ///   onRefresh: () async {
@@ -20,10 +27,16 @@
 /// ```
 library;
 
+import 'dart:async';
+
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/foundation.dart' show precisionErrorTolerance;
+import 'package:flutter/gestures.dart' show PointerScrollEvent, PointerSignalEvent;
 import 'package:material_ui/material_ui.dart';
 
+import 'ant_pull_to_refresh_header.dart';
 import 'ant_pull_to_refresh_types.dart';
+export 'ant_pull_to_refresh_header.dart';
 export 'ant_pull_to_refresh_types.dart';
 
 // ============================================================
@@ -42,11 +55,26 @@ const double kAntPullToRefreshThreshold = 60;
 /// 回弹动画时长。
 const Duration kAntPullToRefreshDuration = Duration(milliseconds: 300);
 
+/// 最大下拉距离 = headHeight * 3（参照轮子 maxOverScrollExtent 思路）。
+const double kAntPullToRefreshMaxPullFactor = 3;
+
+/// 桌面端滚轮拉动后停止滚动到触发刷新的等待时长。
+const Duration kAntPullToRefreshWheelSettleDuration = Duration(milliseconds: 400);
+
 /// 默认文案。
 const String kAntPullToRefreshPullingText = '下拉刷新';
 const String kAntPullToRefreshReleasingText = '释放刷新';
 const String kAntPullToRefreshFinishingText = '加载中...';
 const String kAntPullToRefreshCompleteText = '刷新完成';
+
+/// 头部指示器图标尺寸。
+const double kAntPullToRefreshIndicatorSize = 16;
+
+/// 头部指示器图标与文案间距。
+const double kAntPullToRefreshIndicatorSpacing = 8;
+
+/// 头部指示器文案字号。
+const double kAntPullToRefreshTextFontSize = 14;
 
 // ============================================================
 // AntPullToRefresh
@@ -58,6 +86,9 @@ const String kAntPullToRefreshCompleteText = '刷新完成';
 /// 「下拉刷新 → 释放刷新 → 加载转圈 → 完成」提示，松手超过
 /// [AntPullToRefresh.threshold] 触发 [AntPullToRefresh.onRefresh]，
 /// Future 完成后自动回弹。
+///
+/// 桌面端支持鼠标滚轮：在列表顶部继续向上滚动滚轮即累积下拉位移，
+/// 停止滚动 [kAntPullToRefreshWheelSettleDuration] 后超过阈值即触发刷新。
 class AntPullToRefresh extends StatefulWidget {
   const AntPullToRefresh({
     super.key,
@@ -118,12 +149,24 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
 
   AntPullToRefreshStatus _status = AntPullToRefreshStatus.idle;
 
+  /// 当前一次拉动是否由桌面滚轮驱动（滚轮没有「松手」事件，
+  /// 由停止滚动计时触发 release，需屏蔽滚轮事件流中的 ScrollEndNotification）。
+  bool _wheelDriven = false;
+
+  /// 滚轮停止滚动 → 触发 release 的延时计时器。
+  Timer? _wheelSettleTimer;
+
+  /// 内层可滚动组件最近一次的滚动度量（判定是否在拉动边缘）。
+  ScrollMetrics? _lastMetrics;
+
   late final AnimationController _bounceController = AnimationController(
     vsync: this,
     duration: kAntPullToRefreshDuration,
   );
 
   Animation<double>? _bounceAnimation;
+
+  bool get _isTop => widget.pointer == AntPullToRefreshPointer.top;
 
   @override
   void initState() {
@@ -133,6 +176,7 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
 
   @override
   void dispose() {
+    _wheelSettleTimer?.cancel();
     _bounceController.removeListener(_handleBounceTick);
     _bounceController.dispose();
     super.dispose();
@@ -165,13 +209,28 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
       _status == AntPullToRefreshStatus.pulling ||
       _status == AntPullToRefreshStatus.canRelease;
 
-  /// 处理滚动过冲位移。
+  /// 内层可滚动组件是否停在拉动边缘（top：顶部；bottom：底部）。
+  ///
+  /// 滚轮事件被 Scrollable 的 PointerSignalResolver 消费后，
+  /// 在边缘处会被 clamp 成 no-op，不会产生任何过冲通知，
+  /// 因此需要用滚动度量自行判定「继续滚动即是拉动」。
+  bool get _atPullEdge {
+    final metrics = _lastMetrics;
+    if (metrics == null) return true;
+    return _isTop
+        ? metrics.pixels <=
+            metrics.minScrollExtent + precisionErrorTolerance
+        : metrics.pixels >=
+            metrics.maxScrollExtent - precisionErrorTolerance;
+  }
+
+  /// 处理滚动过冲位移（触摸拖拽路径，移动端不变）。
   void _handleOverscroll(double overscroll) {
     if (!_canPull) return;
-    final double delta =
-        widget.pointer == AntPullToRefreshPointer.top ? -overscroll : overscroll;
+    final double delta = _isTop ? -overscroll : overscroll;
     setState(() {
-      _offset = (_offset + delta).clamp(0.0, widget.headHeight * 3);
+      _offset =
+          (_offset + delta).clamp(0.0, widget.headHeight * kAntPullToRefreshMaxPullFactor);
       _updateStatus(
         _offset >= widget.threshold
             ? AntPullToRefreshStatus.canRelease
@@ -180,9 +239,54 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
     });
   }
 
+  /// 桌面端鼠标滚轮拉动（与触摸共用同一状态机）。
+  ///
+  /// - 朝拉动方向滚动且内层滚动停在边缘 → 累积位移；
+  /// - 反向滚动 → 回退位移（回到 0 即回 idle）；
+  /// - 停止滚动 [kAntPullToRefreshWheelSettleDuration] 后 → 走 release。
+  void _handleWheelPull(PointerScrollEvent event) {
+    if (!AntPlatform.isDesktop) return;
+    if (!_canPull) return;
+    final double delta = event.scrollDelta.dy;
+    if (delta == 0) return;
+    // top：向上滚（dy < 0）为拉动；bottom：向下滚（dy > 0）为拉动。
+    final double step = _isTop ? -delta : delta;
+    if (step > 0 && !_atPullEdge) return;
+    if (step < 0 && _offset <= 0) return;
+
+    _wheelSettleTimer?.cancel();
+    setState(() {
+      _offset =
+          (_offset + step).clamp(0.0, widget.headHeight * kAntPullToRefreshMaxPullFactor);
+      if (_offset <= 0) {
+        _wheelDriven = false;
+        _updateStatus(AntPullToRefreshStatus.idle);
+        return;
+      }
+      _wheelDriven = true;
+      _updateStatus(
+        _offset >= widget.threshold
+            ? AntPullToRefreshStatus.canRelease
+            : AntPullToRefreshStatus.pulling,
+      );
+    });
+    // 滚轮停止滚动即视为「松手」。
+    _wheelSettleTimer = Timer(kAntPullToRefreshWheelSettleDuration, () {
+      if (!mounted || !_wheelDriven || !_canPull) return;
+      _handleRelease();
+    });
+  }
+
+  void _cancelWheelSettle() {
+    _wheelSettleTimer?.cancel();
+    _wheelSettleTimer = null;
+  }
+
   /// 松手：超过阈值触发刷新，否则回弹。
   void _handleRelease() {
+    _cancelWheelSettle();
     if (!_canPull) return;
+    _wheelDriven = false;
     if (_offset >= widget.threshold && widget.onRefresh != null) {
       _runRefresh();
     } else {
@@ -205,21 +309,36 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
     _animateTo(0);
   }
 
-  bool _handleScrollNotification(ScrollNotification notification) {
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is PointerScrollEvent) _handleWheelPull(event);
+  }
+
+  bool _handleNotification(Notification notification) {
+    // 记录内层滚动度量，供滚轮判定拉动边缘。
+    if (notification is ScrollMetricsNotification) {
+      _lastMetrics = notification.metrics;
+    } else if (notification is ScrollUpdateNotification) {
+      _lastMetrics = notification.metrics;
+    }
+    if (notification is! ScrollNotification) return false;
+
     // 刷新中/完成阶段不响应新的下拉。
     if (_status == AntPullToRefreshStatus.refreshing ||
         _status == AntPullToRefreshStatus.complete) {
       return false;
     }
     if (notification is OverscrollNotification) {
-      final bool hit = widget.pointer == AntPullToRefreshPointer.top
+      final bool hit = _isTop
           ? notification.overscroll < 0
           : notification.overscroll > 0;
       if (hit) _handleOverscroll(notification.overscroll);
       return false;
     }
     if (notification is ScrollEndNotification) {
-      _handleRelease();
+      // 滚轮每个 tick 都会产生 ScrollEndNotification（pointerScroll
+      // 内部 didStartScroll/didEndScroll），滚轮拉动由停止计时触发
+      // release，不能在这里提前回弹。
+      if (!_wheelDriven) _handleRelease();
     }
     return false;
   }
@@ -227,104 +346,65 @@ class _AntPullToRefreshState extends State<AntPullToRefresh>
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final bool isTop = widget.pointer == AntPullToRefreshPointer.top;
+    final bool isTop = _isTop;
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: _handleScrollNotification,
-      child: Stack(
-        children: [
-          // 内容区（随下拉位移整体下移/上移）
-          Positioned.fill(
-            key: const ValueKey<String>('AntPullToRefreshContent'),
-            child: NotificationListener<OverscrollIndicatorNotification>(
-              onNotification: (notification) {
-                // 吞掉默认的 Material 拉伸/波纹过冲指示器，避免与头部提示冲突。
-                notification.disallowIndicator();
-                return true;
-              },
-              child: Transform.translate(
-                offset: Offset(0, isTop ? _offset : -_offset),
-                child: widget.child,
-              ),
-            ),
-          ),
-          // 头部（下拉时从边缘滑入）
-          Positioned(
-            key: kAntPullToRefreshHeaderKey,
-            left: 0,
-            right: 0,
-            top: isTop ? 0 : null,
-            bottom: isTop ? null : 0,
-            height: widget.headHeight,
-            child: Transform.translate(
-              offset: Offset(
-                0,
-                isTop ? _offset - widget.headHeight : widget.headHeight - _offset,
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                color: theme.colorBgLayout,
-                // 未下拉时头部整体移出可视区，内容不参与命中与语义树。
-                child: Visibility(
-                  visible: _offset > 0,
-                  child: widget.header ?? _buildDefaultHeader(theme),
+    return Listener(
+      onPointerSignal: _handlePointerSignal,
+      child: NotificationListener<Notification>(
+        onNotification: _handleNotification,
+        child: Stack(
+          children: [
+            // 内容区（随下拉位移整体下移/上移）
+            Positioned.fill(
+              key: const ValueKey<String>('AntPullToRefreshContent'),
+              child: NotificationListener<OverscrollIndicatorNotification>(
+                onNotification: (notification) {
+                  // 吞掉默认的 Material 拉伸/波纹过冲指示器，避免与头部提示冲突。
+                  notification.disallowIndicator();
+                  return true;
+                },
+                child: Transform.translate(
+                  offset: Offset(0, isTop ? _offset : -_offset),
+                  child: widget.child,
                 ),
               ),
             ),
-          ),
-        ],
+            // 头部（下拉时从边缘滑入）
+            Positioned(
+              key: kAntPullToRefreshHeaderKey,
+              left: 0,
+              right: 0,
+              top: isTop ? 0 : null,
+              bottom: isTop ? null : 0,
+              height: widget.headHeight,
+              child: Transform.translate(
+                offset: Offset(
+                  0,
+                  isTop
+                      ? _offset - widget.headHeight
+                      : widget.headHeight - _offset,
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  color: theme.colorBgLayout,
+                  // 未下拉时头部整体移出可视区，内容不参与命中与语义树。
+                  child: Visibility(
+                    visible: _offset > 0,
+                    child: widget.header ??
+                        AntPullToRefreshHeader(
+                          status: _status,
+                          pullingText: widget.pullingText,
+                          releasingText: widget.releasingText,
+                          finishingText: widget.finishingText,
+                          completeText: widget.completeText,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  /// 默认头部：按状态显示 文案 + 箭头 / 转圈 / 完成标记。
-  Widget _buildDefaultHeader(AntThemeData theme) {
-    final String text = switch (_status) {
-      AntPullToRefreshStatus.canRelease =>
-        widget.releasingText ?? kAntPullToRefreshReleasingText,
-      AntPullToRefreshStatus.refreshing =>
-        widget.finishingText ?? kAntPullToRefreshFinishingText,
-      AntPullToRefreshStatus.complete =>
-        widget.completeText ?? kAntPullToRefreshCompleteText,
-      _ => widget.pullingText ?? kAntPullToRefreshPullingText,
-    };
-
-    final Widget indicator = switch (_status) {
-      AntPullToRefreshStatus.canRelease => Icon(
-          Icons.arrow_upward,
-          size: 16,
-          color: theme.colorTextSecondary,
-        ),
-      AntPullToRefreshStatus.refreshing => const SizedBox(
-          width: 16,
-          height: 16,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      AntPullToRefreshStatus.complete => Icon(
-          Icons.check,
-          size: 16,
-          color: theme.colorSuccess,
-        ),
-      _ => Icon(
-          Icons.arrow_downward,
-          size: 16,
-          color: theme.colorTextSecondary,
-        ),
-    };
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        indicator,
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            color: theme.colorTextSecondary,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:antd_pull_to_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -182,6 +184,117 @@ void main() {
       expect(refresh.headHeight, kAntPullToRefreshHeadHeight);
       expect(refresh.headHeight, 40);
       expect(refresh.pointer, AntPullToRefreshPointer.top);
+    });
+
+    group('desktop wheel pull', () {
+      /// 发送一串鼠标滚轮事件（桌面端）。
+      Future<void> sendWheelScroll(
+        WidgetTester tester, {
+        required int ticks,
+        required double deltaPerTick,
+        bool settleAfter = false,
+      }) async {
+        final pointer = TestPointer(1, PointerDeviceKind.mouse);
+        for (var i = 0; i < ticks; i++) {
+          await tester.sendEventToBinding(
+            pointer.scroll(Offset(0, deltaPerTick)),
+          );
+          await tester.pump();
+        }
+        if (settleAfter) await tester.pumpAndSettle();
+      }
+
+      testWidgets('wheel scroll at top accumulates pull offset',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        final statuses = <AntPullToRefreshStatus>[];
+        await tester.pumpWidget(_wrap(_buildList(
+          pullStatusChange: statuses.add,
+        ),),);
+        // 顶部继续向上滚滚轮 → 累积下拉位移
+        await sendWheelScroll(tester, ticks: 1, deltaPerTick: -30);
+        expect(find.text('下拉刷新'), findsOneWidget);
+        expect(statuses, contains(AntPullToRefreshStatus.pulling));
+
+        await sendWheelScroll(tester, ticks: 1, deltaPerTick: -30);
+        expect(find.text('释放刷新'), findsOneWidget);
+        expect(statuses, contains(AntPullToRefreshStatus.canRelease));
+      });
+
+      testWidgets('wheel scroll triggers onRefresh after settle',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        var refreshed = false;
+        final statuses = <AntPullToRefreshStatus>[];
+        await tester.pumpWidget(_wrap(_buildList(
+          onRefresh: () async {
+            refreshed = true;
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          },
+          pullStatusChange: statuses.add,
+        ),),);
+        // 3 × 30 = 90 > threshold(60)
+        await sendWheelScroll(tester, ticks: 3, deltaPerTick: -30);
+        // 停止滚动 400ms → 触发刷新
+        await tester.pump(kAntPullToRefreshWheelSettleDuration);
+        expect(statuses.last, AntPullToRefreshStatus.refreshing);
+        await tester.pumpAndSettle();
+        expect(refreshed, isTrue);
+      });
+
+      testWidgets('wheel scroll below threshold then settle bounces back',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        var refreshed = false;
+        await tester.pumpWidget(_wrap(_buildList(
+          onRefresh: () async => refreshed = true,
+        ),),);
+        await sendWheelScroll(tester, ticks: 1, deltaPerTick: -30);
+        await tester.pump(kAntPullToRefreshWheelSettleDuration);
+        await tester.pumpAndSettle();
+        expect(refreshed, isFalse);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      });
+
+      testWidgets('reverse wheel scroll retracts pull offset', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        await tester.pumpWidget(_wrap(_buildList()),);
+        await sendWheelScroll(tester, ticks: 2, deltaPerTick: -30);
+        expect(find.text('释放刷新'), findsOneWidget);
+        // 反向滚动回退位移
+        await sendWheelScroll(tester, ticks: 2, deltaPerTick: 30);
+        expect(find.text('下拉刷新'), findsNothing);
+        expect(find.text('释放刷新'), findsNothing);
+      });
+
+      testWidgets('wheel pull shows spinner while refreshing', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        await tester.pumpWidget(_wrap(_buildList(
+          onRefresh: () async =>
+              Future<void>.delayed(const Duration(milliseconds: 50)),
+        ),),);
+        await sendWheelScroll(tester, ticks: 3, deltaPerTick: -30);
+        await tester.pump(kAntPullToRefreshWheelSettleDuration);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        await tester.pumpAndSettle();
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      });
+
+      testWidgets('wheel scroll ignored on mobile platform', (tester) async {
+        // 默认测试平台为 android（移动端），滚轮不应触发拉动
+        final statuses = <AntPullToRefreshStatus>[];
+        await tester.pumpWidget(_wrap(_buildList(
+          pullStatusChange: statuses.add,
+        ),),);
+        await sendWheelScroll(tester, ticks: 3, deltaPerTick: -30);
+        expect(find.text('下拉刷新'), findsNothing);
+        expect(statuses.where((s) => s != AntPullToRefreshStatus.idle), isEmpty);
+      });
     });
   });
 }
