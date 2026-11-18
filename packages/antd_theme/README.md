@@ -1,116 +1,76 @@
 # antd_theme
 
-Ant Design v6 theme system for Flutter — theme data, theme injection, responsive breakpoints, and screen adaptation, built on top of [`antd_tokens`](https://pub.dev/packages/antd_tokens) and [`antd_color`](https://pub.dev/packages/antd_color).
+Ant Design v6 theme system for Flutter — 主题数据、主题注入、响应式断点与屏幕适配，基于 `antd_tokens` 与 `antd_color` 构建。
 
-## Features
-
-- **AntThemeData** — Complete theme data generated from a seed token via the antd Seed → Map → Alias derivation chain. Provides `light()`, `dark()`, and `fromSeed()` factories, plus convenient accessors for every alias token (colors, fonts, radius, sizes, control heights, spacing, line widths, motion, shadows, z-index, screen breakpoints).
-- **AntTheme / AntThemeBuilder** — `InheritedWidget` that injects `AntThemeData` into the widget tree. Retrieve the current theme with `AntTheme.of(context)` or use `AntThemeBuilder` for a build-time shortcut.
-- **AntBreakpoint / AntBreakpoints** — antd responsive breakpoint enum (xs ~ xxxl) with `fromWidth` / `of` and comparison operators, plus `isUp` / `isDown` / `isBetween` utilities.
-- **AntScreenUtilInit** — Screen adaptation wrapper around `flutter_screenutil` with built-in desktop auto-adaptation (scale factor = 1 on desktop). Only `.w` / `.sp` / `.r` extensions are supported.
-
-## Getting started
+## 安装
 
 ```yaml
 dependencies:
   antd_theme: ^1.0.0
 ```
 
+## 用法
+
 ```dart
 import 'package:antd_theme/antd_theme.dart';
-```
 
-## Usage
-
-### Theme data
-
-```dart
-// Default light theme — identical to antd defaults
-final light = AntThemeData.light();
-
-// Dark theme
+// ── 主题数据 ─────────────────────────────────────────────
+final light = AntThemeData.light(); // 与 antd 默认值一致
 final dark = AntThemeData.dark();
-
-// Custom seed
 final custom = AntThemeData.fromSeed(
   const AntSeedToken(colorPrimary: '#722ed1', borderRadius: 8),
 );
 
-// Access tokens directly
 Container(
   color: light.colorBgContainer,
   padding: EdgeInsets.all(light.padding),
   child: Text(
     'Hello',
-    style: TextStyle(
-      fontSize: light.fontSizeLG,
-      color: light.colorText,
-    ),
+    style: TextStyle(fontSize: light.fontSizeLG, color: light.colorText),
   ),
 );
-```
 
-### Theme injection
-
-```dart
+// ── 主题注入 ─────────────────────────────────────────────
 AntTheme(
   data: AntThemeData.light(),
   child: MaterialApp(
     home: AntThemeBuilder(builder: (context, theme) {
       return Scaffold(
         backgroundColor: theme.colorBgLayout,
-        body: Center(
-          child: Text(
-            'Themed!',
-            style: TextStyle(color: theme.colorPrimary),
-          ),
-        ),
+        body: Center(child: Text('Themed!', style: TextStyle(color: theme.colorPrimary))),
       );
     }),
   ),
 );
-```
 
-### Responsive breakpoints
-
-```dart
-// Current breakpoint from context
+// ── 响应式断点 ───────────────────────────────────────────
 final bp = AntBreakpoint.of(context);
 if (bp >= AntBreakpoint.md) {
-  // ≥768 layout
+  // ≥768 布局
 }
-
-// Utility checks
 if (AntBreakpoints.isDown(context, AntBreakpoint.sm)) {
-  // <576 mobile layout
+  // <576 移动端布局
 }
 if (AntBreakpoints.isBetween(context, AntBreakpoint.md, AntBreakpoint.lg)) {
   // 768 ≤ width < 992
 }
-```
 
-### Screen adaptation
-
-```dart
+// ── 屏幕适配 ─────────────────────────────────────────────
 AntScreenUtilInit(
   builder: (context, child) => AntTheme(
     data: AntThemeData.light(),
     child: MaterialApp(...),
   ),
 );
-
-// Use .w / .sp / .r extensions (never .h)
+// 使用 .w / .sp / .r 扩展（不支持 .h）
 SizedBox(width: 100.w);
 Text('Hello', style: TextStyle(fontSize: 14.sp));
-BorderRadius.circular(6.r);
 ```
 
-On desktop (window width ≥ 768 by default), the scale factor is automatically set to 1 so components keep their logical pixel sizes. Set `desktopBreakpoint: null` to disable this behavior.
+## 文档
 
-## Documentation
-
-- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
+- [API 文档总览](docs/api-index.md)
 
 ## License
 
-MIT
+MIT License，详见 [LICENSE](LICENSE)。

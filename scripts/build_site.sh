@@ -40,4 +40,22 @@ mkdir -p "$OUTPUT_DIR/icons"
 cp -r example/build/web/* "$OUTPUT_DIR/"
 cp -r packages/antd_icons_flutter/example/build/web/* "$OUTPUT_DIR/icons/"
 
+# 独立组件包 example 站点（R32/R33：每个独立包的 web demo 发布到子路径）
+# 环境变量 PKG_EXAMPLES：空格分隔的「包名:子路径」列表（默认全部已建 example 的独立包）
+#   例：PKG_EXAMPLES="antd_qrcode:qr_code antd_refresh:refresh"
+PKG_EXAMPLES="${PKG_EXAMPLES:-antd_qrcode:qr_code antd_refresh:refresh antd_swipe_action:swipe_action}"
+for entry in $PKG_EXAMPLES; do
+  pkg="${entry%%:*}"
+  sub="${entry##*:}"
+  example_dir="packages/$pkg/example"
+  if [ -d "$example_dir" ]; then
+    echo "[信息] 构建独立包 example: $pkg (base-href=$SITE_BASE_HREF$sub/)"
+    (cd "$example_dir" && flutter pub get && flutter build web --release --base-href "$SITE_BASE_HREF$sub/")
+    mkdir -p "$OUTPUT_DIR/$sub"
+    cp -r "$example_dir/build/web/"* "$OUTPUT_DIR/$sub/"
+  else
+    echo "[跳过] $example_dir 不存在"
+  fi
+done
+
 echo "[完成] 静态站点已生成: $REPO_ROOT/$OUTPUT_DIR"

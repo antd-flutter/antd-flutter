@@ -27,6 +27,12 @@ dependency_overrides:
     path: ../packages/antd_theme
   antd_flutter_ui:
     path: ../packages/antd_flutter_ui
+  antd_qrcode:
+    path: ../packages/antd_qrcode
+  antd_refresh:
+    path: ../packages/antd_refresh
+  antd_swipe_action:
+    path: ../packages/antd_swipe_action
 
 dev_dependencies:
   flutter_test:

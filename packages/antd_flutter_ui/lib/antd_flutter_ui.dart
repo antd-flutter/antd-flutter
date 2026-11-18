@@ -72,6 +72,28 @@ export 'src/display/tag/ant_tag_types.dart';
 export 'src/display/card/ant_card.dart';
 export 'src/display/card/ant_card_types.dart';
 
+// ── Statistic 统计数值 ──────────────────────────────────────
+export 'src/display/statistic/ant_statistic.dart';
+export 'src/display/statistic/ant_statistic_types.dart';
+
+// ── Ellipsis 文本省略 ───────────────────────────────────────
+export 'src/display/ellipsis/ant_ellipsis.dart';
+export 'src/display/ellipsis/ant_ellipsis_types.dart';
+
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';
+
+// ── NoticeBar 通告栏 ────────────────────────────────────────
+export 'src/feedback/notice_bar/ant_notice_bar.dart';
+export 'src/feedback/watermark/ant_watermark.dart';
+export 'src/feedback/watermark/ant_watermark_types.dart';
+export 'src/feedback/notice_bar/ant_notice_bar_types.dart';
+
+// ── Segmented 分段控制器 ────────────────────────────────────
+export 'src/display/segmented/ant_segmented.dart';
+export 'src/display/segmented/ant_segmented_types.dart';
+
+// ── Image 图片 ─────────────────────────────────────────────
+export 'src/display/image/ant_image.dart';
+export 'src/display/image/ant_image_types.dart';

@@ -1,127 +1,72 @@
 # antd_tokens
 
-Ant Design v6 Design Token system for Flutter — seed tokens, token generation algorithms, color token maps, and shadow tokens, precisely ported from [Ant Design](https://ant.design/) `components/theme`.
+Ant Design v6 Design Token system for Flutter — seed tokens、token 生成算法、色彩 token 映射与阴影 token，移植自 antd `components/theme`。
 
-## Features
-
-- **AntSeedToken** — The minimal input set for theming (colorPrimary, fontSize, borderRadius, …), with defaults identical to antd `seed.ts`.
-- **Token generators** — `antGenFontMapToken`, `antGenRadius`, `antGenSizeMapToken`, `antGenControlHeight`, `antGenMotionDuration` — the Seed → Map derivation algorithms ported from antd `themes/shared/`.
-- **AntColorTokens** — Complete color token set (Map Token + Alias Token) generated from a seed, with `light` / `dark` factories. Every token is available as a Flutter `Color`, plus raw CSS strings for debugging.
-- **AntShadowTokens** — All antd box-shadow tokens (`boxShadow`, `boxShadowSecondary`, `boxShadowCard`, drawer / tabs shadows, …) converted to Flutter `List<BoxShadow>`.
-
-## Getting started
+## 安装
 
 ```yaml
 dependencies:
   antd_tokens: ^1.0.0
 ```
 
+## 用法
+
 ```dart
 import 'package:antd_tokens/antd_tokens.dart';
-```
 
-## Usage
-
-### Seed tokens
-
-```dart
-// Default seed — identical to antd defaults
-const seed = AntSeedToken();
-
-// Customize
+// ── Seed token ───────────────────────────────────────────
+const seed = AntSeedToken(); // 默认 seed，与 antd 默认值一致
 const custom = AntSeedToken(
   colorPrimary: '#722ed1',
   fontSize: 16,
   borderRadius: 8,
 );
-
-// Dark theme seed
 final darkSeed = AntSeedToken.dark();
-```
 
-### Token generators
-
-```dart
-// Font size ladder (10 steps, antd genFontSizes)
+// ── Token 生成算法 ───────────────────────────────────────
 final fontMap = antGenFontMapToken(14);
-print(fontMap.fontSize);    // 14
-print(fontMap.fontSizeLG);  // 16
+print(fontMap.fontSizeLG);       // 16
 print(fontMap.fontSizeHeading1); // 38
 
-// Radius ladder
 final radius = antGenRadius(6);
 print(radius.borderRadiusSM); // 4
 print(radius.borderRadiusLG); // 8
 
-// Size map
 final sizes = antGenSizeMapToken(sizeUnit: 4, sizeStep: 4);
 print(sizes.size);   // 16
 print(sizes.sizeLG); // 24
 
-// Control heights
 final heights = antGenControlHeight(32);
 print(heights.controlHeightSM); // 24
 print(heights.controlHeightLG); // 40
 
-// Motion durations
 final motion = antGenMotionDuration(motionUnit: 0.1, motionBase: 0, motion: true);
-print(motion.fast); // 0.1
-print(motion.mid);  // 0.2
-print(motion.slow); // 0.3
-```
+print(motion.mid); // 0.2
 
-### Color tokens
-
-```dart
-// Generate from seed
+// ── 色彩 token（Map + Alias） ────────────────────────────
 final lightColors = AntColorTokens.light(seed);
 final darkColors = AntColorTokens.dark(darkSeed);
 
-// Access as Flutter Color
-final primary = lightColors.colorPrimary;       // Color(0xFF1677FF)
-final textSecondary = lightColors.colorTextSecondary;
-final border = lightColors.colorBorder;
+final primary = lightColors.colorPrimary; // Color(0xFF1677FF)
+print(lightColors.css.colorPrimary);      // #1677ff（原始 CSS 字符串）
+print(lightColors.isDark);                // false
 
-// Access raw CSS strings (debugging / export)
-print(lightColors.css.colorPrimary);            // #1677ff
-print(darkColors.css.colorBgContainer);         // #141414
-
-// Check theme
-print(lightColors.isDark); // false
-```
-
-### Shadow tokens
-
-```dart
-// Generate from the shadow base color
+// ── 阴影 token ───────────────────────────────────────────
 final shadows = AntShadowTokens.generate('#000000');
-
-// Use in Flutter widgets
 Container(
   decoration: BoxDecoration(
-    color: theme.colorBgContainer,
-    boxShadow: shadows.boxShadow,        // popup elevation
+    boxShadow: shadows.boxShadow, // popup 阴影
     borderRadius: BorderRadius.circular(6),
   ),
-  child: ...,
 );
-
-// Other shadows
-shadows.boxShadowSecondary;     // secondary popup
-shadows.boxShadowTertiary;      // light float
-shadows.boxShadowCard;          // card shadow
-shadows.boxShadowDrawerRight;   // drawer directional shadows
-shadows.boxShadowTabsOverflowLeft; // tabs overflow shadows
+// 其他：boxShadowSecondary / boxShadowTertiary / boxShadowCard
+// boxShadowDrawerRight / boxShadowTabsOverflowLeft …
 ```
 
-## Documentation
+## 文档
 
-- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
-
-## Porting fidelity
-
-The token derivation chain (Seed → Map → Alias) is ported line-by-line from antd `components/theme/themes/` (seed.ts, shared/genFontSizes.ts, shared/genRadius.ts, genColorMapToken.ts, alias.ts) and validated against antd's token snapshots to ensure visual parity with Ant Design React.
+- [API 文档总览](docs/api-index.md)
 
 ## License
 
-MIT
+MIT License，详见 [LICENSE](LICENSE)。

@@ -15,6 +15,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0-beta.2"
+  antd_flutter_ui:
+    dependency: "direct overridden"
+    description:
+      path: "../../antd_flutter_ui"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_icons_flutter:
     dependency: "direct main"
     description:
@@ -22,6 +29,27 @@ packages:
       relative: true
     source: path
     version: "1.0.1"
+  antd_qrcode:
+    dependency: "direct overridden"
+    description:
+      path: "../../antd_qrcode"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
+  antd_refresh:
+    dependency: "direct overridden"
+    description:
+      path: "../../antd_refresh"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
+  antd_swipe_action:
+    dependency: "direct overridden"
+    description:
+      path: "../../antd_swipe_action"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_theme:
     dependency: "direct main"
     description:
@@ -136,10 +164,10 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_ui
-      sha256: "369e39a1c5c030a6212589c3da1809920b1c2cfade7b02aade7695bfa4b88c3a"
+      sha256: c3eaf7f5bdfee36deb0b14a4cbf7602f1b6b8d8b8576b81f38fc08c25881c94c
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.1.7"
   fake_async:
     dependency: transitive
     description:
@@ -343,10 +371,10 @@ packages:
     dependency: "direct main"
     description:
       name: material_ui
-      sha256: "474c135fd46b56ff1d35ca982155e8863d28fbc6464d1192acf4ee53a738680e"
+      sha256: a6b19012df437a356cbc01f8ea22a105e07194c47c9a6009da0032a0ce35c4ab
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.0"
+    version: "1.11.1"
   meta:
     dependency: transitive
     description:
@@ -475,22 +503,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
-  qr:
-    dependency: transitive
-    description:
-      name: qr
-      sha256: "2c0189dca64a3ab08dda7acd7911c89af2374f08eb4eaded3e8ef4609f3b9c8b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.3"
-  qr_flutter:
-    dependency: transitive
-    description:
-      name: qr_flutter
-      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   record_use:
     dependency: transitive
     description:

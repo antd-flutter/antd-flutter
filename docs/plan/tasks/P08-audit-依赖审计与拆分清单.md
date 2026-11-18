@@ -262,7 +262,7 @@
 
 | 独立包 | 组件 | 现目录 | 行数/文件 | 包内依赖 | 三方 | 命中 | 理由 |
 |---|---|---|---|---|---|---|---|
-| antd_picker | calendar_picker | data_entry/calendar_picker | 679/2 | — | — | 3 | 滚轮选择引擎族（CalendarPicker，引擎上移后不依赖其他独立包） |
+| antd_calendar | calendar_picker | data_entry/calendar_picker | 679/2 | — | — | 3 | 【用户裁决改归】移动端 calendar 新版本，与 AntCalendar/AntPickerView 同包 |
 | antd_picker | cascader | data_entry/cascader | 948/3 | — | — | 3 | Cascader/CascaderView，滚轮引擎+级联列模型 |
 | antd_picker | date_picker | data_entry/date_picker | 521/2 | — | — | 3 | 滚轮选择引擎族（日期列生成） |
 | antd_picker | picker | data_entry/picker | 531/3 | — | cupertino_ui | 3 | 共享滚轮选择引擎族核心 |
@@ -282,7 +282,7 @@
 | antd_image_viewer | image_viewer | data_display/image_viewer | 404/2 | — | cached_network_image | 4 | 全屏缩放查看引擎（InteractiveViewer+Overlay+手势） |
 | antd_tour | tour | data_display/tour | 811/2 | button | — | 4 | 挖孔遮罩+分步引导引擎 |
 | antd_splitter | splitter | layout/splitter | 699/2 | — | antd_icons_flutter | 3 | 拖拽分割面板引擎 |
-| antd_masonry | masonry | layout/masonry | 240/2 | — | — | 3 | 瀑布流分配算法引擎 |
+| antd_masonry | masonry | layout/masonry | 240/2 | — | — | 3 | 瀑布流分配算法引擎 ；**验收项：提供 sliver 支持（AntSliverMasonry 变体，R33）** |
 | antd_number_keyboard | number_keyboard | data_entry/number_keyboard | 321/2 | — | — | 3 | 虚拟键盘引擎核心 |
 | antd_number_keyboard | passcode_input | data_entry/passcode_input | 249/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
 | antd_number_keyboard | virtual_input | data_entry/virtual_input | 242/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
@@ -435,7 +435,7 @@
 | 8 | antd_tour | 1 | 依赖 ui 的 button（序 1 已就位） |
 | 9 | antd_floating | 1 | floating_panel/floating_bubble 共享拖拽引擎，族内一并迁移 |
 | 10 | antd_tree / antd_form / antd_upload | 1 | tree_select 与 tree 同包族内迁移；form/transfer 解耦（transfer 留 ui） |
-| 11 | antd_picker | 3,1 | 滚轮引擎已上移 ui，Picker 族（picker/date_picker/time_picker/calendar_picker/cascader）族内迁移后不依赖任何独立包；picker 原引用 cupertino_ui 三方随包声明 |
+| 11 | antd_picker | 3,1 | 滚轮引擎已上移 ui，Picker 族（picker/date_picker/time_picker/cascader）族内迁移后不依赖任何独立包（CalendarPicker/PickerView 已改归 antd_calendar）；picker 原引用 cupertino_ui 三方随包声明 |
 
 ### D2. 逐组件迁移粒度（用户要求：一个组件一个组件移植）
 

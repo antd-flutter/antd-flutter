@@ -23,6 +23,12 @@ dependencies:
   cupertino_ui: any
 
 dependency_overrides:
+  antd_refresh:
+    path: ../../../packages/antd_refresh
+  antd_swipe_action:
+    path: ../../../packages/antd_swipe_action
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
   antd_color:
     path: ../../antd_color
   antd_tokens:
@@ -31,6 +37,8 @@ dependency_overrides:
     path: ../../antd_theme
   antd_icons_flutter:
     path: ../
+  antd_qrcode:
+    path: ../../antd_qrcode
 dev_dependencies:
   flutter_test:
     sdk: flutter

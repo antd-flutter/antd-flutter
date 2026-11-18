@@ -26,7 +26,9 @@ dependencies:
   antd_theme: ^0.1.0-beta.1
   antd_icons_flutter: ^1.0.0
   antd_flutter_ui: ^0.1.0-beta.1
-  qr_flutter: ^4.1.0
+  antd_qrcode: ^0.1.0-beta.1
+  antd_refresh: ^0.1.0-beta.1
+  antd_swipe_action: ^0.1.0-beta.1
   cached_network_image: ^4.0.7
 
   material_ui: any
@@ -42,6 +44,12 @@ dependency_overrides:
     path: packages/antd_icons_flutter
   antd_flutter_ui:
     path: packages/antd_flutter_ui
+  antd_qrcode:
+    path: packages/antd_qrcode
+  antd_refresh:
+    path: packages/antd_refresh
+  antd_swipe_action:
+    path: packages/antd_swipe_action
 
 dev_dependencies:
   analyzer: ^8.0.0

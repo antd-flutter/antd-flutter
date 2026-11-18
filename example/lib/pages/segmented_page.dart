@@ -42,6 +42,8 @@ class _SegmentedPageState extends State<SegmentedPage> {
           _Section(
             title: 'Block 占满整行',
             theme: theme,
+            // block 模式随父容器宽度自适应，卡片不限宽以便演示窗口拉伸。
+            fullWidth: true,
             child: AntSegmented(
               options: const ['列表', '看板', '日历'],
               block: true,
@@ -102,9 +104,18 @@ class _SegmentedPageState extends State<SegmentedPage> {
             theme: theme,
             child: AntSegmented(
               options: const [
-                AntSegmentedItem(label: '列表', icon: AntdIcon(AntIcons.unorderedListOutlined)),
-                AntSegmentedItem(label: '地图', icon: AntdIcon(AntIcons.globalOutlined)),
-                AntSegmentedItem(label: '设置', icon: AntdIcon(AntIcons.settingOutlined)),
+                AntSegmentedItem(
+                  label: '列表',
+                  icon: AntdIcon(AntIcons.unorderedListOutlined),
+                ),
+                AntSegmentedItem(
+                  label: '地图',
+                  icon: AntdIcon(AntIcons.globalOutlined),
+                ),
+                AntSegmentedItem(
+                  label: '设置',
+                  icon: AntdIcon(AntIcons.settingOutlined),
+                ),
               ],
               onChange: (v) => _showMsg(context, '选中：$v'),
             ),
@@ -115,11 +126,60 @@ class _SegmentedPageState extends State<SegmentedPage> {
             theme: theme,
             child: AntSegmented(
               options: [
-                const AntSegmentedItem(value: 'list', icon: AntdIcon(AntIcons.unorderedListOutlined)),
-                const AntSegmentedItem(value: 'grid', icon: AntdIcon(AntIcons.appstoreOutlined)),
+                const AntSegmentedItem(
+                  value: 'list',
+                  icon: AntdIcon(AntIcons.unorderedListOutlined),
+                ),
+                const AntSegmentedItem(
+                  value: 'grid',
+                  icon: AntdIcon(AntIcons.appstoreOutlined),
+                ),
                 '文字项',
               ],
               onChange: (v) => _showMsg(context, '选中：$v'),
+            ),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
+            title: '垂直排列',
+            theme: theme,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 默认 hug 内容宽度（自适应最宽项），不强制撑满父容器
+                AntSegmented(
+                  options: const ['列表', '看板', '日历'],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, '方向：$v'),
+                ),
+                SizedBox(width: 24.w),
+                // icon-only：无宽度约束，同样 hug 内容
+                AntSegmented(
+                  options: const [
+                    AntSegmentedItem(
+                      value: 'list',
+                      icon: AntdIcon(AntIcons.barsOutlined),
+                    ),
+                    AntSegmentedItem(
+                      value: 'kanban',
+                      icon: AntdIcon(AntIcons.appstoreOutlined),
+                    ),
+                  ],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, 'icon-only：$v'),
+                ),
+                SizedBox(width: 24.w),
+                // 外部 SizedBox 可自行设置宽度（有界约束生效，不足处省略号）
+                SizedBox(
+                  width: 160.w,
+                  child: AntSegmented(
+                    options: const ['日', '周', '月', '年'],
+                    direction: AntSegmentedDirection.vertical,
+                    block: true,
+                    onChange: (v) => _showMsg(context, 'block：$v'),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(height: 16.w),
@@ -133,8 +193,9 @@ class _SegmentedPageState extends State<SegmentedPage> {
                   shape: _demoShape,
                   onChange: (v) {
                     setState(() {
-                      _demoShape =
-                          v == '胶囊' ? AntSegmentedShape.round : AntSegmentedShape.rounded;
+                      _demoShape = v == '胶囊'
+                          ? AntSegmentedShape.round
+                          : AntSegmentedShape.rounded;
                     });
                     _showMsg(context, '形状：$v');
                   },
@@ -154,23 +215,32 @@ class _SegmentedPageState extends State<SegmentedPage> {
   }
 
   void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+    this.fullWidth = false,
+  });
 
   final String title;
   final AntThemeData theme;
   final Widget child;
 
+  /// 是否不限宽（block 等自适应组件的演示需要跟随窗口宽度伸缩）。
+  final bool fullWidth;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      // 桌面宽窗口下限宽卡片，避免 demo 区块被拉得过宽影响观感；
+      // fullWidth 的卡片不限宽，保证 block 组件宽度自适应可验证。
+      constraints: fullWidth ? null : BoxConstraints(maxWidth: 560.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,

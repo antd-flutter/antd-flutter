@@ -61,8 +61,9 @@ export 'package:antd_flutter_ui/src/basic/typography/ant_typography.dart';
 export 'package:antd_flutter_ui/src/basic/typography/ant_typography_types.dart';
 export 'src/components/general/float_button/ant_float_button.dart';
 export 'src/components/general/float_button/ant_float_button_types.dart';
-export 'src/components/general/notice_bar/ant_notice_bar.dart';
-export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
+// NoticeBar 通告栏已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar.dart';
+export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar_types.dart';
 
 // L4 组件层 — 布局
 // AutoCenter 自动居中已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
@@ -165,8 +166,9 @@ export 'package:antd_flutter_ui/src/display/card/ant_card_types.dart';
 // Empty 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
 export 'package:antd_flutter_ui/src/display/empty/ant_empty_types.dart';
-export 'src/components/data_display/statistic/ant_statistic.dart';
-export 'src/components/data_display/statistic/ant_statistic_types.dart';
+// AntStatistic 统计数值已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/statistic/ant_statistic.dart';
+export 'package:antd_flutter_ui/src/display/statistic/ant_statistic_types.dart';
 
 // ============================================================
 // 数据展示 Data Display — 批次B
@@ -175,12 +177,15 @@ export 'src/components/data_display/tooltip/ant_tooltip.dart';
 export 'src/components/data_display/tooltip/ant_tooltip_types.dart';
 export 'src/components/data_display/popover/ant_popover.dart';
 export 'src/components/data_display/popover/ant_popover_types.dart';
-export 'src/components/data_display/segmented/ant_segmented.dart';
-export 'src/components/data_display/segmented/ant_segmented_types.dart';
-export 'src/components/data_display/qr_code/ant_qr_code.dart';
-export 'src/components/data_display/qr_code/ant_qr_code_types.dart';
-export 'src/components/data_display/image/ant_image.dart';
-export 'src/components/data_display/image/ant_image_types.dart';
+// Segmented 分段控制器已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/segmented/ant_segmented.dart';
+export 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
+// QRCode 二维码已迁移至 antd_qrcode（P08），此处 re-export 保持符号兼容
+export 'package:antd_qrcode/src/qr_code/ant_qr_code.dart';
+export 'package:antd_qrcode/src/qr_code/ant_qr_code_types.dart';
+// AntImage 图片已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/image/ant_image.dart';
+export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 
 // ============================================================
 // 数据展示 Data Display — 批次C
@@ -207,8 +212,9 @@ export 'src/components/data_display/list/ant_list_types.dart';
 // ============================================================
 // 数据展示 Data Display — 批次D
 // ============================================================
-export 'src/components/data_display/ellipsis/ant_ellipsis.dart';
-export 'src/components/data_display/ellipsis/ant_ellipsis_types.dart';
+// Ellipsis 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/ellipsis/ant_ellipsis.dart';
+export 'package:antd_flutter_ui/src/display/ellipsis/ant_ellipsis_types.dart';
 // Footer 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/footer/ant_footer.dart';
 export 'package:antd_flutter_ui/src/basic/footer/ant_footer_types.dart';
@@ -216,8 +222,9 @@ export 'src/components/data_display/page_indicator/ant_page_indicator.dart';
 export 'src/components/data_display/page_indicator/ant_page_indicator_types.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
-export 'src/components/data_display/infinite_scroll/ant_infinite_scroll.dart';
-export 'src/components/data_display/infinite_scroll/ant_infinite_scroll_types.dart';
+// InfiniteScroll / PullToRefresh 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
+export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll.dart';
+export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll_types.dart';
 export 'src/components/data_display/image_viewer/ant_image_viewer.dart';
 export 'src/components/data_display/image_viewer/ant_image_viewer_types.dart';
 export 'src/components/data_display/floating_panel/ant_floating_panel.dart';
@@ -246,8 +253,8 @@ export 'src/components/feedback/modal/ant_modal.dart';
 export 'src/components/feedback/modal/ant_modal_types.dart';
 export 'src/components/feedback/notification/ant_notification.dart';
 export 'src/components/feedback/notification/ant_notification_types.dart';
-export 'src/components/feedback/watermark/ant_watermark.dart';
-export 'src/components/feedback/watermark/ant_watermark_types.dart';
+export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark.dart';
+export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次B
@@ -260,16 +267,18 @@ export 'src/components/feedback/dialog/ant_dialog.dart';
 export 'src/components/feedback/dialog/ant_dialog_types.dart';
 export 'src/components/feedback/popup/ant_popup.dart';
 export 'src/components/feedback/popup/ant_popup_types.dart';
-export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh.dart';
-export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh_types.dart';
+// PullToRefresh / InfiniteScroll 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
+export 'package:antd_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
+export 'package:antd_refresh/src/pull_to_refresh/ant_pull_to_refresh_types.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次C
 // ============================================================
-export 'src/components/feedback/swipe_action/ant_swipe_action.dart';
-export 'src/components/feedback/swipe_action/ant_swipe_action_types.dart';
+// SwipeAction 滑动操作已迁移至 antd_swipe_action（P08），此处 re-export 保持符号兼容
+export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action.dart';
+export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action_types.dart';
 export 'src/components/feedback/loading/ant_loading.dart';
 export 'src/components/feedback/loading/ant_loading_types.dart';
 export 'src/components/feedback/error_block/ant_error_block.dart';
