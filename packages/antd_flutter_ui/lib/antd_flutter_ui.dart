@@ -82,6 +82,8 @@ export 'src/basic/footer/ant_footer_types.dart';
 
 // ── NoticeBar 通告栏 ────────────────────────────────────────
 export 'src/feedback/notice_bar/ant_notice_bar.dart';
+export 'src/feedback/watermark/ant_watermark.dart';
+export 'src/feedback/watermark/ant_watermark_types.dart';
 export 'src/feedback/notice_bar/ant_notice_bar_types.dart';
 
 // ── Segmented 分段控制器 ────────────────────────────────────

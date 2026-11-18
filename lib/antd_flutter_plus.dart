@@ -249,8 +249,8 @@ export 'src/components/feedback/modal/ant_modal.dart';
 export 'src/components/feedback/modal/ant_modal_types.dart';
 export 'src/components/feedback/notification/ant_notification.dart';
 export 'src/components/feedback/notification/ant_notification_types.dart';
-export 'src/components/feedback/watermark/ant_watermark.dart';
-export 'src/components/feedback/watermark/ant_watermark_types.dart';
+export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark.dart';
+export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次B
