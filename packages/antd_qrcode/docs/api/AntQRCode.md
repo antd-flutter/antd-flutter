@@ -49,8 +49,7 @@ class AntQRCode
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `_buildCenterIcon` | `Widget` | 中间图标：白底圆形遮罩 + 图标 |
-| `_buildQRView` | `Widget` | 渲染二维码（SDK 语义经本中间层映射，外部不感知） |
+| `_buildQRView` | `Widget` | 渲染二维码（引擎矩阵经本中间层获取，CustomPaint 自绘模块方块） |
 | `_buildStatusOverlay` | `Widget` | 状态覆盖层（expired / scanned） |
-| `_mapErrorLevel` | `int` | 纠错等级映射（中间层隔离 SDK 枚举语义） |
 | `build` | `Widget` | — |
 
