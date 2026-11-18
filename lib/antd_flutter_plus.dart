@@ -177,8 +177,9 @@ export 'src/components/data_display/tooltip/ant_tooltip.dart';
 export 'src/components/data_display/tooltip/ant_tooltip_types.dart';
 export 'src/components/data_display/popover/ant_popover.dart';
 export 'src/components/data_display/popover/ant_popover_types.dart';
-export 'src/components/data_display/segmented/ant_segmented.dart';
-export 'src/components/data_display/segmented/ant_segmented_types.dart';
+// Segmented 分段控制器已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/segmented/ant_segmented.dart';
+export 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
 export 'src/components/data_display/qr_code/ant_qr_code.dart';
 export 'src/components/data_display/qr_code/ant_qr_code_types.dart';
 export 'src/components/data_display/image/ant_image.dart';

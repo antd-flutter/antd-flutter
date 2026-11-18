@@ -19,10 +19,10 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_display/segmented/ant_segmented_types.dart';
+import 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
-export 'package:antd_flutter_plus/src/components/data_display/segmented/ant_segmented_types.dart';
+export 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 滑块动画时长。
