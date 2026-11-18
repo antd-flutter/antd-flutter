@@ -142,7 +142,8 @@ class AntPopconfirmButtonProps {
 /// 显示状态变化回调签名。
 typedef AntPopconfirmOpenChange = void Function(bool open);
 
-class _AntPopconfirmState extends State<AntPopconfirm> {
+class _AntPopconfirmState extends State<AntPopconfirm>
+    with PopupOpenScheduler {
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
@@ -163,13 +164,12 @@ class _AntPopconfirmState extends State<AntPopconfirm> {
   void didUpdateWidget(covariant AntPopconfirm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.open != null && oldWidget.open != widget.open) {
-      if (widget.open!) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _showOverlay();
-        });
-      } else {
-        _hideOverlay();
-      }
+      // 受控切换可能发生在父级 build 阶段，show/hide 延迟到帧末
+      schedulePopupOpen(
+        open: widget.open!,
+        show: _showOverlay,
+        hide: _hideOverlay,
+      );
     }
     if (widget.disabled) {
       _hideOverlay();
@@ -244,6 +244,7 @@ class _AntPopconfirmState extends State<AntPopconfirm> {
   Widget build(BuildContext context) {
     return AntPopupTriggerRegion(
       onTap: _handleTap,
+      tapEnabled: true,
       child: KeyedSubtree(
         key: _childKey,
         child: widget.child,

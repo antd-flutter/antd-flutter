@@ -6,6 +6,7 @@ import 'package:antd_flutter_ui/src/basic/tooltip/ant_tooltip_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 气泡内容定位辅助。
@@ -31,6 +32,17 @@ Widget _wrap(Widget child) {
     ),
   );
 }
+/// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
+/// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
+Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
+  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+  try {
+    await tester.pumpWidget(_wrap(child));
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
+}
+
 
 void main() {
   group('AntTooltip — 基础渲染', () {
@@ -376,7 +388,8 @@ void main() {
     });
 
     testWidgets('hover 触发悬停打开，移出关闭', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(tester,
         _wrap(
           const AntTooltip(
             trigger: AntTooltipTrigger.hover,
@@ -385,8 +398,9 @@ void main() {
             tooltip: Text('悬停提示'),
             child: Text('触发'),
           ),
-        ),
+        )
       );
+      debugDefaultTargetPlatformOverride = null;
       expect(findBubble('悬停提示'), findsNothing);
 
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -400,7 +414,8 @@ void main() {
     });
 
     testWidgets('hover 延迟生效（mouseEnterDelay 内不显示）', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(tester,
         _wrap(
           const AntTooltip(
             trigger: AntTooltipTrigger.hover,
@@ -409,8 +424,9 @@ void main() {
             tooltip: Text('延迟提示'),
             child: Text('触发'),
           ),
-        ),
+        )
       );
+      debugDefaultTargetPlatformOverride = null;
 
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: tester.getCenter(findTrigger('触发')));
@@ -446,7 +462,8 @@ void main() {
     });
 
     testWidgets('快速移动：气泡打开后大幅移开必消失', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(tester,
         _wrap(
           const AntTooltip(
             trigger: AntTooltipTrigger.hover,
@@ -455,8 +472,9 @@ void main() {
             tooltip: Text('大幅移开'),
             child: Text('悬停目标'),
           ),
-        ),
+        )
       );
+      debugDefaultTargetPlatformOverride = null;
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: tester.getCenter(findTrigger('悬停目标')));
       await tester.pumpAndSettle();

@@ -92,7 +92,7 @@ class AntPopover extends StatefulWidget {
   State<AntPopover> createState() => _AntPopoverState();
 }
 
-class _AntPopoverState extends State<AntPopover> {
+class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
@@ -113,11 +113,12 @@ class _AntPopoverState extends State<AntPopover> {
   void didUpdateWidget(covariant AntPopover oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.open != null && oldWidget.open != widget.open) {
-      if (widget.open!) {
-        _showOverlay();
-      } else {
-        _hideOverlay();
-      }
+      // 受控切换可能发生在父级 build 阶段，show/hide 延迟到帧末
+      schedulePopupOpen(
+        open: widget.open!,
+        show: _showOverlay,
+        hide: _hideOverlay,
+      );
     }
     if (widget.disabled) {
       _hideOverlay();
@@ -188,7 +189,8 @@ class _AntPopoverState extends State<AntPopover> {
   @override
   Widget build(BuildContext context) {
     return AntPopupTriggerRegion(
-      onTap: widget.trigger == AntPopoverTrigger.click ? _handleTap : null,
+      onTap: _handleTap,
+      tapEnabled: widget.trigger == AntPopoverTrigger.click,
       hoverEnabled: widget.trigger == AntPopoverTrigger.hover,
       onHoverEnter: _handleHoverEnter,
       onHoverExit: _handleHoverExit,

@@ -6,6 +6,7 @@ import 'package:antd_flutter_ui/src/display/popover/ant_popover_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -20,6 +21,17 @@ Widget _wrap(Widget child) {
     ),
   );
 }
+/// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
+/// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
+Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
+  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+  try {
+    await tester.pumpWidget(_wrap(child));
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
+}
+
 
 const _bubbleKey = Key('AntPopoverBubble');
 const _arrowKey = Key('AntPopoverArrow');
@@ -88,15 +100,17 @@ void main() {
 
   group('AntPopover — 悬停触发', () {
     testWidgets('悬停打开，移出关闭', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(tester,
         _wrap(
           const AntPopover(
             trigger: AntPopoverTrigger.hover,
             content: Text('悬停内容'),
             child: Text('悬停'),
           ),
-        ),
+        )
       );
+      debugDefaultTargetPlatformOverride = null;
       expect(find.text('悬停内容'), findsNothing);
 
       final gesture = await tester.createGesture(

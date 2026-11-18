@@ -84,6 +84,8 @@ packages/
 - R20/R28 文档单轨脚本生成（gen-docs 从 /// 注释生成，不设人工文档；人工只维护 /// 注释）
 - R21/R22 静态页面产出、文档随代码走、改 API 同提交更新文档
 - R34 独立组件包文案国际化：内建 locale 机制，默认中文，常用语言全集内置（zh/en/ja/ko/fr/de/es/ru/pt/it/ar），已有包 antd_refresh 已落地
+- R35 **Flutter Controller 模式规范（用户指定）**：受控/可编程操作的组件必须遵循 Flutter 编码惯例——暴露 **Controller 类**（如 ScrollController/EasyRefreshController 模式），通过 controller 调用开启/关闭/刷新等操作，不依赖 GlobalKey hack 或内部状态直改；**性能**：局部刷新用 ListenableBuilder/ValueListenableBuilder 等（对应 R13），禁止整页 setState
+- R35.1 **已实现组件统一排查改造（用户指定，一次性）**：P08 当前子任务完成后，对所有已实现组件统一排查一轮——不符合 Controller 模式/局部刷新规范的逐个修正；后续新组件开发直接按 R35 实现
 
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）

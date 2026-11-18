@@ -81,7 +81,7 @@ class AntDropdown extends StatefulWidget {
   State<AntDropdown> createState() => _AntDropdownState();
 }
 
-class _AntDropdownState extends State<AntDropdown> {
+class _AntDropdownState extends State<AntDropdown> with PopupOpenScheduler {
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
@@ -102,11 +102,12 @@ class _AntDropdownState extends State<AntDropdown> {
   void didUpdateWidget(covariant AntDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.open != null && oldWidget.open != widget.open) {
-      if (widget.open!) {
-        _showOverlay();
-      } else {
-        _hideOverlay();
-      }
+      // 受控切换可能发生在父级 build 阶段，show/hide 延迟到帧末
+      schedulePopupOpen(
+        open: widget.open!,
+        show: _showOverlay,
+        hide: _hideOverlay,
+      );
     }
     if (widget.disabled && oldWidget.disabled != widget.disabled) {
       _hideOverlay();
@@ -180,7 +181,8 @@ class _AntDropdownState extends State<AntDropdown> {
   @override
   Widget build(BuildContext context) {
     return AntPopupTriggerRegion(
-      onTap: widget.trigger == AntDropdownTrigger.click ? _handleTap : null,
+      onTap: _handleTap,
+      tapEnabled: widget.trigger == AntDropdownTrigger.click,
       hoverEnabled: widget.trigger == AntDropdownTrigger.hover,
       onHoverEnter: _handleHoverEnter,
       onHoverExit: _handleHoverExit,

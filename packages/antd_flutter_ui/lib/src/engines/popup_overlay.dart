@@ -11,6 +11,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'popup_engine.dart';
@@ -230,16 +231,44 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
   }
 }
 
-/// 统一触发区域（点击 + 悬停）。
+/// 受控 open 调度 mixin — show/hide 统一延迟到帧末。
+///
+/// 受控 `open` 切换通常由父级 `setState` 触发，发生在 build 阶段；
+/// 直接调用 `Overlay.insert()` 会在 build 阶段 markNeedsBuild 报错，
+/// 因此受控开关一律经 [schedulePopupOpen] 延迟到帧末执行。
+mixin PopupOpenScheduler<T extends StatefulWidget> on State<T> {
+  /// 帧末执行受控开关的 show/hide。
+  void schedulePopupOpen({
+    required bool open,
+    required VoidCallback show,
+    required VoidCallback hide,
+  }) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (open) {
+        show();
+      } else {
+        hide();
+      }
+    });
+  }
+}
+
+/// 统一触发区域（点击 + 悬停 + 移动端 hover 降级）。
 ///
 /// 用 [Listener] 而非 [GestureDetector] 检测点击：Listener 不参与手势竞技场，
 /// 当触发元素是 AntButton 等自带手势识别的组件时，子组件手势仍正常生效，
 /// 同时弹层触发不会被竞技场判负（GestureDetector 会被最内层识别器抢走 tap）。
+///
+/// 平台适配降级：移动端（Android/iOS/ohos）没有 hover 交互，
+/// [hoverEnabled] 在移动端自动降级为点击触发（tap 开、点空白关）；
+/// 桌面端 / Web 保持 hover。
 class AntPopupTriggerRegion extends StatelessWidget {
   const AntPopupTriggerRegion({
     super.key,
     required this.child,
     this.onTap,
+    this.tapEnabled = false,
     this.onHoverEnter,
     this.onHoverExit,
     this.hoverEnabled = false,
@@ -251,22 +280,31 @@ class AntPopupTriggerRegion extends StatelessWidget {
   /// 点击（指针抬起）回调。
   final VoidCallback? onTap;
 
+  /// 是否启用点击触发。
+  final bool tapEnabled;
+
   /// 鼠标移入回调（仅 [hoverEnabled] 时接线）。
   final VoidCallback? onHoverEnter;
 
   /// 鼠标移出回调（仅 [hoverEnabled] 时接线）。
   final VoidCallback? onHoverExit;
 
-  /// 是否启用悬停触发。
+  /// 是否启用悬停触发（移动端自动降级为点击）。
   final bool hoverEnabled;
+
+  /// 悬停是否按鼠标交互生效（移动端降级为 false）。
+  bool get _hoverActive => hoverEnabled && AntPlatform.isDesktop;
+
+  /// 点击是否生效：click 触发，或移动端 hover 降级为点击。
+  bool get _tapActive => tapEnabled || (hoverEnabled && !AntPlatform.isDesktop);
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: hoverEnabled && onHoverEnter != null ? (_) => onHoverEnter!() : null,
-      onExit: hoverEnabled && onHoverExit != null ? (_) => onHoverExit!() : null,
+      onEnter: _hoverActive && onHoverEnter != null ? (_) => onHoverEnter!() : null,
+      onExit: _hoverActive && onHoverExit != null ? (_) => onHoverExit!() : null,
       child: Listener(
-        onPointerUp: onTap == null ? null : (_) => onTap!(),
+        onPointerUp: _tapActive && onTap != null ? (_) => onTap!() : null,
         behavior: HitTestBehavior.opaque,
         child: child,
       ),

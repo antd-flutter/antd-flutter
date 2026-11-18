@@ -115,9 +115,16 @@ class AntTooltip extends StatefulWidget {
   final Duration mouseLeaveDelay;
 
   /// 实际生效的触发方式。
-  AntTooltipTrigger get effectiveTrigger =>
-      trigger ??
-      (AntPlatform.isDesktop ? AntTooltipTrigger.hover : AntTooltipTrigger.click);
+  ///
+  /// 未显式指定时按平台自动选择（桌面 hover / 移动端 click）；
+  /// 显式指定 hover 但运行在移动端（无 hover 交互）时自动降级为 click。
+  AntTooltipTrigger get effectiveTrigger {
+    final t = trigger ??
+        (AntPlatform.isDesktop ? AntTooltipTrigger.hover : AntTooltipTrigger.click);
+    return (t == AntTooltipTrigger.hover && AntPlatform.isMobile)
+        ? AntTooltipTrigger.click
+        : t;
+  }
 
   @override
   State<AntTooltip> createState() => _AntTooltipState();

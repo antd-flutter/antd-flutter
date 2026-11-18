@@ -7,6 +7,8 @@
 library;
 
 import 'package:antd_flutter_ui/src/basic/button/ant_button.dart';
+import 'package:antd_flutter_ui/src/basic/tooltip/ant_tooltip.dart';
+import 'package:antd_flutter_ui/src/basic/tooltip/ant_tooltip_types.dart';
 import 'package:antd_flutter_ui/src/display/popover/ant_dropdown.dart';
 import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm.dart';
 import 'package:antd_flutter_ui/src/display/popover/ant_popover.dart';
@@ -15,6 +17,7 @@ import 'package:antd_flutter_ui/src/display/popover/ant_popover_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 触发元素定位辅助。
@@ -34,6 +37,17 @@ Widget _wrap(Widget child) {
     ),
   );
 }
+/// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
+/// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
+Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
+  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+  try {
+    await tester.pumpWidget(_wrap(child));
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
+}
+
 
 /// 桌面端鼠标悬停（MouseRegion 只响应 mouse 设备指针）。
 Future<void> _hover(WidgetTester tester, Finder finder) async {
@@ -100,11 +114,15 @@ void main() {
     });
 
     testWidgets('hover 触发：鼠标移入弹出', (tester) async {
-      await tester.pumpWidget(_wrap(const AntPopover(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(tester,
+        _wrap(const AntPopover(
         trigger: AntPopoverTrigger.hover,
         content: Text('气泡内容'),
         child: AntButton(child: Text('触发')),
-      ),),);
+      ),)
+      );
+      debugDefaultTargetPlatformOverride = null;
       await tester.pumpAndSettle();
 
       await _hover(tester, findTrigger('触发'));
@@ -241,6 +259,80 @@ void main() {
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
       expect(find.text('菜单项一'), findsNothing);
+    });
+  });
+
+  group('移动端 hover 降级为点击（平台适配）', () {
+    testWidgets('Android 上 hover 触发的 Popover 点按即开', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await tester.pumpWidget(_wrap(
+        const AntPopover(
+          trigger: AntPopoverTrigger.hover,
+          content: Text('降级气泡'),
+          child: Text('触发'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('降级气泡'), findsNothing);
+
+      // 移动端无 hover：点按触发元素直接打开
+      await tester.tap(find.text('触发'));
+      await tester.pumpAndSettle();
+      expect(find.text('降级气泡'), findsOneWidget);
+
+      // 点空白关闭
+      await tester.tapAt(const Offset(15, 15));
+      await tester.pumpAndSettle();
+      expect(find.text('降级气泡'), findsNothing);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('Android 上 hover 触发的 Dropdown 点按即开', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await tester.pumpWidget(_wrap(
+        const AntDropdown(
+          trigger: AntDropdownTrigger.hover,
+          items: [AntDropdownItem(key: 'a', label: '降级菜单')],
+          child: Text('触发'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('触发'));
+      await tester.pumpAndSettle();
+      expect(find.text('降级菜单'), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('Android 上 AntTooltip 显式 hover 降级为点击', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await tester.pumpWidget(_wrap(
+        const AntTooltip(
+          trigger: AntTooltipTrigger.hover,
+          tooltip: Text('降级提示'),
+          child: Text('触发'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('触发'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('ant_tooltip_content')), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('iOS 上同样降级为点击', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await tester.pumpWidget(_wrap(
+        const AntPopover(
+          trigger: AntPopoverTrigger.hover,
+          content: Text('iOS 降级'),
+          child: Text('触发'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('触发'));
+      await tester.pumpAndSettle();
+      expect(find.text('iOS 降级'), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }
