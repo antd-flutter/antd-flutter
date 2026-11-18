@@ -1,126 +1,69 @@
 # antd_color
 
-Ant Design v6 color system for Flutter — fast color manipulation, palette generation, and CSS color parsing, precisely ported from [`@ant-design/fast-color`](https://github.com/ant-design/fast-color) v3.
+Ant Design v6 color system for Flutter — fast color manipulation, palette generation, and CSS color parsing, ported from `@ant-design/fast-color`。
 
-## Features
-
-- **AntFastColor** — Create colors from hex / rgb / hsl / hsv strings; lighten, darken, mix, tint, shade, adjust alpha, and convert between formats.
-- **Palette generation** — `antGeneratePalette` produces the signature Ant Design 10-step color scale (blue-1 … blue-10) from any base color, with dark theme support.
-- **Preset palettes** — All 13 Ant Design preset colors (red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta, grey) ready to use.
-- **Flutter-native** — Every color is accessible as a Flutter `Color` alongside its hex string.
-- **CSS color parsing** — `antParseColor` converts any CSS color string into a Flutter `Color`.
-
-## Getting started
+## 安装
 
 ```yaml
 dependencies:
   antd_color: ^1.0.0
 ```
 
+## 用法
+
 ```dart
 import 'package:antd_color/antd_color.dart';
-```
 
-## Usage
-
-### Color manipulation
-
-```dart
-// Create from any CSS color string (shorthand for AntFastColor.of)
+// ── 颜色操作 ──────────────────────────────────────────────
+// 从任意 CSS 颜色字符串创建（AntFastColor.of 的简写）
 final base = AntFastColor('#1677ff');
 
-// Lighten / darken (amount is a percentage 0-100)
-final lighter = base.lighten(20);
-final darker = base.darken(10);
+final lighter = base.lighten(20);   // 变亮（百分比 0-100）
+final darker = base.darken(10);     // 变暗
+final mixed = base.mix('#ffffff', 50); // 混色
+final tinted = base.tint(20);       // 与白色混合
+final shaded = base.shade(10);      // 与黑色混合
+final semi = base.setA(0.45);       // 调整 alpha
 
-// Mix two colors (amount is a percentage 0-100)
-final mixed = base.mix('#ffffff', 50);
+print(base.toHexString());  // #1677ff
+print(base.toRgbString());  // rgb(22,119,255)
+print(base.toHsl());        // AntHsl(h: 215, s: 1.0, l: 0.54)
+print(base.toHsv());        // AntHsv(h: 215, s: 0.91, v: 1.0)
+print(base.isDark());       // false
+print(base.getLuminance()); // ~0.21（WCAG 相对亮度）
 
-// Tint / shade (mix with white / black)
-final tinted = base.tint(20);
-final shaded = base.shade(10);
-
-// Adjust alpha
-final semi = base.setA(0.45);
-
-// Convert
-print(base.toHexString()); // #1677ff
-print(base.toRgb());       // AntRgb(r: 22, g: 119, b: 255)
-print(base.toRgbString()); // rgb(22,119,255)
-print(base.toHsl());       // AntHsl(h: 215, s: 1.0, l: 0.54)
-print(base.toHsv());       // AntHsv(h: 215, s: 0.91, v: 1.0)
-
-// Check brightness
-print(base.isDark());      // false
-print(base.getLuminance()); // ~0.21 (WCAG relative luminance)
-```
-
-### Generate a 10-step palette
-
-```dart
-// Light theme palette
+// ── 10 阶色板生成 ─────────────────────────────────────────
 final palette = antGeneratePalette('#1677ff');
-// palette[0] … palette[9] — hex strings, lightest to darkest
+// palette[0] … palette[9] — hex 字符串，由浅到深
 
-// Dark theme palette
+// 暗色主题色板
 final darkPalette = antGeneratePalette(
   '#1677ff',
   AntPaletteOptions(theme: 'dark', backgroundColor: '#141414'),
 );
-```
 
-### Preset colors
-
-```dart
-// All 13 preset palettes (Map<String, List<String>>)
-final presets = antGeneratePresetPalettes();
-final blue = presets['blue']!; // 10-step hex strings
-
-// Dark variants
+// ── 预设色板（13 组） ─────────────────────────────────────
+final presets = antGeneratePresetPalettes(); // Map<String, List<String>>
+final blue = presets['blue']!;               // 10 阶 hex
 final darkPresets = antGeneratePresetPalettes(dark: true);
-
-// Or use the seed constants directly
 final seed = AntPresetColors.blue; // #1677FF
-```
 
-### AntColor — palette wrapper
-
-```dart
-// Generate from a seed color (light theme mapping)
+// ── AntColor 色板包装 ────────────────────────────────────
 final antBlue = AntColor.fromSeed('#1677ff');
-
-// Access by step (1-10) as hex string
-print(antBlue.step1);  // lightest
-print(antBlue.main);   // step 6 — the primary color
-print(antBlue.step10); // darkest
-print(antBlue[5]);     // operator access by step number
-
-// Access by step (1-10) as Flutter Color
-final primary = antBlue.step6Color;
-final hover = antBlue.step5Color;
-final active = antBlue.step7Color;
-final colorAt3 = antBlue.colorAt(3);
-
-// Dark theme variant
+print(antBlue.main);        // step 6 — 主色
+print(antBlue[5]);          // 按阶数取值
+final primary = antBlue.step6Color;   // Flutter Color
 final antBlueDark = AntColor.fromSeedDark('#1677ff');
-```
 
-### Parse CSS color strings
-
-```dart
-// hex / rgb / rgba strings → Flutter Color
+// ── CSS 颜色字符串解析 ───────────────────────────────────
 final c1 = antParseColor('#1677ff');
 final c2 = antParseColor('rgba(22, 119, 255, 0.6)');
 ```
 
-## Documentation
+## 文档
 
-- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
-
-## Porting fidelity
-
-The color algorithms (RGB ↔ HSL ↔ HSV conversion, palette generation with hue/saturation/brightness steps and dark theme mixing) are ported line-by-line from `@ant-design/fast-color` v3 and validated against its test fixtures to ensure visual parity with Ant Design React.
+- [API 文档总览](docs/api-index.md)
 
 ## License
 
-MIT
+MIT License，详见 [LICENSE](LICENSE)。

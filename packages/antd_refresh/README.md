@@ -1,94 +1,82 @@
 # antd_refresh
 
-Ant Design **滚动刷新** 的 Flutter 独立组件包，API 对齐 antd-mobile v5，包含两个职责分离、可组合使用的控件：
+Ant Design 滚动刷新的 Flutter 组件包，API 对齐 antd-mobile v5 — 包含下拉刷新（`AntPullToRefresh`）与无限滚动加载（`AntInfiniteScroll`）两个独立控件。
 
-- **AntPullToRefresh（下拉刷新）**：只做下拉刷新，滚动到底部加载更多不在其职责内
-- **AntInfiniteScroll（无限滚动 / 上拉加载）**：只做滚动到底自动加载更多，不负责下拉刷新
+> 当前为预览版本。
 
-两个控件相互独立、互不依赖，可自由组合：用 `AntPullToRefresh` 包裹 `AntInfiniteScroll` 即得完整「下拉刷新 + 上拉加载」体验。
-
-从主包 [antd_flutter_plus](https://github.com/antd-flutter/antd-flutter) 拆分而来（P08 独立包拆分）；主包经 re-export 保持对外 API 完全兼容，已接入主包的用户无需改动。
-
-## 定位
-
-- **独立理由**：下拉刷新手势状态机（idle → pulling → canRelease → refreshing → complete）为单包独享引擎，且「只想用下拉刷新 / 只想用上拉加载」的独立使用场景强。
-- **零三方依赖**：不引入任何第三方包。
-- **移动端手势**：AntPullToRefresh 触摸下拉（OverscrollNotification 驱动状态机 + 回弹）；AntInfiniteScroll 滚动到底自动触发。
-- **桌面端滚轮**：AntPullToRefresh 支持鼠标滚轮在顶部边缘继续滚动累积下拉位移，停止滚动约 400ms 后按阈值触发刷新（经 PointerSignalResolver 事件竞争，不影响同页其他滚动容器）。
-
-## R33 判定
-
-**包裹类组件，不需要 sliver 支持（R33）**：两个控件均以 `child` 包裹调用方自带的可滚动组件（ListView/CustomScrollView 等均可），通过 NotificationListener 实现，不要求 sliver 家族形态。
-
-## 使用
+## 安装
 
 ```yaml
 dependencies:
   antd_refresh: ^0.1.0-beta.1
 ```
 
+## 用法
+
 ```dart
 import 'package:antd_refresh/antd_refresh.dart';
 
-// 下拉刷新（只刷新）
+// ── 下拉刷新（只刷新） ───────────────────────────────────
 AntPullToRefresh(
   onRefresh: () async {
     await Future<void>.delayed(const Duration(seconds: 1));
   },
   child: ListView(children: const [Text('item')]),
-)
+);
 
-// 上拉加载（只加载更多）
+// ── 上拉加载（只加载更多） ───────────────────────────────
 AntInfiniteScroll(
   loadMore: () async => items.addAll(await fetchPage()),
   child: Column(children: [...]),
-)
+);
 
-// 组合：下拉刷新 + 上拉加载
+// ── 组合：下拉刷新 + 上拉加载 ────────────────────────────
 AntPullToRefresh(
   onRefresh: _refresh,
   child: AntInfiniteScroll(
     loadMore: _loadMore,
     child: ListView(children: items.map(Text.new).toList()),
   ),
-)
-```
+);
 
-## 国际化（i18n）
+// ── 下拉刷新关键参数 ─────────────────────────────────────
+AntPullToRefresh(
+  onRefresh: _refresh,
+  headHeight: 60,                     // 头部高度
+  threshold: 80,                      // 触发刷新的下拉阈值
+  pointer: AntPullToRefreshPointer.top, // 顶部下拉（支持桌面滚轮）
+  enableRefresh: true,
+  child: _list,
+);
 
-AntPullToRefresh 内建轻量 locale 机制（零依赖，不引入 intl），默认中文。
+// ── 国际化（内建轻量 locale 机制，默认中文，未命中回退中文）──
+// 1. 跟随系统语言（locale 不传即跟随 platformDispatcher.locale）
+AntPullToRefresh(onRefresh: _refresh, child: _list);
 
-**支持语言**：zh（中文，默认）、en、ja、ko、fr、de、es、ru、pt、it、ar。
-未命中的 locale 自动回退中文。
+// 2. 显式指定语言（zh / en / ja / ko / fr / de / es / ru / pt / it / ar）
+AntPullToRefresh(locale: Locale('en'), onRefresh: _refresh, child: _list);
 
-**用法**：
-
-```dart
-// 1. 跟随系统语言（默认行为，locale 不传即跟随
-//    WidgetsBinding.instance.platformDispatcher.locale）
-AntPullToRefresh(onRefresh: _refresh, child: _list)
-
-// 2. 显式指定语言
-AntPullToRefresh(locale: Locale('en'), onRefresh: _refresh, child: _list)
-
-// 3. 显式文案仍最优先（向后兼容），仅覆盖对应字段
+// 3. 显式文案最优先，仅覆盖对应字段
 AntPullToRefresh(
   locale: Locale('en'),
   pullingText: 'Pull!',
   onRefresh: _refresh,
   child: _list,
-)
+);
 
-// 4. 自定义文案整体覆写（可基于 copyWith 修改个别字段）
+// 4. 整体自定义文案（可基于 copyWith 覆写个别字段）
 AntPullToRefresh(
   strings: AntRefreshStrings.en.copyWith(completeText: 'Done!'),
   onRefresh: _refresh,
   child: _list,
-)
+);
 ```
 
-文案字段定义见 [AntRefreshStrings]（`lib/src/l10n/ant_refresh_strings.dart`），
-含 pulling / releasing / finishing / complete 四阶段文案。
+## 文档与演示
 
-> 说明：阿拉伯语（ar）等 RTL 语言仅提供本地化文案，不做镜像布局改造。
+- [API 文档总览](docs/api-index.md)
+- 在线演示：<https://antd-flutter.github.io/antd-flutter/refresh/>
 
+## License
+
+MIT License，详见仓库根 [LICENSE](../../LICENSE)。
