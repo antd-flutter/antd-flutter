@@ -124,6 +124,37 @@ class _SegmentedPageState extends State<SegmentedPage> {
           ),
           SizedBox(height: 16.w),
           _Section(
+            title: '垂直排列',
+            theme: theme,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AntSegmented(
+                  options: const ['列表', '看板', '日历'],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, '方向：$v'),
+                ),
+                SizedBox(width: 24.w),
+                AntSegmented(
+                  options: const [
+                    AntSegmentedItem(value: 'list', icon: AntdIcon(AntIcons.barsOutlined)),
+                    AntSegmentedItem(value: 'kanban', icon: AntdIcon(AntIcons.appstoreOutlined)),
+                  ],
+                  direction: AntSegmentedDirection.vertical,
+                  onChange: (v) => _showMsg(context, 'icon-only：$v'),
+                ),
+                SizedBox(width: 24.w),
+                AntSegmented(
+                  options: const ['日', '周', '月', '年'],
+                  direction: AntSegmentedDirection.vertical,
+                  block: true,
+                  onChange: (v) => _showMsg(context, 'block：$v'),
+                ),
+              ].map((w) => Expanded(child: w)).toList(),
+            ),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
             title: '胶囊形状',
             theme: theme,
             child: Column(
@@ -171,6 +202,8 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      // 桌面宽窗口下限宽卡片，避免 demo 区块被拉得过宽影响观感。
+      constraints: BoxConstraints(maxWidth: 560.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,

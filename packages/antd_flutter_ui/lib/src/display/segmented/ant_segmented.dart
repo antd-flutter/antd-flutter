@@ -9,6 +9,7 @@
 /// - [size] — small/middle/large
 /// - [disabled] — 全局禁用
 /// - [shape] — rounded（默认圆角）/ round（胶囊）
+/// - [direction] — horizontal（默认）/ vertical（竖排，对齐 antd `orientation`）
 ///
 /// ```dart
 /// AntSegmented(options: ['日', '周', '月'])
@@ -42,6 +43,7 @@ class AntSegmented extends StatefulWidget {
     this.size = AntSegmentedSize.middle,
     this.disabled = false,
     this.shape = AntSegmentedShape.rounded,
+    this.direction = AntSegmentedDirection.horizontal,
   });
 
   /// 选项列表，支持 String 或 [AntSegmentedItem]。
@@ -68,11 +70,16 @@ class AntSegmented extends StatefulWidget {
   /// 形状。
   final AntSegmentedShape shape;
 
+  /// 排列方向（对齐 antd `orientation`）：horizontal（默认）/ vertical。
+  final AntSegmentedDirection direction;
+
   @override
   State<AntSegmented> createState() => _AntSegmentedState();
 }
 
 class _AntSegmentedState extends State<AntSegmented> {
+  bool get _isVertical => widget.direction == AntSegmentedDirection.vertical;
+
   late List<AntSegmentedItem> _items;
   late String _selectedValue;
 
@@ -127,14 +134,21 @@ class _AntSegmentedState extends State<AntSegmented> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
 
+    Widget track = widget.block ? _buildBlock(theme) : _buildInline(theme);
     return Container(
-      height: _trackHeight.w,
+      // 水平：轨道定高（32.w）；垂直 inline：宽度取最宽项（IntrinsicWidth），
+      // 垂直 block：高度取最高项（IntrinsicHeight），宽度撑满父容器。
+      constraints: _isVertical
+          ? (widget.block ? BoxConstraints(minHeight: _trackHeight.w) : null)
+          : BoxConstraints.tightFor(height: _trackHeight.w),
       padding: EdgeInsets.all(2.w),
       decoration: BoxDecoration(
         color: theme.colorFillQuaternary,
         borderRadius: _trackBorderRadius(theme),
       ),
-      child: widget.block ? _buildBlock(theme) : _buildInline(theme),
+      child: _isVertical
+          ? (widget.block ? IntrinsicHeight(child: track) : IntrinsicWidth(child: track))
+          : track,
     );
   }
 
@@ -149,10 +163,12 @@ class _AntSegmentedState extends State<AntSegmented> {
                 : _indexOf(_selectedValue),
             borderRadius: _sliderBorderRadius(theme),
             theme: theme,
+            vertical: _isVertical,
           ),
         ),
         Positioned.fill(
-          child: Row(
+          child: Flex(
+            direction: _isVertical ? Axis.vertical : Axis.horizontal,
             children: [
               for (var i = 0; i < _items.length; i++)
                 Expanded(
@@ -163,6 +179,7 @@ class _AntSegmentedState extends State<AntSegmented> {
                     theme: theme,
                     size: widget.size,
                     withBackground: false,
+                    vertical: _isVertical,
                     onTap: () => _handleTap(_items[i]),
                   ),
                 ),
@@ -174,8 +191,10 @@ class _AntSegmentedState extends State<AntSegmented> {
   }
 
   Widget _buildInline(AntThemeData theme) {
-    return Row(
+    return Flex(
+      direction: _isVertical ? Axis.vertical : Axis.horizontal,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var i = 0; i < _items.length; i++)
           _SegmentItem(
@@ -185,6 +204,7 @@ class _AntSegmentedState extends State<AntSegmented> {
             theme: theme,
             size: widget.size,
             withBackground: true,
+            vertical: _isVertical,
             onTap: () => _handleTap(_items[i]),
           ),
       ],
@@ -232,6 +252,7 @@ class _Slider extends StatelessWidget {
     required this.selectedIndex,
     required this.borderRadius,
     required this.theme,
+    this.vertical = false,
   });
 
   final int itemCount;
@@ -239,19 +260,23 @@ class _Slider extends StatelessWidget {
   final BorderRadius borderRadius;
   final AntThemeData theme;
 
+  /// 是否垂直方向滑块（沿 y 轴动画）。
+  final bool vertical;
+
   @override
   Widget build(BuildContext context) {
-    final alignment = itemCount <= 1
-        ? Alignment.center
-        : Alignment(-1 + 2 * selectedIndex / (itemCount - 1), 0);
+    final progress = itemCount <= 1 ? 0.0 : selectedIndex / (itemCount - 1);
+    final alignment = vertical
+        ? Alignment(0, -1 + 2 * progress)
+        : Alignment(-1 + 2 * progress, 0);
 
     return AnimatedAlign(
       duration: _kSlideDuration,
       curve: Curves.easeOut,
       alignment: alignment,
       child: FractionallySizedBox(
-        widthFactor: itemCount <= 0 ? 1 : 1 / itemCount,
-        heightFactor: 1,
+        widthFactor: itemCount <= 0 ? 1 : (vertical ? 1 : 1 / itemCount),
+        heightFactor: itemCount <= 0 ? 1 : (vertical ? 1 / itemCount : 1),
         child: AnimatedContainer(
           duration: _kSlideDuration,
           decoration: BoxDecoration(
@@ -280,6 +305,7 @@ class _SegmentItem extends StatelessWidget {
     required this.theme,
     required this.size,
     required this.withBackground,
+    required this.vertical,
     required this.onTap,
   });
 
@@ -289,6 +315,9 @@ class _SegmentItem extends StatelessWidget {
   final AntThemeData theme;
   final AntSegmentedSize size;
   final bool withBackground;
+
+  /// 是否垂直排列（inline 背景需纵向 padding 撑高，不使用 height infinity）。
+  final bool vertical;
   final VoidCallback onTap;
 
   @override
@@ -326,10 +355,19 @@ class _SegmentItem extends StatelessWidget {
     );
 
     // 非 block 模式：滑块背景随选中项原地过渡。
+    // 水平：背景撑满轨道内高（height infinity + alignment center 修复
+    // 背景只有文字行高导致的"挤"观感）；垂直：用纵向 padding 撑出项高。
     final box = withBackground
         ? AnimatedContainer(
             duration: _kSlideDuration,
-            padding: EdgeInsets.symmetric(horizontal: _horizontalPadding().w),
+            height: vertical ? null : double.infinity,
+            alignment: vertical ? null : Alignment.center,
+            padding: vertical
+                ? EdgeInsets.symmetric(
+                    horizontal: _horizontalPadding().w,
+                    vertical: _verticalPadding().w,
+                  )
+                : EdgeInsets.symmetric(horizontal: _horizontalPadding().w),
             decoration: BoxDecoration(
               color: selected && !disabled ? theme.colorBgContainer : null,
               borderRadius: BorderRadius.circular((theme.borderRadiusSM - 2).w),
@@ -389,6 +427,18 @@ class _SegmentItem extends StatelessWidget {
         return 12;
       case AntSegmentedSize.large:
         return 16;
+    }
+  }
+
+  /// 垂直模式的纵向内边距（水平加大、垂直缩小，撑出 32.w 等效项高）。
+  double _verticalPadding() {
+    switch (size) {
+      case AntSegmentedSize.small:
+        return 4;
+      case AntSegmentedSize.middle:
+        return 7;
+      case AntSegmentedSize.large:
+        return 10;
     }
   }
 }

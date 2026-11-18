@@ -226,5 +226,89 @@ void main() {
       expect(find.text('原始'), findsOneWidget);
       expect(find.text('自定义'), findsOneWidget);
     });
+
+    testWidgets('inline selected background fills inner track height',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(options: ['A', 'B'])),
+      );
+      await tester.pumpAndSettle();
+      final trackHeight = tester.getSize(find.byType(AntSegmented)).height;
+      // 选中项背景（含背景色的 AnimatedContainer）应撑满轨道内高
+      // （32 - 2*2 = 28），而不是只有文字行高（"挤"问题修复断言）。
+      final boxes = tester
+          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+          .where((c) => (c.decoration! as BoxDecoration).color != null)
+          .toList();
+      expect(boxes, isNotEmpty);
+      final bgHeight = tester.getSize(find.byWidget(boxes.first)).height;
+      expect(bgHeight, greaterThan(trackHeight - 5));
+      expect(bgHeight, lessThan(trackHeight - 2.5));
+    });
+  });
+
+  group('AntSegmented vertical', () {
+    testWidgets('options stack vertically (track taller than wide)',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(
+          options: ['日', '周', '月'],
+          direction: AntSegmentedDirection.vertical,
+        )),
+      );
+      await tester.pumpAndSettle();
+      final size = tester.getSize(find.byType(AntSegmented));
+      expect(size.height, greaterThan(size.width));
+      // 三项垂直排布高度显著大于水平同款
+      expect(size.height, greaterThan(80));
+    });
+
+    testWidgets('tap option fires onChange in vertical mode', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        _wrap(AntSegmented(
+          options: const ['日', '周', '月'],
+          direction: AntSegmentedDirection.vertical,
+          onChange: values.add,
+        )),
+      );
+      await tester.tap(find.text('月'));
+      await tester.pumpAndSettle();
+      expect(values, ['月']);
+    });
+
+    testWidgets('vertical block slider animates along y axis',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(
+          options: ['日', '周', '月'],
+          block: true,
+          direction: AntSegmentedDirection.vertical,
+        )),
+      );
+      await tester.pumpAndSettle();
+      // 首项选中：滑块贴近顶部
+      expect(_sliderAlignment(tester).y, lessThan(-0.5));
+      expect(_sliderAlignment(tester).x, closeTo(0, 0.01));
+
+      await tester.tap(find.text('月'));
+      await tester.pumpAndSettle();
+      // 末项选中：滑块滑到底部
+      expect(_sliderAlignment(tester).y, greaterThan(0.5));
+      expect(_sliderAlignment(tester).x, closeTo(0, 0.01));
+    });
+
+    testWidgets('horizontal default keeps slider on x axis', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(
+          options: ['日', '周', '月'],
+          direction: AntSegmentedDirection.horizontal,
+          block: true,
+        )),
+      );
+      await tester.pumpAndSettle();
+      expect(_sliderAlignment(tester).y, closeTo(0, 0.01));
+      expect(_sliderAlignment(tester).x, lessThan(-0.5));
+    });
   });
 }

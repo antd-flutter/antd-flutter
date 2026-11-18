@@ -24,6 +24,15 @@ enum AntSegmentedShape {
   round,
 }
 
+/// 分段控制器方向。
+enum AntSegmentedDirection {
+  /// 水平排列（默认）
+  horizontal,
+
+  /// 垂直排列（对齐 antd `orientation="vertical"`）
+  vertical,
+}
+
 /// 分段控制器选项。
 ///
 /// [value] 缺省时取 [label]，[label] 缺省时取 [value]（icon-only 场景）。
