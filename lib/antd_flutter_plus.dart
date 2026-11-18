@@ -217,8 +217,9 @@ export 'package:antd_flutter_ui/src/display/ellipsis/ant_ellipsis_types.dart';
 // Footer 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/footer/ant_footer.dart';
 export 'package:antd_flutter_ui/src/basic/footer/ant_footer_types.dart';
-export 'src/components/data_display/page_indicator/ant_page_indicator.dart';
-export 'src/components/data_display/page_indicator/ant_page_indicator_types.dart';
+// PageIndicator 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator.dart';
+export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator_types.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
 // InfiniteScroll / PullToRefresh 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容

@@ -65,6 +65,7 @@ const List<NavGroup> navGroups = [
     NavItem('Empty 空状态', 'empty'),
     NavItem('Footer 页脚', 'footer'),
     NavItem('Image 图片', 'image'),
+    NavItem('PageIndicator 页面指示器', 'page_indicator'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
     NavItem('QRCode 二维码', 'qr_code'),

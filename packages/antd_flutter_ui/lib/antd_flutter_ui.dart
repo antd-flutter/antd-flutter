@@ -57,6 +57,10 @@ export 'src/basic/tooltip/ant_tooltip_types.dart';
 export 'src/display/empty/ant_empty.dart';
 export 'src/display/empty/ant_empty_types.dart';
 
+// ── PageIndicator 页面指示器 ────────────────────────────────
+export 'src/display/page_indicator/ant_page_indicator.dart';
+export 'src/display/page_indicator/ant_page_indicator_types.dart';
+
 // ── Avatar 头像 ────────────────────────────────────────────
 export 'src/display/avatar/ant_avatar.dart';
 export 'src/display/avatar/ant_avatar_types.dart';

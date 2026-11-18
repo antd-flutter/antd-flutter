@@ -16,10 +16,10 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
-  'page_indicator',
 ];
 const kMigratedVerified = <String>[
   'image',
+  'page_indicator',
   'picker_view',
   'infinite_scroll',
   'pull_to_refresh',
