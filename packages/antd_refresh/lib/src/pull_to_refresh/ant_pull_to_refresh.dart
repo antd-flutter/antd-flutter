@@ -4,7 +4,8 @@
 /// - [AntPullToRefresh.child] — 可滚动内容（必须是可滚动组件）
 /// - [AntPullToRefresh.onRefresh] — 下拉刷新回调（Future 完成后回弹）
 /// - [AntPullToRefresh.headHeight] — 头部高度（默认 40）
-/// - [AntPullToRefresh.threshold] — 触发刷新的下拉阈值（默认 60）
+/// - [AntPullToRefresh.threshold] — 触发刷新的下拉阈值（默认 50，
+///   轻微超过默认 headHeight 40 即触发，对齐 antd-mobile）
 /// - [AntPullToRefresh.pullStatusChange] — 状态变化回调
 /// - [AntPullToRefresh.completeText] / [AntPullToRefresh.pullingText] /
 ///   [AntPullToRefresh.releasingText] / [AntPullToRefresh.finishingText] — 各阶段文案
@@ -74,8 +75,9 @@ const Key kAntPullToRefreshHeaderKey =
 /// 默认头部高度。
 const double kAntPullToRefreshHeadHeight = 40;
 
-/// 默认触发阈值。
-const double kAntPullToRefreshThreshold = 60;
+/// 默认触发阈值（轻微超过默认头部高度 [kAntPullToRefreshHeadHeight]，
+/// 对齐 antd-mobile「拖过 headHeight 后轻微超过即可触发」的语义）。
+const double kAntPullToRefreshThreshold = 50;
 
 /// 回弹动画时长。
 const Duration kAntPullToRefreshDuration = kIndicatorAnimationDuration;
@@ -146,7 +148,7 @@ class AntPullToRefresh extends StatefulWidget {
   /// 头部高度（默认 40）。
   final double headHeight;
 
-  /// 触发刷新的下拉阈值（默认 60）。
+  /// 触发刷新的下拉阈值（默认 50，轻微超过默认 headHeight 40 即触发）。
   final double threshold;
 
   /// 状态变化回调（idle/pulling/canRelease/refreshing/complete）。
@@ -414,69 +416,75 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
             // 平台物理兜底 AlwaysScrollable（空列表也可下拉），
             // 关闭默认过冲指示器，桌面端允许鼠标拖拽滚动。
             behavior: const _AntPullToRefreshScrollBehavior(),
-            child: Stack(
-              children: [
-                // 内容区（随下拉位移整体下移/上移）
-                Positioned.fill(
-                  key: const ValueKey<String>('AntPullToRefreshContent'),
-                  child: NotificationListener<OverscrollIndicatorNotification>(
-                    onNotification: (notification) {
-                      // 吞掉默认的 Material 拉伸/波纹过冲指示器，
-                      // 避免与头部提示冲突（对应 ER 关闭过冲指示器）。
-                      notification.disallowIndicator();
-                      return true;
-                    },
-                    child: Transform.translate(
-                      offset: Offset(0, isTop ? offset : -offset),
-                      child: Listener(
-                        // 滚轮竞争监听器下沉到 child 内层：命中测试比
-                        // Scrollable 的监听器更深，pointerSignalResolver
-                        // 深度优先注册保证本组件只在自身条件下接管事件，
-                        // 不与同页其他滚动容器冲突。
-                        onPointerSignal: _handlePointerSignalWrapper,
-                        child: widget.child,
+            // 裁剪整个 Stack 到 child 的显示区域：下拉时 child 下方位移
+            // 溢出的部分与 header 溢出部分均不可见，header 只在 child
+            // 显示区域内出现，模拟「推挤」观感，不遮挡下方页面内容。
+            child: ClipRect(
+              child: Stack(
+                children: [
+                  // 内容区（随下拉位移整体下移/上移）
+                  Positioned.fill(
+                    key: const ValueKey<String>('AntPullToRefreshContent'),
+                    child:
+                        NotificationListener<OverscrollIndicatorNotification>(
+                      onNotification: (notification) {
+                        // 吞掉默认的 Material 拉伸/波纹过冲指示器，
+                        // 避免与头部提示冲突（对应 ER 关闭过冲指示器）。
+                        notification.disallowIndicator();
+                        return true;
+                      },
+                      child: Transform.translate(
+                        offset: Offset(0, isTop ? offset : -offset),
+                        child: Listener(
+                          // 滚轮竞争监听器下沉到 child 内层：命中测试比
+                          // Scrollable 的监听器更深，pointerSignalResolver
+                          // 深度优先注册保证本组件只在自身条件下接管事件，
+                          // 不与同页其他滚动容器冲突。
+                          onPointerSignal: _handlePointerSignalWrapper,
+                          child: widget.child,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // 头部（下拉时从边缘滑入）
-                // 头部（下拉时从边缘滑入）；idle 且无位移时不渲染（SizedBox
-                // .shrink），避免完成后残留常驻顶部遮挡内容。
-                Positioned(
-                  key: kAntPullToRefreshHeaderKey,
-                  left: 0,
-                  right: 0,
-                  top: isTop ? 0 : null,
-                  bottom: isTop ? null : 0,
-                  height: widget.headHeight,
-                  child: Transform.translate(
-                    offset: Offset(
-                      0,
-                      isTop
-                          ? offset - widget.headHeight
-                          : widget.headHeight - offset,
+                  // 头部（下拉时从边缘滑入）
+                  // 头部（下拉时从边缘滑入）；idle 且无位移时不渲染（SizedBox
+                  // .shrink），避免完成后残留常驻顶部遮挡内容。
+                  Positioned(
+                    key: kAntPullToRefreshHeaderKey,
+                    left: 0,
+                    right: 0,
+                    top: isTop ? 0 : null,
+                    bottom: isTop ? null : 0,
+                    height: widget.headHeight,
+                    child: Transform.translate(
+                      offset: Offset(
+                        0,
+                        isTop
+                            ? offset - widget.headHeight
+                            : widget.headHeight - offset,
+                      ),
+                      child: !headerVisible
+                          ? const SizedBox.shrink()
+                          : Container(
+                              alignment: Alignment.center,
+                              color: theme.colorBgLayout,
+                              child: widget.header ??
+                                  AntPullToRefreshHeader(
+                                    status: _indicator.mode,
+                                    pullingText: widget.pullingText ??
+                                        effectiveStrings.pullingText,
+                                    releasingText: widget.releasingText ??
+                                        effectiveStrings.releasingText,
+                                    finishingText: widget.finishingText ??
+                                        effectiveStrings.finishingText,
+                                    completeText: widget.completeText ??
+                                        effectiveStrings.completeText,
+                                  ),
+                            ),
                     ),
-                    child: !headerVisible
-                        ? const SizedBox.shrink()
-                        : Container(
-                            alignment: Alignment.center,
-                            color: theme.colorBgLayout,
-                            child: widget.header ??
-                                AntPullToRefreshHeader(
-                                  status: _indicator.mode,
-                                  pullingText: widget.pullingText ??
-                                      effectiveStrings.pullingText,
-                                  releasingText: widget.releasingText ??
-                                      effectiveStrings.releasingText,
-                                  finishingText: widget.finishingText ??
-                                      effectiveStrings.finishingText,
-                                  completeText: widget.completeText ??
-                                      effectiveStrings.completeText,
-                                ),
-                          ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

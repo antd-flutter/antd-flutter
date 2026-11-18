@@ -62,7 +62,7 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
 
   /// 运行期配置（由组件在 didUpdateWidget 时同步）。
   double _headHeight = 40;
-  double _threshold = 60;
+  double _threshold = 50; // 与组件层 kAntPullToRefreshThreshold 对齐。
   bool _isTop = true;
 
   /// 当前一次拉动是否由桌面滚轮驱动（滚轮没有「松手」事件，
@@ -122,8 +122,7 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
 
   /// 位移累积（触摸过冲与桌面滚轮共用；[wheelDriven] 由调用方标记）。
   void _accumulate(double delta) {
-    _offset = (_offset + delta)
-        .clamp(0.0, _headHeight * maxPullFactor);
+    _offset = (_offset + delta).clamp(0.0, _headHeight * maxPullFactor);
     _setMode(
       _offset >= _threshold
           ? AntPullToRefreshStatus.canRelease
@@ -232,7 +231,9 @@ class AntPullToRefreshIndicator extends ChangeNotifier {
     // 回弹复位动画（目标 0）到位后状态机回 idle：complete/pulling/canRelease
     // 残留会让 canPull 恒为 false，导致后续手势永久失效。
     // （展开动画目标 > 0，不能复位。）
-    if (_animTarget <= 0 && _offset <= 0 && _mode != AntPullToRefreshStatus.idle) {
+    if (_animTarget <= 0 &&
+        _offset <= 0 &&
+        _mode != AntPullToRefreshStatus.idle) {
       wheelDriven = false;
       _setMode(AntPullToRefreshStatus.idle);
     }

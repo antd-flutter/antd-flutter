@@ -253,14 +253,56 @@ void main() {
       expect(find.text('释放刷新'), findsNothing);
     });
 
-    testWidgets('default threshold is 60 and head height is 40',
+    testWidgets('default threshold is 50 and head height is 40',
         (tester) async {
       const refresh = AntPullToRefresh(child: SizedBox());
       expect(refresh.threshold, kAntPullToRefreshThreshold);
-      expect(refresh.threshold, 60);
+      // 轻微超过默认 headHeight 40 即可触发（对齐 antd-mobile 语义）。
+      expect(refresh.threshold, 50);
       expect(refresh.headHeight, kAntPullToRefreshHeadHeight);
       expect(refresh.headHeight, 40);
       expect(refresh.pointer, AntPullToRefreshPointer.top);
+    });
+
+    testWidgets('header and content are clipped to the child display area',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              SizedBox(height: 400, child: _buildList()),
+              const Text('下方内容'),
+            ],
+          ),
+        ),
+      );
+      // 结构层：Stack 被 ClipRect 包裹，header/content 溢出部分不可见。
+      final clip = find.ancestor(
+        of: find.byKey(kAntPullToRefreshHeaderKey),
+        matching: find.byType(ClipRect),
+      );
+      expect(clip, findsOneWidget);
+      // 拉动中：内容与 header 均在裁剪层内（同属一个 ClipRect 子树）。
+      await tester.drag(find.byType(ListView), const Offset(0, 30));
+      await tester.pump();
+      expect(
+        find.ancestor(
+          of: find.byKey(const ValueKey<String>('AntPullToRefreshContent')),
+          matching: find.byType(ClipRect),
+        ),
+        findsOneWidget,
+      );
+      // header Transform 负偏移（offset 30 < headHeight 40 时上移出界），
+      // 溢出部分依赖 ClipRect 裁剪，不会绘制到组件区域之外。
+      final headerTransform = tester.widget<Transform>(
+        find.descendant(
+          of: find.byKey(kAntPullToRefreshHeaderKey),
+          matching: find.byType(Transform),
+        ),
+      );
+      expect(headerTransform.transform.getTranslation().y, 30 - 40);
+      // 「下方内容」未被下拉刷新组件的绘制覆盖（同帧可见）。
+      expect(find.text('下方内容'), findsOneWidget);
     });
 
     group('desktop wheel pull', () {
