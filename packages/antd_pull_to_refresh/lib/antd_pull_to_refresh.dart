@@ -11,4 +11,6 @@
 library;
 
 export 'src/pull_to_refresh/ant_pull_to_refresh.dart';
+export 'src/pull_to_refresh/ant_pull_to_refresh_footer.dart';
+export 'src/pull_to_refresh/ant_pull_to_refresh_header.dart';
 export 'src/pull_to_refresh/ant_pull_to_refresh_types.dart';
