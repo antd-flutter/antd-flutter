@@ -68,6 +68,7 @@
 - R31 **样式实现优先级（用户指定，迁移/新代码直接执行）**：① 能继承 Flutter 系统组件的优先继承系统实现（适配层形态，如 AntSafeArea extends SafeArea / AntSliverAppBar extends SliverAppBar）；② 系统组件无法满足的，优先去 pub.dev 查找**高星级**开源轮子研究其实现方式后改造吸收（按 R30）；③ 都不适用才自研自绘。三档优先级在组件迁移与新组件开发时**直接执行**，无需逐次确认
 - R32 **独立组件包自建 example 满足发布条件（用户指定，全平台）**：每个独立组件包必须有**自己的 example 工程（全平台：iOS/Android/macOS/Windows/Linux/Web 目录齐全 + CI 矩阵覆盖）**，独立运行 + 发布到站点子路径（学习 antd_icons_flutter 的 example/gallery 模式），并完善自身 demo 至发布标准（组件全部关键形态展示、README、双轨文档）；本机验证 macOS + iOS 模拟器 + Web；**antd_icons_flutter 的 example 也按此标准补齐全平台**
 - R33 **组件 sliver 家族支持判定（用户指定，lead 判断落地）**：滚动集合类组件必须提供 sliver 家族支持（sliver 变体组件或 sliver 兼容），供 CustomScrollView 使用——判定标准：① 组件本质是「滚动内容集合」（如瀑布流/栅格/列表）→ **必须**；② overlay 弹层类/固定布局类/包裹类（Watermark/SafeArea/Carousel/Table/Tour 等）→ **不需要**。落地形态：独立包内提供 sliver 变体（如 `AntSliverMasonry`）或经 ui/src/adapt/ 适配层（`extends SliverXxx` 模式）；迁移与新组件开发时按此判定执行
+- R34 **独立组件包文案国际化（用户指定）**：所有涉及文案的组件（默认文案/占位/按钮/提示等），独立组件包内**自行实现国际化**（组件内建 locale 机制或文案配置入口），**默认中文**——不依赖主包/宿主 App 的国际化体系；有英文需求的组件提供 en 支持（arb 或文案映射表），跟随系统或宿主语言
 - R28 **文档命令化生成（单轨落地）**：gen-docs 命令承担全部文档产出；既有的人工 md（antd_color/antd_tokens/antd_icons_flutter 的 color/palette/parse/seed-token 等）属于历史遗留，由 P14 迁移为生成产物后删除
 - R23 **禁用 golden（图像快照）测试**（用户确认：token/积分成本高，跨平台字体渲染易 flaky）：组件默认参数值用普通单测断言；视觉效果由用户在 example 页人工抽查验收
 - R24 **import 统一用 `package:material_ui/material_ui.dart` 替代 `flutter/material.dart`**（官方迁移方向，防止 material.dart 遗弃问题；cupertino 同理用 cupertino_ui）；所有子包/主包/example/测试文件一律遵守，新代码禁止出现 `flutter/material.dart` import
