@@ -195,6 +195,10 @@ void main() {
         bool settleAfter = false,
       }) async {
         final pointer = TestPointer(1, PointerDeviceKind.mouse);
+        // 鼠标滚轮需要先 hover 到列表上，确定事件位置
+        final center = tester.getCenter(find.byType(ListView).first);
+        await tester.sendEventToBinding(pointer.hover(center));
+        await tester.pump();
         for (var i = 0; i < ticks; i++) {
           await tester.sendEventToBinding(
             pointer.scroll(Offset(0, deltaPerTick)),
