@@ -223,15 +223,20 @@ class _AntWatermarkState extends State<AntWatermark>
         children: [ClipRect(child: overlay)],
       );
     }
-    return Stack(
-      key: kAntWatermarkLayerKey,
-      children: [
-        KeyedSubtree(key: _childKey, child: child),
-        // 水印层与 child 等尺寸居中叠放（尺寸相等即完全覆盖）；
-        // 首帧测量完成前暂不展示水印层。
-        if (_childSize != Size.zero)
-          SizedBox.fromSize(size: _childSize, child: overlay),
-      ],
+    // 最外层 ClipRect 兜底：无论内部哪层画布越界绘制
+    // （Stack/SizedBox/CustomPaint 的任何泄漏路径），
+    // 都裁剪到水印 widget 自身边界内。
+    return ClipRect(
+      child: Stack(
+        key: kAntWatermarkLayerKey,
+        children: [
+          KeyedSubtree(key: _childKey, child: child),
+          // 水印层与 child 等尺寸居中叠放（尺寸相等即完全覆盖）；
+          // 首帧测量完成前暂不展示水印层。
+          if (_childSize != Size.zero)
+            SizedBox.fromSize(size: _childSize, child: overlay),
+        ],
+      ),
     );
   }
 }
@@ -305,7 +310,11 @@ class _WatermarkPainter extends CustomPainter {
     final stepY = tileH + gapY;
     if (stepX <= 0 || stepY <= 0) return;
 
+    // 强制裁剪到画布边界：CustomPaint 默认不裁剪绘制内容，
+    // 而下方旋转网格按超出 size 的半径平铺（保证旋转后全覆盖），
+    // 不裁剪会导致瓦片越界绘制到容器外（页边距/区块间隙）。
     canvas.save();
+    canvas.clipRect(Offset.zero & size);
     canvas.translate(size.width / 2, size.height / 2);
     canvas.rotate(rotate * math.pi / 180);
 
