@@ -520,5 +520,89 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
     });
+
+    group('resolveSnapTarget 松手吸附决策（fling 分支单测）', () {
+      const r = AntSwipeAction.resolveSnapTarget;
+      // 说明：本 Flutter 版本 DragEndDetails.velocity 在手势判非 fling 时
+      // 恒为 0（considerFling 判定），测试环境也无法产生真实速度，
+      // 因此 fling 分支通过纯函数单测覆盖。
+      test('快速左甩 + 有右侧按钮 → 直接展开右侧', () {
+        final result = r(
+          velocity: -600,
+          offset: -10,
+          hasRight: true,
+          hasLeft: false,
+          rightTotal: 72,
+          leftTotal: 0,
+        );
+        expect(result.target, -72);
+        expect(result.open, isTrue);
+      });
+
+      test('快速左甩 + 无右侧按钮 → 收起', () {
+        final result = r(
+          velocity: -600,
+          offset: 20,
+          hasRight: false,
+          hasLeft: true,
+          rightTotal: 0,
+          leftTotal: 72,
+        );
+        expect(result.target, 0);
+        expect(result.open, isFalse);
+      });
+
+      test('快速右甩 + 有左侧按钮 → 直接展开左侧', () {
+        final result = r(
+          velocity: 600,
+          offset: 10,
+          hasRight: false,
+          hasLeft: true,
+          rightTotal: 0,
+          leftTotal: 72,
+        );
+        expect(result.target, 72);
+        expect(result.open, isTrue);
+      });
+
+      test('快速右甩（左侧按钮未露出）+ 无左侧按钮 → 收起', () {
+        final result = r(
+          velocity: 600,
+          offset: -72,
+          hasRight: true,
+          hasLeft: false,
+          rightTotal: 72,
+          leftTotal: 0,
+        );
+        expect(result.target, 0);
+        expect(result.open, isFalse);
+      });
+
+      test('无 fling + 未超半宽 → 回弹收起', () {
+        final result = r(
+          velocity: 0,
+          offset: -30,
+          hasRight: true,
+          hasLeft: false,
+          rightTotal: 72,
+          leftTotal: 0,
+        );
+        expect(result.target, 0);
+        expect(result.open, isFalse);
+      });
+
+      test('无 fling + 超过半宽 → 吸附展开', () {
+        final result = r(
+          velocity: 0,
+          offset: -40,
+          hasRight: true,
+          hasLeft: false,
+          rightTotal: 72,
+          leftTotal: 0,
+        );
+        expect(result.target, -72);
+        expect(result.open, isTrue);
+      });
+    });
   });
 }

@@ -130,6 +130,44 @@ class AntSwipeAction extends StatefulWidget {
 
   @override
   State<AntSwipeAction> createState() => _AntSwipeActionState();
+
+  /// 松手吸附决策（纯函数，便于单测 fling 分支——测试环境
+  /// [DragEndDetails.velocity] 恒为 0，无法通过手势产生真实速度）。
+  ///
+  /// fling 速度优先：快速左甩（velocity < -[flingVelocity]）有右侧按钮即
+  /// 展开，否则收起；快速右甩对称。无 fling 时超过按钮总宽一半展开。
+  @visibleForTesting
+  static ({double target, bool open}) resolveSnapTarget({
+    required double velocity,
+    required double offset,
+    required bool hasRight,
+    required bool hasLeft,
+    required double rightTotal,
+    required double leftTotal,
+    double flingVelocity = kAntSwipeFlingVelocity,
+  }) {
+    final bool trailing = offset < 0;
+    double target = 0;
+    bool open = false;
+    if (velocity < -flingVelocity) {
+      if (hasRight) {
+        target = -rightTotal;
+        open = true;
+      }
+    } else if (velocity > flingVelocity) {
+      if (hasLeft) {
+        target = leftTotal;
+        open = true;
+      }
+    } else if (trailing && offset <= -rightTotal / 2) {
+      target = -rightTotal;
+      open = true;
+    } else if (!trailing && offset >= leftTotal / 2) {
+      target = leftTotal;
+      open = true;
+    }
+    return (target: target, open: open);
+  }
 }
 
 class _AntSwipeActionState extends State<AntSwipeAction>
@@ -218,16 +256,12 @@ class _AntSwipeActionState extends State<AntSwipeAction>
   void _handleDragStart(DragStartDetails details) {
     // 手指按下即接管：打断进行中的吸附动画（参考 flutter_swipe_action_cell）
     if (_snapController.isAnimating) _snapController.stop();
-    // ignore: avoid_print
-    print('DRAG START');
     _dragging = true;
     _draggingTrailing = _offset == 0 ? null : _offset < 0;
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
     final double dx = details.delta.dx;
-    // ignore: avoid_print
-    print('DRAG UPDATE dx=$dx');
     // 方向锁定：本次拖动期间只朝一侧展开
     if (_draggingTrailing == null && dx != 0) {
       _draggingTrailing = dx < 0;
@@ -270,33 +304,16 @@ class _AntSwipeActionState extends State<AntSwipeAction>
   /// 松手吸附：fling 速度优先（快甩即开/关），其次超过按钮总宽一半展开。
   void _handleDragEnd(DragEndDetails details) {
     _dragging = false;
-    final double velocity = details.velocity.pixelsPerSecond.dx;
-    // ignore: avoid_print
-    print('V=$velocity offset=$_offset trailing=$_draggingTrailing');
-    final bool trailing = _draggingTrailing ?? _offset < 0;
-    double target = 0;
-    bool open = false;
-
-    if (velocity < -kAntSwipeFlingVelocity) {
-      // 快速左甩：有右侧按钮即展开，否则收起
-      if (_hasRight) {
-        target = -_rightTotal;
-        open = true;
-      }
-    } else if (velocity > kAntSwipeFlingVelocity) {
-      // 快速右甩：有左侧按钮即展开，否则收起
-      if (_hasLeft) {
-        target = _leftTotal;
-        open = true;
-      }
-    } else if (trailing && _offset <= -_rightTotal / 2) {
-      target = -_rightTotal;
-      open = true;
-    } else if (!trailing && _offset >= _leftTotal / 2) {
-      target = _leftTotal;
-      open = true;
-    }
-    _snapTo(target, open: open);
+    final ({double target, bool open}) result =
+        AntSwipeAction.resolveSnapTarget(
+      velocity: details.velocity.pixelsPerSecond.dx,
+      offset: _offset,
+      hasRight: _hasRight,
+      hasLeft: _hasLeft,
+      rightTotal: _rightTotal,
+      leftTotal: _leftTotal,
+    );
+    _snapTo(result.target, open: result.open);
   }
 
   /// 展开态点击内容区域：收起（参考 flutter_swipe_action_cell 的 tap-to-close）。
@@ -458,8 +475,6 @@ class _SwipeActionDragGestureRecognizer
   @override
   void handleEvent(PointerEvent event) {
     final double delta = event.delta.dx;
-    // ignore: avoid_print
-    print('E ${event.runtimeType} d=$delta showing=$isActionShowing L=$canDragToLeft R=$canDragToRight');
     if (isActionShowing ||
         (canDragToLeft && delta < 0) ||
         (canDragToRight && delta > 0) ||
