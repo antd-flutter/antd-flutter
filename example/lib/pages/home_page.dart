@@ -132,7 +132,8 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 16, 4),
                   child: AntText(
-                    text: group.title,
+                    // 分组标题带迁移进度，如 "数据展示 (9/10 ·1 待验证)"
+                    text: _groupProgressLabel(group),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       fontWeight: FontWeight.w600,
@@ -149,6 +150,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// 分组进度标题：验收数/可见组件数，存在待验证项时追加提示
+  String _groupProgressLabel(NavGroup group) {
+    final verified = group.items.where((item) => item.verified).length;
+    final pending = group.items.length - verified;
+    final suffix = pending > 0 ? ' ·$pending 待验证' : '';
+    return '${group.title} ($verified/${group.items.length}$suffix)';
+  }
+
   /// 单个导航项
   Widget _buildNavItem(
     ThemeData theme,
@@ -156,6 +165,7 @@ class _HomePageState extends State<HomePage> {
     bool closeOnTap = false,
   }) {
     final selected = _selected == item;
+    final antTheme = AntTheme.of(context);
     return GestureDetector(
       onTap: () {
         setState(() => _selected = item);
@@ -168,12 +178,39 @@ class _HomePageState extends State<HomePage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: AntText(
-            text: item.label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: selected
-                  ? theme.colorScheme.onPrimaryContainer
-                  : theme.colorScheme.onSurface,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            child: Text.rich(
+              TextSpan(
+                text: item.label,
+                children: [
+                  // 已验收：✅ 后缀；已迁移未验收：橙色小标「· 待验证」
+                  if (item.verified)
+                    const TextSpan(text: ' ✅')
+                  else ...[
+                    // 计时图标：待验证状态视觉标识（与文字同色、小尺寸跟随）
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Icon(
+                        AntIcons.fieldTimeOutlined,
+                        size: 14,
+                        color: antTheme.colorWarning,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' 待验证',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: antTheme.colorWarning,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: selected
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.onSurface,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         ),
