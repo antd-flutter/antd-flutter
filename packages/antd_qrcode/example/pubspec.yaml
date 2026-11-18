@@ -1,0 +1,25 @@
+name: antd_qrcode_example
+description: Ant Design v6 QRCode for Flutter - component demo gallery.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_qrcode:
+    path: ../
+  antd_theme:
+    path: ../../antd_theme
+  material_ui: ^1.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

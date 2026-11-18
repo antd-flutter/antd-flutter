@@ -282,7 +282,7 @@
 | antd_image_viewer | image_viewer | data_display/image_viewer | 404/2 | — | cached_network_image | 4 | 全屏缩放查看引擎（InteractiveViewer+Overlay+手势） |
 | antd_tour | tour | data_display/tour | 811/2 | button | — | 4 | 挖孔遮罩+分步引导引擎 |
 | antd_splitter | splitter | layout/splitter | 699/2 | — | antd_icons_flutter | 3 | 拖拽分割面板引擎 |
-| antd_masonry | masonry | layout/masonry | 240/2 | — | — | 3 | 瀑布流分配算法引擎 |
+| antd_masonry | masonry | layout/masonry | 240/2 | — | — | 3 | 瀑布流分配算法引擎 ；**验收项：提供 sliver 支持（AntSliverMasonry 变体，R33）** |
 | antd_number_keyboard | number_keyboard | data_entry/number_keyboard | 321/2 | — | — | 3 | 虚拟键盘引擎核心 |
 | antd_number_keyboard | passcode_input | data_entry/passcode_input | 249/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
 | antd_number_keyboard | virtual_input | data_entry/virtual_input | 242/2 | number_keyboard | — | 1 | 格子输入模型，依赖 number_keyboard |
