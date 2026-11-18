@@ -53,3 +53,42 @@ AntPullToRefresh(
   ),
 )
 ```
+
+## 国际化（i18n）
+
+AntPullToRefresh 内建轻量 locale 机制（零依赖，不引入 intl），默认中文。
+
+**支持语言**：zh（中文，默认）、en、ja、ko、fr、de、es、ru、pt、it、ar。
+未命中的 locale 自动回退中文。
+
+**用法**：
+
+```dart
+// 1. 跟随系统语言（默认行为，locale 不传即跟随
+//    WidgetsBinding.instance.platformDispatcher.locale）
+AntPullToRefresh(onRefresh: _refresh, child: _list)
+
+// 2. 显式指定语言
+AntPullToRefresh(locale: Locale('en'), onRefresh: _refresh, child: _list)
+
+// 3. 显式文案仍最优先（向后兼容），仅覆盖对应字段
+AntPullToRefresh(
+  locale: Locale('en'),
+  pullingText: 'Pull!',
+  onRefresh: _refresh,
+  child: _list,
+)
+
+// 4. 自定义文案整体覆写（可基于 copyWith 修改个别字段）
+AntPullToRefresh(
+  strings: AntRefreshStrings.en.copyWith(completeText: 'Done!'),
+  onRefresh: _refresh,
+  child: _list,
+)
+```
+
+文案字段定义见 [AntRefreshStrings]（`lib/src/l10n/ant_refresh_strings.dart`），
+含 pulling / releasing / finishing / complete 四阶段文案。
+
+> 说明：阿拉伯语（ar）等 RTL 语言仅提供本地化文案，不做镜像布局改造。
+

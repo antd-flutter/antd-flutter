@@ -57,9 +57,11 @@ import 'package:material_ui/material_ui.dart';
 import 'ant_pull_to_refresh_header.dart';
 import 'ant_pull_to_refresh_notifier.dart';
 import 'ant_pull_to_refresh_types.dart';
+import '../l10n/ant_refresh_strings.dart';
 export 'ant_pull_to_refresh_header.dart';
 export 'ant_pull_to_refresh_notifier.dart';
 export 'ant_pull_to_refresh_types.dart';
+export '../l10n/ant_refresh_strings.dart';
 
 // ============================================================
 // 常量与测试定位 Key
@@ -86,7 +88,7 @@ const double kAntPullToRefreshMaxPullFactor =
 const Duration kAntPullToRefreshWheelSettleDuration =
     Duration(milliseconds: 400);
 
-/// 默认文案。
+/// 默认文案（中文，向后兼容保留；新代码建议使用 [AntRefreshStrings.zh]）。
 const String kAntPullToRefreshPullingText = '下拉刷新';
 const String kAntPullToRefreshReleasingText = '释放刷新';
 const String kAntPullToRefreshFinishingText = '加载中...';
@@ -128,6 +130,8 @@ class AntPullToRefresh extends StatefulWidget {
     this.pullingText,
     this.releasingText,
     this.finishingText,
+    this.locale,
+    this.strings,
     this.pointer = AntPullToRefreshPointer.top,
     this.header,
     this.enableRefresh = true,
@@ -159,6 +163,14 @@ class AntPullToRefresh extends StatefulWidget {
 
   /// 刷新中文案（伴随转圈显示）。
   final String? finishingText;
+
+  /// 界面语言（null = 跟随系统 `WidgetsBinding.instance.platformDispatcher.locale`）。
+  ///
+  /// 仅在 [AntPullToRefresh.pullingText] 等显式文案未传时生效。
+  final Locale? locale;
+
+  /// 自定义文案覆写（优先于 [AntRefreshStrings.resolve] 内置解析）。
+  final AntRefreshStrings? strings;
 
   /// 指针位置：top 顶部下拉（默认）/ bottom 底部上拉。
   final AntPullToRefreshPointer pointer;
@@ -332,6 +344,11 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     final bool isTop = _isTop;
+    // 文案解析：自定义覆写 > 显式 locale > 系统语言；未命中回退中文。
+    final AntRefreshStrings effectiveStrings = widget.strings ??
+        AntRefreshStrings.of(
+          widget.locale ?? WidgetsBinding.instance.platformDispatcher.locale,
+        );
 
     return ListenableBuilder(
       listenable: _indicator,
@@ -397,10 +414,14 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
                         child: widget.header ??
                             AntPullToRefreshHeader(
                               status: _indicator.mode,
-                              pullingText: widget.pullingText,
-                              releasingText: widget.releasingText,
-                              finishingText: widget.finishingText,
-                              completeText: widget.completeText,
+                              pullingText:
+                                  widget.pullingText ?? effectiveStrings.pullingText,
+                              releasingText: widget.releasingText ??
+                                  effectiveStrings.releasingText,
+                              finishingText: widget.finishingText ??
+                                  effectiveStrings.finishingText,
+                              completeText:
+                                  widget.completeText ?? effectiveStrings.completeText,
                             ),
                       ),
                     ),

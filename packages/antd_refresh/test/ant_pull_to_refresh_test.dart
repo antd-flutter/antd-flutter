@@ -66,6 +66,13 @@ Future<void> sendWheelScroll(
 }
 
 void main() {
+  // 组件文案现在跟随系统 locale（默认回退中文），测试宿主默认 locale
+  // 为 en_US，这里固定为 zh 以维持既有中文文案断言。
+  setUpAll(() {
+    TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+        const Locale('zh');
+  });
+
   group('AntPullToRefresh', () {
     testWidgets('renders scrollable child', (tester) async {
       await tester.pumpWidget(_wrap(_buildList()));
