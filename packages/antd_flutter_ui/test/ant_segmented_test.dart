@@ -254,7 +254,7 @@ void main() {
         _wrap(const AntSegmented(
           options: ['日', '周', '月'],
           direction: AntSegmentedDirection.vertical,
-        )),
+        ),),
       );
       await tester.pumpAndSettle();
       final size = tester.getSize(find.byType(AntSegmented));
@@ -270,7 +270,7 @@ void main() {
           options: const ['日', '周', '月'],
           direction: AntSegmentedDirection.vertical,
           onChange: values.add,
-        )),
+        ),),
       );
       await tester.tap(find.text('月'));
       await tester.pumpAndSettle();
@@ -284,7 +284,7 @@ void main() {
           options: ['日', '周', '月'],
           block: true,
           direction: AntSegmentedDirection.vertical,
-        )),
+        ),),
       );
       await tester.pumpAndSettle();
       // 首项选中：滑块贴近顶部
@@ -298,13 +298,71 @@ void main() {
       expect(_sliderAlignment(tester).x, closeTo(0, 0.01));
     });
 
+    testWidgets('vertical block track height = item count × track height',
+        (tester) async {
+      // 对照基准：单项水平 block 的轨道高（32.w + padding）
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(options: ['日'], block: true)),
+      );
+      await tester.pumpAndSettle();
+      final refHeight = tester.getSize(find.byType(AntSegmented)).height;
+
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(
+          options: ['日', '周', '月', '年'],
+          block: true,
+          direction: AntSegmentedDirection.vertical,
+        ),),
+      );
+      await tester.pumpAndSettle();
+      final size = tester.getSize(find.byType(AntSegmented));
+      // 四项垂直高度应约为单项水平轨道高的 4 倍
+      expect(size.height, greaterThan(refHeight * 3));
+      expect(size.height, lessThan(refHeight * 5));
+      // block 宽度撑满可用宽度，不塌陷
+      expect(size.width, greaterThan(100));
+    });
+
+    testWidgets('vertical block slider occupies selected item slot',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntSegmented(
+          options: ['日', '周', '月', '年'],
+          block: true,
+          direction: AntSegmentedDirection.vertical,
+        ),),
+      );
+      await tester.pumpAndSettle();
+      final track = tester.getRect(find.byType(AntSegmented));
+      const itemCount = 4;
+      // 滑块（FractionallySizedBox）高度 ≈ 轨道内容高 / 项数
+      final slider = tester.getRect(
+          find.ancestor(
+              of: find.byType(AnimatedContainer).first,
+              matching: find.byType(FractionallySizedBox),),
+          );
+      final inner = track.height - 4;
+      expect(slider.height, closeTo(inner / itemCount, 8));
+      // 首项选中：滑块贴顶
+      expect((slider.top - track.top).abs(), lessThan(6));
+
+      await tester.tap(find.text('年'));
+      await tester.pumpAndSettle();
+      final sliderBottom = tester.getRect(
+          find.ancestor(
+              of: find.byType(AnimatedContainer).first,
+              matching: find.byType(FractionallySizedBox),),);
+      // 末项选中：滑块贴底
+      expect((track.bottom - sliderBottom.bottom).abs(), lessThan(6));
+    });
+
     testWidgets('horizontal default keeps slider on x axis', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntSegmented(
           options: ['日', '周', '月'],
           direction: AntSegmentedDirection.horizontal,
           block: true,
-        )),
+        ),),
       );
       await tester.pumpAndSettle();
       expect(_sliderAlignment(tester).y, closeTo(0, 0.01));

@@ -135,20 +135,24 @@ class _AntSegmentedState extends State<AntSegmented> {
     final theme = AntTheme.of(context);
 
     Widget track = widget.block ? _buildBlock(theme) : _buildInline(theme);
+    // 水平：轨道定高（32.w）；垂直 inline：宽度取最宽项（IntrinsicWidth），
+    // 垂直 block：高度 = 项数 × 单项轨道高（紧约束）。
+    // 注意不能用 IntrinsicHeight：block 的 Stack 子节点均为 Positioned.fill，
+    // 固有高度为 0，会导致轨道高度塌陷、选项被压扁。
     return Container(
-      // 水平：轨道定高（32.w）；垂直 inline：宽度取最宽项（IntrinsicWidth），
-      // 垂直 block：高度取最高项（IntrinsicHeight），宽度撑满父容器。
       constraints: _isVertical
-          ? (widget.block ? BoxConstraints(minHeight: _trackHeight.w) : null)
+          ? (widget.block
+              ? BoxConstraints.tightFor(
+                  height: _items.length * _trackHeight.w,
+                )
+              : null)
           : BoxConstraints.tightFor(height: _trackHeight.w),
       padding: EdgeInsets.all(2.w),
       decoration: BoxDecoration(
         color: theme.colorFillQuaternary,
         borderRadius: _trackBorderRadius(theme),
       ),
-      child: _isVertical
-          ? (widget.block ? IntrinsicHeight(child: track) : IntrinsicWidth(child: track))
-          : track,
+      child: _isVertical && !widget.block ? IntrinsicWidth(child: track) : track,
     );
   }
 
