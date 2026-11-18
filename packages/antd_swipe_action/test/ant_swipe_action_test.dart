@@ -317,5 +317,208 @@ void main() {
       await tester.pumpAndSettle();
       expect(openedSide, 'right');
     });
+
+    testWidgets('收起时触发 onClosed 回调', (tester) async {
+      var closed = false;
+      await tester.pumpWidget(_wrap(AntSwipeAction(
+        rightActions: const [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        onClosed: () => closed = true,
+        child: const SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      await tester.drag(find.text('内容'), const Offset(-100, 0));
+      await tester.pumpAndSettle();
+      expect(closed, isFalse);
+      // 展开态点击内容收起
+      await tester.tap(find.byKey(kAntSwipeActionContentKey));
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, 0);
+      expect(closed, isTrue);
+    });
+
+    /// 模拟 fling：测试环境事件时间戳需手动推进，VelocityTracker 才能算出速度。
+    Future<void> flingGesture(
+      WidgetTester tester,
+      Finder finder,
+      double dx,
+    ) async {
+      final Offset center = tester.getCenter(finder);
+      final TestGesture gesture = await tester.startGesture(center);
+      await gesture.moveBy(Offset(dx * 0.1, 0));
+      await tester.pump(const Duration(milliseconds: 10));
+      await gesture.moveBy(Offset(dx * 0.3, 0));
+      await tester.pump(const Duration(milliseconds: 10));
+      await gesture.moveBy(Offset(dx * 0.6, 0));
+      await tester.pump(const Duration(milliseconds: 10));
+      await gesture.up();
+    }
+
+    testWidgets('fling 快速左甩直接展开', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      // 位移很小（< 72/2）但速度极快：应按 fling 判定直接展开
+      await flingGesture(tester, find.text('内容'), -120);
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, -72);
+    });
+
+    testWidgets('fling 快速右甩（展开态）直接收起', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      await tester.drag(find.text('内容'), const Offset(-100, 0));
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, -72);
+      // 向右快甩：未露出左侧按钮，fling 判定收起
+      await flingGesture(tester, find.byKey(kAntSwipeActionContentKey), 120);
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, 0);
+    });
+
+    testWidgets('rubber-band：超过总宽后弹性阻尼跟随', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+          AntSwipeActionItem(text: '收藏'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      // 总宽 144：先 1:1 拖到 -100、再 1:1 到 -160（事件前未超宽）；
+      // 第三步事件前已超宽（160 > 144）→ delta/9 阻尼：-160 - 60/9 ≈ -166.7
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('内容')),
+      );
+      await gesture.moveBy(const Offset(-100, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, closeTo(-100, 0.1));
+      await gesture.moveBy(const Offset(-60, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, closeTo(-160, 0.1));
+      await gesture.moveBy(const Offset(-60, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, closeTo(-166.7, 0.2));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // 松手吸附回展开位
+      expect(_contentOffset(tester, '内容').dx, -144);
+    });
+
+    testWidgets('rubber-band：过拉距离有上限', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('内容')),
+      );
+      // 单次大幅拖动：越界被硬夹在 72 + 100 = 172（对齐轮子逐事件语义）
+      await gesture.moveBy(const Offset(-600, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, closeTo(-172, 0.2));
+      // 继续同向拖动：delta/9 阻尼后仍超上限 → 保持 -172
+      await gesture.moveBy(const Offset(-90, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, closeTo(-172, 0.2));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, -72);
+    });
+
+    testWidgets('snap 动画：松手后逐帧过渡到目标位移', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      await tester.drag(find.text('内容'), const Offset(-60, 0));
+      // 动画中间帧：AnimationController 首帧仅启动 ticker（offset 仍为起点），
+      // 再推进 100ms 后处于过渡中段（easeOutQuart 前段快）
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 100));
+      final double mid = _contentOffset(tester, '内容').dx;
+      expect(mid, lessThan(-60));
+      expect(mid, greaterThan(-72));
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, -72);
+    });
+
+    testWidgets('手势竞争：ListView 纵向滚动不触发横滑位移', (tester) async {
+      await tester.pumpWidget(_wrap(ListView(
+        children: [
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
+          for (int i = 0; i < 10; i++) ListTile(title: Text('行 $i')),
+        ],
+      ),),);
+      // 纵向拖动：方向相关识别器不处理纵向手势，内容位移保持 0
+      await tester.drag(find.text('内容'), const Offset(0, -120));
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, 0);
+    });
+
+    testWidgets('无对应侧按钮时拖动不产生位移', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSwipeAction(
+        rightActions: [
+          AntSwipeActionItem(text: '删除'),
+        ],
+        child: SizedBox(
+          width: 300,
+          height: 56,
+          child: Center(child: Text('内容')),
+        ),
+      ),),);
+      // 只有右侧按钮，向右拖动不应产生位移
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('内容')),
+      );
+      await gesture.moveBy(const Offset(100, 0));
+      await tester.pump();
+      expect(_contentOffset(tester, '内容').dx, 0);
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
   });
 }
