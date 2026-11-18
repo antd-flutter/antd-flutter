@@ -182,8 +182,9 @@ export 'package:antd_flutter_ui/src/display/segmented/ant_segmented.dart';
 export 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
 export 'src/components/data_display/qr_code/ant_qr_code.dart';
 export 'src/components/data_display/qr_code/ant_qr_code_types.dart';
-export 'src/components/data_display/image/ant_image.dart';
-export 'src/components/data_display/image/ant_image_types.dart';
+// AntImage 图片已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/image/ant_image.dart';
+export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 
 // ============================================================
 // 数据展示 Data Display — 批次C

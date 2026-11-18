@@ -93,3 +93,7 @@ export 'src/feedback/notice_bar/ant_notice_bar_types.dart';
 // ── Segmented 分段控制器 ────────────────────────────────────
 export 'src/display/segmented/ant_segmented.dart';
 export 'src/display/segmented/ant_segmented_types.dart';
+
+// ── Image 图片 ─────────────────────────────────────────────
+export 'src/display/image/ant_image.dart';
+export 'src/display/image/ant_image_types.dart';

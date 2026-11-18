@@ -18,9 +18,9 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_display/image/ant_image_types.dart';
+import 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 
-export 'package:antd_flutter_plus/src/components/data_display/image/ant_image_types.dart';
+export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 
 import 'package:antd_theme/antd_theme.dart';
 
