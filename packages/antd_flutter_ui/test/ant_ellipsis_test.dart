@@ -56,7 +56,7 @@ void main() {
           direction: AntEllipsisDirection.end,
         ),),
       );
-      final text = tester.widget<Text>(find.textContaining('...')).data!;
+      final text = _truncatedPlainText(tester);
       expect(text.startsWith(_prefixOf(kLongText)), isTrue);
       expect(text.endsWith('...'), isTrue);
     });
@@ -70,7 +70,7 @@ void main() {
           direction: AntEllipsisDirection.start,
         ),),
       );
-      final text = tester.widget<Text>(find.textContaining('...')).data!;
+      final text = _truncatedPlainText(tester);
       expect(text.startsWith('...'), isTrue);
       expect(text.endsWith(kLongText.substring(kLongText.length - 2)),
           isTrue,);
@@ -85,11 +85,81 @@ void main() {
           direction: AntEllipsisDirection.middle,
         ),),
       );
-      final text = tester.widget<Text>(find.textContaining('...')).data!;
+      final text = _truncatedPlainText(tester);
       expect(text.contains('...'), isTrue);
       expect(text.startsWith(kLongText.substring(0, 2)), isTrue);
       expect(text.endsWith(kLongText.substring(kLongText.length - 2)),
           isTrue,);
+    });
+
+    testWidgets('truncated text and action render in one Text.rich '
+        'inline structure', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntEllipsis(
+          content: kLongText,
+          rows: 1,
+          expandText: '展开',
+        ),),
+      );
+      final text = tester.widget<Text>(find.byType(Text).first);
+      final span = text.textSpan!;
+      expect(text.data, isNull, reason: '渲染主体应为 Text.rich');
+      final children = (span as TextSpan).children!;
+      expect(children, hasLength(1));
+      expect(children.first, isA<WidgetSpan>(), reason: '动作应为内联 WidgetSpan');
+      // 展开动作与截断文字同一行（动作 rect 与文本行垂直区间有交集）
+      final actionRect = tester.getRect(find.text('展开'));
+      final textRect = tester.getRect(find.textContaining('...'));
+      expect(actionRect.top, lessThan(textRect.bottom));
+      expect(actionRect.bottom, greaterThan(textRect.top));
+      // 动作位于行末：右侧贴近容器右边（同一行而非换行后独占）
+      expect(actionRect.right, greaterThan(textRect.right - 0.01));
+    });
+
+    testWidgets('truncation reserves action width: text + action fits '
+        'in one line width', (tester) async {
+      const actionText = '展开';
+      await tester.pumpWidget(
+        _wrap(const AntEllipsis(
+          content: kLongText,
+          rows: 1,
+          expandText: actionText,
+        ),),
+      );
+      final actionRect = tester.getRect(find.text(actionText));
+      final bodyRect = tester.getRect(find.textContaining('...'));
+      final availableWidth = tester.getSize(find.byType(AntEllipsis)).width;
+      // Text.rich 段落宽度 = 截断文字 + 内联动作，必须整行放下不换行
+      expect(bodyRect.width, lessThan(availableWidth + 0.01));
+      // 动作在行末且与正文同一行（顶部对齐、右缘贴近正文右缘）
+      expect(actionRect.top, closeTo(bodyRect.top, 1.0));
+      expect((bodyRect.right - actionRect.right).abs(), lessThan(1.0));
+      // 预留生效：截断文字部分 ≈ 行宽 − 动作宽度（预留后占满预算但不超）
+      final textOnlyWidth = bodyRect.width - actionRect.width;
+      expect(textOnlyWidth,
+          lessThanOrEqualTo(availableWidth - actionRect.width + 0.5),);
+    });
+
+    testWidgets('expanded state shows collapse action inline', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const AntEllipsis(
+          content: kLongText,
+          rows: 1,
+          expandText: '展开',
+          collapseText: '收起',
+        ),),
+      );
+      await tester.tap(find.text('展开'));
+      await tester.pump();
+      final text = tester.widget<Text>(find.textContaining(kLongText));
+      final span = text.textSpan!;
+      expect((span as TextSpan).children!.first, isA<WidgetSpan>());
+      final actionRect = tester.getRect(find.text('收起'));
+      final textRect = tester.getRect(find.textContaining(kLongText));
+      // 收起动作内联跟随全文末行（动作底缘不超过文本块底缘，非独立换行块）
+      expect(actionRect.top, greaterThan(textRect.top));
+      expect(actionRect.bottom, lessThanOrEqualTo(textRect.bottom + 1.0));
+      expect(actionRect.left, greaterThan(textRect.left));
     });
 
     testWidgets('tap expandText expands full text', (tester) async {
@@ -99,7 +169,7 @@ void main() {
       expect(find.text(kLongText), findsNothing);
       await tester.tap(find.text('展开'));
       await tester.pump();
-      expect(find.text(kLongText), findsOneWidget);
+      expect(find.textContaining(kLongText), findsOneWidget);
       expect(find.text('展开'), findsNothing);
     });
 
@@ -114,10 +184,10 @@ void main() {
       );
       await tester.tap(find.text('展开'));
       await tester.pump();
-      expect(find.text(kLongText), findsOneWidget);
+      expect(find.textContaining(kLongText), findsOneWidget);
       await tester.tap(find.text('收起'));
       await tester.pump();
-      expect(find.text(kLongText), findsNothing);
+      expect(find.textContaining(kLongText), findsNothing);
       expect(find.textContaining('...'), findsOneWidget);
     });
 
@@ -180,3 +250,11 @@ void main() {
 }
 
 String _prefixOf(String source) => source.substring(0, 4);
+
+/// 获取截断文本的纯文本内容（Text.rich 结构下走 textSpan，
+/// 并去掉尾部 WidgetSpan 占位符 \uFFFC）。
+String _truncatedPlainText(WidgetTester tester) {
+  final text = tester.widget<Text>(find.textContaining('...'));
+  return (text.data ?? text.textSpan!.toPlainText())
+      .replaceAll('\uFFFC', '');
+}
