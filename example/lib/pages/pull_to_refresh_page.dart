@@ -88,12 +88,6 @@ class PullToRefreshPage extends StatelessWidget {
             theme: theme,
             child: const _RefreshCallbackDemo(),
           ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '加载更多（easy_refresh 风格 footer）',
-            theme: theme,
-            child: const _LoadMoreDemo(),
-          ),
         ],
       ),
     );
@@ -158,61 +152,6 @@ class _RefreshCallbackDemoState extends State<_RefreshCallbackDemo> {
           style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
         ),
       ],
-    );
-  }
-}
-
-/// 加载更多演示（对齐 easy_refresh 的 footer 能力）。
-class _LoadMoreDemo extends StatefulWidget {
-  const _LoadMoreDemo();
-
-  @override
-  State<_LoadMoreDemo> createState() => _LoadMoreDemoState();
-}
-
-class _LoadMoreDemoState extends State<_LoadMoreDemo> {
-  final List<int> _items = List<int>.generate(10, (i) => i);
-  bool _noMore = false;
-  int _round = 0;
-
-  Future<AntPullToRefreshLoadResult> _onLoadMore() async {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    // 模拟：第 3 轮后没有更多；失败后点重试可继续。
-    if (_noMore) return AntPullToRefreshLoadResult.noMore;
-    setState(() {
-      _items.addAll(List<int>.generate(5, (i) => _items.length + i));
-      _round++;
-    });
-    if (_round >= 3) setState(() => _noMore = true);
-    return AntPullToRefreshLoadResult.more;
-  }
-
-  Future<void> _onRefresh() async {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() {
-      _items
-        ..clear()
-        ..addAll(List<int>.generate(10, (i) => i));
-      _noMore = false;
-      _round = 0;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 220.w,
-      child: AntPullToRefresh(
-        onRefresh: _onRefresh,
-        enableLoadMore: true,
-        onLoadMore: _onLoadMore,
-        child: ListView.builder(
-          itemCount: _items.length,
-          itemBuilder: (context, index) =>
-              ListTile(title: Text('条目 ${_items[index] + 1}')),
-        ),
-      ),
     );
   }
 }

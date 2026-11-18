@@ -1,8 +1,0 @@
-# antd_refresh 是 easy_refresh v3.5.0 的完整移植复刻包。
-# 移植代码忠实保留原包对 SDK material/cupertino 库的直接引用，
-# 故在本包范围内关闭仓库级「使用 material_ui/cupertino_ui 替代」的迁移提示。
-analyzer:
-  errors:
-    deprecated_member_use: ignore
-  exclude:
-    - build/**
