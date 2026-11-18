@@ -23,6 +23,8 @@ dependencies:
   cupertino_ui: any
 
 dependency_overrides:
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
   antd_color:
     path: ../../antd_color
   antd_tokens:
