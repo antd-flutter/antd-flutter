@@ -243,6 +243,68 @@ void main() {
       expect(findBubble('联动提示'), findsNothing);
     });
 
+    testWidgets('受控 open false→true 切换显示（build 阶段 setState 联动回归）', (tester) async {
+      // 回归：didUpdateWidget 中直接 Overlay.insert 会在父级 build 阶段触发
+      // markNeedsBuild during build 异常（example 受控 demo 场景）
+      bool open = false;
+      late StateSetter setState;
+      await tester.pumpWidget(
+        _wrap(
+          StatefulBuilder(
+            builder: (context, setter) {
+              setState = setter;
+              return AntTooltip(
+                open: open,
+                onOpenChange: (value) => setState(() => open = value),
+                tooltip: const Text('受控气泡'),
+                child: const Text('受控触发'),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(findBubble('受控气泡'), findsNothing);
+
+      setState(() => open = true);
+      await tester.pumpAndSettle();
+      expect(findBubble('受控气泡'), findsOneWidget);
+
+      setState(() => open = false);
+      await tester.pumpAndSettle();
+      expect(findBubble('受控气泡'), findsNothing);
+    });
+
+    testWidgets('受控切换触发 onOpenChange 回调', (tester) async {
+      final states = <bool>[];
+      bool open = false;
+      late StateSetter setState;
+      await tester.pumpWidget(
+        _wrap(
+          StatefulBuilder(
+            builder: (context, setter) {
+              setState = setter;
+              return AntTooltip(
+                open: open,
+                onOpenChange: states.add,
+                tooltip: const Text('回调联动'),
+                child: const Text('受控触发'),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      setState(() => open = true);
+      await tester.pumpAndSettle();
+      // onOpenChange 由组件显隐操作触发（点击受控元素时回调）
+      await tester.tap(findTrigger('受控触发'));
+      await tester.pumpAndSettle();
+      // 受控模式下点击不改变 open（由外部状态驱动），回调仍上报 false 语义
+      expect(states, isNotEmpty);
+    });
+
     testWidgets('defaultOpen=false 默认隐藏', (tester) async {
       await tester.pumpWidget(
         _wrap(
@@ -357,6 +419,53 @@ void main() {
 
       await tester.pump(const Duration(milliseconds: 600));
       expect(findBubble('延迟提示'), findsOneWidget);
+    });
+
+    testWidgets('快速移动：enter 延迟窗口内移出，气泡不出现', (tester) async {
+      // 回归：移出时未取消 pending 的 enter 计时器，导致延迟到期后
+      // 气泡弹出且再无 exit 事件关闭
+      await tester.pumpWidget(
+        _wrap(
+          const AntTooltip(
+            trigger: AntTooltipTrigger.hover,
+            mouseEnterDelay: Duration(milliseconds: 300),
+            mouseLeaveDelay: Duration.zero,
+            tooltip: Text('快速移出'),
+            child: Text('悬停目标'),
+          ),
+        ),
+      );
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: tester.getCenter(findTrigger('悬停目标')));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // 在 enter 延迟窗口内快速大幅移开
+      await gesture.moveTo(const Offset(700, 500));
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(findBubble('快速移出'), findsNothing);
+    });
+
+    testWidgets('快速移动：气泡打开后大幅移开必消失', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntTooltip(
+            trigger: AntTooltipTrigger.hover,
+            mouseEnterDelay: Duration.zero,
+            mouseLeaveDelay: Duration(milliseconds: 100),
+            tooltip: Text('大幅移开'),
+            child: Text('悬停目标'),
+          ),
+        ),
+      );
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: tester.getCenter(findTrigger('悬停目标')));
+      await tester.pumpAndSettle();
+      expect(findBubble('大幅移开'), findsOneWidget);
+
+      // 单次 moveTo 大幅移开（模拟快速移动，exit 事件仍必达）
+      await gesture.moveTo(const Offset(700, 550));
+      await tester.pumpAndSettle();
+      expect(findBubble('大幅移开'), findsNothing);
     });
 
     testWidgets('focus 触发聚焦打开，失焦关闭', (tester) async {

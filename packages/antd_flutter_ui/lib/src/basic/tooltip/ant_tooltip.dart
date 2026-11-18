@@ -154,11 +154,17 @@ class _AntTooltipState extends State<AntTooltip> {
   void didUpdateWidget(covariant AntTooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.open != null && oldWidget.open != widget.open) {
-      if (widget.open!) {
-        _showOverlay();
-      } else {
-        _hideOverlay();
-      }
+      // 受控开关可能发生在父级 build 阶段（setState 联动），
+      // Overlay.insert 需要延迟到帧末执行，否则触发
+      // 「markNeedsBuild called during build」异常
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (widget.open!) {
+          _showOverlay();
+        } else {
+          _hideOverlay();
+        }
+      });
     }
   }
 
@@ -234,8 +240,11 @@ class _AntTooltipState extends State<AntTooltip> {
   }
 
   void _handleHoverExit() {
-    if (!_currentOpen) return;
+    // 快速移动：指针可能在 mouseEnterDelay 窗口内移出（此时气泡尚未打开），
+    // 必须取消 pending 的 enter 计时器，否则延迟到期后气泡弹出且再无 exit 事件关闭
     _enterTimer?.cancel();
+    _enterTimer = null;
+    if (!_currentOpen) return;
     if (widget.mouseLeaveDelay <= Duration.zero) {
       _setOpen(false);
     } else {
