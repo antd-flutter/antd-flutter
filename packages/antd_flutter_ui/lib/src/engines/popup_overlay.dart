@@ -11,7 +11,6 @@ library;
 
 import 'dart:math' as math;
 
-import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'popup_engine.dart';
@@ -261,8 +260,9 @@ mixin PopupOpenScheduler<T extends StatefulWidget> on State<T> {
 /// 同时弹层触发不会被竞技场判负（GestureDetector 会被最内层识别器抢走 tap）。
 ///
 /// 平台适配降级：移动端（Android/iOS/ohos）没有 hover 交互，
-/// [hoverEnabled] 在移动端自动降级为点击触发（tap 开、点空白关）；
-/// 桌面端 / Web 保持 hover。
+/// hover 降级为点击的判定由调用方（组件 State）按平台解析后传入——
+/// [hoverEnabled] 仅在桌面端为 true；移动端 hover 调用方会以 [tapEnabled]
+/// 上报点击触发。区域内部不读取平台，避免重建期接线漂移。
 class AntPopupTriggerRegion extends StatelessWidget {
   const AntPopupTriggerRegion({
     super.key,
@@ -289,22 +289,16 @@ class AntPopupTriggerRegion extends StatelessWidget {
   /// 鼠标移出回调（仅 [hoverEnabled] 时接线）。
   final VoidCallback? onHoverExit;
 
-  /// 是否启用悬停触发（移动端自动降级为点击）。
+  /// 是否启用悬停触发（调用方已按平台解析：仅桌面端为 true）。
   final bool hoverEnabled;
-
-  /// 悬停是否按鼠标交互生效（移动端降级为 false）。
-  bool get _hoverActive => hoverEnabled && AntPlatform.isDesktop;
-
-  /// 点击是否生效：click 触发，或移动端 hover 降级为点击。
-  bool get _tapActive => tapEnabled || (hoverEnabled && !AntPlatform.isDesktop);
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: _hoverActive && onHoverEnter != null ? (_) => onHoverEnter!() : null,
-      onExit: _hoverActive && onHoverExit != null ? (_) => onHoverExit!() : null,
+      onEnter: hoverEnabled && onHoverEnter != null ? (_) => onHoverEnter!() : null,
+      onExit: hoverEnabled && onHoverExit != null ? (_) => onHoverExit!() : null,
       child: Listener(
-        onPointerUp: _tapActive && onTap != null ? (_) => onTap!() : null,
+        onPointerUp: tapEnabled && onTap != null ? (_) => onTap!() : null,
         behavior: HitTestBehavior.opaque,
         child: child,
       ),

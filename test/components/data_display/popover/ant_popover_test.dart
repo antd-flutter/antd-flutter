@@ -108,7 +108,7 @@ void main() {
             content: Text('悬停内容'),
             child: Text('悬停'),
           ),
-        )
+        ),
       );
       debugDefaultTargetPlatformOverride = null;
       expect(find.text('悬停内容'), findsNothing);

@@ -336,7 +336,7 @@ void main() {
             tooltip: Text('悬停提示'),
             child: Text('触发'),
           ),
-        )
+        ),
       );
       debugDefaultTargetPlatformOverride = null;
       expect(findBubble('悬停提示'), findsNothing);
@@ -362,7 +362,7 @@ void main() {
             tooltip: Text('延迟提示'),
             child: Text('触发'),
           ),
-        )
+        ),
       );
       debugDefaultTargetPlatformOverride = null;
 

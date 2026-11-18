@@ -131,6 +131,13 @@ class AntTooltip extends StatefulWidget {
 }
 
 class _AntTooltipState extends State<AntTooltip> {
+  /// 实际生效触发方式（首次 build 解析并缓存：平台恒定，
+  /// 避免重建期平台读取抖动导致 hover/click 接线漂移）。
+  AntTooltipTrigger? _resolvedTrigger;
+
+  AntTooltipTrigger get _trigger =>
+      _resolvedTrigger ??= widget.effectiveTrigger;
+
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
@@ -160,6 +167,9 @@ class _AntTooltipState extends State<AntTooltip> {
   @override
   void didUpdateWidget(covariant AntTooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.trigger != oldWidget.trigger) {
+      _resolvedTrigger = widget.effectiveTrigger;
+    }
     if (widget.open != null && oldWidget.open != widget.open) {
       // 受控开关可能发生在父级 build 阶段（setState 联动），
       // Overlay.insert 需要延迟到帧末执行，否则触发
@@ -264,7 +274,10 @@ class _AntTooltipState extends State<AntTooltip> {
 
   void _handleTap() => _setOpen(!_currentOpen);
 
+  bool _longPressConsumed = false;
+
   void _handleLongPress() {
+    _longPressConsumed = true;
     if (!_currentOpen) _setOpen(true);
   }
 
@@ -278,26 +291,40 @@ class _AntTooltipState extends State<AntTooltip> {
 
   @override
   Widget build(BuildContext context) {
-    final trigger = widget.effectiveTrigger;
+    final trigger = _trigger;
 
     Widget result = KeyedSubtree(
       key: _childKey,
       child: widget.child,
     );
 
-    // 点击 / 长按（移动端主交互，click 触发时全平台生效）；焦点触发时点击请求焦点
-    result = GestureDetector(
-      onTap: trigger == AntTooltipTrigger.click
-          ? _handleTap
-          : trigger == AntTooltipTrigger.focus
-              ? () => _effectiveFocusNode.requestFocus()
-              : null,
-      onLongPress:
-          trigger == AntTooltipTrigger.click && AntPlatform.isMobile
-              ? _handleLongPress
-              : null,
+    // 点击（click 触发）：用 Listener 而非 GestureDetector——不参与手势竞技场，
+    // 子元素自带手势（按钮、编辑图标等）仍正常生效
+    result = Listener(
+      onPointerDown: (_) => _longPressConsumed = false,
+      onPointerUp: trigger == AntTooltipTrigger.click
+          ? (_) {
+              // 长按已消费本次按压（移动端），抬起不再 toggle
+              if (_longPressConsumed) return;
+              _handleTap();
+            }
+          : null,
+      behavior: HitTestBehavior.opaque,
       child: result,
     );
+    // 长按（移动端 click 语义）
+    if (trigger == AntTooltipTrigger.click && AntPlatform.isMobile) {
+      result = GestureDetector(
+        onLongPress: _handleLongPress,
+        child: result,
+      );
+    }
+    if (trigger == AntTooltipTrigger.focus) {
+      result = GestureDetector(
+        onTap: () => _effectiveFocusNode.requestFocus(),
+        child: result,
+      );
+    }
 
     // 焦点触发
     if (trigger == AntTooltipTrigger.focus) {

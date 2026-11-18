@@ -120,7 +120,7 @@ void main() {
         trigger: AntPopoverTrigger.hover,
         content: Text('气泡内容'),
         child: AntButton(child: Text('触发')),
-      ),)
+      ),),
       );
       debugDefaultTargetPlatformOverride = null;
       await tester.pumpAndSettle();
@@ -271,7 +271,7 @@ void main() {
           content: Text('降级气泡'),
           child: Text('触发'),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       expect(find.text('降级气泡'), findsNothing);
 
@@ -295,7 +295,7 @@ void main() {
           items: [AntDropdownItem(key: 'a', label: '降级菜单')],
           child: Text('触发'),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       await tester.tap(find.text('触发'));
       await tester.pumpAndSettle();
@@ -311,7 +311,7 @@ void main() {
           tooltip: Text('降级提示'),
           child: Text('触发'),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       await tester.tap(find.text('触发'));
       await tester.pumpAndSettle();
@@ -327,7 +327,7 @@ void main() {
           content: Text('iOS 降级'),
           child: Text('触发'),
         ),
-      ));
+      ),);
       await tester.pumpAndSettle();
       await tester.tap(find.text('触发'));
       await tester.pumpAndSettle();

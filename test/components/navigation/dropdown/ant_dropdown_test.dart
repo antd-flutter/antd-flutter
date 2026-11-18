@@ -177,7 +177,7 @@ void main() {
             items: [AntDropdownItem(key: '1', label: '悬停项')],
             child: Text('悬停'),
           ),
-        )
+        ),
       );
       debugDefaultTargetPlatformOverride = null;
       expect(find.text('悬停项'), findsNothing);

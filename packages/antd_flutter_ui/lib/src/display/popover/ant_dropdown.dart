@@ -82,6 +82,21 @@ class AntDropdown extends StatefulWidget {
 }
 
 class _AntDropdownState extends State<AntDropdown> with PopupOpenScheduler {
+  /// 平台适配：移动端 hover 降级为点击。
+  /// 按当前 trigger 解析并缓存（平台恒定，避免重建期反复读取导致接线抖动）。
+  AntDropdownTrigger? _resolvedTrigger;
+  bool _hoverEffective = false;
+  bool _tapEffective = false;
+
+  void _resolveTrigger() {
+    if (_resolvedTrigger == widget.trigger) return;
+    _resolvedTrigger = widget.trigger;
+    _hoverEffective =
+        widget.trigger == AntDropdownTrigger.hover && AntPlatform.isDesktop;
+    _tapEffective = widget.trigger == AntDropdownTrigger.click ||
+        (widget.trigger == AntDropdownTrigger.hover && !AntPlatform.isDesktop);
+  }
+
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
@@ -180,10 +195,11 @@ class _AntDropdownState extends State<AntDropdown> with PopupOpenScheduler {
 
   @override
   Widget build(BuildContext context) {
+    _resolveTrigger();
     return AntPopupTriggerRegion(
       onTap: _handleTap,
-      tapEnabled: widget.trigger == AntDropdownTrigger.click,
-      hoverEnabled: widget.trigger == AntDropdownTrigger.hover,
+      tapEnabled: _tapEffective,
+      hoverEnabled: _hoverEffective,
       onHoverEnter: _handleHoverEnter,
       onHoverExit: _handleHoverExit,
       child: KeyedSubtree(
