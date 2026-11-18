@@ -115,21 +115,30 @@ class _BasicDemoState extends State<_BasicDemo> {
 
   @override
   Widget build(BuildContext context) {
+    // child 必须自带滚动组件（触发只属于自己的包裹对象，对齐 antd-mobile）。
     return AntInfiniteScroll(
       loadMore: _loadMore,
-      child: Column(
-        children: _items
-            .map((item) => Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  margin: EdgeInsets.only(bottom: 8.w),
-                  decoration: BoxDecoration(
-                    color: AntTheme.of(context).colorFillQuaternary,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: 300.w,
+        child: SingleChildScrollView(
+          child: Column(
+            children: _items
+                .map((item) => Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(12.w),
+                      margin: EdgeInsets.only(bottom: 8.w),
+                      decoration: BoxDecoration(
+                        color: AntTheme.of(context).colorFillQuaternary,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: AntText(
+                        text: item,
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -148,13 +157,21 @@ class _RetryDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntInfiniteScroll(
       loadMore: _loadMore,
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: 300.w,
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map((item) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.w),
+                      child: AntText(
+                        text: item,
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -183,13 +200,21 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
       noMoreText: '到底啦，没有更多啦',
       loadFailedText: '加载出错了',
       loadFailedRetryText: '重新加载',
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: 300.w,
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map((item) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.w),
+                      child: AntText(
+                        text: item,
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -245,13 +270,21 @@ class _NoMoreDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return AntInfiniteScroll(
       loadMore: () async => false,
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: 300.w,
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map((item) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.w),
+                      child: AntText(
+                        text: item,
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
       ),
     );
   }
