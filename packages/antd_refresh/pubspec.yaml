@@ -1,0 +1,35 @@
+name: antd_refresh
+description: >-
+  Pull-to-refresh and load-more engine for Flutter, fully ported from
+  easy_refresh v3.5.0 (MIT License). Provides the IndicatorNotifier state
+  machine, physics-based overscroll handling (touch + desktop mouse wheel),
+  Header/Footer protocol, controller, and built-in indicator styles.
+version: 0.1.0-beta.1
+homepage: https://antd-flutter.github.io/antd-flutter/
+repository: https://github.com/antd-flutter/antd-flutter
+issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+
+topics:
+  - ui
+  - pull-to-refresh
+  - infinite-scroll
+  - flutter
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_drawing: ^1.0.1
+
+  cupertino_ui: any
+  material_ui: any
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
