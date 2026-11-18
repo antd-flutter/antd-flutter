@@ -79,3 +79,7 @@ export 'src/display/statistic/ant_statistic_types.dart';
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';
+
+// ── NoticeBar 通告栏 ────────────────────────────────────────
+export 'src/feedback/notice_bar/ant_notice_bar.dart';
+export 'src/feedback/notice_bar/ant_notice_bar_types.dart';

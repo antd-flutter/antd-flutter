@@ -104,8 +104,16 @@ void main() {
         value: 100,
         valueStyle: TextStyle(color: Colors.red, fontSize: 32),
       ),),);
-      final text = tester.widget<Text>(find.text('100'));
-      expect(text.style?.color, Colors.red);
+      // Text/DefaultTextStyle 会包 1~2 层无 text 的中间 TextSpan，逐层下钻到用户 span。
+      final rich = tester.widget<RichText>(find.byType(RichText));
+      var cur = rich.text as TextSpan;
+      while (cur.text == null &&
+          cur.children != null &&
+          cur.children!.length == 1 &&
+          cur.children!.single is TextSpan) {
+        cur = cur.children!.single as TextSpan;
+      }
+      expect(cur.style?.color, Colors.red);
     });
   });
 
@@ -172,11 +180,24 @@ void main() {
       final ts = r.text as TextSpan;
       debugPrint('RT: "${ts.toPlainText()}" children=${ts.children?.length} spans=${(ts.children ?? []).map((c) => c is TextSpan ? '${c.text}:${c.style?.fontSize}' : 'widget').join(',')}');
     }
+    // Text.rich 外层 TextSpan 会被 Text 包一层（root.children = [用户 span]），
+    // 故先下钻到用户传入的 value span（含 2 个子 span：整数段 + 小数段）。
+    TextSpan valueRootOf(RichText r) {
+      var cur = r.text as TextSpan;
+      // Text/DefaultTextStyle 会包 1~2 层无 text 的中间 TextSpan，逐层下钻到用户 span。
+      while (cur.text == null &&
+          cur.children != null &&
+          cur.children!.length == 1 &&
+          cur.children!.single is TextSpan) {
+        cur = cur.children!.single as TextSpan;
+      }
+      return cur;
+    }
+
     final twoSpanRich = tester
         .widgetList<RichText>(find.byType(RichText))
-        .where((r) => (r.text as TextSpan).children != null)
-        .firstWhere((r) => (r.text as TextSpan).children!.length == 2);
-    final spans = (twoSpanRich.text as TextSpan).children!;
+        .firstWhere((r) => (valueRootOf(r).children ?? []).length == 2);
+    final spans = (valueRootOf(twoSpanRich).children)!;
     expect((spans[0] as TextSpan).text, '112,893.');
     expect((spans[1] as TextSpan).text, '00');
     expect((spans[1] as TextSpan).style!.fontSize, 12);

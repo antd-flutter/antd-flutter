@@ -61,8 +61,9 @@ export 'package:antd_flutter_ui/src/basic/typography/ant_typography.dart';
 export 'package:antd_flutter_ui/src/basic/typography/ant_typography_types.dart';
 export 'src/components/general/float_button/ant_float_button.dart';
 export 'src/components/general/float_button/ant_float_button_types.dart';
-export 'src/components/general/notice_bar/ant_notice_bar.dart';
-export 'src/components/general/notice_bar/ant_notice_bar_types.dart';
+// NoticeBar 通告栏已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar.dart';
+export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar_types.dart';
 
 // L4 组件层 — 布局
 // AutoCenter 自动居中已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
