@@ -42,6 +42,7 @@ class NavGroup {
 /// 清单外的组件先不入清单；迁移合并后再按文件头流程维护。
 const List<NavGroup> navGroups = [
   NavGroup('通用', [
+    NavItem('Tooltip 文字提示', 'tooltip'),
     NavItem('Button 按钮', 'button'),
     NavItem('NoticeBar 通告栏', 'notice_bar'),
     NavItem('Typography 排版', 'typography'),
