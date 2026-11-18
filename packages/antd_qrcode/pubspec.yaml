@@ -19,8 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # QR 生成引擎经中间层隔离（qr_flutter 语义不泄漏到组件 API）
-  qr_flutter: ^4.1.0
+  meta: ^1.7.0 # 包内吸收的 qr 引擎源码（engines/qr/）需要，BSD-3-Clause 见 LICENSE-THIRD-PARTY.md
   antd_theme: ^1.0.0
   material_ui: ^1.11.0
 

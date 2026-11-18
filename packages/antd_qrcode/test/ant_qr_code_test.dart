@@ -1,8 +1,8 @@
 import 'package:antd_qrcode/src/qr_code/ant_qr_code.dart';
+import 'package:antd_qrcode/src/engines/qr/ant_qr_engine.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -29,12 +29,27 @@ BoxDecoration _rootDecoration(WidgetTester tester) {
   return container.decoration! as BoxDecoration;
 }
 
+AntQrPainter _painter(WidgetTester tester) {
+  final paint = tester.widget<CustomPaint>(
+    find.byWidgetPredicate(
+      (w) => w is CustomPaint && w.painter is AntQrPainter,
+    ),
+  );
+  return paint.painter! as AntQrPainter;
+}
+
 void main() {
   group('AntQRCode', () {
-    testWidgets('renders QR for value', (tester) async {
+    testWidgets('renders QR via CustomPaint for value', (tester) async {
       await tester.pumpWidget(_wrap(const AntQRCode(value: 'hello')));
-      expect(find.byType(QrImageView), findsOneWidget);
-      expect(find.byKey(const ValueKey<String>('hello')), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.key == const ValueKey<String>('hello'),
+        ),
+        findsOneWidget,
+      );
+      expect(_painter(tester).value, 'hello');
+      expect(_painter(tester), isA<AntQrPainter>());
     });
 
     testWidgets('value change rebuilds QR data', (tester) async {
@@ -44,6 +59,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntQRCode(value: 'second')));
       expect(find.byKey(const ValueKey<String>('second')), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('first')), findsNothing);
+      expect(_painter(tester).value, 'second');
     });
 
     testWidgets('custom size applies', (tester) async {
@@ -59,15 +75,18 @@ void main() {
       expect(container.constraints?.maxWidth, closeTo(200.w, 0.1));
     });
 
+    testWidgets('painter sizes QR canvas to size', (tester) async {
+      await tester.pumpWidget(_wrap(const AntQRCode(value: 'a', size: 200)));
+      expect(_painter(tester).matrix.moduleCount, greaterThan(0));
+    });
+
     testWidgets('errorLevel L maps correctly', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntQRCode(value: 'a', errorLevel: AntQRCodeErrorLevel.l)),
       );
       expect(
-        tester
-            .widget<QrImageView>(find.byType(QrImageView))
-            .errorCorrectionLevel,
-        QrErrorCorrectLevel.L,
+        _painter(tester).matrix.errorCorrectLevel,
+        AntQrErrorCorrectLevel.l,
       );
     });
 
@@ -76,10 +95,8 @@ void main() {
         _wrap(const AntQRCode(value: 'a', errorLevel: AntQRCodeErrorLevel.q)),
       );
       expect(
-        tester
-            .widget<QrImageView>(find.byType(QrImageView))
-            .errorCorrectionLevel,
-        QrErrorCorrectLevel.Q,
+        _painter(tester).matrix.errorCorrectLevel,
+        AntQrErrorCorrectLevel.q,
       );
     });
 
@@ -88,10 +105,8 @@ void main() {
         _wrap(const AntQRCode(value: 'a', errorLevel: AntQRCodeErrorLevel.h)),
       );
       expect(
-        tester
-            .widget<QrImageView>(find.byType(QrImageView))
-            .errorCorrectionLevel,
-        QrErrorCorrectLevel.H,
+        _painter(tester).matrix.errorCorrectLevel,
+        AntQrErrorCorrectLevel.h,
       );
     });
 
@@ -99,17 +114,17 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntQRCode(value: 'a', color: Colors.red, bgColor: Colors.yellow)),
       );
-      final qr = tester.widget<QrImageView>(find.byType(QrImageView));
-      expect(qr.eyeStyle.color, Colors.red);
-      expect(qr.backgroundColor, Colors.yellow);
+      final painter = _painter(tester);
+      expect(painter.moduleColor, Colors.red);
+      expect(painter.emptyColor, Colors.yellow);
     });
 
     testWidgets('default colors follow theme tokens', (tester) async {
       await tester.pumpWidget(_wrap(const AntQRCode(value: 'a')));
-      final qr = tester.widget<QrImageView>(find.byType(QrImageView));
+      final painter = _painter(tester);
       final theme = AntThemeData.light();
-      expect(qr.backgroundColor, theme.colorBgContainer);
-      expect(qr.eyeStyle.color, theme.colorText);
+      expect(painter.emptyColor, theme.colorBgContainer);
+      expect(painter.moduleColor, theme.colorText);
     });
 
     testWidgets('bordered false removes border', (tester) async {
@@ -168,6 +183,15 @@ void main() {
       );
       expect(find.byIcon(Icons.qr_code_2), findsNothing);
       expect(find.text('二维码过期'), findsOneWidget);
+    });
+
+    testWidgets('painter repaints on value change', (tester) async {
+      await tester.pumpWidget(_wrap(const AntQRCode(value: 'a')));
+      final first = _painter(tester);
+      await tester.pumpWidget(_wrap(const AntQRCode(value: 'b')));
+      final second = _painter(tester);
+      expect(first.shouldRepaint(second), isTrue);
+      expect(second.shouldRepaint(second), isFalse);
     });
   });
 }

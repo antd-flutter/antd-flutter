@@ -9,7 +9,7 @@ Ant Design v6 [QRCode](https://ant.design/components/qrcode-cn) 组件的 Flutte
   - 中间图标模式（`icon` / `iconSize`）
   - 状态覆盖层：`status` = active / expired / scanned，过期后 `onRefresh` 刷新
   - `bordered` 边框开关
-- QR 生成引擎（qr_flutter）经组件内中间层隔离，SDK 语义不泄漏到组件 API
+- 零三方依赖：QR 生成引擎源码已吸收进包内（`src/engines/qr/`，来源 package:qr 3.0.3，BSD-3-Clause，见 LICENSE-THIRD-PARTY.md），渲染为 CustomPaint 自绘，引擎 API 不泄漏到组件接口
 - 主题接入：`antd_theme` Design Token
 
 ## 安装

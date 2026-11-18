@@ -23,7 +23,8 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_qr_code_types.dart';
 export 'ant_qr_code_types.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+
+import '../engines/qr/ant_qr_engine.dart';
 
 /// 默认尺寸（对齐 antd v6 默认 160）
 const double _kDefaultSize = 160;
@@ -113,23 +114,16 @@ class AntQRCode extends StatelessWidget {
     );
   }
 
-  /// 渲染二维码（SDK 语义经本中间层映射，外部不感知）。
+  /// 渲染二维码（引擎矩阵经本中间层获取，CustomPaint 自绘模块方块）。
   Widget _buildQRView(Color foreground, Color background) {
-    return QrImageView(
+    return CustomPaint(
       key: ValueKey<String>(value),
-      data: value,
-      version: QrVersions.auto,
-      size: size.w,
-      padding: EdgeInsets.zero,
-      backgroundColor: background,
-      errorCorrectionLevel: _mapErrorLevel(errorLevel),
-      eyeStyle: QrEyeStyle(
-        eyeShape: QrEyeShape.square,
-        color: foreground,
-      ),
-      dataModuleStyle: QrDataModuleStyle(
-        dataModuleShape: QrDataModuleShape.square,
-        color: foreground,
+      size: Size.square(size.w),
+      painter: AntQrPainter(
+        value: value,
+        errorLevel: errorLevel,
+        moduleColor: foreground,
+        emptyColor: background,
       ),
     );
   }
@@ -199,17 +193,90 @@ class AntQRCode extends StatelessWidget {
     return overlay;
   }
 
-  /// 纠错等级映射（中间层隔离 SDK 枚举语义）。
-  int _mapErrorLevel(AntQRCodeErrorLevel level) {
+}
+
+// ============================================================
+// AntQrPainter — QR 矩阵自绘（定位角/对齐/timing/数据模块统一按网格绘制）
+// ============================================================
+
+/// QR 矩阵绘制器 — 按引擎生成的 bool 网格逐模块绘制方块。
+///
+/// 方角绘制（antd 风格默认），定位角/对齐图案/timing/数据模块
+/// 均为矩阵深色模块，无需单独分支处理。
+class AntQrPainter extends CustomPainter {
+  AntQrPainter({
+    required this.value,
+    required this.errorLevel,
+    required this.moduleColor,
+    required this.emptyColor,
+  }) : _mappedErrorLevel = _mapErrorLevel(errorLevel);
+
+  /// 二维码内容。
+  final String value;
+
+  /// 组件层纠错等级。
+  final AntQRCodeErrorLevel errorLevel;
+
+  /// 深色模块颜色（前景）。
+  final Color moduleColor;
+
+  /// 空模块颜色（背景）。
+  final Color emptyColor;
+
+  final int _mappedErrorLevel;
+
+  AntQrMatrix? _matrix;
+
+  /// QR 矩阵（懒生成，供测试断言）。
+  AntQrMatrix get matrix => _matrix ??= AntQrMatrix.fromData(
+        data: value,
+        errorCorrectLevel: _mappedErrorLevel,
+      );
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final qr = matrix;
+    final count = qr.moduleCount;
+    final moduleSize = size.width / count;
+
+    // 背景铺满
+    final bgPaint = Paint()..color = emptyColor;
+    canvas.drawRect(Offset.zero & size, bgPaint);
+
+    // 逐模块绘制深色方块
+    final modulePaint = Paint()..color = moduleColor;
+    for (var row = 0; row < count; row++) {
+      for (var col = 0; col < count; col++) {
+        if (qr.isDark(row, col)) {
+          canvas.drawRect(
+            Offset(col * moduleSize, row * moduleSize) &
+                Size(moduleSize, moduleSize),
+            modulePaint,
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant AntQrPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.errorLevel != errorLevel ||
+        oldDelegate.moduleColor != moduleColor ||
+        oldDelegate.emptyColor != emptyColor;
+  }
+
+  /// 纠错等级映射（中间层隔离引擎常量语义）。
+  static int _mapErrorLevel(AntQRCodeErrorLevel level) {
     switch (level) {
       case AntQRCodeErrorLevel.l:
-        return QrErrorCorrectLevel.L;
+        return AntQrErrorCorrectLevel.l;
       case AntQRCodeErrorLevel.m:
-        return QrErrorCorrectLevel.M;
+        return AntQrErrorCorrectLevel.m;
       case AntQRCodeErrorLevel.q:
-        return QrErrorCorrectLevel.Q;
+        return AntQrErrorCorrectLevel.q;
       case AntQRCodeErrorLevel.h:
-        return QrErrorCorrectLevel.H;
+        return AntQrErrorCorrectLevel.h;
     }
   }
 }
