@@ -13,7 +13,12 @@ library;
 /// 无需手工逐个修改 NavItem。
 /// pendingVerify: 已迁移待用户验收（NavItem 显示 ⏱ 待验证）
 /// verified: 用户验收通过（NavItem 显示 label ✅）
-const kPendingVerify = <String>['image'];
+const kPendingVerify = <String>[
+  'image',
+  'calendar',
+  'calendar_picker',
+  'picker_view',
+];
 const kMigratedVerified = <String>[
   'image',
   'infinite_scroll',

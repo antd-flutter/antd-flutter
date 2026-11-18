@@ -57,6 +57,7 @@ const List<NavGroup> navGroups = [
   ]),
   NavGroup('数据展示', [
     NavItem('Avatar 头像', 'avatar'),
+    NavItem('Calendar 日历', 'calendar'),
     NavItem('Badge 徽标数', 'badge'),
     NavItem('Card 卡片', 'card'),
     NavItem('Ellipsis 文本省略', 'ellipsis'),
@@ -69,6 +70,8 @@ const List<NavGroup> navGroups = [
     NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Watermark 水印', 'watermark'),
     NavItem('Tag 标签', 'tag'),
+    NavItem('CalendarPicker 日历选择器', 'calendar_picker'),
+    NavItem('PickerView 选择器视图', 'picker_view'),
   ]),
   NavGroup('反馈', [
     NavItem('PullToRefresh 下拉刷新', 'pull_to_refresh'),
