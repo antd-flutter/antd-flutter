@@ -67,6 +67,7 @@ const List<NavGroup> navGroups = [
     NavItem('Footer 页脚', 'footer'),
     NavItem('Image 图片', 'image'),
     NavItem('PageIndicator 页面指示器', 'page_indicator'),
+    NavItem('Popover 气泡卡片', 'popover'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
     NavItem('QRCode 二维码', 'qr_code'),
@@ -75,8 +76,12 @@ const List<NavGroup> navGroups = [
     NavItem('PickerView 选择器视图', 'picker_view'),
     NavItem('Tag 标签', 'tag'),
   ]),
+  NavGroup('导航', [
+    NavItem('Dropdown 下拉菜单', 'dropdown'),
+  ]),
   NavGroup('反馈', [
     NavItem('PullToRefresh 下拉刷新', 'pull_to_refresh'),
     NavItem('SwipeAction 滑动操作', 'swipe_action'),
+    NavItem('Popconfirm 气泡确认框', 'popconfirm'),
   ]),
 ];
