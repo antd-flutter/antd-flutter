@@ -8,5 +8,6 @@
 const double kAntPullToRefreshThreshold
 ```
 
-默认触发阈值。
+默认触发阈值（轻微超过默认头部高度 `kAntPullToRefreshHeadHeight`，
+对齐 antd-mobile「拖过 headHeight 后轻微超过即可触发」的语义）。
 

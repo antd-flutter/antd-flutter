@@ -8,5 +8,5 @@
 const String kAntPullToRefreshPullingText
 ```
 
-默认文案。
+默认文案（中文，向后兼容保留；新代码建议使用 `AntRefreshStrings.zh`）。
 
