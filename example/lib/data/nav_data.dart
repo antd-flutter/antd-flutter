@@ -69,9 +69,9 @@ const List<NavGroup> navGroups = [
     NavItem('Statistic 统计数值', 'statistic'),
     NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Watermark 水印', 'watermark'),
-    NavItem('Tag 标签', 'tag'),
     NavItem('CalendarPicker 日历选择器', 'calendar_picker'),
     NavItem('PickerView 选择器视图', 'picker_view'),
+    NavItem('Tag 标签', 'tag'),
   ]),
   NavGroup('反馈', [
     NavItem('PullToRefresh 下拉刷新', 'pull_to_refresh'),
