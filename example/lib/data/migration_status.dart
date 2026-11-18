@@ -16,9 +16,6 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
-  'picker_view',
-  'tooltip',
-  'swipe_action',
 ];
 const kMigratedVerified = <String>[
   'image',
@@ -28,6 +25,7 @@ const kMigratedVerified = <String>[
   'pull_to_refresh',
   'qr_code',
   'swipe_action',
+  'tooltip',
   'button',
   'typography',
   'notice_bar',
