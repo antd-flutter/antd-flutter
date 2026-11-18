@@ -52,6 +52,7 @@
 - R29 **编码基类沉淀**
 - R30 **实现前先查轮子（用户指定）**：实现某功能前，先到 pub.dev 搜索是否已有成熟包实现（读其文档/源码/示例），优先「下载源码研究 → 按需改造吸收进自己代码」，避免从零重造；引入三方依赖需评估维护活跃度与依赖面（R16 中间件隔离仍适用）；改造吸收（拷源码改写）优于直接依赖（减少依赖树），版权/License 合规（MIT/Apache 可，需在文件头注明来源）
 - R31 **样式实现优先级（用户指定，迁移/新代码直接执行）**：① 能继承 Flutter 系统组件的优先继承系统实现（适配层形态，如 AntSafeArea extends SafeArea / AntSliverAppBar extends SliverAppBar）；② 系统组件无法满足的，优先去 pub.dev 查找**高星级**开源轮子研究其实现方式后改造吸收（按 R30）；③ 都不适用才自研自绘。三档优先级在组件迁移与新组件开发时**直接执行**，无需逐次确认
+- R32 **独立组件包自建 example 满足发布条件（用户指定）**：每个独立组件包必须有**自己的 web example**（独立运行 + 独立发布到站点子路径，学习 antd_icons_flutter 的 example/gallery 模式），并完善自身 demo 至发布标准（组件全部关键形态展示、README、双轨文档）；主包 example 的导航入口同步维护（迁移完成即加 NavItem——历史教训：Statistic/Watermark/QRCode 均曾漏导航项）
 - R28 **文档命令化生成（单轨落地）**：gen-docs 命令承担全部文档产出；既有的人工 md（antd_color/antd_tokens/antd_icons_flutter 的 color/palette/parse/seed-token 等）属于历史遗留，由 P14 迁移为生成产物后删除
 - R23 **禁用 golden（图像快照）测试**（用户确认：token/积分成本高，跨平台字体渲染易 flaky）：组件默认参数值用普通单测断言；视觉效果由用户在 example 页人工抽查验收
 - R24 **import 统一用 `package:material_ui/material_ui.dart` 替代 `flutter/material.dart`**（官方迁移方向，防止 material.dart 遗弃问题；cupertino 同理用 cupertino_ui）；所有子包/主包/example/测试文件一律遵守，新代码禁止出现 `flutter/material.dart` import

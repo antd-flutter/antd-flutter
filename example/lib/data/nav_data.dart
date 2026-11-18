@@ -65,6 +65,7 @@ const List<NavGroup> navGroups = [
     NavItem('Image 图片', 'image'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
+    NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Watermark 水印', 'watermark'),
     NavItem('Tag 标签', 'tag'),
   ]),
