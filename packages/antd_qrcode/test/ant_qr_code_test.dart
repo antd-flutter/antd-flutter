@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/qr_code/ant_qr_code.dart';
+import 'package:antd_qrcode/src/qr_code/ant_qr_code.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

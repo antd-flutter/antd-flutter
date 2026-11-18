@@ -180,8 +180,9 @@ export 'src/components/data_display/popover/ant_popover_types.dart';
 // Segmented 分段控制器已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/segmented/ant_segmented.dart';
 export 'package:antd_flutter_ui/src/display/segmented/ant_segmented_types.dart';
-export 'src/components/data_display/qr_code/ant_qr_code.dart';
-export 'src/components/data_display/qr_code/ant_qr_code_types.dart';
+// QRCode 二维码已迁移至 antd_qrcode（P08），此处 re-export 保持符号兼容
+export 'package:antd_qrcode/src/qr_code/ant_qr_code.dart';
+export 'package:antd_qrcode/src/qr_code/ant_qr_code_types.dart';
 // AntImage 图片已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/image/ant_image.dart';
 export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
