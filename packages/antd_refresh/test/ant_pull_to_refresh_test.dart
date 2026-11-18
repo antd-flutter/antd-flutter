@@ -77,7 +77,15 @@ void main() {
     testWidgets('renders scrollable child', (tester) async {
       await tester.pumpWidget(_wrap(_buildList()));
       expect(find.text('item 0'), findsOneWidget);
+      // idle（无位移、非活动态）：header 不渲染、无内容占位。
       expect(find.text('下拉刷新'), findsNothing);
+      expect(find.byType(AntPullToRefreshHeader), findsNothing);
+      final headerBox = tester.renderObject<RenderBox>(
+        find.byKey(kAntPullToRefreshHeaderKey),
+      );
+      expect(headerBox.hasSize, isTrue);
+      // Positioned 容器尺寸正常，但其内容为 SizedBox.shrink（无可见内容）。
+      expect(find.byType(SizedBox), findsWidgets);
     });
 
     testWidgets('pull offset follows drag and shows pulling text',
@@ -166,6 +174,8 @@ void main() {
       // 回弹后头部与转圈均消失，内容回到原位
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.text('刷新完成'), findsNothing);
+      // 完成（offset ≤ 0 且回到 idle）：header 不再渲染，不遮挡内容。
+      expect(find.byType(AntPullToRefreshHeader), findsNothing);
       expect(find.text('item 0'), findsOneWidget);
     });
 
@@ -366,7 +376,9 @@ void main() {
         await sendWheelScroll(tester, ticks: 3, deltaPerTick: -30);
         expect(find.text('下拉刷新'), findsNothing);
         expect(
-            statuses.where((s) => s != AntPullToRefreshStatus.idle), isEmpty,);
+          statuses.where((s) => s != AntPullToRefreshStatus.idle),
+          isEmpty,
+        );
       });
     });
 
@@ -378,7 +390,9 @@ void main() {
         final statusesA = <AntPullToRefreshStatus>[];
         final statusesB = <AntPullToRefreshStatus>[];
         Widget buildOne(
-            Key key, ValueChanged<AntPullToRefreshStatus> onStatus,) {
+          Key key,
+          ValueChanged<AntPullToRefreshStatus> onStatus,
+        ) {
           return SizedBox(
             height: 300,
             child: AntPullToRefresh(
@@ -414,7 +428,9 @@ void main() {
         expect(find.text('下拉刷新'), findsOneWidget);
         expect(statusesA, contains(AntPullToRefreshStatus.pulling));
         expect(
-            statusesB.where((s) => s != AntPullToRefreshStatus.idle), isEmpty,);
+          statusesB.where((s) => s != AntPullToRefreshStatus.idle),
+          isEmpty,
+        );
 
         // 滚轮悬停在列表 B 上 → 只有 B 进入拉动，A 不受影响。
         await sendWheelScroll(
@@ -499,10 +515,11 @@ void main() {
         expect(innerController.offset, offsetBefore - 30);
         expect(find.text('下拉刷新'), findsNothing);
         expect(
-            statuses.where((s) => s != AntPullToRefreshStatus.idle), isEmpty,);
+          statuses.where((s) => s != AntPullToRefreshStatus.idle),
+          isEmpty,
+        );
       });
     });
-
 
     group('programmatic refresh (callRefresh)', () {
       testWidgets('callRefresh triggers onRefresh and settles back',
@@ -579,8 +596,14 @@ void main() {
           _wrap(
             Column(
               children: [
-                buildOne(const ValueKey<String>('list-a'), () => refreshedA = true),
-                buildOne(const ValueKey<String>('list-b'), () => refreshedB = true),
+                buildOne(
+                  const ValueKey<String>('list-a'),
+                  () => refreshedA = true,
+                ),
+                buildOne(
+                  const ValueKey<String>('list-b'),
+                  () => refreshedB = true,
+                ),
               ],
             ),
           ),
@@ -630,13 +653,15 @@ void main() {
         var refreshed = false;
         final statuses = <AntPullToRefreshStatus>[];
         await tester.pumpWidget(
-          _wrap(buildBouncing(
-            onRefresh: () async {
-              refreshed = true;
-              await Future<void>.delayed(const Duration(milliseconds: 50));
-            },
-            pullStatusChange: statuses.add,
-          ),),
+          _wrap(
+            buildBouncing(
+              onRefresh: () async {
+                refreshed = true;
+                await Future<void>.delayed(const Duration(milliseconds: 50));
+              },
+              pullStatusChange: statuses.add,
+            ),
+          ),
         );
         await tester.drag(find.byType(ListView), const Offset(0, 150));
         await tester.pump();
@@ -652,13 +677,15 @@ void main() {
         var refreshCount = 0;
         final statuses = <AntPullToRefreshStatus>[];
         await tester.pumpWidget(
-          _wrap(_buildList(
-            onRefresh: () async {
-              refreshCount++;
-              await Future<void>.delayed(const Duration(milliseconds: 50));
-            },
-            pullStatusChange: statuses.add,
-          ),),
+          _wrap(
+            _buildList(
+              onRefresh: () async {
+                refreshCount++;
+                await Future<void>.delayed(const Duration(milliseconds: 50));
+              },
+              pullStatusChange: statuses.add,
+            ),
+          ),
         );
         // 第一次刷新
         await tester.drag(find.byType(ListView), const Offset(0, 80));
@@ -696,13 +723,15 @@ void main() {
       testWidgets('ListView embedding: touch pull shows header',
           (tester) async {
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            ListView.builder(
-              itemCount: 100,
-              itemBuilder: (context, index) =>
-                  ListTile(title: Text('item $index')),
+          _wrap(
+            buildEmbedded(
+              ListView.builder(
+                itemCount: 100,
+                itemBuilder: (context, index) =>
+                    ListTile(title: Text('item $index')),
+              ),
             ),
-          ),),
+          ),
         );
         await tester.drag(find.byType(ListView), const Offset(0, 40));
         await tester.pump();
@@ -714,13 +743,15 @@ void main() {
           (tester) async {
         var refreshed = false;
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            ListView.builder(
-              itemCount: 100,
-              itemBuilder: (context, i) => ListTile(title: Text('item $i')),
+          _wrap(
+            buildEmbedded(
+              ListView.builder(
+                itemCount: 100,
+                itemBuilder: (context, i) => ListTile(title: Text('item $i')),
+              ),
+              onRefresh: () async => refreshed = true,
             ),
-            onRefresh: () async => refreshed = true,
-          ),),
+          ),
         );
         await tester.drag(find.byType(ListView), const Offset(0, 80));
         await tester.pump();
@@ -732,15 +763,18 @@ void main() {
           (tester) async {
         var refreshed = false;
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            CustomScrollView(
-              slivers: List<Widget>.generate(
-                100,
-                (i) => SliverToBoxAdapter(child: ListTile(title: Text('s $i'))),
+          _wrap(
+            buildEmbedded(
+              CustomScrollView(
+                slivers: List<Widget>.generate(
+                  100,
+                  (i) =>
+                      SliverToBoxAdapter(child: ListTile(title: Text('s $i'))),
+                ),
               ),
+              onRefresh: () async => refreshed = true,
             ),
-            onRefresh: () async => refreshed = true,
-          ),),
+          ),
         );
         await tester.drag(find.byType(CustomScrollView), const Offset(0, 80));
         await tester.pumpAndSettle();
@@ -751,19 +785,21 @@ void main() {
           (tester) async {
         var refreshed = false;
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            NestedScrollView(
-              headerSliverBuilder: (context, _) => const [
-                SliverAppBar(title: Text('Nested'), pinned: true),
-              ],
-              body: ListView.builder(
-                itemCount: 100,
-                itemBuilder: (context, i) =>
-                    ListTile(title: Text('nested $i')),
+          _wrap(
+            buildEmbedded(
+              NestedScrollView(
+                headerSliverBuilder: (context, _) => const [
+                  SliverAppBar(title: Text('Nested'), pinned: true),
+                ],
+                body: ListView.builder(
+                  itemCount: 100,
+                  itemBuilder: (context, i) =>
+                      ListTile(title: Text('nested $i')),
+                ),
               ),
+              onRefresh: () async => refreshed = true,
             ),
-            onRefresh: () async => refreshed = true,
-          ),),
+          ),
         );
         await tester.drag(
           find.byType(NestedScrollView).last,
@@ -776,16 +812,18 @@ void main() {
       testWidgets('SingleChildScrollView embedding: pull shows header',
           (tester) async {
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            SingleChildScrollView(
-              child: Column(
-                children: List<Widget>.generate(
-                  50,
-                  (i) => ListTile(title: Text('single $i')),
+          _wrap(
+            buildEmbedded(
+              SingleChildScrollView(
+                child: Column(
+                  children: List<Widget>.generate(
+                    50,
+                    (i) => ListTile(title: Text('single $i')),
+                  ),
                 ),
               ),
             ),
-          ),),
+          ),
         );
         await tester.drag(
           find.byType(SingleChildScrollView),
@@ -802,13 +840,15 @@ void main() {
         addTearDown(() => debugDefaultTargetPlatformOverride = null);
         var refreshed = false;
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            ListView.builder(
-              itemCount: 100,
-              itemBuilder: (context, i) => ListTile(title: Text('item $i')),
+          _wrap(
+            buildEmbedded(
+              ListView.builder(
+                itemCount: 100,
+                itemBuilder: (context, i) => ListTile(title: Text('item $i')),
+              ),
+              onRefresh: () async => refreshed = true,
             ),
-            onRefresh: () async => refreshed = true,
-          ),),
+          ),
         );
         await sendWheelScroll(tester, ticks: 3, deltaPerTick: -30);
         await tester.pump(kAntPullToRefreshWheelSettleDuration);
@@ -821,14 +861,17 @@ void main() {
         debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
         addTearDown(() => debugDefaultTargetPlatformOverride = null);
         await tester.pumpWidget(
-          _wrap(buildEmbedded(
-            CustomScrollView(
-              slivers: List<Widget>.generate(
-                100,
-                (i) => SliverToBoxAdapter(child: ListTile(title: Text('s $i'))),
+          _wrap(
+            buildEmbedded(
+              CustomScrollView(
+                slivers: List<Widget>.generate(
+                  100,
+                  (i) =>
+                      SliverToBoxAdapter(child: ListTile(title: Text('s $i'))),
+                ),
               ),
             ),
-          ),),
+          ),
         );
         await sendWheelScroll(
           tester,
@@ -898,8 +941,7 @@ void main() {
         await tester.pumpAndSettle();
       });
 
-      testWidgets(
-          'touch pull above threshold triggers only inner onRefresh',
+      testWidgets('touch pull above threshold triggers only inner onRefresh',
           (tester) async {
         var outerRefreshed = false;
         var innerRefreshed = false;
@@ -947,7 +989,8 @@ void main() {
         expect(outerRefreshed, isFalse);
       });
 
-      testWidgets('wheel on inner nested list pulls inner only', (tester) async {
+      testWidgets('wheel on inner nested list pulls inner only',
+          (tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
         addTearDown(() => debugDefaultTargetPlatformOverride = null);
         final outerStatuses = <AntPullToRefreshStatus>[];

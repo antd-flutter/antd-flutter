@@ -8,8 +8,14 @@
 ///   [AntInfiniteScroll.noMoreText] / [AntInfiniteScroll.loadFailedText] — 文案
 /// - [AntInfiniteScroll.loadFailedRetryText] — 失败重试按钮文案
 ///
-/// 通过 [NotificationListener] 监听滚动与布局变化，
-/// 底部进入阈值范围自动触发 [AntInfiniteScroll.loadMore]，不侵入子树。
+/// 通过内层 [NotificationListener] 消费隔离（onNotification 返回 true
+/// 阻断冒泡）捕获 child 子树自身的滚动度量，底部进入阈值范围自动触发
+/// [AntInfiniteScroll.loadMore]，不侵入子树。
+///
+/// **child 必须包含可滚动组件**（ListView / SingleChildScrollView 等，
+/// 对齐 antd-mobile InfiniteScroll 用法）：触发只属于自己的包裹对象，
+/// child 无滚动组件时（组件整体嵌在宿主页面滚动视图里被动滚动）不会
+/// 触发加载，让宿主页面滚动正常通过。
 ///
 /// ```dart
 /// AntInfiniteScroll(
@@ -81,11 +87,17 @@ class _AntInfiniteScrollState extends State<AntInfiniteScroll> {
   /// 是否加载失败。
   bool _failed = false;
 
-  /// 祖先滚动容器位置（组件嵌在滚动视图内的用法）。
-  ScrollPosition? _ancestorPosition;
+  /// child 子树最内层滚动组件最近一次的滚动度量（内层消费隔离存储值，
+  /// 状态机/触发逻辑只读该值，不感知外层页面滚动）。
+  ScrollMetrics? _childMetrics;
 
   /// 是否已完成首次阈值检查。
   bool _initialChecked = false;
+
+  /// 首次滚动度量解析重试次数上限（child 迟迟不含滚动组件时停止轮询）。
+  static const int _kMaxResolveAttempts = 10;
+
+  int _resolveAttempts = 0;
 
   /// 防重入锁：加载中不重复触发。
   bool get _canLoad => !_loading && !_failed && _hasMore;
@@ -98,40 +110,15 @@ class _AntInfiniteScrollState extends State<AntInfiniteScroll> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeInitialCheck());
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final position = Scrollable.maybeOf(context)?.position;
-    if (!identical(position, _ancestorPosition)) {
-      final oldPosition = _ancestorPosition;
-      if (oldPosition != null) oldPosition.removeListener(_onAncestorScroll);
-      _ancestorPosition = position;
-      position?.addListener(_onAncestorScroll);
-    }
-  }
-
-  @override
-  void dispose() {
-    _ancestorPosition?.removeListener(_onAncestorScroll);
-    super.dispose();
-  }
-
-  /// 祖先滚动位置变化时检查阈值。
-  void _onAncestorScroll() {
-    final position = _ancestorPosition;
-    if (position != null && position.hasContentDimensions) {
-      _check(position);
-    }
-  }
-
-  /// 执行首次阈值检查；滚动度量未就绪时延后重试。
+  /// 执行首次阈值检查；滚动度量未就绪时延后重试（有次数上限）。
   void _maybeInitialCheck() {
     if (!mounted || _initialChecked) return;
-    final metrics =
-        _ancestorPosition ?? _resolveDescendantMetrics(context);
+    final metrics = _childMetrics ?? _resolveDescendantMetrics(context);
     if (metrics == null || !metrics.hasContentDimensions) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _maybeInitialCheck());
+      if (++_resolveAttempts < _kMaxResolveAttempts) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => _maybeInitialCheck());
+      }
       return;
     }
     _initialChecked = true;
@@ -187,16 +174,34 @@ class _AntInfiniteScrollState extends State<AntInfiniteScroll> {
     }
   }
 
+  /// child 子树是否停在触发边缘（内层消费隔离的判定条件）。
+  bool _atTriggerEdge(ScrollMetrics metrics) =>
+      metrics.pixels >= metrics.maxScrollExtent - widget.threshold;
+
+  /// 内层通知处理：只接受 child 子树最内层（depth == 0）滚动组件的通知，
+  /// 度量存入 [_childMetrics] 后由状态机触发判定。
+  ///
+  /// 消费隔离：滚动到达触发边缘后的继续滚动、以及 loading 期间的一切
+  /// 子树滚动通知就地消费（返回 true 阻断冒泡），不再驱动外层页面滚动；
+  /// 未到边缘且非加载中时放行冒泡，保留外层（如顶部下拉刷新组件）组合能力。
+  bool _handleChildNotification(ScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    final metrics = notification.metrics;
+    _childMetrics = metrics;
+    _check(metrics);
+    if (!_atTriggerEdge(metrics) && !_loading) return false;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        _check(notification.metrics);
-        return false;
-      },
+      onNotification: _handleChildNotification,
       child: NotificationListener<ScrollMetricsNotification>(
         // 布局变化（如列表内容变短）时同样检查，对齐 antd-mobile 行为。
+        // 该通知同样只来自 child 子树内的滚动组件。
         onNotification: (notification) {
+          _childMetrics = notification.metrics;
           _check(notification.metrics);
           return false;
         },

@@ -274,14 +274,12 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
 
   bool get _isTop => _indicator.isTop;
 
-
   // ============================================================
   // 桌面端滚轮（PointerSignalResolver 竞争模式）
   // ============================================================
 
   /// 内层可滚动组件是否停在拉动边缘（top：顶部；bottom：底部）。
-  bool get _atPullEdge =>
-      atPullEdge(_lastMetrics, isTop: _isTop);
+  bool get _atPullEdge => atPullEdge(_lastMetrics, isTop: _isTop);
 
   /// 滚轮事件处理（非消费式入口）。
   ///
@@ -405,6 +403,9 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
           0.0,
           widget.headHeight * kAntPullToRefreshMaxPullFactor,
         );
+        // idle 且无位移：header 不渲染，避免常驻顶部遮挡内容。
+        final bool headerVisible =
+            offset > 0 || _indicator.mode != AntPullToRefreshStatus.idle;
 
         return NotificationListener<Notification>(
           onNotification: _handleNotification,
@@ -439,6 +440,8 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
                   ),
                 ),
                 // 头部（下拉时从边缘滑入）
+                // 头部（下拉时从边缘滑入）；idle 且无位移时不渲染（SizedBox
+                // .shrink），避免完成后残留常驻顶部遮挡内容。
                 Positioned(
                   key: kAntPullToRefreshHeaderKey,
                   left: 0,
@@ -453,26 +456,24 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
                           ? offset - widget.headHeight
                           : widget.headHeight - offset,
                     ),
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: theme.colorBgLayout,
-                      // 未下拉时头部整体移出可视区，内容不参与命中与语义树。
-                      child: Visibility(
-                        visible: offset > 0,
-                        child: widget.header ??
-                            AntPullToRefreshHeader(
-                              status: _indicator.mode,
-                              pullingText:
-                                  widget.pullingText ?? effectiveStrings.pullingText,
-                              releasingText: widget.releasingText ??
-                                  effectiveStrings.releasingText,
-                              finishingText: widget.finishingText ??
-                                  effectiveStrings.finishingText,
-                              completeText:
-                                  widget.completeText ?? effectiveStrings.completeText,
-                            ),
-                      ),
-                    ),
+                    child: !headerVisible
+                        ? const SizedBox.shrink()
+                        : Container(
+                            alignment: Alignment.center,
+                            color: theme.colorBgLayout,
+                            child: widget.header ??
+                                AntPullToRefreshHeader(
+                                  status: _indicator.mode,
+                                  pullingText: widget.pullingText ??
+                                      effectiveStrings.pullingText,
+                                  releasingText: widget.releasingText ??
+                                      effectiveStrings.releasingText,
+                                  finishingText: widget.finishingText ??
+                                      effectiveStrings.finishingText,
+                                  completeText: widget.completeText ??
+                                      effectiveStrings.completeText,
+                                ),
+                          ),
                   ),
                 ),
               ],
