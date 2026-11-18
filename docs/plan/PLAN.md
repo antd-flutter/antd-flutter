@@ -139,33 +139,30 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 
 ---
 
-## 六、剩余队列（按序执行）
+## 六、剩余队列（按复杂度重排：简单先行、复杂靠后——用户指定）
 
-### 1. P08 收尾（calendar2 完成后）
-- 用户验收 antd_calendar 三组件（macOS + iPhone Duo）
-- **AntTabs/AntSteps 无界高度 Expanded bug 修复**（P09 记录：material_ui 1.11.0 的 AntTabs/AntSteps 内含 Expanded 在无界滚动容器崩溃——加 shrinkWrap/自适应 + 回归测试；随 P08 或单独 fix 任务）
-- 通用展示/录入/反馈/导航/其他剩余组件按 R30.1 轮子参考逐个迁移改造（每批一个子任务，串行）：
-  - 独立包：antd_table（pluto_grid）、antd_masonry（staggered_grid_view + sliver 变体 R33）、antd_carousel（carousel_slider）、antd_floating、antd_image_viewer（photo_view）、antd_tour（tutorial_coach_mark）、antd_form、antd_upload
-  - ui 剩余：Input 系/Checkbox/Radio/Switch/Rate/Slider/Stepper/SearchBar/CheckList/Selector/ColorPicker/Transfer/AutoComplete/Mentions（输入族）、Alert/Message/Modal/Notification/Drawer/Spin/Result/ResultPage/ErrorBlock/Popconfirm/Popover（反馈族，弹层类随 P15 底座）、Dropdown（随 P15）、PageIndicator
-  - 全局：App/ConfigProvider/Affix/Anchor/Breadcrumb 等导航族、BorderBeam
-  - 每组件迁移即改造（R30.2）：按 R30.1 轮子参考吸收 + R34 文案国际化（如涉及）+ R25/R26 拆分规范
-- 伞包 antd_flutter_plus 收尾：全部 re-export 后 README 更新（停用声明页按新结构改写：全量伞包/单组件包两种接入方式）
+> 每项一个子任务串行执行（R27），迁移即改造（R30.2），按 R30.1 轮子参考；完成后更新验收状态表 + example 入口 + 标 ⏱ 待用户验收
 
-### 2. P15-统一弹层底座（tasks/P15-统一弹层底座.md，排队）
-- 吸收 popover 包算法（方向决策/边界翻转/滑动夹回）建 ui/src/engines/popup_engine.dart
-- AntTooltip/AntPopover/AntPopconfirm/AntDropdown 四弹层迁移到底座；**AntTooltip 箭头显示异常一并修复**（用户反馈，见任务文档）
-
-### 3. R30.1 清单组件的轮子改造（迁移时同步，详 R30.1）
-
-### 4. 发布 1.0.0（总任务）
-- CHANGELOG 正式化（R4/R5）/ 版本去 beta（R6）/ 构建验证 / tag / 发布
-- 涉及 pub.dev 账号授权时停下交回用户
-
-### 5. 待用户拍板
-- Typography 移动端 editable：建议 compact 断点默认不生效（P08 文档「Typography 移动端 editable 设计决策」节）
-- P08 拆分清单中标注「待用户裁决」的遗留项（如有）
-
----
+1. **PageIndicator**（ui 迁移，最简单分页指示器）
+2. **P15 弹层底座**（popover 算法吸收 → popup_engine；AntTooltip 箭头异常一并修复——用户反馈待修）
+3. **弹层族迁移**：AntPopover / AntDropdown（迁 ui + 接入弹层底座；AntTooltip 已在 ui）
+4. **antd_splitter**（独立包：拖拽分割引擎）
+5. **antd_image_viewer**（独立包：photo_view 缩放改造；AntImage 本体已迁 ui）
+6. **AntTour 迁移**（tutorial_coach_mark 挖孔引导参考）
+7. **antd_upload**（独立包：文件选择/上传队列体系）
+8. **Cascader/CascaderView**（级联选择逻辑，归 antd_picker 族）
+9. **antd_picker**（Picker/DatePicker/TimePicker——滚轮引擎 CupertinoPicker 继承评估 R31；CalendarPicker 已归 antd_calendar）
+10. **antd_tree**（Tree/TreeSelect 树引擎）
+11. **antd_carousel**（独立包：carousel_slider 页面变换参考）
+12. **antd_masonry**（独立包：staggered_grid_view 瀑布流 + sliver 变体 R33）
+13. **antd_floating**（FloatingPanel/FloatingBubble 拖拽吸附引擎）
+14. **AntInfiniteScroll 增强**（infinite_scroll_pagination 分页状态参考，已在 antd_refresh 基础上增强）
+15. **antd_form**（表单状态/校验引擎）
+16. **Transfer**（穿梭框复杂交互，归 antd_form 或独立评估）
+17. **antd_table**（pluto_grid——最复杂组件，最后拆分）
+18. **Calendar 完善**（⏱ 待验证项：双 UI 一致性 + 增强能力打磨，验收后闭环）
+19. 全量回归 + 伞包 README 更新（拆分后接入方式）
+20. **发布 1.0.0**（总任务：CHANGELOG 正式化/去 beta/tag/发布，pub.dev 授权停下交用户）
 
 ## 七、遗留问题登记
 - example demo 页间距观感异常（macOS 桌面模式因子=1，const EdgeInsets 与 .w 混用密度不一致）——待 demo 适配批次统一处理
