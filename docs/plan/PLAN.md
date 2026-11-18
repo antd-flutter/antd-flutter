@@ -51,6 +51,18 @@
 - R22 文档随代码走：生成产物放各包 `docs/`（gitignore 与否由生成物稳定性决定，api-index.md 纳入版本控制）；改组件 API = 改 /// 注释 + 跑 gen-docs，一次提交完成
 - R29 **编码基类沉淀**
 - R30 **实现前先查轮子（用户指定）**：实现某功能前，先到 pub.dev 搜索是否已有成熟包实现（读其文档/源码/示例），优先「下载源码研究 → 按需改造吸收进自己代码」，避免从零重造；引入三方依赖需评估维护活跃度与依赖面（R16 中间件隔离仍适用）；改造吸收（拷源码改写）优于直接依赖（减少依赖树），版权/License 合规（MIT/Apache 可，需在文件头注明来源）
+- R30.1 **已确认的轮子参考清单（用户与 lead 调研，实现对应组件时必须先研究该轮子源码再改造吸收）**：
+  - AntTable 表格 → pluto_grid / syncfusion_flutter_datagrid（虚拟滚动/排序/固定列/列宽拖拽）
+  - AntImageViewer → photo_view（缩放手势标准实现）
+  - AntCarousel（antd_carousel 独立包）→ carousel_slider（页面变换/视差）
+  - AntMasonry（antd_masonry 独立包）→ flutter_staggered_grid_view（瀑布流算法 + SliverMasonryGrid sliver 支持，R33 联动）
+  - AntInfiniteScroll → infinite_scroll_pagination（分页状态管理）
+  - AntTour → tutorial_coach_mark（挖孔遮罩+引导流程）
+  - AntCalendar（antd_calendar 独立包）→ table_calendar（格式切换/range/事件，已确认吸收）
+  - AntPullToRefresh → pull_to_refresh_flutter3（桌面滚轮支持，改造进行中）
+  - AntSwipeAction → flutter_swipe_action_cell（改造排队）
+  - 弹层底座（Tooltip/Popover/Popconfirm/Dropdown）→ popover（已吸收为 P15）
+  - Picker 族滚轮引擎 → 系统 CupertinoPicker 继承评估（R31 第一优先级）
 - R31 **样式实现优先级（用户指定，迁移/新代码直接执行）**：① 能继承 Flutter 系统组件的优先继承系统实现（适配层形态，如 AntSafeArea extends SafeArea / AntSliverAppBar extends SliverAppBar）；② 系统组件无法满足的，优先去 pub.dev 查找**高星级**开源轮子研究其实现方式后改造吸收（按 R30）；③ 都不适用才自研自绘。三档优先级在组件迁移与新组件开发时**直接执行**，无需逐次确认
 - R32 **独立组件包自建 example 满足发布条件（用户指定，全平台）**：每个独立组件包必须有**自己的 example 工程（全平台：iOS/Android/macOS/Windows/Linux/Web 目录齐全 + CI 矩阵覆盖）**，独立运行 + 发布到站点子路径（学习 antd_icons_flutter 的 example/gallery 模式），并完善自身 demo 至发布标准（组件全部关键形态展示、README、双轨文档）；本机验证 macOS + iOS 模拟器 + Web；**antd_icons_flutter 的 example 也按此标准补齐全平台**
 - R33 **组件 sliver 家族支持判定（用户指定，lead 判断落地）**：滚动集合类组件必须提供 sliver 家族支持（sliver 变体组件或 sliver 兼容），供 CustomScrollView 使用——判定标准：① 组件本质是「滚动内容集合」（如瀑布流/栅格/列表）→ **必须**；② overlay 弹层类/固定布局类/包裹类（Watermark/SafeArea/Carousel/Table/Tour 等）→ **不需要**。落地形态：独立包内提供 sliver 变体（如 `AntSliverMasonry`）或经 ui/src/adapt/ 适配层（`extends SliverXxx` 模式）；迁移与新组件开发时按此判定执行
