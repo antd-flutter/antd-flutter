@@ -76,6 +76,10 @@ export 'src/display/card/ant_card_types.dart';
 export 'src/display/statistic/ant_statistic.dart';
 export 'src/display/statistic/ant_statistic_types.dart';
 
+// ── Ellipsis 文本省略 ───────────────────────────────────────
+export 'src/display/ellipsis/ant_ellipsis.dart';
+export 'src/display/ellipsis/ant_ellipsis_types.dart';
+
 // ── Footer 页脚 ────────────────────────────────────────────
 export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';
