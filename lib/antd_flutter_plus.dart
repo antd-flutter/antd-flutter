@@ -275,8 +275,9 @@ export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
 // ============================================================
 // 反馈 Feedback — 批次C
 // ============================================================
-export 'src/components/feedback/swipe_action/ant_swipe_action.dart';
-export 'src/components/feedback/swipe_action/ant_swipe_action_types.dart';
+// SwipeAction 滑动操作已迁移至 antd_swipe_action（P08），此处 re-export 保持符号兼容
+export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action.dart';
+export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action_types.dart';
 export 'src/components/feedback/loading/ant_loading.dart';
 export 'src/components/feedback/loading/ant_loading_types.dart';
 export 'src/components/feedback/error_block/ant_error_block.dart';

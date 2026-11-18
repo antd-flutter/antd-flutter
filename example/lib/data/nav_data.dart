@@ -69,4 +69,8 @@ const List<NavGroup> navGroups = [
     NavItem('Watermark 水印', 'watermark'),
     NavItem('Tag 标签', 'tag'),
   ]),
+  NavGroup('反馈', [
+    NavItem('PullToRefresh 下拉刷新', 'pull_to_refresh'),
+    NavItem('SwipeAction 滑动操作', 'swipe_action'),
+  ]),
 ];

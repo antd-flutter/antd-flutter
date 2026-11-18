@@ -44,6 +44,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_swipe_action:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_swipe_action"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_theme:
     dependency: "direct main"
     description:

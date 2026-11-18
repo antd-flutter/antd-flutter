@@ -31,6 +31,8 @@ dependency_overrides:
     path: ../packages/antd_qrcode
   antd_pull_to_refresh:
     path: ../packages/antd_pull_to_refresh
+  antd_swipe_action:
+    path: ../packages/antd_swipe_action
 
 dev_dependencies:
   flutter_test:

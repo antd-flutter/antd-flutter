@@ -60,13 +60,22 @@ jobs:
         working-directory: packages/antd_pull_to_refresh/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/pull_to_refresh/
 
+      - name: Install antd_swipe_action example dependencies
+        working-directory: packages/antd_swipe_action/example
+        run: flutter pub get
+
+      - name: Build antd_swipe_action example (release)
+        working-directory: packages/antd_swipe_action/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/swipe_action/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/pull_to_refresh
+          mkdir -p site/icons site/qr_code site/pull_to_refresh site/swipe_action
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
           cp -r packages/antd_pull_to_refresh/example/build/web/* site/pull_to_refresh/
+          cp -r packages/antd_swipe_action/example/build/web/* site/swipe_action/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
