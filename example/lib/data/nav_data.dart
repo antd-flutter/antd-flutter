@@ -122,6 +122,7 @@ const List<NavGroup> navGroups = [
     // NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
+    NavItem('Watermark 水印', 'watermark'),
     // P08 迁移完成后恢复：
     // NavItem('Table 表格', 'table'),
     // NavItem('Tabs 标签页', 'tabs'),
