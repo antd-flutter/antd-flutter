@@ -18,6 +18,7 @@ const kPendingVerify = <String>[
   'calendar_picker',
   'picker_view',
   'tooltip',
+  'swipe_action',
 ];
 const kMigratedVerified = <String>[
   'image',
