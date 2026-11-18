@@ -43,6 +43,7 @@ class AntStatistic extends StatelessWidget {
     this.prefix,
     this.suffix,
     this.valueStyle,
+    this.decimalStyle,
     this.groupSeparator = ',',
     this.loading = false,
   });
@@ -68,6 +69,10 @@ class AntStatistic extends StatelessWidget {
   /// 数值样式。
   final TextStyle? valueStyle;
 
+  /// 小数部分独立样式（小数点后的数字）。不传时跟随 valueStyle，
+  /// 传了则整数部分用 valueStyle、小数点与小数部分用 decimalStyle。
+  final TextStyle? decimalStyle;
+
   /// 千分位分隔符。
   final String groupSeparator;
 
@@ -75,6 +80,32 @@ class AntStatistic extends StatelessWidget {
   final bool loading;
 
   /// 格式化数值为字符串。
+  /// 构建数值的行内 span 列表。
+  ///
+  /// [decimalStyle] 非空且 [formatted] 含小数点时返回两个 span
+  /// （整数段用 [valueStyle]、小数段用 [decimalStyle]），
+  /// 否则返回单个使用 [valueStyle] 的 span。
+  static List<InlineSpan> buildValueSpans({
+    required String formatted,
+    required TextStyle valueStyle,
+    TextStyle? decimalStyle,
+  }) {
+    if (decimalStyle != null && formatted.contains('.')) {
+      final dotIndex = formatted.indexOf('.');
+      return [
+        TextSpan(
+          text: formatted.substring(0, dotIndex + 1),
+          style: valueStyle,
+        ),
+        TextSpan(
+          text: formatted.substring(dotIndex + 1),
+          style: decimalStyle,
+        ),
+      ];
+    }
+    return [TextSpan(text: formatted, style: valueStyle)];
+  }
+
   String _formatValue() {
     if (valueString != null) return valueString!;
     if (value == null) return '';
@@ -152,14 +183,21 @@ class AntStatistic extends StatelessWidget {
                 ),
                 SizedBox(width: 4.w),
               ],
-              Text(
-                _formatValue(),
-                style: valueStyle ??
-                    TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorText,
+              Builder(
+                builder: (_) => Text.rich(
+                  TextSpan(
+                    children: buildValueSpans(
+                      formatted: _formatValue(),
+                      valueStyle: valueStyle ??
+                          TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorText,
+                          ),
+                      decimalStyle: decimalStyle,
                     ),
+                  ),
+                ),
               ),
               if (suffix != null) ...[
                 SizedBox(width: 4.w),

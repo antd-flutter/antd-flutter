@@ -156,4 +156,44 @@ void main() {
       expect(find.text('00:01:05'), findsOneWidget);
     });
   });
+  testWidgets('decimalStyle 小数部分独立样式', (tester) async {
+    await tester.pumpWidget(_wrap(const AntStatistic(
+      value: 112893,
+      precision: 2,
+      decimalStyle: TextStyle(fontSize: 12, color: Colors.grey),
+    ),),);
+    await tester.pumpAndSettle();
+
+    // decimalStyle 生效 → 渲染为 RichText（整数/小数两个 span）
+    // decimalStyle 生效 → 存在含 2 个 span 的 RichText（整数段 + 小数段）
+    final stat = tester.widget<AntStatistic>(find.byType(AntStatistic));
+    debugPrint('STAT decimalStyle=${stat.decimalStyle} value=${stat.value} precision=${stat.precision}');
+    for (final r in tester.widgetList<RichText>(find.byType(RichText))) {
+      final ts = r.text as TextSpan;
+      debugPrint('RT: "${ts.toPlainText()}" children=${ts.children?.length} spans=${(ts.children ?? []).map((c) => c is TextSpan ? '${c.text}:${c.style?.fontSize}' : 'widget').join(',')}');
+    }
+    final twoSpanRich = tester
+        .widgetList<RichText>(find.byType(RichText))
+        .where((r) => (r.text as TextSpan).children != null)
+        .firstWhere((r) => (r.text as TextSpan).children!.length == 2);
+    final spans = (twoSpanRich.text as TextSpan).children!;
+    expect((spans[0] as TextSpan).text, '112,893.');
+    expect((spans[1] as TextSpan).text, '00');
+    expect((spans[1] as TextSpan).style!.fontSize, 12);
+    expect((spans[0] as TextSpan).style!.fontSize, isNot(12));
+  });
+
+  testWidgets('无 decimalStyle 时数值单 Text 渲染（回归）', (tester) async {
+    await tester.pumpWidget(
+        _wrap(const AntStatistic(value: 112893, precision: 2)),);
+    await tester.pumpAndSettle();
+
+    // 无 decimalStyle → 不存在 2 span 的 RichText（全部单 span）
+    final twoSpanCount = tester
+        .widgetList<RichText>(find.byType(RichText))
+        .where((r) => (r.text as TextSpan).children?.length == 2)
+        .length;
+    expect(twoSpanCount, 0);
+    expect(find.textContaining('112,893'), findsOneWidget);
+  });
 }
