@@ -1,10 +1,12 @@
 library;
 
+import 'migration_status.dart';
+
 /// antd 官网导航数据 — 组件分类与组件清单
 /// 涵盖 antd v6 桌面版 + antd-mobile v5 移动端特有组件
 /// 导航项（单个组件）
 class NavItem {
-  const NavItem(this.label, this.snakeName, {this.verified = false});
+  const NavItem(this.label, this.snakeName);
 
   /// 展示名（如 "Button 按钮"）
   final String label;
@@ -12,10 +14,15 @@ class NavItem {
   /// 蛇形名（如 "button"），用于路由/占位
   final String snakeName;
 
-  /// 是否已通过用户验收（P08 拆包迁移进度标记）。
-  /// false 表示已迁移到 antd_flutter_ui 但尚未验收（标「待验证」）。
-  /// 未迁移组件不在本清单中，侧栏不显示（功能仍在主包可用）。
-  final bool verified;
+  /// 是否已通过用户验收（✅），由 kMigratedVerified 清单驱动
+  bool get verified => migrationStatusOf(snakeName) == MigrationStatus.verified;
+
+  /// 是否已迁移待验收（⏱ 待验证），由 kPendingVerify 清单驱动
+  bool get pendingVerify =>
+      migrationStatusOf(snakeName) == MigrationStatus.pendingVerify;
+
+  /// 是否可见：两个迁移清单都不在 → 未迁移，侧栏不显示（ui17 隐藏逻辑）
+  bool get visible => verified || pendingVerify;
 }
 
 /// 导航分组（如 "通用"、"布局"）
@@ -28,35 +35,37 @@ class NavGroup {
 
 /// antd 官网组件导航（七大分类，桌面 73 + 移动端 38 = 111 组件）
 ///
-/// 三态进度模型：
-/// - 已验收：[NavItem.verified] 为 true，侧栏标 ✅
-/// - 待验证：已迁移未验收（如 Ellipsis），侧栏标「待验证」
-/// - 未迁移：不入清单（ui17 隐藏方案，P08 迁移完成后逐步恢复）
+/// 三态进度模型（由 migration_status.dart 清单驱动，勿手工改 NavItem）：
+/// - 已验收：snakeName 在 kMigratedVerified，侧栏标 ✅
+/// - 待验证：已迁移未验收，snakeName 在 kPendingVerify，侧栏标「待验证」
+/// - 未迁移：两个清单都不在，侧栏不显示（ui17 隐藏方案）
+/// 清单外的组件先不入清单；迁移合并后再按文件头流程维护。
 const List<NavGroup> navGroups = [
   NavGroup('通用', [
-    NavItem('Button 按钮', 'button', verified: true),
-    NavItem('NoticeBar 通告栏', 'notice_bar', verified: true),
-    NavItem('Typography 排版', 'typography', verified: true),
+    NavItem('Button 按钮', 'button'),
+    NavItem('NoticeBar 通告栏', 'notice_bar'),
+    NavItem('Typography 排版', 'typography'),
   ]),
   NavGroup('布局', [
-    NavItem('AutoCenter 自动居中', 'auto_center', verified: true),
-    NavItem('Divider 分割线', 'divider', verified: true),
-    NavItem('Flex 弹性布局', 'flex', verified: true),
-    NavItem('Grid 栅格', 'grid', verified: true),
-    NavItem('Layout 布局', 'layout', verified: true),
-    NavItem('SafeArea 安全区', 'safe_area', verified: true),
-    NavItem('Space 间距', 'space', verified: true),
+    NavItem('AutoCenter 自动居中', 'auto_center'),
+    NavItem('Divider 分割线', 'divider'),
+    NavItem('Flex 弹性布局', 'flex'),
+    NavItem('Grid 栅格', 'grid'),
+    NavItem('Layout 布局', 'layout'),
+    NavItem('SafeArea 安全区', 'safe_area'),
+    NavItem('Space 间距', 'space'),
   ]),
   NavGroup('数据展示', [
-    NavItem('Avatar 头像', 'avatar', verified: true),
-    NavItem('Badge 徽标数', 'badge', verified: true),
-    NavItem('Card 卡片', 'card', verified: true),
+    NavItem('Avatar 头像', 'avatar'),
+    NavItem('Badge 徽标数', 'badge'),
+    NavItem('Card 卡片', 'card'),
     NavItem('Ellipsis 文本省略', 'ellipsis'),
-    NavItem('Empty 空状态', 'empty', verified: true),
-    NavItem('Footer 页脚', 'footer', verified: true),
-    NavItem('Segmented 分段控制器', 'segmented', verified: true),
-    NavItem('Statistic 统计数值', 'statistic', verified: true),
-    NavItem('Watermark 水印', 'watermark', verified: true),
-    NavItem('Tag 标签', 'tag', verified: true),
+    NavItem('Empty 空状态', 'empty'),
+    NavItem('Footer 页脚', 'footer'),
+    NavItem('Image 图片', 'image'),
+    NavItem('Segmented 分段控制器', 'segmented'),
+    NavItem('Statistic 统计数值', 'statistic'),
+    NavItem('Watermark 水印', 'watermark'),
+    NavItem('Tag 标签', 'tag'),
   ]),
 ];

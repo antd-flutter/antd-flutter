@@ -141,7 +141,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 for (final item in group.items)
-                  _buildNavItem(theme, item, closeOnTap: closeOnTap),
+                  if (item.visible)
+                    _buildNavItem(theme, item, closeOnTap: closeOnTap),
               ],
             ],
           ),
@@ -152,10 +153,11 @@ class _HomePageState extends State<HomePage> {
 
   /// 分组进度标题：验收数/可见组件数，存在待验证项时追加提示
   String _groupProgressLabel(NavGroup group) {
-    final verified = group.items.where((item) => item.verified).length;
-    final pending = group.items.length - verified;
+    final visibleItems = group.items.where((item) => item.visible);
+    final verified = visibleItems.where((item) => item.verified).length;
+    final pending = visibleItems.length - verified;
     final suffix = pending > 0 ? ' ·$pending 待验证' : '';
-    return '${group.title} ($verified/${group.items.length}$suffix)';
+    return '${group.title} ($verified/${visibleItems.length}$suffix)';
   }
 
   /// 单个导航项
