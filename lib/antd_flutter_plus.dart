@@ -266,8 +266,9 @@ export 'src/components/feedback/dialog/ant_dialog.dart';
 export 'src/components/feedback/dialog/ant_dialog_types.dart';
 export 'src/components/feedback/popup/ant_popup.dart';
 export 'src/components/feedback/popup/ant_popup_types.dart';
-export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh.dart';
-export 'src/components/feedback/pull_to_refresh/ant_pull_to_refresh_types.dart';
+// PullToRefresh 下拉刷新已迁移至 antd_pull_to_refresh（P08），此处 re-export 保持符号兼容
+export 'package:antd_pull_to_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
+export 'package:antd_pull_to_refresh/src/pull_to_refresh/ant_pull_to_refresh_types.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet.dart';
 export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
 

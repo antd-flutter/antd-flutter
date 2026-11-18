@@ -43,11 +43,30 @@ jobs:
         working-directory: packages/antd_icons_flutter/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/icons/
 
+      # 独立组件包 example（R32/R33：随包拆分持续追加）
+      - name: Install antd_qrcode example dependencies
+        working-directory: packages/antd_qrcode/example
+        run: flutter pub get
+
+      - name: Build antd_qrcode example (release)
+        working-directory: packages/antd_qrcode/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/qr_code/
+
+      - name: Install antd_pull_to_refresh example dependencies
+        working-directory: packages/antd_pull_to_refresh/example
+        run: flutter pub get
+
+      - name: Build antd_pull_to_refresh example (release)
+        working-directory: packages/antd_pull_to_refresh/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/pull_to_refresh/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons
+          mkdir -p site/icons site/qr_code site/pull_to_refresh
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
+          cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
+          cp -r packages/antd_pull_to_refresh/example/build/web/* site/pull_to_refresh/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

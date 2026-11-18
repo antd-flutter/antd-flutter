@@ -79,6 +79,7 @@ P05 → P11 → P07 → P02 → P06 → P09 → P14 → P08（**与原 P11 一�
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-18 | 独立包拆分标准流程补充：example 创建完善（R32 全平台）+ CI 静态部署集成（deploy.yml/build_site.sh 已通用化，随包追加）
 | 2026-11-17 | P08 争议组件裁决：Carousel/Masonry/ColorPicker/Select/Transfer 独立成包，Ellipsis 留 ui
 | 2026-11-17 | 双远程由 GitCode 改为 Gitee；随后 **Gitee Pages 无法开通，整体回退为 GitHub 单远程**（移除 .workflow/publish 脚本/双推技能，P02 站点方案回归 GitHub Pages）
 | 2026-11-17 | 文档规则改单轨脚本生成（R20/R22/R28 重写），人工文档废除；P14 排队（全量文档生成能力）

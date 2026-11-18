@@ -29,6 +29,8 @@ dependency_overrides:
     path: ../packages/antd_flutter_ui
   antd_qrcode:
     path: ../packages/antd_qrcode
+  antd_pull_to_refresh:
+    path: ../packages/antd_pull_to_refresh
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/feedback/pull_to_refresh/ant_pull_to_refresh.dart';
+import 'package:antd_pull_to_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
