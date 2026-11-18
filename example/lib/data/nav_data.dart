@@ -60,6 +60,7 @@ const List<NavGroup> navGroups = [
     NavItem('Badge 徽标数', 'badge'),
     NavItem('Card 卡片', 'card'),
     NavItem('Ellipsis 文本省略', 'ellipsis'),
+    NavItem('InfiniteScroll 无限滚动', 'infinite_scroll'),
     NavItem('Empty 空状态', 'empty'),
     NavItem('Footer 页脚', 'footer'),
     NavItem('Image 图片', 'image'),
