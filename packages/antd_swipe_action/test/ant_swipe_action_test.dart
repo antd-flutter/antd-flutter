@@ -521,6 +521,86 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    group('渲染探针：action 可见性与位移联动', () {
+      Future<void> pumpProbe(WidgetTester tester) async {
+        await tester.pumpWidget(_wrap(const AntSwipeAction(
+          rightActions: [
+            AntSwipeActionItem(text: '删除'),
+          ],
+          child: SizedBox(
+            width: 300,
+            height: 56,
+            child: Center(child: Text('内容')),
+          ),
+        ),),);
+        
+      }
+
+      testWidgets('拖拽中 action 按钮可见（可视区内非零尺寸）', (tester) async {
+        await pumpProbe(tester);
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.text('内容')),
+        );
+        await gesture.moveBy(const Offset(-40, 0));
+        await tester.pump();
+
+        final Rect actionBox = tester.getRect(find.byKey(kAntSwipeActionRightKey));
+        expect(actionBox.width, 72, reason: 'action 区宽度塌陷为 0 则不可见');
+        expect(actionBox.height, 56);
+        // 视口（组件根）范围内：action 按钮中心必须在可视区
+        final Rect viewport = tester.getRect(
+          find.ancestor(
+            of: find.byKey(kAntSwipeActionRightKey),
+            matching: find.byType(ClipRect),
+          ).first,
+        );
+        expect(
+          viewport.contains(actionBox.center),
+          isTrue,
+          reason: 'action 按钮中心应落在可视区内',
+        );
+        // 内容层背景随位移移走：内容框右缘 = 视口宽 - 40
+        expect(
+          tester.getRect(find.byKey(kAntSwipeActionContentKey)).right,
+          closeTo(viewport.right - 40, 0.5),
+          reason: '不透明内容背景必须随位移平移，否则永远盖住 action',
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('cell 位移与 action 暴露宽度联动', (tester) async {
+        await pumpProbe(tester);
+        final Rect viewport = tester.getRect(
+          find
+              .ancestor(
+                of: find.byKey(kAntSwipeActionContentKey),
+                matching: find.byType(ClipRect),
+              )
+              .first,
+        );
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.text('内容')),
+        );
+        // 逐步拖动：每次 +20px，暴露宽度 = min(|位移|, 72)
+        for (int step = 0; step < 5; step++) {
+          await gesture.moveBy(const Offset(20, 0));
+          await tester.pump();
+          final double offset = -_contentOffset(tester, '内容').dx;
+          final double exposed = (viewport.right -
+                  tester.getRect(find.byKey(kAntSwipeActionContentKey)).right)
+              .clamp(0, 72);
+          expect(
+            exposed,
+            closeTo(offset.clamp(0, 72), 0.5),
+            reason: '位移 $offset 时 action 暴露宽度应为 ${offset.clamp(0, 72)}',
+          );
+        }
+        await gesture.up();
+        await tester.pumpAndSettle();
+      });
+    });
+
     group('resolveSnapTarget 松手吸附决策（fling 分支单测）', () {
       const r = AntSwipeAction.resolveSnapTarget;
       // 说明：本 Flutter 版本 DragEndDetails.velocity 在手势判非 fling 时

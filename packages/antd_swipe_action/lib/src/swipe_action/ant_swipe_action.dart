@@ -430,14 +430,17 @@ class _AntSwipeActionState extends State<AntSwipeAction>
               ),
             // 内容层（在上，滑出露出操作按钮；大幅位移时整层忽略指针，
             // 让点击穿透到操作按钮或组件级 tap-to-close）
+            // 内容层（在上，滑出露出操作按钮；整层随位移平移，
+            // 不透明背景必须一起移走，否则永远盖住下层 action 按钮）；
+            // 大幅位移时整层忽略指针，让点击穿透到操作按钮或 tap-to-close
             IgnorePointer(
               ignoring: _offset.abs() > kAntSwipeContentPointerLimit,
-              child: Container(
-                key: kAntSwipeActionContentKey,
-                color: theme.colorBgContainer,
-                child: Transform.translate(
-                  offset: Offset(_offset, 0),
-                  transformHitTests: false,
+              child: Transform.translate(
+                offset: Offset(_offset, 0),
+                transformHitTests: false,
+                child: Container(
+                  key: kAntSwipeActionContentKey,
+                  color: theme.colorBgContainer,
                   child: SizedBox(
                     width: double.infinity,
                     child: widget.child,
