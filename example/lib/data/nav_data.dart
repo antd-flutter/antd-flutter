@@ -92,6 +92,7 @@ const List<NavGroup> navGroups = [
     NavItem('CalendarPicker 日历选择器', 'calendar_picker'),
     NavItem('PickerView 选择器视图', 'picker_view'),
     NavItem('Tag 标签', 'tag'),
+    NavItem('Table 表格', 'table'),
   ]),
   NavGroup('导航', [
     NavItem('Dropdown 下拉菜单', 'dropdown'),
@@ -156,5 +157,7 @@ const List<NavGroup> navGroups = [
     NavItem('PasscodeInput 密码输入框', 'passcode_input'),
     NavItem('VirtualInput 虚拟输入框', 'virtual_input'),
     NavItem('ImageUploader 图片上传', 'image_uploader'),
+    NavItem('Form 表单', 'form'),
+    NavItem('Transfer 穿梭框', 'transfer'),
   ]),
 ];

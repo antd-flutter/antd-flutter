@@ -43,6 +43,10 @@ const kPendingVerify = <String>[
   'color_picker',
   'auto_complete',
   'mentions',
+  // 批次 0-8 压轴三组件（form/transfer/table）
+  'form',
+  'transfer',
+  'table',
 ];
 const kMigratedVerified = <String>[
   'alert',
