@@ -212,6 +212,10 @@ export 'src/data_entry/auto_complete/ant_auto_complete_types.dart';
 export 'src/data_entry/mentions/ant_mentions.dart';
 export 'src/data_entry/mentions/ant_mentions_types.dart';
 
+// ── Form 表单族（批次 0-8 压轴，自主包 antd_flutter_plus 迁入）──
+export 'src/data_entry/form/ant_form.dart';
+export 'src/data_entry/form/ant_form_types.dart';
+
 // ── 导航族（批次 0-6，自主包 antd_flutter_plus 迁入）──
 export 'src/navigation/breadcrumb/ant_breadcrumb.dart';
 export 'src/navigation/breadcrumb/ant_breadcrumb_types.dart';

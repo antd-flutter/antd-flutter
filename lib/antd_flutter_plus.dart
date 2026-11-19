@@ -135,8 +135,9 @@ export 'package:antd_flutter_ui/src/data_entry/slider/ant_slider.dart';
 export 'package:antd_flutter_ui/src/data_entry/slider/ant_slider_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/rate/ant_rate.dart';
 export 'package:antd_flutter_ui/src/data_entry/rate/ant_rate_types.dart';
-export 'src/components/data_entry/form/ant_form.dart';
-export 'src/components/data_entry/form/ant_form_types.dart';
+// AntForm 表单已迁移至 antd_flutter_ui（P08 批次 0-8），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/form/ant_form.dart';
+export 'package:antd_flutter_ui/src/data_entry/form/ant_form_types.dart';
 // AntAutoComplete 已迁移至 antd_flutter_ui（P08 批次 0-4，从主包迁入），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete.dart';
 export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
