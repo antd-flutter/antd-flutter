@@ -27,6 +27,7 @@ const kMigratedVerified = <String>[
   'swipe_action',
   'tooltip',
   'tour',
+  'splitter',
   'button',
   'typography',
   'notice_bar',
