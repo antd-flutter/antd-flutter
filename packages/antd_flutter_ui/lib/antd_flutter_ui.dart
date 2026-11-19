@@ -125,6 +125,27 @@ export 'src/feedback/spin/ant_spin_types.dart';
 export 'src/feedback/watermark/ant_watermark.dart';
 export 'src/feedback/watermark/ant_watermark_types.dart';
 
+// ── 反馈·弹层族（批次 0-2，接 popup_engine/overlay_shell 弹层基座）──
+export 'src/feedback/action_sheet/ant_action_sheet.dart';
+export 'src/feedback/action_sheet/ant_action_sheet_types.dart';
+export 'src/feedback/dialog/ant_dialog.dart';
+export 'src/feedback/dialog/ant_dialog_types.dart';
+export 'src/feedback/drawer/ant_drawer.dart';
+export 'src/feedback/drawer/ant_drawer_types.dart';
+export 'src/feedback/message/ant_message.dart';
+export 'src/feedback/message/ant_message_types.dart';
+export 'src/feedback/modal/ant_modal.dart';
+export 'src/feedback/modal/ant_modal_types.dart';
+export 'src/feedback/notification/ant_notification.dart';
+export 'src/feedback/notification/ant_notification_types.dart';
+export 'src/feedback/popup/ant_popup.dart';
+export 'src/feedback/popup/ant_popup_types.dart';
+export 'src/feedback/toast/ant_toast.dart';
+export 'src/feedback/toast/ant_toast_types.dart';
+
+// ── 弹层基座·模态分支（屏级弹层统一遮罩/动画/生命周期）──
+export 'src/engines/overlay_shell.dart';
+
 // ── Segmented 分段控制器 ────────────────────────────────────
 export 'src/display/segmented/ant_segmented.dart';
 export 'src/display/segmented/ant_segmented_types.dart';

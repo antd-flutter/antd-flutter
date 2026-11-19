@@ -16,6 +16,14 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  'dialog',
+  'drawer',
+  'modal',
+  'popup',
+  'action_sheet',
+  'toast',
+  'message',
+  'notification',
 ];
 const kMigratedVerified = <String>[
   'alert',

@@ -258,35 +258,35 @@ export 'package:antd_flutter_ui/src/feedback/spin/ant_spin.dart';
 export 'package:antd_flutter_ui/src/feedback/spin/ant_spin_types.dart';
 export 'package:antd_flutter_ui/src/feedback/result/ant_result.dart';
 export 'package:antd_flutter_ui/src/feedback/result/ant_result_types.dart';
-export 'src/components/feedback/drawer/ant_drawer.dart';
-export 'src/components/feedback/drawer/ant_drawer_types.dart';
+export 'package:antd_flutter_ui/src/feedback/drawer/ant_drawer.dart';
+export 'package:antd_flutter_ui/src/feedback/drawer/ant_drawer_types.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_popconfirm.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_popconfirm_types.dart';
-export 'src/components/feedback/message/ant_message.dart';
-export 'src/components/feedback/message/ant_message_types.dart';
-export 'src/components/feedback/modal/ant_modal.dart';
-export 'src/components/feedback/modal/ant_modal_types.dart';
-export 'src/components/feedback/notification/ant_notification.dart';
-export 'src/components/feedback/notification/ant_notification_types.dart';
+export 'package:antd_flutter_ui/src/feedback/message/ant_message.dart';
+export 'package:antd_flutter_ui/src/feedback/message/ant_message_types.dart';
+export 'package:antd_flutter_ui/src/feedback/modal/ant_modal.dart';
+export 'package:antd_flutter_ui/src/feedback/modal/ant_modal_types.dart';
+export 'package:antd_flutter_ui/src/feedback/notification/ant_notification.dart';
+export 'package:antd_flutter_ui/src/feedback/notification/ant_notification_types.dart';
 export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark.dart';
 export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次B
 // ============================================================
-export 'src/components/feedback/toast/ant_toast.dart';
-export 'src/components/feedback/toast/ant_toast_types.dart';
+export 'package:antd_flutter_ui/src/feedback/toast/ant_toast.dart';
+export 'package:antd_flutter_ui/src/feedback/toast/ant_toast_types.dart';
 export 'package:antd_flutter_ui/src/feedback/mask/ant_mask.dart';
 export 'package:antd_flutter_ui/src/feedback/mask/ant_mask_types.dart';
-export 'src/components/feedback/dialog/ant_dialog.dart';
-export 'src/components/feedback/dialog/ant_dialog_types.dart';
-export 'src/components/feedback/popup/ant_popup.dart';
-export 'src/components/feedback/popup/ant_popup_types.dart';
+export 'package:antd_flutter_ui/src/feedback/dialog/ant_dialog.dart';
+export 'package:antd_flutter_ui/src/feedback/dialog/ant_dialog_types.dart';
+export 'package:antd_flutter_ui/src/feedback/popup/ant_popup.dart';
+export 'package:antd_flutter_ui/src/feedback/popup/ant_popup_types.dart';
 // PullToRefresh / InfiniteScroll 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
 export 'package:antd_refresh/src/pull_to_refresh/ant_pull_to_refresh.dart';
 export 'package:antd_refresh/src/pull_to_refresh/ant_pull_to_refresh_types.dart';
-export 'src/components/feedback/action_sheet/ant_action_sheet.dart';
-export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
+export 'package:antd_flutter_ui/src/feedback/action_sheet/ant_action_sheet.dart';
+export 'package:antd_flutter_ui/src/feedback/action_sheet/ant_action_sheet_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次C

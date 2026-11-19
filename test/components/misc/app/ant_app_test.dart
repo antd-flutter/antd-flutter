@@ -1,6 +1,6 @@
 import 'package:antd_flutter_plus/src/components/misc/app/ant_app.dart';
 import 'package:antd_theme/antd_theme.dart';
-import 'package:antd_flutter_plus/src/components/feedback/notification/ant_notification.dart';
+import 'package:antd_flutter_ui/src/feedback/notification/ant_notification.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

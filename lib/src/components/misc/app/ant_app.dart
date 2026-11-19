@@ -22,9 +22,7 @@
 library;
 
 
-import 'package:antd_flutter_plus/src/components/feedback/message/ant_message.dart';
-import 'package:antd_flutter_plus/src/components/feedback/modal/ant_modal.dart';
-import 'package:antd_flutter_plus/src/components/feedback/notification/ant_notification.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_flutter_plus/src/components/misc/app/ant_app_types.dart';
 export 'package:antd_flutter_plus/src/components/misc/app/ant_app_types.dart';
 import 'package:material_ui/material_ui.dart';
