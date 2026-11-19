@@ -145,30 +145,31 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 
 ---
 
-## 六、剩余队列（按复杂度重排：简单先行、复杂靠后——用户指定）
+## 六、剩余队列（两阶段执行——用户指定：ui 迁移先行，独立包拆分最后）
 
-> 每项一个子任务串行执行（R27），迁移即改造（R30.2），按 R30.1 轮子参考；完成后更新验收状态表 + example 入口 + 标 ⏱ 待用户验收
+> **执行纪律（用户确认）**：阶段 A 全部组件迁入 ui 并验收完成后，才允许开始阶段 B 独立包拆分——期间不穿插任何独立包任务
 
-1. **PageIndicator**（ui 迁移，最简单分页指示器）
-2. **P15 弹层底座**（popover 算法吸收 → popup_engine；AntTooltip 箭头异常一并修复——用户反馈待修）
-3. **弹层族迁移**：AntPopover / AntDropdown（迁 ui + 接入弹层底座；AntTooltip 已在 ui）
-4. **antd_splitter**（独立包：拖拽分割引擎）
-5. **antd_image_viewer**（独立包：photo_view 缩放改造；AntImage 本体已迁 ui）
-6. **AntTour 迁移**（tutorial_coach_mark 挖孔引导参考）
-7. **antd_upload**（独立包：文件选择/上传队列体系）
-8. **Cascader/CascaderView**（级联选择逻辑，归 antd_picker 族）
-9. **antd_picker**（Picker/DatePicker/TimePicker——滚轮引擎 CupertinoPicker 继承评估 R31；CalendarPicker 已归 antd_calendar）
-10. **antd_tree**（Tree/TreeSelect 树引擎）
-11. **antd_carousel**（独立包：carousel_slider 页面变换参考）
-12. **antd_masonry**（独立包：staggered_grid_view 瀑布流 + sliver 变体 R33）
-13. **antd_floating**（FloatingPanel/FloatingBubble 拖拽吸附引擎）
-14. **AntInfiniteScroll 增强**（infinite_scroll_pagination 分页状态参考，已在 antd_refresh 基础上增强）
-15. **antd_form**（表单状态/校验引擎）
-16. **Transfer**（穿梭框复杂交互，归 antd_form 或独立评估）
-17. **antd_table**（pluto_grid——最复杂组件，最后拆分）
-18. **Calendar 完善**（⏱ 待验证项：双 UI 一致性 + 增强能力打磨，验收后闭环）
-19. 全量回归 + 伞包 README 更新（拆分后接入方式）
-20. **发布 1.0.0**（总任务：CHANGELOG 正式化/去 beta/tag/发布，pub.dev 授权停下交用户）
+### 阶段 A：剩余组件全部迁入 antd_flutter_ui（按复杂度递增）
+1. **Picker 族迁 ui**：AntPicker / AntDatePicker / AntTimePicker / AntCascader / AntCascaderView（滚轮引擎已上移 ui；R31 CupertinoPicker 继承评估）
+2. **AntTree / AntTreeSelect 迁 ui**（树引擎）
+3. **AntCarousel 迁 ui**（carousel_slider 页面变换参考）
+4. **AntMasonry 迁 ui**（staggered_grid_view 瀑布流参考 + AntSliverMasonry sliver 变体 R33）
+5. **AntFloatingPanel / AntFloatingBubble 迁 ui**（拖拽吸附引擎 + R35 Controller 评估）
+6. **AutoComplete / Mentions 迁 ui**（输入联想）
+7. **AntForm 迁 ui**（表单状态/校验引擎）
+8. **Transfer 迁 ui**（穿梭框）
+9. **antd_table 迁 ui**（pluto_grid 参考——最复杂，阶段 A 压轴）
+10. **AntTabs/AntSteps 无界高度 bug 修复**（P09 记录，随批次）
+11. Calendar 完善（⏱ 项：双 UI 一致性打磨）+ 全量回归
+
+### 阶段 B：独立包拆分（ui 迁移验收全部完成后，标准五件套机械拆分）
+按审计拆分清单从 ui 拆出独立包（组件已验收，拆分为机械搬运）：antd_picker / antd_tree / antd_carousel / antd_masonry / antd_floating / antd_form / antd_table——每个按五件套执行（example 创建含 **R35.4 多平台 UI 适配** + R32.2 图标命名 + CI 静态部署 + re-export + R33 判定 + R35.3 macos 运行验证）
+
+### 阶段 C：收尾
+1. 伞包 antd_flutter_plus README 更新（全量伞包/单组件包两种接入方式）
+2. 全量回归 + 各 example R35.4 多平台适配核查
+3. **发布 1.0.0**（CHANGELOG 正式化/去 beta/tag/发布，pub.dev 授权停下交用户）
+
 
 ## 七、遗留问题登记
 - example demo 页间距观感异常（macOS 桌面模式因子=1，const EdgeInsets 与 .w 混用密度不一致）——待 demo 适配批次统一处理
