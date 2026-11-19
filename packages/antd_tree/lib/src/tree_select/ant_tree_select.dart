@@ -103,11 +103,16 @@ class AntTreeSelect extends StatefulWidget {
   State<AntTreeSelect> createState() => _AntTreeSelectState();
 }
 
-class _AntTreeSelectState extends State<AntTreeSelect> {
+class _AntTreeSelectState extends State<AntTreeSelect>
+    with PopupContentRefresher<AntTreeSelect> {
   /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
   final GlobalKey _triggerKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _open = false;
+
+  /// 当前主题（组件 context 下实时捕获，overlay builder 经字段重读；
+  /// AntTheme 在页面内时 overlay 条目的 context 不可达该继承链）。
+  AntThemeData _themeData = AntThemeData.light();
 
   /// 已展开的节点值集合
   Set<String> _expandedKeys = {};
@@ -194,8 +199,20 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
     return _findNode(v)?.label ?? v;
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 主题变化（含暗色切换）：刷新字段；弹层开着时原地重建面板跟随新 token。
+    final t = AntTheme.of(context);
+    if (t != _themeData) {
+      _themeData = t;
+      if (_open) _updateOverlay();
+    }
+  }
+
   void _showOverlay() {
     if (_open || widget.disabled) return;
+    _themeData = AntTheme.of(context);
     _insertOverlay();
     if (mounted) setState(() => _open = true);
   }
@@ -203,11 +220,10 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
   /// 构造弹层 OverlayEntry：承载层换为统一弹层基座 [AntPopupOverlay]
   /// （方向决策/边界翻转/滑动夹回/镂空遮挡/fade+scale 动画），面板内容不变。
   void _insertOverlay() {
-    final t = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => _TreeSelectOverlay(
         triggerKey: _triggerKey,
-        themeData: t,
+        themeData: _themeData,
         treeData: widget.treeData,
         expandedKeys: _expandedKeys,
         selectedValue: widget.multiple ? null : _currentSingleValue,
@@ -219,11 +235,13 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
         dropdownHeight: widget.dropdownHeight,
       ),
     );
+    popupContentEntry = _overlayEntry;
     Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
     _overlayEntry?.remove();
+    popupContentEntry = null;
     _overlayEntry = null;
     if (_open && mounted) setState(() => _open = false);
   }
@@ -260,9 +278,10 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
 
   void _updateOverlay() {
     if (_overlayEntry != null) {
-      // 移除后重建，保证面板拿到最新展开/选中状态。
-      _overlayEntry!.remove();
-      _insertOverlay();
+      // 原地重建（基座 PopupContentRefresher 沉淀的统一更新方式）：
+      // 不移除重挂——避免 fade+scale 动画重放（闪烁）、内部滚动位置丢失、
+      // 基座首帧估算尺寸导致的跳位；Element 复用后勾选/展开状态平滑过渡。
+      refreshPopupContent();
     }
   }
 
@@ -386,6 +405,8 @@ class _TreeSelectOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 主题经组件侧捕获（themeData 字段），markNeedsBuild 原地重建时重读最新值；
+    // 不在 overlay context 里读 AntTheme.of——AntTheme 在页面内时不可达（回退 light）。
     final t = themeData;
 
     // 统一弹层基座：placement 首选下方，视口下方放不下自动翻转到上方

@@ -43,7 +43,7 @@ cp -r packages/antd_icons_flutter/example/build/web/* "$OUTPUT_DIR/icons/"
 # 独立组件包 example 站点（R32/R33：每个独立包的 web demo 发布到子路径）
 # 环境变量 PKG_EXAMPLES：空格分隔的「包名:子路径」列表（默认全部已建 example 的独立包）
 #   例：PKG_EXAMPLES="antd_qrcode:qr_code antd_refresh:refresh"
-PKG_EXAMPLES="${PKG_EXAMPLES:-antd_qrcode:qr_code antd_refresh:refresh antd_swipe_action:swipe_action antd_splitter:splitter antd_image_viewer:image_viewer antd_upload:upload antd_picker:picker antd_tree:tree antd_carousel:carousel}"
+PKG_EXAMPLES="${PKG_EXAMPLES:-antd_qrcode:qr_code antd_refresh:refresh antd_swipe_action:swipe_action antd_splitter:splitter antd_image_viewer:image_viewer antd_upload:upload antd_picker:picker antd_tree:tree antd_carousel:carousel antd_masonry:masonry}"
 for entry in $PKG_EXAMPLES; do
   pkg="${entry%%:*}"
   sub="${entry##*:}"

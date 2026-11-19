@@ -85,7 +85,8 @@ class AntCascader extends StatefulWidget {
   State<AntCascader> createState() => _AntCascaderState();
 }
 
-class _AntCascaderState extends State<AntCascader> {
+class _AntCascaderState extends State<AntCascader>
+    with PopupContentRefresher<AntCascader> {
   final GlobalKey _fieldKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _open = false;
@@ -186,12 +187,14 @@ class _AntCascaderState extends State<AntCascader> {
         onDismiss: _removeOverlay,
       ),
     );
+    popupContentEntry = _overlayEntry;
     Overlay.of(context).insert(_overlayEntry!);
     setState(() => _open = true);
   }
 
   void _removeOverlay() {
     _overlayEntry?.remove();
+    popupContentEntry = null;
     _overlayEntry = null;
     if (_open) setState(() => _open = false);
   }
@@ -223,9 +226,9 @@ class _AntCascaderState extends State<AntCascader> {
   }
 
   void _updateOverlay() {
-    // 面板路径变化仅触发 overlay 重建（markNeedsBuild），
+    // 面板路径变化经基座 PopupContentRefresher 原地重建（markNeedsBuild），
     // 不 remove+insert —— 避免 AntPopupOverlay 重挂载重放出泡动画
-    _overlayEntry?.markNeedsBuild();
+    refreshPopupContent();
   }
 
   void _clear() {

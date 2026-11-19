@@ -347,6 +347,76 @@ void main() {
       expect(panelBottom, lessThan(triggerTop));
       expect(panelBottom, lessThanOrEqualTo(viewportHeight));
     });
+
+    testWidgets('in-place refresh keeps panel mounted (no animation remount)',
+        (tester) async {
+      // 原地重建（PopupContentRefresher）：展开节点后 OverlayEntry 不重挂，
+      // 面板 Element 复用，滚动位置保留且位置/尺寸重算正确。
+      await tester.pumpWidget(_wrap(
+        Align(
+          alignment: Alignment.topLeft,
+          child: AntTreeSelect(treeData: _testTreeData()),
+        ),
+      ),);
+      await tester.tap(find.byType(AntTreeSelect));
+      await tester.pumpAndSettle();
+
+      final panelBox = tester.renderObject<RenderBox>(
+          find.byKey(const Key('ant_tree_select_panel')),);
+      final heightBefore = panelBox.size.height;
+      // 面板内容未超高时无滚动；展开一个节点后面板高度应增长且位置重算
+      final topBefore = panelBox.localToGlobal(Offset.zero).dy;
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.pumpAndSettle();
+
+      final panelAfter = tester.renderObject<RenderBox>(
+          find.byKey(const Key('ant_tree_select_panel')),);
+      final topAfter = panelAfter.localToGlobal(Offset.zero).dy;
+      // 高度增长（2 子节点加入）
+      expect(panelAfter.size.height, greaterThan(heightBefore));
+      // 空间充足时面板仍贴触发元素下方（位置重算无跳位）
+      expect(topAfter, topBefore);
+    });
+
+    testWidgets('in-place refresh preserves panel scroll offset',
+        (tester) async {
+      // 内容超高产生内部滚动后，继续展开节点不应丢失滚动位置。
+      await tester.pumpWidget(_wrap(
+        AntTreeSelect(
+          treeData: [
+            for (var i = 0; i < 12; i++)
+              AntTreeSelectOption(
+                value: 'n$i',
+                label: '节点 $i',
+                children: [
+                  AntTreeSelectOption(value: 'n$i-c', label: '子节点 $i'),
+                ],
+              ),
+          ],
+        ),
+      ),);
+      await tester.tap(find.byType(AntTreeSelect));
+      await tester.pumpAndSettle();
+
+      final scrollable = find.descendant(
+        of: find.byKey(const Key('ant_tree_select_panel')),
+        matching: find.byType(Scrollable),
+      );
+      expect(scrollable, findsOneWidget);
+      // 滚动到中部
+      await tester.drag(scrollable.first, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      final position = tester.state<ScrollableState>(scrollable.first).position;
+      final offsetBefore = position.pixels;
+      expect(offsetBefore, greaterThan(0));
+
+      // 展开任一节点 → 原地重建，滚动位置不丢
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.pumpAndSettle();
+      final positionAfter =
+          tester.state<ScrollableState>(scrollable.first).position;
+      expect(positionAfter.pixels, offsetBefore);
+    });
   });
 
   group('AntTreeSelectOption', () {

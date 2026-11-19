@@ -132,18 +132,19 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
         widget.viewportPadding ?? const EdgeInsets.all(PopupEngine.defaultMargin);
     final viewport = _viewportRect(mediaQuery.padding + padding, mediaQuery.size);
 
-    // 气泡尺寸：首帧用估算，post-frame 实测校正
+    // 气泡尺寸：首帧用估算，post-frame 实测校正；内容变化（如树节点展开、
+    // 菜单项增删）后每帧复测，尺寸变化即重算位置——否则面板以陈旧尺寸
+    // 定位，内容增长时会溢出/被裁剪（对 Dropdown/Popover/Tooltip 同样生效）。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return;
+      if (_bubbleSize == null || box.size != _bubbleSize) {
+        setState(() => _bubbleSize = box.size);
+      }
+    });
+
     var bubbleSize = _bubbleSize ?? const Size(240, 80);
-    if (_bubbleSize == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
-        if (box == null || !box.hasSize) return;
-        if (_bubbleSize == null || box.size != _bubbleSize) {
-          setState(() => _bubbleSize = box.size);
-        }
-      });
-    }
 
     final layout = PopupEngine.solve(
       targetRect: targetRect,
@@ -268,6 +269,27 @@ mixin PopupOpenScheduler<T extends StatefulWidget> on State<T> {
       }
     });
   }
+}
+
+/// 弹层内容刷新 mixin — 原地重建 OverlayEntry（统一沉淀，勿再各自 remove+reinsert）。
+///
+/// 弹层内容变化（树节点展开/勾选、数据异步加载、列表项增删等）时调用
+/// [refreshPopupContent]，对当前 OverlayEntry 执行 `markNeedsBuild()` 原地重建：
+/// - 出现动画（fade + scale）不重放——remove+reinsert 会重建
+///   AntPopupOverlay State，动画从 0 重跑造成可见闪烁；
+/// - 面板内部滚动位置保留（Element/RenderObject 复用）；
+/// - 无基座首帧估算尺寸（默认 240x80）导致的定位跳位。
+///
+/// 用法：组件把弹层 OverlayEntry 赋给 [popupContentEntry]，内容变化时调
+/// [refreshPopupContent]；builder 闭包内读取组件 State 的最新字段即可。
+mixin PopupContentRefresher<T extends StatefulWidget> on State<T> {
+  OverlayEntry? _popupEntry;
+
+  /// 当前弹层 OverlayEntry（组件 show 时赋值，hide 时置 null）。
+  set popupContentEntry(OverlayEntry? entry) => _popupEntry = entry;
+
+  /// 原地重建弹层内容；弹层未展示时为空操作。
+  void refreshPopupContent() => _popupEntry?.markNeedsBuild();
 }
 
 /// 统一触发区域（点击 + 悬停 + 移动端 hover 降级）。

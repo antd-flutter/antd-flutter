@@ -51,6 +51,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_masonry:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_masonry"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_picker:
     dependency: "direct overridden"
     description:
