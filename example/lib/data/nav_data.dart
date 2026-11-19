@@ -69,6 +69,7 @@ const List<NavGroup> navGroups = [
     NavItem('PageIndicator 页面指示器', 'page_indicator'),
     NavItem('Popover 气泡卡片', 'popover'),
     NavItem('Splitter 分割容器', 'splitter'),
+    NavItem('Upload 上传', 'upload'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
     NavItem('Tour 引导弹览', 'tour'),
