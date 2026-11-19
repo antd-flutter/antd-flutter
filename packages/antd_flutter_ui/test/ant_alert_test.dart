@@ -162,5 +162,77 @@ void main() {
       expect(find.byIcon(Icons.star), findsOneWidget);
       expect(find.byIcon(Icons.info), findsNothing);
     });
+
+    group('icon 与文字对齐（回归：批次 0-1 验收反馈）', () {
+      Rect iconRect(WidgetTester tester, IconData icon) =>
+          tester.getRect(find.byIcon(icon));
+
+      /// message 文本 RenderBox 区域（取 Expanded 内 Text 的首个字符）。
+      Rect messageRect(WidgetTester tester, String text) =>
+          tester.getRect(find.text(text).first);
+
+      testWidgets('无描述时图标与 message 垂直居中', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntAlert(
+              message: '信息提示',
+              showIcon: true,
+            ),
+          ),
+        );
+        final icon = iconRect(tester, Icons.info);
+        final text = messageRect(tester, '信息提示');
+        // 允许半行高误差（基线差异），但必须明显居中而非顶对齐。
+        final iconCenter = icon.center.dy;
+        final textCenter = text.center.dy;
+        expect((iconCenter - textCenter).abs(), lessThan(2.0));
+        // 顶对齐回归判定：若仍是 start 对齐，图标 top 应等于文字 top，
+        // 修复后图标中心应大于文字 top + 图标半径的一半以上。
+        expect(icon.top, greaterThan(text.top + 1.0));
+      });
+
+      testWidgets('多行 message 时图标仍与首行文字垂直居中', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntAlert(
+              message: '信息提示信息提示信息提示信息提示信息提示信息提示'
+                  '信息提示信息提示信息提示信息提示信息提示信息提示',
+              showIcon: true,
+            ),
+          ),
+        );
+        final icon = iconRect(tester, Icons.info);
+        // 多行且无描述时，antd 语义仍为整体居中：图标中心应在文本块中心附近
+        // （文本块远高于图标，居中后图标 top 明显大于文本 top）。
+        final text = messageRect(
+          tester,
+          '信息提示信息提示信息提示信息提示信息提示信息提示'
+              '信息提示信息提示信息提示信息提示信息提示信息提示',
+        );
+        expect(icon.center.dy, closeTo(text.center.dy, 3.0));
+        expect(icon.top, greaterThan(text.top + 0.5));
+      });
+
+      testWidgets('有描述时图标与 message 首行视觉居中', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntAlert(
+              message: '信息提示',
+              description: '这是描述内容，图标应与 message 首行视觉居中',
+              showIcon: true,
+            ),
+          ),
+        );
+        final icon = iconRect(tester, Icons.info);
+        final message = messageRect(tester, '信息提示');
+        // 有描述时图标放大到 20（antd withDescriptionIconSize），
+        // 并在首行盒（fontSize*1.5≈21）内居中：icon.top ≈ message.top + 0.5。
+        expect(icon.width, closeTo(20.0, 0.5));
+        expect(
+          icon.center.dy,
+          closeTo(message.top + (message.height > 30 ? 10.5 : 10.5), 2.5),
+        );
+      });
+    });
   });
 }

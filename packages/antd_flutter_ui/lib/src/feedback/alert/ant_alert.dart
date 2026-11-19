@@ -130,12 +130,33 @@ class _AntAlertState extends State<AntAlert>
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          // 对齐 antd web Alert：无描述时图标与文字垂直居中；
+          // 有描述时图标与 message 顶部对齐（描述行不参与图标对齐）。
+          crossAxisAlignment: widget.description != null
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             if (showIcon) ...[
-              IconTheme.merge(
-                data: IconThemeData(color: fg, size: 16.w),
-                child: widget.icon ?? Icon(_defaultIcon(widget.type)),
+              // 对齐 antd web Alert：无描述时图标与文字垂直居中；
+              // 有描述时图标放大到 fontSizeHeading3（20）并与 message
+              // 首行视觉居中（行高 1.5 的首行盒顶部内偏移半个差值）。
+              Builder(
+                builder: (context) {
+                  final hasDesc = widget.description != null;
+                  final iconSize = hasDesc ? 20.w : 16.w;
+                  final firstLineHeight = theme.fontSize * 1.5;
+                  // 首行盒高可能小于放大后的图标（.w 缩放），偏移不允许为负。
+                  final gap = firstLineHeight - iconSize;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      top: gap > 0 ? gap / 2 : 0,
+                    ),
+                    child: IconTheme.merge(
+                      data: IconThemeData(color: fg, size: iconSize),
+                      child: widget.icon ?? Icon(_defaultIcon(widget.type)),
+                    ),
+                  );
+                },
               ),
               SizedBox(width: 8.w),
             ],
@@ -179,10 +200,11 @@ class _AntAlertState extends State<AntAlert>
       ],
     );
 
-    final borderRadius =
-        widget.banner ? BorderRadius.zero : BorderRadius.circular(
-      theme.borderRadiusLG,
-    );
+    final borderRadius = widget.banner
+        ? BorderRadius.zero
+        : BorderRadius.circular(
+            theme.borderRadiusLG,
+          );
 
     Widget alert = Container(
       padding: EdgeInsets.only(
