@@ -10,6 +10,7 @@
 /// ```
 library;
 
+import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
 import 'package:antd_flutter_ui/src/data_entry/search_bar/ant_search_bar_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
@@ -246,39 +247,20 @@ class _AntSearchBarState extends State<AntSearchBar> {
                     ),
                 SizedBox(width: 8.w),
                 Expanded(
-                  child: TextField(
+                  // 字段核心复用共享基座（embedded：无边框无填充，由胶囊容器统一绘制）
+                  child: AntInputField(
                     controller: _controller,
                     focusNode: _focusNode,
                     maxLength: widget.maxLength,
-                    style: TextStyle(
-                      fontSize: t.fontSize,
-                      color: t.colorText,
-                    ),
-                    decoration: InputDecoration(
-                      hoverColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hintText: widget.placeholder,
-                      hintStyle: TextStyle(
-                        fontSize: t.fontSize,
-                        color: t.colorTextPlaceholder,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      focusedErrorBorder: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      counterText: '',
-                    ),
+                    placeholder: widget.placeholder,
+                    mode: AntInputFieldMode.embedded,
+                    contentPadding: EdgeInsets.zero,
                     textInputAction: TextInputAction.search,
                     onSubmitted: (v) {
                       _focusNode.unfocus();
                       widget.onSearch?.call(v);
                     },
                     onChanged: _handleChange,
-                    onTapOutside: (_) => _focusNode.unfocus(),
                   ),
                 ),
                 if (_showClear)

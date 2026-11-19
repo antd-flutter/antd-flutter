@@ -1,5 +1,6 @@
 /// AntInputNumber — antd InputNumber 数字输入框的 Flutter 实现
 ///
+/// 基于 [AntInput] 实现（共享边框/填充/hover/禁用态/addon 整合），
 /// 通过点击或键盘输入数值，支持步进、精度、上下限。
 ///
 /// ```dart
@@ -13,12 +14,14 @@
 /// ```
 library;
 
+import 'package:antd_flutter_ui/src/data_entry/input/ant_input.dart';
 import 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number_types.dart';
-import 'package:material_ui/material_ui.dart';
+// 项目约定：material 系组件统一经 material_ui 引入
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 数字输入框 — 支持步进按钮、上下限、精度控制。
 class AntInputNumber extends StatefulWidget {
@@ -113,40 +116,35 @@ class AntInputNumber extends StatefulWidget {
 class _AntInputNumberState extends State<AntInputNumber> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
-  bool _focused = false;
   double? _currentValue;
 
   @override
   void initState() {
     super.initState();
     _currentValue = widget.value ?? widget.defaultValue;
-    _controller = TextEditingController(
-      text: _formatValue(_currentValue) ?? (widget.placeholder ?? ''),
-    );
-    if (_currentValue == null && widget.placeholder != null) {
-      _controller.text = '';
-    }
+    _controller = TextEditingController(text: _formatValue(_currentValue) ?? '');
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(() {
-      final f = _focusNode.hasFocus;
-      if (f != _focused) {
-        setState(() => _focused = f);
-      }
-      if (!f) {
+      // 失焦时将文本提交为数值（clamp/precision/非法恢复）
+      if (!_focusNode.hasFocus) {
         _commitText();
       }
     });
     if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _focusNode.requestFocus());
     }
   }
 
   @override
-  void didUpdateWidget(AntInputNumber oldWidget) {
+  void didUpdateWidget(covariant AntInputNumber oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != _currentValue) {
       _currentValue = widget.value;
-      _controller.text = _formatValue(_currentValue) ?? '';
+      final formatted = _formatValue(_currentValue) ?? '';
+      if (_controller.text != formatted) {
+        _controller.text = formatted;
+      }
     }
   }
 
@@ -167,25 +165,30 @@ class _AntInputNumberState extends State<AntInputNumber> {
     return v.toString();
   }
 
-  /// 将文本提交为数值
+  /// 将文本提交为数值（失焦/回车）
   void _commitText() {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      _currentValue = null;
-      widget.onChange?.call(null);
+      if (_currentValue != null) {
+        _currentValue = null;
+        widget.onChange?.call(null);
+      }
       return;
     }
     final v = double.tryParse(text);
     if (v == null) {
       // 无效输入，恢复原值
-      _controller.text = _formatValue(_currentValue) ?? '';
+      final restored = _formatValue(_currentValue) ?? '';
+      if (_controller.text != restored) {
+        _controller.text = restored;
+      }
       return;
     }
-    _setValue(v, notify: true);
+    _setClamped(v, notify: true, syncText: true);
   }
 
-  /// 设置值（含 min/max clamp 与 precision）
-  void _setValue(double v, {bool notify = false}) {
+  /// clamp + precision 后写入 _currentValue
+  double _clamp(double v) {
     var nv = v;
     if (widget.min != null && nv < widget.min!) nv = widget.min!;
     if (widget.max != null && nv > widget.max!) nv = widget.max!;
@@ -193,11 +196,18 @@ class _AntInputNumberState extends State<AntInputNumber> {
     if (p != null) {
       nv = double.parse(nv.toStringAsFixed(p));
     }
+    return nv;
+  }
+
+  void _setClamped(double v, {bool notify = false, bool syncText = false}) {
+    final nv = _clamp(v);
     _currentValue = nv;
-    final formatted = _formatValue(nv) ?? '';
-    if (_controller.text != formatted) {
-      _controller.text = formatted;
-      _controller.selection = TextSelection.collapsed(offset: formatted.length);
+    if (syncText) {
+      final formatted = _formatValue(nv) ?? '';
+      if (_controller.text != formatted) {
+        _controller.text = formatted;
+        _controller.selection = TextSelection.collapsed(offset: formatted.length);
+      }
     }
     if (notify) {
       widget.onChange?.call(nv);
@@ -211,136 +221,82 @@ class _AntInputNumberState extends State<AntInputNumber> {
     var next = up ? base + widget.step : base - widget.step;
     if (widget.min != null && next < widget.min!) next = widget.min!;
     if (widget.max != null && next > widget.max!) next = widget.max!;
-    _setValue(next, notify: true);
+    _setClamped(next, notify: true, syncText: true);
     widget.onStep?.call(_currentValue);
   }
 
   /// 是否可增
-  bool get _canUp =>
-      !widget.disabled && (widget.max == null || (_currentValue ?? widget.min ?? 0) < widget.max!);
+  bool get _canUp => !widget.disabled &&
+      (widget.max == null || (_currentValue ?? widget.min ?? 0) < widget.max!);
 
   /// 是否可减
-  bool get _canDown =>
-      !widget.disabled && (widget.min == null || (_currentValue ?? widget.min ?? 0) > widget.min!);
+  bool get _canDown => !widget.disabled &&
+      (widget.min == null || (_currentValue ?? widget.min ?? 0) > widget.min!);
 
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final height = _heightOf(t, widget.size);
-    final fontSize = _fontSizeOf(t, widget.size);
     final iconSize = widget.size == AntInputSize.small ? 10.sp : 12.sp;
     final showUp = widget.controls == AntInputNumberControls.upDown ||
         widget.controls == AntInputNumberControls.up;
-    final showDown = widget.controls == AntInputNumberControls.upDown ||
-        widget.controls == AntInputNumberControls.down;
+    final showDown = widget.controls == AntInputNumberControls.down ||
+        widget.controls == AntInputNumberControls.upDown;
 
-    final borderColor = widget.disabled
-        ? t.colorBorder
-        : _borderColorOf(t, widget.status, _focused);
-    final bg = widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer;
+    // 步进按钮置于输入框内部（suffix），与 antd InputNumber up/down 形态一致
+    final stepButtons = (widget.controls == AntInputNumberControls.none)
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showDown) ...[
+                SizedBox(width: 4.w),
+                _buildStepButton(t, iconSize, Icons.remove, _canDown, () => _step(false)),
+              ],
+              if (showUp) ...[
+                SizedBox(width: 4.w),
+                _buildStepButton(t, iconSize, Icons.add, _canUp, () => _step(true)),
+              ],
+            ],
+          );
 
-    final textField = TextField(
+    // 基于 AntInput 实现：边框/填充/hover/禁用态/addon 整合全部复用
+    return AntInput(
       controller: _controller,
       focusNode: _focusNode,
-      enabled: !widget.disabled,
+      disabled: widget.disabled,
+      size: widget.size,
+      status: widget.status,
+      bordered: widget.bordered,
+      placeholder: widget.placeholder,
+      prefix: widget.prefix,
+      addonBefore: widget.addonBefore,
+      addonAfter: widget.addonAfter,
       keyboardType: widget.keyboardType ??
           const TextInputType.numberWithOptions(decimal: true, signed: true),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
       ],
-      textAlign: TextAlign.left,
-      style: TextStyle(
-        fontSize: fontSize.sp,
-        color: widget.disabled ? t.colorTextDisabled : t.colorText,
-      ),
-      cursorColor: t.colorPrimary,
-      decoration: InputDecoration(
-        isCollapsed: true,
-        // 覆盖全局 inputDecorationTheme（outline/填充/hover），避免双边框与禁用态 hover 局部填充
-        border: InputBorder.none,
-        hoverColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        focusedErrorBorder: InputBorder.none,
-        counterText: '',
-        isDense: true,
-        contentPadding: EdgeInsets.zero,
-        hintStyle: TextStyle(
-          fontSize: fontSize.sp,
-          color: t.colorTextPlaceholder,
-        ),
-        hintText: _currentValue == null ? widget.placeholder : null,
-      ),
-      onSubmitted: (_) => _commitText(),
+      autofocus: widget.autofocus,
+      onChange: (_) => _handleTextChange(),
+      onPressEnter: _commitText,
+      suffix: stepButtons,
     );
+  }
 
-    final content = Row(
-      children: [
-        if (widget.prefix != null)
-          Padding(
-            padding: EdgeInsets.only(right: 4.w),
-            child: IconTheme.merge(
-              data: IconThemeData(size: iconSize, color: t.colorTextTertiary),
-              child: widget.prefix!,
-            ),
-          ),
-        Expanded(child: textField),
-        if (widget.controls != AntInputNumberControls.none) ...[
-          if (showDown)
-            _buildStepButton(t, iconSize, Icons.remove, _canDown, () => _step(false)),
-          if (showUp)
-            _buildStepButton(t, iconSize, Icons.add, _canUp, () => _step(true)),
-        ],
-      ],
-    );
-
-    final inputBody = !widget.bordered
-        ? Container(
-            height: height.w,
-            color: bg,
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
-            alignment: Alignment.center,
-            child: content,
-          )
-        : AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: height.w,
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(t.borderRadius.w),
-              border: Border.all(color: borderColor, width: 1.w),
-              boxShadow: _focused && !widget.disabled
-                  ? [
-                      BoxShadow(
-                        color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
-                        blurRadius: t.controlOutlineWidth.w,
-                      ),
-                    ]
-                  : null,
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
-            alignment: Alignment.center,
-            child: content,
-          );
-
-    // addon
-    if (widget.addonBefore == null && widget.addonAfter == null) {
-      return inputBody;
+  /// 输入变化：合法数字即时通知（非法输入不通知，失焦/回车时恢复原值）
+  void _handleTextChange() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      if (_currentValue != null) {
+        _currentValue = null;
+        widget.onChange?.call(null);
+      }
+      return;
     }
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          if (widget.addonBefore != null)
-            _buildAddon(t, widget.addonBefore!, height, fontSize, true),
-          Expanded(child: inputBody),
-          if (widget.addonAfter != null)
-            _buildAddon(t, widget.addonAfter!, height, fontSize, false),
-        ],
-      ),
-    );
+    final v = double.tryParse(text);
+    if (v != null) {
+      _setClamped(v, notify: true);
+    }
   }
 
   /// 步进按钮
@@ -354,88 +310,11 @@ class _AntInputNumberState extends State<AntInputNumber> {
     return GestureDetector(
       onTap: enabled ? onTap : null,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2.w),
-        child: Icon(
-          icon,
-          size: iconSize,
-          color: enabled ? t.colorTextSecondary : t.colorTextDisabled,
-        ),
+      child: Icon(
+        icon,
+        size: iconSize,
+        color: enabled ? t.colorTextSecondary : t.colorTextDisabled,
       ),
     );
-  }
-
-  /// 前置/后置标签
-  Widget _buildAddon(AntThemeData t, Widget child, double height, double fontSize, bool before) {
-    return Container(
-      height: height.w,
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
-      decoration: BoxDecoration(
-        color: t.colorFillSecondary.withValues(alpha: 0.3),
-        border: Border(
-          top: BorderSide(color: t.colorBorder, width: 1.w),
-          bottom: BorderSide(color: t.colorBorder, width: 1.w),
-          left: before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
-          right: !before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
-        ),
-        borderRadius: BorderRadius.horizontal(
-          left: before ? Radius.circular(t.borderRadius.w) : Radius.zero,
-          right: !before ? Radius.circular(t.borderRadius.w) : Radius.zero,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: DefaultTextStyle(
-        style: TextStyle(fontSize: fontSize.sp, color: t.colorText),
-        child: child,
-      ),
-    );
-  }
-}
-
-// ============================================================
-// 内部工具（尺寸/颜色映射，与 ant_input.dart 保持一致）
-// ============================================================
-
-double _heightOf(AntThemeData t, AntInputSize size) {
-  switch (size) {
-    case AntInputSize.large:
-      return t.controlHeightLG;
-    case AntInputSize.middle:
-      return t.controlHeight;
-    case AntInputSize.small:
-      return t.controlHeightSM;
-  }
-}
-
-double _fontSizeOf(AntThemeData t, AntInputSize size) {
-  switch (size) {
-    case AntInputSize.large:
-      return t.fontSizeLG;
-    case AntInputSize.middle:
-      return t.fontSize;
-    case AntInputSize.small:
-      return t.fontSizeSM;
-  }
-}
-
-Color _borderColorOf(AntThemeData t, AntInputStatus status, bool focused) {
-  switch (status) {
-    case AntInputStatus.error:
-      return t.colorError;
-    case AntInputStatus.warning:
-      return t.colorWarning;
-    case AntInputStatus.normal:
-      return focused ? t.colorPrimary : t.colorBorder;
-  }
-}
-
-Color _outlineColorOf(AntThemeData t, AntInputStatus status) {
-  switch (status) {
-    case AntInputStatus.error:
-      return t.colorErrorOutline;
-    case AntInputStatus.warning:
-      return t.colorWarningOutline;
-    case AntInputStatus.normal:
-      return t.controlOutline;
   }
 }

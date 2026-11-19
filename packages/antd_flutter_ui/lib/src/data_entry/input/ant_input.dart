@@ -18,6 +18,18 @@ import 'package:flutter/services.dart';
 // 内部工具
 // ============================================================
 
+/// 根据状态获取边框色
+Color _borderColorOf(AntThemeData t, AntInputStatus status, bool focused) {
+  switch (status) {
+    case AntInputStatus.error:
+      return t.colorError;
+    case AntInputStatus.warning:
+      return t.colorWarning;
+    case AntInputStatus.normal:
+      return focused ? t.colorPrimary : t.colorBorder;
+  }
+}
+
 /// 根据尺寸获取高度
 double _heightOf(AntThemeData t, AntInputSize size) {
   switch (size) {
@@ -163,6 +175,7 @@ class _AntInputState extends State<AntInput> {
   bool _isControllerExternal = false;
   late FocusNode _focusNode;
   bool _hasValue = false;
+  bool _focused = false;
 
   @override
   void initState() {
@@ -206,8 +219,9 @@ class _AntInputState extends State<AntInput> {
     super.dispose();
   }
 
-  void _handleFocusChange() {
-    setState(() {});
+  void _clear() {
+    _controller.clear();
+    widget.onChange?.call('');
   }
 
   void _handleControllerChange() {
@@ -218,9 +232,11 @@ class _AntInputState extends State<AntInput> {
     widget.onChange?.call(_controller.text);
   }
 
-  void _clear() {
-    _controller.clear();
-    widget.onChange?.call('');
+  void _handleFocusChange() {
+    final focused = _focusNode.hasFocus;
+    if (focused != _focused) {
+      setState(() => _focused = focused);
+    }
   }
 
   @override
@@ -237,19 +253,67 @@ class _AntInputState extends State<AntInput> {
       return _buildWithCount(t, inputField, height);
     }
 
-    // 有 addon 时拼接
+    // 有 addon：addon 与输入区同处一个圆角容器（antd 规范），
+    // 外层统一绘制边框/圆角/聚焦环，addon 灰底、与输入区以 1px 分隔线衔接
+    final borderColor = widget.disabled
+        ? t.colorBorder
+        : _borderColorOf(t, widget.status, _focused);
     final addonRow = IntrinsicHeight(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.addonBefore != null)
             _buildAddon(t, widget.addonBefore!, height, fontSize, true),
-          Expanded(child: inputField),
+          Expanded(
+            child: AntInputField(
+              size: widget.size,
+              controller: _controller,
+              focusNode: _focusNode,
+              enabled: !widget.disabled,
+              readOnly: widget.readOnly,
+              obscureText: widget.obscureText,
+              maxLength: widget.maxLength,
+              keyboardType: widget.keyboardType,
+              inputFormatters: widget.inputFormatters,
+              placeholder: widget.placeholder,
+              status: widget.status,
+              mode: AntInputFieldMode.embedded,
+              autofocus: widget.autofocus,
+              onChanged: (_) => widget.onChange?.call(_controller.text),
+              onSubmitted: widget.onPressEnter == null
+                  ? null
+                  : (_) => widget.onPressEnter!(),
+            ),
+          ),
           if (widget.addonAfter != null)
             _buildAddon(t, widget.addonAfter!, height, fontSize, false),
         ],
       ),
     );
-    return _buildWithCount(t, addonRow, height);
+    final body = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: height.w,
+      decoration: BoxDecoration(
+        color: widget.disabled
+            ? t.colorBgContainerDisabled
+            : t.colorBgContainer,
+        borderRadius: BorderRadius.circular(t.borderRadius.w),
+        border: widget.bordered
+            ? Border.all(color: borderColor, width: 1.w)
+            : null,
+        boxShadow: widget.bordered && _focused && !widget.disabled
+            ? [
+                BoxShadow(
+                  color: t.controlOutline.withValues(alpha: 0.8),
+                  blurRadius: t.controlOutlineWidth.w,
+                ),
+              ]
+            : null,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: addonRow,
+    );
+    return _buildWithCount(t, body, height);
   }
 
   /// 构建带字数统计的外层
@@ -330,29 +394,22 @@ class _AntInputState extends State<AntInput> {
     return SizedBox(height: height.w, child: Center(child: field));
   }
 
-  /// 构建前置/后置标签
+  /// 构建前置/后置标签（灰底 + 内侧 1px 分隔线，边框由外层容器统一绘制）
   Widget _buildAddon(AntThemeData t, Widget child, double height, double fontSize, bool before) {
     return Container(
-      height: height.w,
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
       decoration: BoxDecoration(
-        color: t.colorFillSecondary.withValues(alpha: 0.3),
+        color: t.colorFillQuaternary,
         border: Border(
-          top: BorderSide(color: t.colorBorder, width: 1.w),
-          bottom: BorderSide(color: t.colorBorder, width: 1.w),
-          left: before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
-          right: !before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
-        ),
-        borderRadius: BorderRadius.horizontal(
-          left: before ? Radius.circular(t.borderRadius.w) : Radius.zero,
-          right: !before ? Radius.circular(t.borderRadius.w) : Radius.zero,
+          right: before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
+          left: !before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
         ),
       ),
       alignment: Alignment.center,
       child: DefaultTextStyle(
         style: TextStyle(
           fontSize: fontSize.sp,
-          color: t.colorText,
+          color: t.colorTextSecondary,
         ),
         child: child,
       ),

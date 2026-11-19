@@ -69,6 +69,7 @@ class AntInputField extends StatelessWidget {
     this.maxLength,
     this.keyboardType,
     this.inputFormatters,
+    this.textInputAction,
     this.placeholder,
     this.prefix,
     this.suffix,
@@ -99,6 +100,9 @@ class AntInputField extends StatelessWidget {
   final int? maxLength;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+
+  /// 键盘动作按钮（如 TextInputAction.search）。
+  final TextInputAction? textInputAction;
   final String? placeholder;
 
   /// 前缀（置于字段内部，带标准水平内边距）。
@@ -224,6 +228,7 @@ class AntInputField extends StatelessWidget {
       maxLength: maxLength,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      textInputAction: textInputAction,
       autofocus: autofocus,
       minLines: minLines,
       maxLines: maxLines,
@@ -243,6 +248,8 @@ class AntInputField extends StatelessWidget {
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       onTap: onTap,
+      // 点击字段外部统一失焦（与 antd 行为一致；桌面端系统键盘同样适用）
+      onTapOutside: (_) => focusNode?.unfocus(),
     );
   }
 }
