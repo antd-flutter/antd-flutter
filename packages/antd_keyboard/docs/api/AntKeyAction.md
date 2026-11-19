@@ -19,5 +19,10 @@ enum AntKeyAction
 | `space` | 空格 |
 | `confirm` | 确认 |
 | `hide` | 收起键盘 |
+| `shift` | Shift（一次性大写/副字符，输入后自动复位） |
+| `capslock` | CapsLock（持久大写/副字符锁定） |
+| `modeSwitch` | 布局模式切换（循环 modes） |
+| `enter` | 回车/换行 |
+| `tab` | Tab（仅触发 onKey，由调用方决定语义） |
 | `none` | 占位（不渲染交互内容） |
 

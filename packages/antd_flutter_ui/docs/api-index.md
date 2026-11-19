@@ -2,9 +2,9 @@
 
 # antd_flutter_ui API 文档总览
 
-> 自动生成时间：2026-11-19T23:15:30.911570；共 402 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-20T00:16:32.344815；共 409 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
-## 类（175）
+## 类（180）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -65,6 +65,7 @@
 | [`AntEllipsisConfig`](api/AntEllipsisConfig.md) | 省略配置 — 对应 antd EllipsisConfig |
 | [`AntEmpty`](api/AntEmpty.md) | 空状态 — 空状态时的展示占位图 |
 | [`AntErrorBlock`](api/AntErrorBlock.md) | 错误块 — 用于页面局部出现错误/空数据时的占位提示 |
+| [`AntEscapeClosable`](api/AntEscapeClosable.md) | Esc 关闭包裹件 |
 | [`AntFlex`](api/AntFlex.md) | 弹性布局 — 高效的对齐、间隔和分布子元素容器 |
 | [`AntFlexGap`](api/AntFlexGap.md) | Flex 间距配置 |
 | [`AntFloatButton`](api/AntFloatButton.md) | Ant Design 浮动按钮 |
@@ -72,6 +73,9 @@
 | [`AntFloatButtonBadge`](api/AntFloatButtonBadge.md) | 悬浮按钮角标配置 — 对应 antd FloatButtonBadgeProps |
 | [`AntFloatButtonGroup`](api/AntFloatButtonGroup.md) | Ant Design 浮动按钮组 |
 | [`AntFooter`](api/AntFooter.md) | 页脚 — 页面底部说明与回顶部入口 |
+| [`AntHotkeyBinding`](api/AntHotkeyBinding.md) | 单条热键绑定 |
+| [`AntHotkeyCombo`](api/AntHotkeyCombo.md) | 一组快捷键组合（按键集合 + 修饰键集合），支持相等比较用于冲突检测 |
+| [`AntHotkeys`](api/AntHotkeys.md) | 热键包裹 widget |
 | [`AntImage`](api/AntImage.md) | 图片 — 可预览的图片容器，支持网络/资源图、加载占位与失败回退 |
 | [`AntImageDefaults`](api/AntImageDefaults.md) | AntImage 默认配置与公共构建器 |
 | [`AntImagePreviewGroup`](api/AntImagePreviewGroup.md) | 图片预览组 — 包裹一组 AntImage，点击任意一张 可在全屏预览内左右切换组内图片 |
@@ -181,10 +185,11 @@
 | [`AntTourStep`](api/AntTourStep.md) | 漫游式引导的单个步骤 |
 | [`AntTypography`](api/AntTypography.md) | Ant Design Typography 基础组件 |
 | [`AntWatermark`](api/AntWatermark.md) | 水印 — 给页面指定区域添加水印 |
+| [`HotkeyRegistry`](api/HotkeyRegistry.md) | 热键注册中心（全局单例） |
 | [`PopupEngine`](api/PopupEngine.md) | 统一弹层位置计算引擎 |
 | [`WheelPickerColumn`](api/WheelPickerColumn.md) | 单列滚轮引擎组件 — 基于 CupertinoPicker 的 iOS 风格滚轮 |
 
-## 枚举（111）
+## 枚举（112）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -230,6 +235,7 @@
 | [`AntFloatButtonGroupTrigger`](api/AntFloatButtonGroupTrigger.md) | 悬浮按钮组的展开触发方式 |
 | [`AntFloatButtonShape`](api/AntFloatButtonShape.md) | 悬浮按钮形状 |
 | [`AntFloatButtonType`](api/AntFloatButtonType.md) | 悬浮按钮类型 |
+| [`AntHotkeyModifier`](api/AntHotkeyModifier.md) | 修饰键 |
 | [`AntImageUploadStatus`](api/AntImageUploadStatus.md) | 图片上传状态 |
 | [`AntInputNumberControls`](api/AntInputNumberControls.md) | 步进器按钮行为模式 |
 | [`AntInputSize`](api/AntInputSize.md) | 输入框尺寸 |
@@ -313,7 +319,7 @@
 | --- | --- |
 | [`AntResultStatusLabel`](api/AntResultStatusLabel.md) | 各状态展示数字大字时的文案 |
 
-## 函数（12）
+## 函数（13）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -328,6 +334,7 @@
 | [`calendarIsSameDay`](api/calendarIsSameDay.md) | 两个日期是否为同一天（任一为 null 返回 false） |
 | [`calendarMonthLeadingOffset`](api/calendarMonthLeadingOffset.md) | 按周起始约定计算某月 1 号在网格中的前置补位天数 |
 | [`calendarStartOfWeek`](api/calendarStartOfWeek.md) | 某日所在周的起始日（按周起始约定对齐） |
+| [`resolveActiveModifiers`](api/resolveActiveModifiers.md) | 从当前按下键集合解析生效的修饰键 |
 | [`showAntModal`](api/showAntModal.md) | 弹出确认风格的对话框，返回用户选择（true 确认 / false 取消 / null 被移除） |
 
 ## 常量（98）

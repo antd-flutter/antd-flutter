@@ -67,5 +67,6 @@ class AntKeyboardThemeData
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `copyWith` | `AntKeyboardThemeData` | 复制并覆盖（仅覆盖非 null 字段） |
 | `merge` | `AntKeyboardThemeData` | 合并覆盖（this 非 null 字段优先） |
 

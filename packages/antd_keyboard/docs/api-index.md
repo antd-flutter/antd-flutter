@@ -2,15 +2,16 @@
 
 # antd_keyboard API 文档总览
 
-> 自动生成时间：2026-11-19T18:40:35.698436；共 13 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-20T00:16:32.743729；共 16 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
-## 类（10）
+## 类（11）
 
 | 名称 | 说明 |
 | --- | --- |
 | [`AntKeyboard`](api/AntKeyboard.md) | 通用屏上键盘 |
 | [`AntKeyboardKey`](api/AntKeyboardKey.md) | 键盘按键统一模型 |
 | [`AntKeyboardLayout`](api/AntKeyboardLayout.md) | 键盘布局 |
+| [`AntKeyboardLayouts`](api/AntKeyboardLayouts.md) | 预设注册表（AntKeyboardLayouts.of(preset) → 布局实例） |
 | [`AntKeyboardOverlayController`](api/AntKeyboardOverlayController.md) | — |
 | [`AntKeyboardRow`](api/AntKeyboardRow.md) | 键盘行 |
 | [`AntKeyboardThemeData`](api/AntKeyboardThemeData.md) | — |
@@ -19,11 +20,12 @@
 | [`AntVirtualInput`](api/AntVirtualInput.md) | 虚拟输入 — 通过内置数字键盘输入的只读输入框 |
 | [`KeyboardInputBuffer`](api/KeyboardInputBuffer.md) | 键盘输入缓冲 — 受控/非受控两种模式下的按键追加与退格 |
 
-## 枚举（1）
+## 枚举（2）
 
 | 名称 | 说明 |
 | --- | --- |
 | [`AntKeyAction`](api/AntKeyAction.md) | 按键动作类型 |
+| [`AntKeyboardPreset`](api/AntKeyboardPreset.md) | 键盘预设类型（便捷参数 |
 
 ## 函数（2）
 
@@ -31,4 +33,10 @@
 | --- | --- |
 | [`buildNumberKeyOrder`](api/buildNumberKeyOrder.md) | 数字键盘按键序（1-9），支持乱序 |
 | [`isDesktopInputPlatform`](api/isDesktopInputPlatform.md) | 当前是否为桌面平台（桌面端不使用自定义虚拟键盘，直接走系统输入） |
+
+## 常量（1）
+
+| 名称 | 说明 |
+| --- | --- |
+| [`kAntKeyboardMinTouchTarget`](api/kAntKeyboardMinTouchTarget.md) | 移动端触控目标下限（iOS HIG / Material 无障碍最低触控尺寸） |
 

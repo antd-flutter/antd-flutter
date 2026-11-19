@@ -1,6 +1,6 @@
 {
-    "name": "antd_calendar_example",
-    "short_name": "antd_calendar_example",
+    "name": "AntdCalendar",
+    "short_name": "AntdCalendar",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

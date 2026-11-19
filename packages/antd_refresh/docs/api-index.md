@@ -2,7 +2,7 @@
 
 # antd_refresh API 文档总览
 
-> 自动生成时间：2026-11-19T10:26:12.722398；共 28 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-20T00:16:33.033578；共 29 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
 ## 类（11）
 
@@ -33,10 +33,11 @@
 | --- | --- |
 | [`atPullEdge`](api/atPullEdge.md) | 内层可滚动组件是否停在拉动边缘（top：顶部 |
 
-## 常量（14）
+## 常量（15）
 
 | 名称 | 说明 |
 | --- | --- |
+| [`kAntInfiniteScrollFooterSlot`](api/kAntInfiniteScrollFooterSlot.md) | footer 槽位高度：footer 可见时 child 底部预留的空间 （上下 12 内边距 + 一行文案/指示… |
 | [`kAntPullToRefreshCompleteText`](api/kAntPullToRefreshCompleteText.md) | — |
 | [`kAntPullToRefreshDuration`](api/kAntPullToRefreshDuration.md) | 回弹动画时长 |
 | [`kAntPullToRefreshFinishingText`](api/kAntPullToRefreshFinishingText.md) | — |

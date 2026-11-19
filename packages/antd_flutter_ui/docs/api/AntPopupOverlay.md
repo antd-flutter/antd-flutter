@@ -25,7 +25,7 @@ AntPopupOverlay(
 
 ## 构造函数
 
-### `AntPopupOverlay({super.key, required this.targetKey, required this.child, this.placement = AntPopupPlacement.bottom, this.arrow = false, this.arrowColor, this.arrowKey, this.arrowSize, this.gap, this.viewportPadding, this.onDismiss, this.dismissOnTapOutside = true, this.animationDuration = const Duration(milliseconds: 150), this.onBubbleHoverEnter, this.onBubbleHoverExit})`
+### `AntPopupOverlay({super.key, required this.targetKey, required this.child, this.placement = AntPopupPlacement.bottom, this.arrow = false, this.arrowColor, this.arrowKey, this.arrowSize, this.gap, this.viewportPadding, this.onDismiss, this.dismissOnTapOutside = true, this.animationDuration = const Duration(milliseconds: 150), this.onBubbleHoverEnter, this.onBubbleHoverExit, this.escToClose = true, this.hotkeys = const <AntHotkeyBinding>[]})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -43,6 +43,8 @@ AntPopupOverlay(
 | `animationDuration` | `Duration` | = const Duration(milliseconds: 150) | — |
 | `onBubbleHoverEnter` | `VoidCallback?` | 可选 | — |
 | `onBubbleHoverExit` | `VoidCallback?` | 可选 | — |
+| `escToClose` | `bool` | = true | — |
+| `hotkeys` | `List<AntHotkeyBinding>` | = const <AntHotkeyBinding>[] | — |
 
 ## 字段
 
@@ -55,7 +57,9 @@ AntPopupOverlay(
 | `arrowSize` | `double?` | 箭头边长（默认 8 逻辑像素） |
 | `child` | `Widget` | 气泡内容（不含箭头，箭头由基座渲染） |
 | `dismissOnTapOutside` | `bool` | 是否启用点击气泡外关闭 |
+| `escToClose` | `bool` | R37 打开状态下按 Esc 关闭（默认开启 |
 | `gap` | `double?` | 气泡与触发元素间距（默认 6） |
+| `hotkeys` | `List<AntHotkeyBinding>` | R37 弹层打开期间生效的自定义热键绑定（可选透传，挂载期注册、 卸载即注销 |
 | `onBubbleHoverEnter` | `VoidCallback?` | 鼠标进入气泡回调（联合 hover 判定：进入气泡视为未离开弹层） |
 | `onBubbleHoverExit` | `VoidCallback?` | 鼠标离开气泡回调（联合 hover 判定：与触发元素退出共同决定关闭） |
 | `onDismiss` | `VoidCallback?` | 点击空白处回调 |

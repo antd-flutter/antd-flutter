@@ -12,7 +12,7 @@ class AntKeyboard
 
 ## 构造函数
 
-### `AntKeyboard({super.key, required this.layout, this.theme, this.confirmText, this.onTextInput, this.onBackspace, this.onConfirm, this.onHide, this.onKey})`
+### `AntKeyboard({super.key, required this.layout, this.theme, this.confirmText, this.onTextInput, this.onBackspace, this.onConfirm, this.onHide, this.onKey, this.showControlBar = false, this.onAlignTop, this.onAlignBottom})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -24,6 +24,9 @@ class AntKeyboard
 | `onConfirm` | `VoidCallback?` | 可选 | — |
 | `onHide` | `VoidCallback?` | 可选 | — |
 | `onKey` | `ValueChanged<AntKeyboardKey>?` | 可选 | — |
+| `showControlBar` | `bool` | = false | — |
+| `onAlignTop` | `VoidCallback?` | 可选 | — |
+| `onAlignBottom` | `VoidCallback?` | 可选 | — |
 
 ## 字段
 
@@ -31,11 +34,14 @@ class AntKeyboard
 | --- | --- | --- |
 | `confirmText` | `String?` | 确认键文案（null 时不渲染独立确认键，confirm 动作键按布局显示） |
 | `layout` | `AntKeyboardLayout` | 布局（预设或自定义） |
+| `onAlignBottom` | `VoidCallback?` | 控制条：切到贴底 |
+| `onAlignTop` | `VoidCallback?` | 控制条：切到贴顶 |
 | `onBackspace` | `VoidCallback?` | 退格回调（长按连续触发） |
 | `onConfirm` | `VoidCallback?` | 确认回调 |
 | `onHide` | `VoidCallback?` | 收起回调（hide 动作键） |
 | `onKey` | `ValueChanged<AntKeyboardKey>?` | 原始按键回调（所有按键统一出口，便于扩展） |
 | `onTextInput` | `ValueChanged<String>?` | 文本输入回调（含长按变体选择） |
+| `showControlBar` | `bool` | 桌面展示形态：顶部控制条（贴底/贴顶切换按钮） |
 | `theme` | `AntKeyboardThemeData?` | 主题覆盖（null 时从 AntTheme 派生） |
 
 ## 方法

@@ -10,8 +10,10 @@ class AntMasonryItem
 
 瀑布流项 — AntMasonry 的子项，可指定高度实现瀑布流分配。
 
-对齐 antd React MasonryItem。提供 `height` 时参与贪心分配
-（放入当前最矮列），不提供时按轮询分配；
+对齐 antd React MasonryItem。提供 `height` 时：
+- 参与贪心分配（放入当前最矮列）；
+- 同时作为项的实际高度约束（SizedBox 包裹，保证瀑布流高低错落的视觉效果）。
+不提供 `height` 时按轮询分配，项高由子元素自身决定；
 `span` > 1 时跨列放置（等价 flutter_staggered_grid_view 的
 StaggeredTile.count(width, height) 跨列语义）。
 

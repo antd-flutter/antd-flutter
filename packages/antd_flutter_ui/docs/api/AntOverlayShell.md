@@ -24,7 +24,7 @@ AntOverlayShell(
 
 ## 构造函数
 
-### `AntOverlayShell({super.key, required this.open, required this.child, this.onExited, this.alignment = Alignment.center, this.padding = EdgeInsets.zero, this.showMask = true, this.maskColor, this.maskClosable = true, this.interceptWithoutMask = false, this.interceptBehavior = HitTestBehavior.translucent, this.onMaskTap, this.duration = const Duration(milliseconds: 220), this.curve = Curves.easeOut, this.slideBegin, this.scaleFrom = 0.92, this.maskKey, this.panelKey})`
+### `AntOverlayShell({super.key, required this.open, required this.child, this.onExited, this.alignment = Alignment.center, this.padding = EdgeInsets.zero, this.showMask = true, this.maskColor, this.maskClosable = true, this.interceptWithoutMask = false, this.interceptBehavior = HitTestBehavior.translucent, this.onMaskTap, this.duration = const Duration(milliseconds: 220), this.curve = Curves.easeOut, this.slideBegin, this.scaleFrom = 0.92, this.maskKey, this.panelKey, this.escToClose = false})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -45,6 +45,7 @@ AntOverlayShell(
 | `scaleFrom` | `double` | = 0.92 | — |
 | `maskKey` | `Key?` | 可选 | — |
 | `panelKey` | `Key?` | 可选 | — |
+| `escToClose` | `bool` | = false | — |
 
 ## 字段
 
@@ -54,6 +55,7 @@ AntOverlayShell(
 | `child` | `Widget` | 面板内容 |
 | `curve` | `Curve` | 动画曲线 |
 | `duration` | `Duration` | 出现/退出动画时长 |
+| `escToClose` | `bool` | R37 打开状态下按 Esc 关闭（默认关闭——Toast/Message/Notification 等轻提示族复… |
 | `interceptBehavior` | `HitTestBehavior` | 拦截层的命中行为（translucent 由 Drawer 使用，opaque 由 Toast 使用） |
 | `interceptWithoutMask` | `bool` | 无遮罩时是否仍用拦截层拦截点击（Toast maskClickable=false 语义） |
 | `maskClosable` | `bool` | 遮罩点击是否触发 onMaskTap |

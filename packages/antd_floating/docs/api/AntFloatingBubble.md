@@ -17,13 +17,14 @@ Ant Design 悬浮气泡。
 
 ## 构造函数
 
-### `AntFloatingBubble({super.key, this.axis = AntFloatingBubbleAxis.both, this.initialPos = Offset.zero, this.constraint = true, this.menu, this.onClick, this.controller, this.child, this.backgroundColor, this.size})`
+### `AntFloatingBubble({super.key, this.axis = AntFloatingBubbleAxis.both, this.initialPos = Offset.zero, this.constraint = true, this.autoSnapToEdge = false, this.menu, this.onClick, this.controller, this.child, this.backgroundColor, this.size})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `axis` | `AntFloatingBubbleAxis` | = AntFloatingBubbleAxis.both | — |
 | `initialPos` | `Offset` | = Offset.zero | — |
 | `constraint` | `bool` | = true | — |
+| `autoSnapToEdge` | `bool` | = false | — |
 | `menu` | `List<AntFloatingBubbleMenuAction>?` | 可选 | — |
 | `onClick` | `VoidCallback?` | 可选 | — |
 | `controller` | `AntFloatingBubbleController?` | 可选 | — |
@@ -35,6 +36,7 @@ Ant Design 悬浮气泡。
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `autoSnapToEdge` | `bool` | 拖拽松手后是否自动吸附到最近的水平边缘（默认 false） |
 | `axis` | `AntFloatingBubbleAxis` | 可拖拽轴向 |
 | `backgroundColor` | `Color?` | 自定义背景色（默认主题主色） |
 | `child` | `Widget?` | 自定义图标内容 |

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.antdflutter.antd_transfer_example"
+    namespace = "com.antd.transfer"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "dev.antdflutter.antd_transfer_example"
+        applicationId = "com.antd.transfer"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = antd_table_example
+PRODUCT_NAME = AntdTable
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = dev.antdflutter.antdTableExample
+PRODUCT_BUNDLE_IDENTIFIER = com.antd.table
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 dev.antdflutter. All rights reserved.
