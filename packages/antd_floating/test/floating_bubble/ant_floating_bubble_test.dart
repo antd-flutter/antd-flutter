@@ -25,7 +25,15 @@ Widget _wrap(Widget child) {
   );
 }
 
-Positioned _bubblePosition(WidgetTester tester) {
+/// 气泡定位记录（top 统一换算：组件底边锚定后 Positioned.top 为 null）。
+class _BubblePos {
+  _BubblePos(this.left, this.top);
+
+  final double left;
+  final double? top;
+}
+
+_BubblePos _bubblePosition(WidgetTester tester) {
   final positioned = tester.widget<Positioned>(
     find
         .ancestor(
@@ -34,7 +42,11 @@ Positioned _bubblePosition(WidgetTester tester) {
         )
         .last,
   );
-  return positioned;
+  final double? top = positioned.top ??
+      (positioned.bottom != null
+          ? _canvasH - positioned.bottom! - 48.w
+          : null);
+  return _BubblePos(positioned.left!, top);
 }
 
 void main() {
@@ -58,8 +70,9 @@ void main() {
         initialPos: Offset(40, 60),
       ),),);
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, 40.w);
-      expect(positioned.top, 60.w);
+      final bubblePos = positioned;
+      expect(bubblePos.left, 40.w);
+      expect(bubblePos.top!, 60.w);
     });
 
     testWidgets('axis both allows dragging in both directions', (tester) async {
@@ -75,8 +88,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, closeTo(80.w, 8));
-      expect(positioned.top, closeTo(70.w, 8));
+      final bubblePos = positioned;
+      expect(bubblePos.left, closeTo(80.w, 8));
+      expect(bubblePos.top!, closeTo(70.w, 8));
     });
 
     testWidgets('axis x only drags horizontally', (tester) async {
@@ -92,8 +106,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, closeTo(80.w, 8));
-      expect(positioned.top, 50.w);
+      final bubblePos = positioned;
+      expect(bubblePos.left, closeTo(80.w, 8));
+      expect(bubblePos.top!, 50.w);
     });
 
     testWidgets('axis y only drags vertically', (tester) async {
@@ -109,8 +124,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, 50.w);
-      expect(positioned.top, closeTo(80.w, 8));
+      final bubblePos = positioned;
+      expect(bubblePos.left, 50.w);
+      expect(bubblePos.top!, closeTo(80.w, 8));
     });
 
     testWidgets('position updates after drag', (tester) async {
@@ -132,6 +148,7 @@ void main() {
         (tester) async {
       var clicked = '';
       await tester.pumpWidget(_wrap(AntFloatingBubble(
+        initialPos: const Offset(10, 300),
         menu: [
           AntFloatingBubbleMenuAction(
             label: '菜单A',
@@ -157,6 +174,7 @@ void main() {
 
     testWidgets('tap again collapses menu', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
+        initialPos: Offset(10, 300),
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
       ),),);
       await tester.tap(find.byIcon(Icons.add));
@@ -186,6 +204,7 @@ void main() {
 
     testWidgets('menu item click collapses menu', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
+        initialPos: Offset(10, 300),
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
       ),),);
       await tester.tap(find.byIcon(Icons.add));
@@ -217,8 +236,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, 0.0);
-      expect(positioned.top, 0.0);
+      final bubblePos = positioned;
+      expect(bubblePos.left, 0.0);
+      expect(bubblePos.top!, 0.0);
     });
 
     testWidgets('constraint false allows dragging out of bounds',
@@ -235,8 +255,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       final positioned = _bubblePosition(tester);
-      expect(positioned.left, lessThan(0));
-      expect(positioned.top, lessThan(0));
+      final bubblePos = positioned;
+      expect(bubblePos.left, lessThan(0));
+      expect(bubblePos.top!, lessThan(0));
     });
 
     testWidgets('custom child icon renders', (tester) async {
@@ -397,4 +418,41 @@ void main() {
       expect(controller.position, isNull);
     });
   });
+
+    testWidgets('菜单模式下气泡位置不因菜单占位下移（回归）', (tester) async {
+      await tester.pumpWidget(_wrap(const AntFloatingBubble(
+        initialPos: Offset(10, 300),
+        menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
+      ),),);
+      await tester.pumpAndSettle();
+      // 收起态：菜单透明但占位，气泡仍应在 initialPos（顶边换算）。
+      final closed = _bubblePosition(tester);
+      expect(closed.left, 10.w);
+      expect(closed.top!, closeTo(300.w, 1));
+      // 展开态：气泡不动，菜单在其上方。
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+      final opened = _bubblePosition(tester);
+      expect(opened.left, 10.w);
+      expect(opened.top!, closeTo(300.w, 1));
+      final menuTop = tester.getTopLeft(find.text('菜单A')).dy;
+      expect(menuTop, lessThan(opened.top!));
+    });
+
+    testWidgets('autoSnapToEdge 拖拽松手后自动吸附最近边缘', (tester) async {
+      await tester.pumpWidget(_wrap(const AntFloatingBubble(
+        initialPos: Offset(20, 200),
+        autoSnapToEdge: true,
+      ),),);
+      await tester.pumpAndSettle();
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+      await gesture.moveBy(const Offset(1, 1));
+      await gesture.moveBy(const Offset(40, 10)); // 触发 pan 接受
+      await gesture.moveBy(const Offset(40, 10));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // x=60+48 < 300/2=150 → 吸附左边缘
+      expect(_bubblePosition(tester).left, 0.0);
+    });
 }

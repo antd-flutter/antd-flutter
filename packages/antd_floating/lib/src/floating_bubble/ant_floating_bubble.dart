@@ -41,6 +41,7 @@ class AntFloatingBubble extends StatefulWidget {
     this.axis = AntFloatingBubbleAxis.both,
     this.initialPos = Offset.zero,
     this.constraint = true,
+    this.autoSnapToEdge = false,
     this.menu,
     this.onClick,
     this.controller,
@@ -57,6 +58,9 @@ class AntFloatingBubble extends StatefulWidget {
 
   /// 是否约束在父容器边界内（默认 true）。
   final bool constraint;
+
+  /// 拖拽松手后是否自动吸附到最近的水平边缘（默认 false）。
+  final bool autoSnapToEdge;
 
   /// 菜单项列表（非空时点击气泡展开/收起菜单）。
   final List<AntFloatingBubbleMenuAction>? menu;
@@ -271,6 +275,9 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
     bubble = GestureDetector(
       onTap: _handleTap,
       onPanUpdate: (d) => _handlePanUpdate(d, _bounds ?? Size.zero),
+      onPanEnd: (_) {
+        if (widget.autoSnapToEdge) snapToNearestEdge();
+      },
       behavior: HitTestBehavior.opaque,
       child: bubble,
     );
@@ -288,9 +295,14 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
             child: Stack(
               clipBehavior: Clip.none,
               children: [
+                // 底边锚定：气泡位置恒定（initialPos = 左上角语义），
+                // 菜单向上展开时不挤正气泡自身，也不产生顶部溢出挤区。
                 Positioned(
                   left: _pos.dx,
-                  top: _pos.dy,
+                  top: _bounds!.height > 0 ? null : _pos.dy,
+                  bottom: _bounds!.height > 0
+                      ? _bounds!.height - _pos.dy - bubbleSize
+                      : null,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,

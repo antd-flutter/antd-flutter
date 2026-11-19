@@ -193,6 +193,11 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
         const _BubbleDemo(),
       ),
       _demoCard(pageContext,
+        '拖拽松手自动吸附边缘',
+        'autoSnapToEdge: true —— 拖拽气泡松手后自动贴靠最近左/右边缘',
+        const _AutoSnapBubbleDemo(),
+      ),
+      _demoCard(pageContext,
         '菜单展开 + 显示隐藏',
         '配置 menu 的气泡点击展开动作列表；Controller 控制显示/隐藏',
         const _BubbleMenuDemo(),
@@ -342,6 +347,45 @@ class _BubbleDemoState extends State<_BubbleDemo> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// 演示：拖拽松手自动吸附边缘（autoSnapToEdge）
+// ============================================================
+
+class _AutoSnapBubbleDemo extends StatelessWidget {
+  const _AutoSnapBubbleDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return SizedBox(
+      height: 260,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorFillQuaternary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '拖拽气泡松手 → 自动吸附最近左/右边缘',
+              style: TextStyle(
+                fontSize: theme.fontSizeSM.sp,
+                color: theme.colorTextSecondary,
+              ),
+            ),
+          ),
+          const AntFloatingBubble(
+            initialPos: Offset(120, 180),
+            autoSnapToEdge: true,
+            child: Icon(Icons.swipe),
           ),
         ],
       ),
