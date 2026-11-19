@@ -20,6 +20,8 @@ dependencies:
 dependency_overrides:
   antd_theme:
     path: ../../antd_theme
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
   antd_tree:
     path: ../
 

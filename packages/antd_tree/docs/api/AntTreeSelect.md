@@ -14,7 +14,7 @@ class AntTreeSelect
 
 ## 构造函数
 
-### `AntTreeSelect({super.key, this.treeData = const [], this.value, this.defaultValue, this.onChange, this.placeholder, this.disabled = false, this.allowClear = false, this.treeDefaultExpandAll = false, this.multiple = false, this.size = AntTreeSelectSize.middle})`
+### `AntTreeSelect({super.key, this.treeData = const [], this.value, this.defaultValue, this.onChange, this.placeholder, this.disabled = false, this.allowClear = false, this.treeDefaultExpandAll = false, this.multiple = false, this.size = AntTreeSelectSize.middle, this.height, this.width, this.dropdownHeight})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -28,6 +28,9 @@ class AntTreeSelect
 | `treeDefaultExpandAll` | `bool` | = false | — |
 | `multiple` | `bool` | = false | — |
 | `size` | `AntTreeSelectSize` | = AntTreeSelectSize.middle | — |
+| `height` | `double?` | 可选 | — |
+| `width` | `double?` | 可选 | — |
+| `dropdownHeight` | `double?` | 可选 | — |
 
 ## 字段
 
@@ -36,6 +39,8 @@ class AntTreeSelect
 | `allowClear` | `bool` | 是否显示清除按钮 |
 | `defaultValue` | `Object?` | 非受控默认值 |
 | `disabled` | `bool` | 是否禁用 |
+| `dropdownHeight` | `double?` | 下拉面板最大高度（逻辑像素） |
+| `height` | `double?` | 触发器自定义高度（逻辑像素），设置后覆盖 size 对应高度 |
 | `multiple` | `bool` | 多选模式 |
 | `onChange` | `ValueChanged<Object?>?` | 值变化回调 |
 | `placeholder` | `String?` | 占位文本 |
@@ -43,6 +48,7 @@ class AntTreeSelect
 | `treeData` | `List<AntTreeSelectOption>` | 树节点数据 |
 | `treeDefaultExpandAll` | `bool` | 默认展开全部节点 |
 | `value` | `Object?` | 受控值（单选 String / 多选 List<String>） |
+| `width` | `double?` | 触发器自定义宽度（逻辑像素） |
 
 ## 方法
 

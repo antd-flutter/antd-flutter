@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   antd_theme: ^1.0.0
+  antd_flutter_ui: ^0.1.0-beta.1
   material_ui: ^1.11.0
 
 dev_dependencies:
@@ -29,3 +30,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+# 本地开发 path override（antd_flutter_ui 未发布，弹层基座引用）
+dependency_overrides:
+  antd_theme:
+    path: ../antd_theme
+  antd_flutter_ui:
+    path: ../antd_flutter_ui
