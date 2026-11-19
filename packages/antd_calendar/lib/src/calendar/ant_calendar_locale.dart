@@ -21,6 +21,8 @@ const AntCalendarLocale _zhDefaults = AntCalendarLocale._raw(
   yearSuffix: '年',
   monthSuffix: '月',
   weekLabels: ['一', '二', '三', '四', '五', '六', '日'],
+  modeMonthText: '月',
+  modeYearText: '年',
 );
 
 /// 日历国际化文案。
@@ -35,6 +37,8 @@ class AntCalendarLocale {
     this.yearSuffix,
     this.monthSuffix,
     this.weekLabels,
+    this.modeMonthText,
+    this.modeYearText,
     this.messages = const {},
     AntCalendarLocale? fallback,
   }) : _fallback = fallback;
@@ -49,6 +53,8 @@ class AntCalendarLocale {
     required this.yearSuffix,
     required this.monthSuffix,
     required this.weekLabels,
+    this.modeMonthText,
+    this.modeYearText,
   })  : _fallback = null,
         messages = const {};
 
@@ -65,6 +71,8 @@ class AntCalendarLocale {
     yearSuffix: '年',
     monthSuffix: '月',
     weekLabels: ['一', '二', '三', '四', '五', '六', '日'],
+    modeMonthText: '月',
+    modeYearText: '年',
   );
 
   /// 英语预设。
@@ -77,6 +85,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    modeMonthText: 'Month',
+    modeYearText: 'Year',
   );
 
   /// 日语预设。
@@ -89,6 +99,8 @@ class AntCalendarLocale {
     yearSuffix: '年',
     monthSuffix: '月',
     weekLabels: ['月', '火', '水', '木', '金', '土', '日'],
+    modeMonthText: '月',
+    modeYearText: '年',
   );
 
   /// 韩语预设。
@@ -101,6 +113,8 @@ class AntCalendarLocale {
     yearSuffix: '년',
     monthSuffix: '월',
     weekLabels: ['월', '화', '수', '목', '금', '토', '일'],
+    modeMonthText: '월',
+    modeYearText: '년',
   );
 
   /// 法语预设。
@@ -113,6 +127,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'],
+    modeMonthText: 'Mois',
+    modeYearText: 'Année',
   );
 
   /// 德语预设。
@@ -125,6 +141,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+    modeMonthText: 'Monat',
+    modeYearText: 'Jahr',
   );
 
   /// 西班牙语预设。
@@ -137,6 +155,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'],
+    modeMonthText: 'Mes',
+    modeYearText: 'Año',
   );
 
   /// 俄语预设。
@@ -149,6 +169,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],
+    modeMonthText: 'Месяц',
+    modeYearText: 'Год',
   );
 
   /// 葡萄牙语预设。
@@ -161,6 +183,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'],
+    modeMonthText: 'Mês',
+    modeYearText: 'Ano',
   );
 
   /// 意大利语预设。
@@ -173,6 +197,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'],
+    modeMonthText: 'Mese',
+    modeYearText: 'Anno',
   );
 
   /// 阿拉伯语预设（RTL 语言，文案方向由组件树 Directionality 控制）。
@@ -185,6 +211,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت', 'أحد'],
+    modeMonthText: 'شهر',
+    modeYearText: 'سنة',
   );
 
   /// 泰语预设。
@@ -197,6 +225,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'],
+    modeMonthText: 'เดือน',
+    modeYearText: 'ปี',
   );
 
   /// 越南语预设。
@@ -209,6 +239,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+    modeMonthText: 'Tháng',
+    modeYearText: 'Năm',
   );
 
   /// 印尼语预设。
@@ -221,6 +253,8 @@ class AntCalendarLocale {
     yearSuffix: '',
     monthSuffix: '',
     weekLabels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    modeMonthText: 'Bulan',
+    modeYearText: 'Tahun',
   );
 
   /// 按语言码解析内建预设（大小写不敏感，支持 `zh_CN` / `zh-Hans` 等分隔写法）。
@@ -280,6 +314,12 @@ class AntCalendarLocale {
   /// 周标签（自周一起始的 7 个标签；周日起始时组件自动轮转）。
   final List<String>? weekLabels;
 
+  /// 「月」面板模式标签（月/年切换器）。
+  final String? modeMonthText;
+
+  /// 「年」面板模式标签（月/年切换器）。
+  final String? modeYearText;
+
   /// 自定义文案扩展表（key → 文案），经 [text] 读取。
   final Map<String, String> messages;
 
@@ -315,6 +355,16 @@ class AntCalendarLocale {
   /// 生效的周标签（自周一起始）。
   List<String> get effectiveWeekLabels =>
       weekLabels ?? _fallback?.weekLabels ?? _zhDefaults.weekLabels!;
+
+  /// 生效的「月」面板模式标签。
+  String get effectiveModeMonthText =>
+      modeMonthText ??
+      _fallback?.modeMonthText ??
+      _zhDefaults.modeMonthText!;
+
+  /// 生效的「年」面板模式标签。
+  String get effectiveModeYearText =>
+      modeYearText ?? _fallback?.modeYearText ?? _zhDefaults.modeYearText!;
 
   /// 按周起始约定返回周标签序列（周日起始时把周一标签轮转到末位）。
   List<String> weekLabelsFor({required bool weekStartsOnMonday}) {
@@ -358,6 +408,8 @@ class AntCalendarLocale {
       other.yearSuffix == yearSuffix &&
       other.monthSuffix == monthSuffix &&
       _listEquals(other.weekLabels, weekLabels) &&
+      other.modeMonthText == modeMonthText &&
+      other.modeYearText == modeYearText &&
       other._fallback == _fallback;
 
   static bool _listEquals(List<String>? a, List<String>? b) {
@@ -379,6 +431,8 @@ class AntCalendarLocale {
         yearSuffix,
         monthSuffix,
         Object.hashAll(weekLabels ?? const []),
+        modeMonthText,
+        modeYearText,
       );
 }
 

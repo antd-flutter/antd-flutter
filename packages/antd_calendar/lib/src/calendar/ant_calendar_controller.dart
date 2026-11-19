@@ -20,6 +20,9 @@ abstract class AntCalendarMonthNavigator {
 
   /// 跳转到指定年月（month 取 1~12）。
   void navigateToYearMonth(int year, int month);
+
+  /// 回到今天（antd-mobile jumpToToday 对齐）。
+  void navigateToToday() {}
 }
 
 /// [AntCalendar] 的控制器：程序化翻页与年月跳转。
@@ -59,4 +62,8 @@ class AntCalendarController {
   /// 跳转到指定年月（month 取 1~12；week/twoWeeks 格式下同样定位到该月）。
   void goToYearMonth(int year, int month) =>
       _requireNavigator.navigateToYearMonth(year, month);
+
+  /// 回到今天（antd-mobile CalendarRef.jumpToToday 对齐）：
+  /// 面板切回当前月并聚焦今天。
+  void jumpToToday() => _requireNavigator.navigateToToday();
 }

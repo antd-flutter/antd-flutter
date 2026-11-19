@@ -409,6 +409,8 @@ class AntCalendarPicker extends StatefulWidget {
     this.onCancel,
     this.visible,
     this.onClose,
+    this.onMaskClick,
+    this.showCloseButton = true,
     this.closeOnMaskClick = true,
     this.child,
     this.locale,
@@ -462,6 +464,14 @@ class AntCalendarPicker extends StatefulWidget {
   /// 关闭回调。
   final VoidCallback? onClose;
 
+  /// 遮罩点击回调（antd-mobile onMaskClick 对齐）：经遮罩关闭面板时
+  /// 触发（onClose 之后）。
+  final VoidCallback? onMaskClick;
+
+  /// 是否展示面板右上角关闭按钮（antd-mobile Popup showCloseButton
+  /// 对齐，默认 true）。
+  final bool showCloseButton;
+
   /// 点击遮罩是否关闭。
   final bool closeOnMaskClick;
 
@@ -504,7 +514,7 @@ class _AntCalendarPickerState extends State<AntCalendarPicker> {
     final themeData = AntTheme.of(context);
     final loc = widget.locale ?? AntCalendarLocale.of(context);
     _currentValue = List<DateTime>.from(_lastConfirmed ?? []);
-    showModalBottomSheet<void>(
+    showModalBottomSheet<String>(
       context: context,
       isDismissible: widget.closeOnMaskClick,
       enableDrag: false,
@@ -526,14 +536,19 @@ class _AntCalendarPickerState extends State<AntCalendarPicker> {
           max: widget.max,
           weekStartsOn: widget.weekStartsOn,
           allowClear: widget.allowClear,
+          showCloseButton: widget.showCloseButton,
           onCancel: () {
-            Navigator.of(sheetContext).pop();
+            Navigator.of(sheetContext).pop('cancel');
             widget.onCancel?.call();
           },
           onConfirm: () {
-            Navigator.of(sheetContext).pop();
+            Navigator.of(sheetContext).pop('confirm');
             _lastConfirmed = List<DateTime>.from(_currentValue);
             widget.onConfirm?.call(_currentValue);
+          },
+          onCloseButtonTap: () {
+            Navigator.of(sheetContext).pop('close');
+            widget.onClose?.call();
           },
           onChange: (dates) {
             _currentValue = dates;
@@ -541,7 +556,9 @@ class _AntCalendarPickerState extends State<AntCalendarPicker> {
           },
         );
       },
-    ).then((_) {
+    ).then((result) {
+      // null = 遮罩点击 / 系统返回导致的关闭（antd-mobile onMaskClick 语义）。
+      if (result == null) widget.onMaskClick?.call();
       widget.onClose?.call();
     });
   }
@@ -570,8 +587,10 @@ class _CalendarSheet extends StatefulWidget {
     this.max,
     this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
     this.allowClear = true,
+    this.showCloseButton = false,
     this.onConfirm,
     this.onCancel,
+    this.onCloseButtonTap,
     this.onChange,
   });
 
@@ -585,8 +604,10 @@ class _CalendarSheet extends StatefulWidget {
   final DateTime? max;
   final AntCalendarWeekStartsOn weekStartsOn;
   final bool allowClear;
+  final bool showCloseButton;
   final VoidCallback? onConfirm;
   final VoidCallback? onCancel;
+  final VoidCallback? onCloseButtonTap;
   final ValueChanged<List<DateTime>>? onChange;
 
   @override
@@ -652,6 +673,19 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                   ),
                 ),
               ),
+              if (widget.showCloseButton)
+                GestureDetector(
+                  onTap: widget.onCloseButtonTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12.w),
+                    child: Icon(
+                      Icons.close,
+                      size: 20.w,
+                      color: t.colorTextSecondary,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

@@ -5,14 +5,22 @@
 ///
 /// 双端形态（经 [AntCalendarLayout] 自适应或手动指定）：
 /// - fullscreen（桌面，参考 antd v6）：大格子 + dateCell 内容插槽 +
-///   头部年月下拉快速跳转；
-/// - card（移动，参考 antd-mobile）：紧凑面板 + 滑动手势翻页。
+///   头部年月下拉快速跳转 + 月/年面板切换（mode/onPanelChange）；
+/// - card（移动，参考 antd-mobile）：紧凑面板 + 滑动手势翻页 +
+///   年导航按钮 + renderDate/renderLabel 分层渲染。
 ///
 /// 增强能力（吸收 table_calendar 3.3.0，Apache-2.0 源码研究改造）：
 /// - 格式切换：month / twoWeeks / week（[AntCalendarFormat]）；
 /// - range 范围选择与 multiSelect 多选；
 /// - 事件点标记（[AntCalendar.eventLoader]）；
 /// - 头部年月文字可点弹出年月选择面板（内部复用 AntPickerView）。
+///
+/// 全量功能对齐（桌面 antd v6 + 移动 antd-mobile v5）：
+/// - 三层自定义渲染：cellRender / fullCellRender / dateCell；
+/// - 月面板自定义：monthCellRender / monthFullCellRender；
+/// - validRange 有效范围、min/max、minPage/maxPage 导航裁剪；
+/// - mode 受控（month/year 面板）+ onPanelChange；
+/// - onChange 受控回调 + allowClear 清除选择。
 ///
 /// ```dart
 /// AntCalendar(
@@ -51,15 +59,34 @@ class AntCalendar extends StatefulWidget {
     this.value,
     this.defaultValue,
     this.onSelect,
+    this.onChange,
     this.weekStartsOn = AntCalendarWeekStartsOn.monday,
     this.fullscreen = false,
     this.dateCell,
+    this.cellRender,
+    this.fullCellRender,
+    this.monthCellRender,
+    this.monthFullCellRender,
     this.disabledDate,
+    this.validRange,
+    this.min,
+    this.max,
+    this.minPage,
+    this.maxPage,
     this.header,
     this.layout = AntCalendarLayout.auto,
     this.calendarFormat = AntCalendarFormat.month,
     this.onFormatChanged,
     this.showFormatSwitcher = false,
+    this.showModeSwitcher,
+    this.mode,
+    this.initialMode = AntCalendarMode.month,
+    this.onModeChanged,
+    this.onPanelChange,
+    this.onPageChange,
+    this.renderDate,
+    this.renderLabel,
+    this.allowClear = false,
     this.selectionMode = AntCalendarSelectionMode.single,
     this.onRangeSelected,
     this.multiSelect = false,
@@ -67,6 +94,7 @@ class AntCalendar extends StatefulWidget {
     this.defaultSelectedDays = const [],
     this.onSelectMulti,
     this.eventLoader,
+    this.showYearNavButtons = false,
     this.enableYearMonthDropdown = true,
     this.locale,
     this.controller,
@@ -78,8 +106,14 @@ class AntCalendar extends StatefulWidget {
   /// 非受控初始选中日期。
   final DateTime? defaultValue;
 
-  /// 日期被选中时的回调（所有选择模式下均触发，保持向后兼容）。
+  /// 日期被选中时的回调（所有选择模式下均触发，保持向后兼容；
+  /// allowClear 清除选择时不触发）。
   final ValueChanged<DateTime>? onSelect;
+
+  /// 选中变化回调（antd v6 onChange / antd-mobile onChange 对齐）：
+  /// 单选选中时传日期，allowClear 清除时传 null；range/multi 模式
+  /// 下传本次点击的日期。
+  final ValueChanged<DateTime?>? onChange;
 
   /// 周起始日。
   final AntCalendarWeekStartsOn weekStartsOn;
@@ -89,11 +123,42 @@ class AntCalendar extends StatefulWidget {
   /// 兼容参数：true 时强制 fullscreen 形态（优先级高于 [layout]）。
   final bool fullscreen;
 
-  /// 自定义日期单元格渲染回调，返回 null 时使用默认渲染。
+  /// 自定义日期单元格内容渲染回调（三层：fullCellRender > cellRender >
+  /// dateCell > 默认），返回 null 时回退下一层。
   final AntCalendarDateCellBuilder? dateCell;
+
+  /// 单元格内容渲染回调（antd v6 cellRender 对齐，带状态 info；
+  /// 优先级高于 [dateCell]）。
+  final AntCalendarCellRender? cellRender;
+
+  /// 整格渲染回调（antd v6 fullCellRender 对齐）：完全接管单元格
+  /// 渲染（含背景/边框/选择态视觉，点击仍由组件处理）。
+  final AntCalendarFullCellRender? fullCellRender;
+
+  /// 月面板单元格内容渲染回调（antd v6 monthCellRender 对齐）。
+  final AntCalendarMonthCellRender? monthCellRender;
+
+  /// 月面板整格渲染回调（antd v6 monthFullCellRender 对齐）。
+  final AntCalendarMonthFullCellRender? monthFullCellRender;
 
   /// 判断日期是否不可选。
   final bool Function(DateTime date)? disabledDate;
+
+  /// 有效日期范围（antd v6 validRange 对齐）：范围外日期不可交互，
+  /// 面板导航裁剪在范围内。
+  final AntCalendarValidRange? validRange;
+
+  /// 最小可选日期（antd-mobile min 对齐）。
+  final DateTime? min;
+
+  /// 最大可选日期（antd-mobile max 对齐）。
+  final DateTime? max;
+
+  /// 面板导航最小年月页（antd-mobile minPage 对齐）。
+  final AntCalendarPage? minPage;
+
+  /// 面板导航最大年月页（antd-mobile maxPage 对齐）。
+  final AntCalendarPage? maxPage;
 
   /// 自定义头部内容，为 null 时使用默认头部（年月标题 + 导航 + 本月按钮）。
   final Widget? header;
@@ -110,6 +175,38 @@ class AntCalendar extends StatefulWidget {
 
   /// 是否在头部展示格式切换按钮（可隐藏，默认 false）。
   final bool showFormatSwitcher;
+
+  /// 是否展示月/年面板切换器（antd v6 头部 Radio 对齐）；
+  /// null 时仅在 fullscreen 形态展示。
+  final bool? showModeSwitcher;
+
+  /// 受控面板模式（month / year 面板；R35 受控语义：非 null 时以参数为准）。
+  final AntCalendarMode? mode;
+
+  /// 非受控初始面板模式（默认 month）。
+  final AntCalendarMode initialMode;
+
+  /// 面板模式变化回调。
+  final ValueChanged<AntCalendarMode>? onModeChanged;
+
+  /// 面板变化回调（antd v6 onPanelChange 对齐）：
+  /// 展示月份变化或面板模式切换时触发。
+  final AntCalendarPanelChangeCallback? onPanelChange;
+
+  /// 展示月份变化回调（antd-mobile onPageChange 对齐）。
+  final void Function(int year, int month)? onPageChange;
+
+  /// 日期数字位自定义渲染（antd-mobile renderDate 对齐），
+  /// null 时渲染默认日期数字。
+  final Widget? Function(DateTime date)? renderDate;
+
+  /// 日卡子标题渲染（antd-mobile renderLabel 对齐，日期数字下方
+  /// 子标题位，如农历/节日），null 时渲染事件点标记。
+  final Widget? Function(DateTime date)? renderLabel;
+
+  /// 点击已选日期是否清除选择（antd-mobile allowClear 对齐），
+  /// 仅单选模式生效；清除时 [onChange] 收到 null、[onSelect] 不触发。
+  final bool allowClear;
 
   /// 选择模式：单选或范围选择。
   final AntCalendarSelectionMode selectionMode;
@@ -133,6 +230,10 @@ class AntCalendar extends StatefulWidget {
   /// （table_calendar eventLoader 对齐）。
   final List<DateTime> Function(DateTime day)? eventLoader;
 
+  /// 是否展示年份导航按钮（双箭头，antd-mobile prevYearButton/
+  /// nextYearButton 对齐），默认 false。
+  final bool showYearNavButtons;
+
   /// 头部年月文字是否可点弹出年月快速跳转面板（antd v6 行为，默认 true）。
   final bool enableYearMonthDropdown;
 
@@ -141,7 +242,8 @@ class AntCalendar extends StatefulWidget {
 
   /// 程序化控制器（R35.2 Controller 优先）：经 [AntCalendarController
   /// .previousMonth]/[AntCalendarController.nextMonth]/
-  /// [AntCalendarController.goToYearMonth] 程序化翻页与跳转。
+  /// [AntCalendarController.goToYearMonth]/[AntCalendarController.jumpToToday]
+  /// 程序化翻页与跳转。
   final AntCalendarController? controller;
 
   @override
@@ -157,6 +259,7 @@ class _AntCalendarState extends State<AntCalendar>
   late DateTime _currentMonth;
   late DateTime _focusedDate;
   AntCalendarFormat? _internalFormat;
+  AntCalendarMode? _internalMode;
 
   /// 当前生效的选中日期（去除时分秒后比较）。
   DateTime? get _selectedDate =>
@@ -165,6 +268,10 @@ class _AntCalendarState extends State<AntCalendar>
   /// 当前生效的格式（受控优先）。
   AntCalendarFormat get _format =>
       _internalFormat ?? widget.calendarFormat;
+
+  /// 当前生效的面板模式（受控优先，非受控取 initialMode）。
+  AntCalendarMode get _mode =>
+      _internalMode ?? widget.mode ?? widget.initialMode;
 
   /// 当前生效的国际化文案（参数优先，其次 Provider 注入，回退中文预设）。
   AntCalendarLocale get _locale =>
@@ -228,6 +335,9 @@ class _AntCalendarState extends State<AntCalendar>
     if (widget.calendarFormat != oldWidget.calendarFormat) {
       _internalFormat = null;
     }
+    if (widget.mode != null && widget.mode != oldWidget.mode) {
+      _internalMode = null;
+    }
     if (widget.selectedDays != null &&
         widget.selectedDays != oldWidget.selectedDays) {
       _internalSelectedDays = List<DateTime>.from(
@@ -240,10 +350,49 @@ class _AntCalendarState extends State<AntCalendar>
 
   bool _isSameDay(DateTime? a, DateTime? b) => calendarIsSameDay(a, b);
 
-  bool _isDisabled(DateTime day) => widget.disabledDate?.call(day) ?? false;
+  bool _isSameMonth(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month;
+
+  bool _isDisabled(DateTime day) {
+    if (widget.disabledDate?.call(day) ?? false) return true;
+    if (widget.validRange != null && !widget.validRange!.contains(day)) {
+      return true;
+    }
+    if (widget.min != null && day.isBefore(_dateOnly(widget.min!))) return true;
+    if (widget.max != null && day.isAfter(_dateOnly(widget.max!))) return true;
+    return false;
+  }
+
+  /// 月份是否被导航范围裁剪（validRange / minPage / maxPage 语义，
+  /// 按月粒度：整月与允许范围无交集才禁止导航）。
+  bool _isMonthBlocked(DateTime month) {
+    if (widget.validRange != null) {
+      final range = widget.validRange!;
+      final monthStart = DateTime(month.year, month.month);
+      final monthEnd = DateTime(month.year, month.month + 1, 0);
+      if (monthEnd.isBefore(range.start) || monthStart.isAfter(range.end)) {
+        return true;
+      }
+    }
+    if (widget.minPage != null &&
+        widget.minPage!.compareTo(month.year, month.month) > 0) {
+      return true;
+    }
+    if (widget.maxPage != null &&
+        widget.maxPage!.compareTo(month.year, month.month) < 0) {
+      return true;
+    }
+    return false;
+  }
 
   bool get _weekStartsOnMonday =>
       widget.weekStartsOn == AntCalendarWeekStartsOn.monday;
+
+  /// 是否展示月/年面板切换器（null 时仅 fullscreen 展示）。
+  bool get _showModeSwitcher =>
+      widget.showModeSwitcher ??
+      (widget.fullscreen ||
+          widget.layout == AntCalendarLayout.fullscreen);
 
   /// 生成当前格式下的可见日期列表（网格计算委托 ui 日历网格引擎）。
   List<DateTime> _buildGridDays() {
@@ -266,6 +415,11 @@ class _AntCalendarState extends State<AntCalendar>
     }
   }
 
+  void _notifyPanelChanged(DateTime date, AntCalendarMode mode) {
+    widget.onPanelChange?.call(date, mode);
+    widget.onPageChange?.call(date.year, date.month);
+  }
+
   void _onDayTap(DateTime day) {
     final dayOnly = _dateOnly(day);
     if (_isDisabled(dayOnly)) return;
@@ -284,6 +438,7 @@ class _AntCalendarState extends State<AntCalendar>
       }
       widget.onSelectMulti?.call(next);
       widget.onSelect?.call(dayOnly);
+      widget.onChange?.call(dayOnly);
       return;
     }
 
@@ -303,6 +458,7 @@ class _AntCalendarState extends State<AntCalendar>
           });
         }
         widget.onSelect?.call(dayOnly);
+        widget.onChange?.call(dayOnly);
         widget.onRangeSelected?.call(lo, hi);
         return;
       }
@@ -316,6 +472,16 @@ class _AntCalendarState extends State<AntCalendar>
         setState(() {});
       }
       widget.onSelect?.call(dayOnly);
+      widget.onChange?.call(dayOnly);
+      return;
+    }
+
+    // 单选模式：allowClear 支持点击已选日期清除选择。
+    if (widget.allowClear && _isSameDay(_selectedDate, dayOnly)) {
+      if (widget.value == null) {
+        setState(() => _internalValue = null);
+      }
+      widget.onChange?.call(null);
       return;
     }
 
@@ -333,12 +499,22 @@ class _AntCalendarState extends State<AntCalendar>
       });
     }
     widget.onSelect?.call(dayOnly);
+    widget.onChange?.call(dayOnly);
   }
 
   void _setFormat(AntCalendarFormat format) {
     if (format == _format) return;
     setState(() => _internalFormat = format);
     widget.onFormatChanged?.call(format);
+  }
+
+  void _setMode(AntCalendarMode mode) {
+    if (mode == _mode) return;
+    if (widget.mode == null) {
+      setState(() => _internalMode = mode);
+    }
+    widget.onModeChanged?.call(mode);
+    widget.onPanelChange?.call(_focusedDate, mode);
   }
 
   void _goToMonth(int delta) {
@@ -351,15 +527,26 @@ class _AntCalendarState extends State<AntCalendar>
         _focusedDate = _focusedDate.add(Duration(days: delta * step));
         _currentMonth = DateTime(_focusedDate.year, _focusedDate.month);
       });
+      _notifyPanelChanged(_focusedDate, _mode);
       return;
     }
+    final target = DateTime(_currentMonth.year, _currentMonth.month + delta);
+    if (_isMonthBlocked(target)) return;
     setState(() {
-      _currentMonth = DateTime(
-        _currentMonth.year,
-        _currentMonth.month + delta,
-      );
-      _focusedDate = DateTime(_currentMonth.year, _currentMonth.month, 1);
+      _currentMonth = target;
+      _focusedDate = DateTime(target.year, target.month, 1);
     });
+    _notifyPanelChanged(_focusedDate, _mode);
+  }
+
+  void _goToYear(int delta) {
+    final target = DateTime(_currentMonth.year + delta, _currentMonth.month);
+    if (_isMonthBlocked(target)) return;
+    setState(() {
+      _currentMonth = target;
+      _focusedDate = DateTime(target.year, target.month, 1);
+    });
+    _notifyPanelChanged(_focusedDate, _mode);
   }
 
   void _goToCurrentMonth() {
@@ -368,13 +555,17 @@ class _AntCalendarState extends State<AntCalendar>
       _currentMonth = DateTime(now.year, now.month);
       _focusedDate = _dateOnly(now);
     });
+    _notifyPanelChanged(_currentMonth, _mode);
   }
 
   void _jumpToYearMonth(int year, int month) {
+    final target = DateTime(year, month);
+    if (_isMonthBlocked(target)) return;
     setState(() {
-      _currentMonth = DateTime(year, month);
+      _currentMonth = target;
       _focusedDate = DateTime(year, month, 1);
     });
+    _notifyPanelChanged(target, _mode);
   }
 
   // AntCalendarMonthNavigator（AntCalendarController 程序化入口）。
@@ -386,12 +577,16 @@ class _AntCalendarState extends State<AntCalendar>
   void navigateToYearMonth(int year, int month) => _jumpToYearMonth(year, month);
 
   @override
+  void navigateToToday() => _goToCurrentMonth();
+
+  @override
   void dispose() {
     widget.controller?.detach(this);
     super.dispose();
   }
 
-  /// 头部年月快速跳转面板（antd v6 行为，复用 AntPickerView 滚轮）。
+  /// 头部年月快速跳转面板（antd v6 行为，复用 AntPickerView 滚轮，
+  /// 列文案走 locale yearLabel/monthLabel）。
   void _showYearMonthDropdown() {
     final t = AntTheme.of(context);
     final loc = widget.locale ?? AntCalendarLocale.of(context);
@@ -399,11 +594,11 @@ class _AntCalendarState extends State<AntCalendar>
       for (var y = DateTime.now().year - _kYearDropdownPastYears;
           y <= DateTime.now().year + _kYearDropdownFutureYears;
           y++)
-        AntPickerColumnItem(label: '$y年', value: '$y'),
+        AntPickerColumnItem(label: loc.yearLabel(y), value: '$y'),
     ];
     final months = <AntPickerColumnItem>[
       for (var m = 1; m <= 12; m++)
-        AntPickerColumnItem(label: '$m月', value: '$m'),
+        AntPickerColumnItem(label: loc.monthLabel(m), value: '$m'),
     ];
     String? selectedYear = '${_currentMonth.year}';
     String? selectedMonth = '${_currentMonth.month}';
@@ -482,20 +677,49 @@ class _AntCalendarState extends State<AntCalendar>
       weekStartsOnMonday: _weekStartsOnMonday,
     );
 
-    final grid = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(
-        (days.length / kCalendarDaysPerWeek).ceil(),
-        (row) => Row(
-          children: List.generate(kCalendarDaysPerWeek, (col) {
-            final day = days[row * kCalendarDaysPerWeek + col];
-            return Expanded(
-              child: _buildDayCell(t, _dateOnly(day), today, fullscreen),
-            );
-          }),
-        ),
-      ),
-    );
+    final body = _mode == AntCalendarMode.year
+        ? _buildMonthPanel(t, fullscreen)
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(vertical: fullscreen ? 8.w : 4.w),
+                child: Row(
+                  children: weekLabels
+                      .map(
+                        (label) => Expanded(
+                          child: Center(
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize:
+                                    fullscreen ? t.fontSize : t.fontSizeSM,
+                                color: t.colorTextSecondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              // 移动（card）形态支持左右滑动手势翻页（antd-mobile 惯例）。
+              fullscreen
+                  ? _buildDayGrid(t, days, today, fullscreen)
+                  : GestureDetector(
+                      onHorizontalDragEnd: (details) {
+                        final v = details.primaryVelocity ?? 0;
+                        if (v < 0) {
+                          _goToMonth(1);
+                        } else if (v > 0) {
+                          _goToMonth(-1);
+                        }
+                      },
+                      child: _buildDayGrid(t, days, today, fullscreen),
+                    ),
+            ],
+          );
 
     return Container(
       padding: EdgeInsets.all(fullscreen ? 8.w : 4.w),
@@ -511,53 +735,47 @@ class _AntCalendarState extends State<AntCalendar>
             widget.header!
           else
             _buildHeader(t, fullscreen),
-          Padding(
-            padding:
-                EdgeInsets.symmetric(vertical: fullscreen ? 8.w : 4.w),
-            child: Row(
-              children: weekLabels
-                  .map(
-                    (label) => Expanded(
-                      child: Center(
-                        child: Text(
-                          label,
-                          style: TextStyle(
-                            fontSize:
-                                fullscreen ? t.fontSize : t.fontSizeSM,
-                            color: t.colorTextSecondary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-          // 移动（card）形态支持左右滑动手势翻页（antd-mobile 惯例）。
-          fullscreen
-              ? grid
-              : GestureDetector(
-                  onHorizontalDragEnd: (details) {
-                    final v = details.primaryVelocity ?? 0;
-                    if (v < 0) {
-                      _goToMonth(1);
-                    } else if (v > 0) {
-                      _goToMonth(-1);
-                    }
-                  },
-                  child: grid,
-                ),
+          body,
         ],
       ),
     );
   }
 
-  /// 默认头部：年月标题（可点跳转）+ 格式切换 + 导航 + 「本月」按钮。
+  Widget _buildDayGrid(
+    AntThemeData t,
+    List<DateTime> days,
+    DateTime today,
+    bool fullscreen,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(
+        (days.length / kCalendarDaysPerWeek).ceil(),
+        (row) => Row(
+          children: List.generate(kCalendarDaysPerWeek, (col) {
+            final day = days[row * kCalendarDaysPerWeek + col];
+            return Expanded(
+              child: _buildDayCell(t, _dateOnly(day), today, fullscreen),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  /// 默认头部：年导航 + 月导航 + 年月标题（可点跳转）+ 模式切换 +
+  /// 格式切换 + 「本月」按钮。
   Widget _buildHeader(AntThemeData t, bool fullscreen) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.w),
       child: Row(
         children: [
+          if (widget.showYearNavButtons)
+            _buildNavIcon(
+              t,
+              Icons.keyboard_double_arrow_left,
+              () => _goToYear(-1),
+            ),
           _buildNavIcon(t, Icons.chevron_left, () => _goToMonth(-1)),
           Expanded(
             child: Row(
@@ -593,6 +811,10 @@ class _AntCalendarState extends State<AntCalendar>
                     ),
                   ),
                 ),
+                if (_showModeSwitcher) ...[
+                  SizedBox(width: 8.w),
+                  _buildModeSwitcher(t),
+                ],
               ],
             ),
           ),
@@ -612,8 +834,53 @@ class _AntCalendarState extends State<AntCalendar>
             ),
           ),
           _buildNavIcon(t, Icons.chevron_right, () => _goToMonth(1)),
+          if (widget.showYearNavButtons)
+            _buildNavIcon(
+              t,
+              Icons.keyboard_double_arrow_right,
+              () => _goToYear(1),
+            ),
         ],
       ),
+    );
+  }
+
+  /// 月/年面板切换器（antd v6 头部 Radio 对齐）。
+  Widget _buildModeSwitcher(AntThemeData t) {
+    final items = {
+      AntCalendarMode.month: _locale.effectiveModeMonthText,
+      AntCalendarMode.year: _locale.effectiveModeYearText,
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: items.entries.map((entry) {
+        final active = entry.key == _mode;
+        return GestureDetector(
+          onTap: () => _setMode(entry.key),
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.w),
+            decoration: BoxDecoration(
+              color: active ? t.colorPrimary : Colors.transparent,
+              borderRadius: BorderRadius.horizontal(
+                left: entry.key == AntCalendarMode.month
+                    ? Radius.circular(t.borderRadiusSM)
+                    : Radius.zero,
+                right: entry.key == AntCalendarMode.year
+                    ? Radius.circular(t.borderRadiusSM)
+                    : Radius.zero,
+              ),
+            ),
+            child: Text(
+              entry.value,
+              style: TextStyle(
+                fontSize: t.fontSizeSM,
+                color: active ? Colors.white : t.colorTextSecondary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -665,6 +932,75 @@ class _AntCalendarState extends State<AntCalendar>
     );
   }
 
+  /// 年面板：12 个月单元格网格（antd v6 year mode 对齐）。
+  Widget _buildMonthPanel(AntThemeData t, bool fullscreen) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var row = 0; row < 3; row++)
+          Row(
+            children: [
+              for (var col = 0; col < 4; col++)
+                Expanded(
+                  child: _buildMonthCell(
+                    t,
+                    DateTime(_currentMonth.year, row * 4 + col + 1),
+                    fullscreen,
+                  ),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMonthCell(AntThemeData t, DateTime month, bool fullscreen) {
+    final disabled = _isMonthBlocked(month) ||
+        (widget.min != null &&
+            month.isBefore(DateTime(widget.min!.year, widget.min!.month))) ||
+        (widget.max != null &&
+            month.isAfter(DateTime(widget.max!.year, widget.max!.month)));
+    final isCurrent = _isSameMonth(month, DateTime.now());
+
+    Widget content = widget.monthFullCellRender?.call(month) ??
+        Container(
+          margin: EdgeInsets.all(4.w),
+          constraints: BoxConstraints(minHeight: fullscreen ? 64.w : 36.w),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(t.borderRadiusSM),
+            border: Border.all(
+              color: isCurrent ? t.colorPrimary : t.colorSplit,
+              width: 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: widget.monthCellRender?.call(month) ??
+              Text(
+                _locale.monthLabel(month.month),
+                style: TextStyle(
+                  fontSize: fullscreen ? t.fontSizeLG : t.fontSize,
+                  fontWeight: FontWeight.w500,
+                  color: disabled
+                      ? t.colorTextDisabled
+                      : isCurrent
+                          ? t.colorPrimary
+                          : t.colorText,
+                ),
+              ),
+        );
+
+    return GestureDetector(
+      onTap: disabled
+          ? null
+          : () {
+              _jumpToYearMonth(month.year, month.month);
+              _setMode(AntCalendarMode.month);
+            },
+      behavior: HitTestBehavior.opaque,
+      child: content,
+    );
+  }
+
   List<DateTime> _eventsOf(DateTime day) =>
       widget.eventLoader?.call(day) ?? const [];
 
@@ -698,6 +1034,13 @@ class _AntCalendarState extends State<AntCalendar>
         _internalRangeEnd == null;
 
     final disabled = _isDisabled(day);
+    final info = AntCalendarCellRenderInfo(
+      isToday: isToday,
+      isSelected: isSelected,
+      isCurrentMonth: isCurrentMonth,
+      isDisabled: disabled,
+      isInValidRange: widget.validRange?.contains(day) ?? true,
+    );
 
     Color textColor;
     Color? bgColor;
@@ -717,7 +1060,8 @@ class _AntCalendarState extends State<AntCalendar>
       textColor = t.colorText;
     }
 
-    Widget content = widget.dateCell?.call(
+    Widget content = widget.cellRender?.call(day, info) ??
+        widget.dateCell?.call(
           day,
           isCurrentMonth: isCurrentMonth,
           isToday: isToday,
@@ -725,35 +1069,43 @@ class _AntCalendarState extends State<AntCalendar>
         ) ??
         _buildDefaultCellContent(t, day, textColor, isCurrentMonth, events);
 
+    Widget cell = Container(
+      margin: EdgeInsets.all(fullscreen ? 2.w : 1.w),
+      constraints: BoxConstraints(
+        minHeight: fullscreen ? 72.w : 32.w,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(
+          fullscreen ? t.borderRadiusSM : t.borderRadius,
+        ),
+        border: (isToday && !isSelected) ||
+                (isRangePending && _isSameDay(day, _internalRangeStart))
+            ? Border.all(color: t.colorPrimary, width: 1)
+            : null,
+      ),
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(
+        horizontal: 2.w,
+        vertical: fullscreen ? 4.w : 0,
+      ),
+      child: content,
+    );
+
+    // fullCellRender 整格接管（antd v6 fullCellRender 对齐），
+    // 点击仍由组件统一处理。
+    final rendered = widget.fullCellRender?.call(day, info);
+    if (rendered != null) cell = rendered;
+
     return GestureDetector(
       onTap: disabled ? null : () => _onDayTap(day),
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        margin: EdgeInsets.all(fullscreen ? 2.w : 1.w),
-        constraints: BoxConstraints(
-          minHeight: fullscreen ? 72.w : 32.w,
-        ),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(
-            fullscreen ? t.borderRadiusSM : t.borderRadius,
-          ),
-          border: (isToday && !isSelected) ||
-                  (isRangePending && _isSameDay(day, _internalRangeStart))
-              ? Border.all(color: t.colorPrimary, width: 1)
-              : null,
-        ),
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(
-          horizontal: 2.w,
-          vertical: fullscreen ? 4.w : 0,
-        ),
-        child: content,
-      ),
+      child: cell,
     );
   }
 
-  /// 默认单元格内容：日期数字 + 事件点标记；全屏模式下非本月灰显。
+  /// 默认单元格内容：日期数字（renderDate 可覆盖）+ 子标题
+  /// （renderLabel / 事件点标记）。
   Widget _buildDefaultCellContent(
     AntThemeData t,
     DateTime day,
@@ -762,45 +1114,47 @@ class _AntCalendarState extends State<AntCalendar>
     List<DateTime> events,
   ) {
     final fullscreen = widget.fullscreen || _isFullscreen(context);
+    final Widget? subtitle = widget.renderLabel?.call(day) ??
+        (events.isNotEmpty
+            ? Padding(
+                padding: EdgeInsets.only(top: fullscreen ? 4.w : 1.w),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < events.length && i < _kMaxEventDots; i++)
+                      Container(
+                        width: fullscreen ? 6.w : 3.w,
+                        height: fullscreen ? 6.w : 3.w,
+                        margin: EdgeInsets.symmetric(horizontal: 1.w),
+                        decoration: BoxDecoration(
+                          color: textColor == Colors.white
+                              ? Colors.white
+                              : t.colorPrimary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
+              )
+            : fullscreen
+                ? SizedBox(height: 4.w)
+                : null);
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          '${day.day}',
-          style: TextStyle(
-            fontSize: fullscreen ? t.fontSizeXL : t.fontSizeSM,
-            color: fullscreen && !isCurrentMonth
-                ? t.colorTextDisabled
-                : textColor,
-            fontWeight: fullscreen ? FontWeight.w500 : FontWeight.w400,
-          ),
-        ),
-        if (events.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: fullscreen ? 4.w : 1.w),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0;
-                    i < events.length && i < _kMaxEventDots;
-                    i++)
-                  Container(
-                    width: fullscreen ? 6.w : 3.w,
-                    height: fullscreen ? 6.w : 3.w,
-                    margin: EdgeInsets.symmetric(horizontal: 1.w),
-                    decoration: BoxDecoration(
-                      color: textColor == Colors.white
-                          ? Colors.white
-                          : t.colorPrimary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-              ],
+        widget.renderDate?.call(day) ??
+            Text(
+              '${day.day}',
+              style: TextStyle(
+                fontSize: fullscreen ? t.fontSizeXL : t.fontSizeSM,
+                color: fullscreen && !isCurrentMonth
+                    ? t.colorTextDisabled
+                    : textColor,
+                fontWeight: fullscreen ? FontWeight.w500 : FontWeight.w400,
+              ),
             ),
-          )
-        else if (fullscreen)
-          SizedBox(height: 4.w),
+        if (subtitle != null) subtitle,
       ],
     );
   }

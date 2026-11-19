@@ -12,7 +12,7 @@ class AntCalendarPicker
 
 ## 构造函数
 
-### `AntCalendarPicker({super.key, this.selectionMode = AntCalendarSelectionMode.single, this.value, this.defaultValue = const [], this.onChange, this.min, this.max, this.weekStartsOn = AntCalendarWeekStartsOn.sunday, this.allowClear = true, this.title, this.confirmText, this.cancelText, this.onConfirm, this.onCancel, this.visible, this.onClose, this.closeOnMaskClick = true, this.child, this.locale})`
+### `AntCalendarPicker({super.key, this.selectionMode = AntCalendarSelectionMode.single, this.value, this.defaultValue = const [], this.onChange, this.min, this.max, this.weekStartsOn = AntCalendarWeekStartsOn.sunday, this.allowClear = true, this.title, this.confirmText, this.cancelText, this.onConfirm, this.onCancel, this.visible, this.onClose, this.onMaskClick, this.showCloseButton = true, this.closeOnMaskClick = true, this.child, this.locale})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -31,6 +31,8 @@ class AntCalendarPicker
 | `onCancel` | `VoidCallback?` | 可选 | — |
 | `visible` | `bool?` | 可选 | — |
 | `onClose` | `VoidCallback?` | 可选 | — |
+| `onMaskClick` | `VoidCallback?` | 可选 | — |
+| `showCloseButton` | `bool` | = true | — |
 | `closeOnMaskClick` | `bool` | = true | — |
 | `child` | `Widget?` | 可选 | — |
 | `locale` | `AntCalendarLocale?` | 可选 | — |
@@ -52,7 +54,9 @@ class AntCalendarPicker
 | `onChange` | `ValueChanged<List<DateTime>>?` | 选择变化回调（弹窗内选择时触发） |
 | `onClose` | `VoidCallback?` | 关闭回调 |
 | `onConfirm` | `ValueChanged<List<DateTime>>?` | 确认回调 |
+| `onMaskClick` | `VoidCallback?` | 遮罩点击回调（antd-mobile onMaskClick 对齐）：经遮罩关闭面板时 触发（onClose 之后） |
 | `selectionMode` | `AntCalendarSelectionMode` | 选择模式 |
+| `showCloseButton` | `bool` | 是否展示面板右上角关闭按钮（antd-mobile Popup showCloseButton 对齐，默认 true） |
 | `title` | `String?` | 面板标题 |
 | `value` | `List<DateTime>?` | 受控值 |
 | `visible` | `bool?` | 受控可见性 |

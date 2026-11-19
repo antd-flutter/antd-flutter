@@ -12,7 +12,7 @@ class AntCalendarLocale
 
 ## 构造函数
 
-### `AntCalendarLocale({this.languageCode = 'zh', this.monthTitlePattern, this.todayText, this.confirmText, this.cancelText, this.yearSuffix, this.monthSuffix, this.weekLabels, this.messages = const {}, AntCalendarLocale? fallback})`
+### `AntCalendarLocale({this.languageCode = 'zh', this.monthTitlePattern, this.todayText, this.confirmText, this.cancelText, this.yearSuffix, this.monthSuffix, this.weekLabels, this.modeMonthText, this.modeYearText, this.messages = const {}, AntCalendarLocale? fallback})`
 
 创建国际化配置（未提供的字段逐级回退 `fallback`，最终回退中文预设）。
 
@@ -26,10 +26,12 @@ class AntCalendarLocale
 | `yearSuffix` | `String?` | 可选 | — |
 | `monthSuffix` | `String?` | 可选 | — |
 | `weekLabels` | `List<String>?` | 可选 | — |
+| `modeMonthText` | `String?` | 可选 | — |
+| `modeYearText` | `String?` | 可选 | — |
 | `messages` | `Map<String, String>` | = const {} | — |
 | `fallback` | `AntCalendarLocale?` | 可选 | — |
 
-### `AntCalendarLocale._raw({required this.languageCode, required this.monthTitlePattern, required this.todayText, required this.confirmText, required this.cancelText, required this.yearSuffix, required this.monthSuffix, required this.weekLabels})`
+### `AntCalendarLocale._raw({required this.languageCode, required this.monthTitlePattern, required this.todayText, required this.confirmText, required this.cancelText, required this.yearSuffix, required this.monthSuffix, required this.weekLabels, this.modeMonthText, this.modeYearText})`
 
 内建预设构造（全字段必填，作为回退终点）。
 
@@ -43,6 +45,8 @@ class AntCalendarLocale
 | `yearSuffix` | `String?` | 可选 | — |
 | `monthSuffix` | `String?` | 可选 | — |
 | `weekLabels` | `List<String>?` | 可选 | — |
+| `modeMonthText` | `String?` | 可选 | — |
+| `modeYearText` | `String?` | 可选 | — |
 
 ## 字段
 
@@ -53,6 +57,8 @@ class AntCalendarLocale
 | `confirmText` | `String?` | 确认按钮文案 |
 | `languageCode` | `String` | 语言码，如 zh、en、zh-CN |
 | `messages` | `Map<String, String>` | 自定义文案扩展表（key → 文案），经 text 读取 |
+| `modeMonthText` | `String?` | 「月」面板模式标签（月/年切换器） |
+| `modeYearText` | `String?` | 「年」面板模式标签（月/年切换器） |
 | `monthSuffix` | `String?` | 月份后缀（年月跳转滚轮列，如「6月」「6월」） |
 | `monthTitlePattern` | `String?` | 头部年月标题模板，{year} / {month} 为占位符 |
 | `todayText` | `String?` | 「本月 / 回到今天」按钮文案 |
@@ -80,6 +86,8 @@ class AntCalendarLocale
 | --- | --- | --- |
 | `effectiveCancelText` | `String` | 生效的取消文案 |
 | `effectiveConfirmText` | `String` | 生效的确认文案 |
+| `effectiveModeMonthText` | `String` | 生效的「月」面板模式标签 |
+| `effectiveModeYearText` | `String` | 生效的「年」面板模式标签 |
 | `effectiveMonthSuffix` | `String` | 生效的月份后缀 |
 | `effectiveMonthTitlePattern` | `String` | 生效的月标题模板 |
 | `effectiveTodayText` | `String` | 生效的「本月」文案 |
