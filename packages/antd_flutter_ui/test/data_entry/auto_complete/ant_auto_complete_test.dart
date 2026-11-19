@@ -282,4 +282,63 @@ void main() {
       expect(countBorderedDecorations(root), 1);
     });
   });
+
+  group('AntAutoComplete — 验收回归（面板贴齐 / 禁用灰底）', () {
+    testWidgets('联想面板紧贴触发元素：面板 top − 触发 bottom ≈ gap(4±2)', (tester) async {
+      await tester.pumpWidget(_wrap(const AntAutoComplete(options: _options)),);
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      final panel =
+          tester.getRect(find.byKey(const Key('ant_auto_complete_panel')));
+      final trigger = tester.getRect(find.byType(AntAutoComplete));
+      final actualGap = panel.top - trigger.bottom;
+      expect(actualGap, greaterThanOrEqualTo(2));
+      expect(actualGap, lessThanOrEqualTo(6));
+    });
+
+    testWidgets('禁用态背景为灰底（colorBgContainerDisabled），非主题白色填充', (tester) async {
+      // 模拟 Material 桥接主题注入 filled 白底（双层白底根因场景）
+      await tester.pumpWidget(AntScreenUtilInit(
+        builder: (context, _) => MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+            ),
+          ),
+          home: Scaffold(
+            body: AntTheme(
+              data: AntThemeData.light(),
+              child: const Material(
+                child: AntAutoComplete(
+                  options: _options,
+                  disabled: true,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),);
+      await tester.pumpAndSettle();
+      // 输入框填充透明（不盖掉容器灰底）
+      final decoration =
+          tester.widget<TextField>(find.byType(TextField)).decoration!;
+      expect(decoration.filled, true);
+      expect(decoration.fillColor, Colors.transparent);
+      // 外层容器为禁用灰底 token
+      final t = AntThemeData.light();
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(AntAutoComplete),
+              matching: find.byWidgetPredicate(
+                (w) => w is Container && w.decoration is BoxDecoration,
+              ),
+            )
+            .first,
+      );
+      expect((container.decoration! as BoxDecoration).color,
+          t.colorBgContainerDisabled,);
+    });
+  });
 }

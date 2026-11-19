@@ -325,6 +325,15 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   disabledBorder: InputBorder.none,
+                  // 填充/悬停/焦点局部填充显式置透明：Material 桥接主题
+                  // filled:true + fillColor: colorBgContainer（白）会盖掉
+                  // 外层容器的禁用灰底（colorBgContainerDisabled 由外层
+                  // 容器按 enabled/disabled 切换），hoverColor/focusColor
+                  // 防主题渗入产生局部填充高亮。
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
                   hintText: widget.placeholder,
                   hintStyle: TextStyle(
                       fontSize: fontSize.sp, color: t.colorTextPlaceholder,),

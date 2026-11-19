@@ -328,4 +328,45 @@ void main() {
       expect(borderedCount, 1);
     });
   });
+
+  group('AntMentions — 验收回归（禁用灰底）', () {
+    testWidgets('禁用态背景为灰底 token，输入框填充不盖掉容器灰底', (tester) async {
+      await tester.pumpWidget(AntScreenUtilInit(
+        builder: (context, _) => MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+            ),
+          ),
+          home: Scaffold(
+            body: AntTheme(
+              data: AntThemeData.light(),
+              child: const Material(
+                child: AntMentions(options: _testOptions, disabled: true),
+              ),
+            ),
+          ),
+        ),
+      ),);
+      await tester.pumpAndSettle();
+      final decoration =
+          tester.widget<TextField>(find.byType(TextField)).decoration!;
+      expect(decoration.filled, true);
+      expect(decoration.fillColor, Colors.transparent);
+      final t = AntThemeData.light();
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(AntMentions),
+              matching: find.byWidgetPredicate(
+                (w) => w is Container && w.decoration is BoxDecoration,
+              ),
+            )
+            .first,
+      );
+      expect((container.decoration! as BoxDecoration).color,
+          t.colorBgContainerDisabled,);
+    });
+  });
 }
