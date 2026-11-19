@@ -32,6 +32,7 @@ dependencies:
   antd_calendar: ^0.1.0-beta.1
   antd_splitter: ^0.1.0-beta.1
   antd_image_viewer: ^0.1.0-beta.1
+  antd_upload: ^0.1.0-beta.1
   cached_network_image: ^4.0.7
 
   material_ui: any
@@ -59,6 +60,8 @@ dependency_overrides:
     path: packages/antd_splitter
   antd_image_viewer:
     path: packages/antd_image_viewer
+  antd_upload:
+    path: packages/antd_upload
 
 dev_dependencies:
   analyzer: ^8.0.0

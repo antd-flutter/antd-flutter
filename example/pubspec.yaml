@@ -39,6 +39,8 @@ dependency_overrides:
     path: ../packages/antd_image_viewer
   antd_calendar:
     path: ../packages/antd_calendar
+  antd_upload:
+    path: ../packages/antd_upload
 
 dev_dependencies:
   flutter_test:
