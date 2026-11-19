@@ -134,6 +134,12 @@ class _PopoverPageState extends State<PopoverPage> {
           ),
           SizedBox(height: 16.w),
           _Section(
+            title: 'Controller 模式',
+            theme: theme,
+            child: _ControllerPopoverDemo(),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
             title: '自定义背景色',
             theme: theme,
             child: Wrap(
@@ -178,6 +184,36 @@ class _PopoverPageState extends State<PopoverPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Controller 模式示例（R35.2）。
+class _ControllerPopoverDemo extends StatefulWidget {
+  @override
+  State<_ControllerPopoverDemo> createState() => _ControllerPopoverDemoState();
+}
+
+class _ControllerPopoverDemoState extends State<_ControllerPopoverDemo> {
+  final AntPopoverController _controller = AntPopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntPopover(
+          controller: _controller,
+          trigger: AntPopoverTrigger.click,
+          title: const Text('Controller 气泡'),
+          content: const Text('由 controller 程序化控制'),
+          child: const Text('Controller 触发元素'),
+        ),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.show(), child: const Text('show')),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
+      ],
     );
   }
 }

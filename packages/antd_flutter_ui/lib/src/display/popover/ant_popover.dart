@@ -30,6 +30,73 @@ import 'package:material_ui/material_ui.dart';
 import 'ant_popover_types.dart';
 
 // ============================================================
+// AntPopoverController — 程序化控制（R35.2）
+// ============================================================
+
+/// Controller 与 State 之间的内部绑定协议（组件内部使用，勿自行实现）。
+abstract interface class AntPopoverControlDelegate {
+  /// 程序化显示气泡。
+  void controllerShow();
+
+  /// 程序化隐藏气泡。
+  void controllerHide();
+
+  /// 当前是否处于打开状态。
+  bool get controllerIsOpen;
+}
+
+/// [AntPopover] 的程序化控制器（R35.2 受控操作 Controller 化）。
+///
+/// Flutter 惯例模式（参考 [ScrollController] / EasyRefreshController）：
+/// 组件挂载时自动 [attach]，卸载时自动 [detach]；使用方无需
+/// GlobalKey 或自维护 bool state + setState，直接调用
+/// [show] / [hide] 即可。
+class AntPopoverController {
+  AntPopoverControlDelegate? _delegate;
+
+  /// 是否已绑定到挂载的 [AntPopover]。
+  bool get isAttached => _delegate != null;
+
+  /// 绑定 State（组件 initState 时自动调用，一般无需手动调用）。
+  void attach(AntPopoverControlDelegate delegate) {
+    _delegate = delegate;
+  }
+
+  /// 解绑 State（组件 dispose 时自动调用，一般无需手动调用）。
+  void detach() {
+    _delegate = null;
+  }
+
+  /// 显示气泡。未挂载时 debug 断言（ScrollController 风格），release 静默忽略。
+  void show() {
+    final delegate = _delegate;
+    if (delegate == null) {
+      assert(
+        false,
+        'AntPopoverController.show() 调用时未挂载 AntPopover：'
+        '请确认该 controller 已通过 controller 参数传入在树上的 AntPopover',
+      );
+      return;
+    }
+    delegate.controllerShow();
+  }
+
+  /// 隐藏气泡。未挂载时 debug 断言，release 静默忽略。
+  void hide() {
+    final delegate = _delegate;
+    if (delegate == null) {
+      assert(
+        false,
+        'AntPopoverController.hide() 调用时未挂载 AntPopover：'
+        '请确认该 controller 已通过 controller 参数传入在树上的 AntPopover',
+      );
+      return;
+    }
+    delegate.controllerHide();
+  }
+}
+
+// ============================================================
 // AntPopover
 // ============================================================
 
@@ -48,6 +115,7 @@ class AntPopover extends StatefulWidget {
     this.open,
     this.defaultOpen = false,
     this.onOpenChange,
+    this.controller,
     this.color,
     this.arrow = false,
     this.overlayStyle,
@@ -78,6 +146,10 @@ class AntPopover extends StatefulWidget {
   /// 显示状态变化回调。
   final ValueChanged<bool>? onOpenChange;
 
+  /// 程序化控制器（可选）。传入后可通过 [AntPopoverController.show] /
+  /// [AntPopoverController.hide] 控制气泡，无需 GlobalKey 或外部 state。
+  final AntPopoverController? controller;
+
   /// 自定义气泡背景色（文字自动反白）。
   final Color? color;
 
@@ -94,7 +166,9 @@ class AntPopover extends StatefulWidget {
   State<AntPopover> createState() => _AntPopoverState();
 }
 
-class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
+class _AntPopoverState extends State<AntPopover>
+    with PopupOpenScheduler
+    implements AntPopoverControlDelegate {
   /// 平台适配：移动端 hover 降级为点击。
   /// 按当前 trigger 解析并缓存（平台恒定，避免重建期反复读取导致接线抖动）。
   AntPopoverTrigger? _resolvedTrigger;
@@ -124,6 +198,7 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
   @override
   void initState() {
     super.initState();
+    widget.controller?.attach(this);
     if (widget.defaultOpen || widget.open == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _showOverlay();
@@ -134,6 +209,10 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
   @override
   void didUpdateWidget(covariant AntPopover oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.detach();
+      widget.controller?.attach(this);
+    }
     if (widget.open != null && oldWidget.open != widget.open) {
       // 受控切换可能发生在父级 build 阶段，show/hide 延迟到帧末
       schedulePopupOpen(
@@ -149,6 +228,7 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
 
   @override
   void dispose() {
+    widget.controller?.detach();
     _hoverCloseTimer?.cancel();
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -195,6 +275,33 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
     _overlayEntry?.remove();
     _overlayEntry = null;
     if (mounted) setState(() {});
+  }
+
+  // ---- Controller 程序化控制（R35.2）----
+
+  @override
+  bool get controllerIsOpen => _currentOpen;
+
+  @override
+  void controllerShow() {
+    if (!mounted) return;
+    // setState 调度一帧，保证帧末回调一定会执行（controller 可能在无帧待渲染时被调用）
+    setState(() {
+      _internalOpen = true;
+    });
+    widget.onOpenChange?.call(true);
+    // 受控切换可能发生在父级 build 阶段，show 延迟到帧末
+    schedulePopupOpen(open: true, show: _showOverlay, hide: _hideOverlay);
+  }
+
+  @override
+  void controllerHide() {
+    if (!mounted) return;
+    setState(() {
+      _internalOpen = false;
+    });
+    widget.onOpenChange?.call(false);
+    schedulePopupOpen(open: false, show: _showOverlay, hide: _hideOverlay);
   }
 
   void _handleTap() {

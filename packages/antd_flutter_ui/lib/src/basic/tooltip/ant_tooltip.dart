@@ -54,6 +54,96 @@ const Key _tooltipContentKey = Key('ant_tooltip_content');
 const Key _tooltipArrowKey = Key('ant_tooltip_arrow');
 
 // ============================================================
+// AntTooltipController — 程序化控制（R35.2）
+// ============================================================
+
+/// Controller 与 State 之间的内部绑定协议（组件内部使用，勿自行实现）。
+abstract interface class AntTooltipControlDelegate {
+  /// 程序化显示气泡。
+  void controllerShow();
+
+  /// 程序化隐藏气泡。
+  void controllerHide();
+
+  /// 当前是否处于打开状态。
+  bool get controllerIsOpen;
+}
+
+/// [AntTooltip] 的程序化控制器（R35.2 受控操作 Controller 化）。
+///
+/// Flutter 惯例模式（参考 [ScrollController] / EasyRefreshController）：
+/// 组件挂载时自动 [attach]，卸载时自动 [detach]；使用方无需
+/// GlobalKey 或自维护 bool state + setState，直接调用
+/// [show] / [hide] / [toggle] 即可。
+///
+/// ```dart
+/// final _controller = AntTooltipController();
+///
+/// AntTooltip(controller: _controller, tooltip: ..., child: ...);
+/// _controller.show(); // 程序化打开
+/// ```
+class AntTooltipController {
+  AntTooltipControlDelegate? _delegate;
+
+  /// 是否已绑定到挂载的 [AntTooltip]。
+  bool get isAttached => _delegate != null;
+
+  /// 绑定 State（组件 initState 时自动调用，一般无需手动调用）。
+  void attach(AntTooltipControlDelegate delegate) {
+    _delegate = delegate;
+  }
+
+  /// 解绑 State（组件 dispose 时自动调用，一般无需手动调用）。
+  void detach() {
+    _delegate = null;
+  }
+
+  /// 显示气泡。未挂载时 debug 断言（ScrollController 风格），release 静默忽略。
+  void show() {
+    final delegate = _delegate;
+    if (delegate == null) {
+      assert(
+        false,
+        'AntTooltipController.show() 调用时未挂载 AntTooltip：'
+        '请确认该 controller 已通过 controller 参数传入在树上的 AntTooltip',
+      );
+      return;
+    }
+    delegate.controllerShow();
+  }
+
+  /// 隐藏气泡。未挂载时 debug 断言，release 静默忽略。
+  void hide() {
+    final delegate = _delegate;
+    if (delegate == null) {
+      assert(
+        false,
+        'AntTooltipController.hide() 调用时未挂载 AntTooltip：'
+        '请确认该 controller 已通过 controller 参数传入在树上的 AntTooltip',
+      );
+      return;
+    }
+    delegate.controllerHide();
+  }
+
+  /// 切换气泡显示状态（打开↔关闭）。未挂载时 debug 断言，release 静默忽略。
+  void toggle() {
+    final delegate = _delegate;
+    if (delegate == null) {
+      assert(
+        false,
+        'AntTooltipController.toggle() 调用时未挂载 AntTooltip：'
+        '请确认该 controller 已通过 controller 参数传入在树上的 AntTooltip',
+      );
+      return;
+    }
+    delegate.controllerIsOpen
+        ? delegate.controllerHide()
+        : delegate.controllerShow();
+  }
+}
+
+// ============================================================
 // AntTooltip
 // ============================================================
 
@@ -71,6 +161,7 @@ class AntTooltip extends StatefulWidget {
     this.open,
     this.defaultOpen = false,
     this.onOpenChange,
+    this.controller,
     this.color,
     this.overlayStyle,
     this.arrow = true,
@@ -98,6 +189,11 @@ class AntTooltip extends StatefulWidget {
 
   /// 显示状态变化回调。
   final ValueChanged<bool>? onOpenChange;
+
+  /// 程序化控制器（可选）。传入后可通过 [AntTooltipController.show] /
+  /// [AntTooltipController.hide] / [AntTooltipController.toggle]
+  /// 控制气泡，无需 GlobalKey 或外部 state。
+  final AntTooltipController? controller;
 
   /// 自定义气泡背景色（文字自动取反白）。
   final Color? color;
@@ -130,7 +226,8 @@ class AntTooltip extends StatefulWidget {
   State<AntTooltip> createState() => _AntTooltipState();
 }
 
-class _AntTooltipState extends State<AntTooltip> {
+class _AntTooltipState extends State<AntTooltip>
+    implements AntTooltipControlDelegate {
   /// 实际生效触发方式（首次 build 解析并缓存：平台恒定，
   /// 避免重建期平台读取抖动导致 hover/click 接线漂移）。
   AntTooltipTrigger? _resolvedTrigger;
@@ -153,6 +250,7 @@ class _AntTooltipState extends State<AntTooltip> {
   @override
   void initState() {
     super.initState();
+    widget.controller?.attach(this);
     if (widget.defaultOpen && widget.open == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _showOverlay();
@@ -169,6 +267,10 @@ class _AntTooltipState extends State<AntTooltip> {
     super.didUpdateWidget(oldWidget);
     if (widget.trigger != oldWidget.trigger) {
       _resolvedTrigger = widget.effectiveTrigger;
+    }
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.detach();
+      widget.controller?.attach(this);
     }
     if (widget.open != null && oldWidget.open != widget.open) {
       // 受控开关可能发生在父级 build 阶段（setState 联动），
@@ -187,6 +289,7 @@ class _AntTooltipState extends State<AntTooltip> {
 
   @override
   void dispose() {
+    widget.controller?.detach();
     _enterTimer?.cancel();
     _leaveTimer?.cancel();
     _focusNode?.dispose();
@@ -246,6 +349,37 @@ class _AntTooltipState extends State<AntTooltip> {
     _overlayEntry?.remove();
     _overlayEntry = null;
     if (mounted) setState(() {});
+  }
+
+  // ---- Controller 程序化控制（R35.2）----
+
+  @override
+  bool get controllerIsOpen => _currentOpen;
+
+  @override
+  void controllerShow() {
+    if (!mounted) return;
+    // setState 调度一帧，保证帧末回调一定会执行（controller 可能在无帧待渲染时被调用）
+    setState(() {
+      _internalOpen = true;
+    });
+    widget.onOpenChange?.call(true);
+    // Overlay.insert 不能在 build 阶段执行，统一延迟到帧末
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showOverlay();
+    });
+  }
+
+  @override
+  void controllerHide() {
+    if (!mounted) return;
+    setState(() {
+      _internalOpen = false;
+    });
+    widget.onOpenChange?.call(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _hideOverlay();
+    });
   }
 
   // ---- 事件处理 ----
