@@ -1,0 +1,30 @@
+name: antd_keyboard_example
+description: "Ant Design Keyboard for Flutter - component demo gallery."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_keyboard:
+    path: ../
+  antd_theme:
+    path: ../../antd_theme
+  material_ui: ^1.11.0
+
+dependency_overrides:
+  antd_theme:
+    path: ../../antd_theme
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

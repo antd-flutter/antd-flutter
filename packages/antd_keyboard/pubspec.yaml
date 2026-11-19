@@ -1,0 +1,36 @@
+name: antd_keyboard
+description: Ant Design (antd-mobile) virtual keyboard family for Flutter. General keyboard engine plus NumberKeyboard, PasscodeInput and VirtualInput, aligned with antd-mobile API.
+version: 0.1.0-beta.1
+homepage: https://antd-flutter.github.io/antd-flutter/
+repository: https://github.com/antd-flutter/antd-flutter
+issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+
+topics:
+  - ui
+  - components
+  - design-system
+  - ant-design
+  - keyboard
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # AntTheme/AntThemeData 主题解析（AntKeyboard 主题适配）
+  antd_theme: ^1.0.0
+  # Material 组件基础（TextField / 输入交互 / 视觉基元）
+  material_ui: ^1.11.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+dependency_overrides:
+  antd_theme:
+    path: ../antd_theme
+
+flutter:
+  uses-material-design: true

@@ -20,7 +20,6 @@ export 'src/engines/popup_engine.dart';
 export 'src/engines/popup_overlay.dart';
 export 'src/engines/wheel_column_model.dart';
 export 'src/engines/wheel_picker_engine.dart';
-export 'src/engines/keyboard_input_model.dart';
 export 'src/engines/calendar_grid_engine.dart';
 
 // ── 基础层 ────────────────────────────────────────────────
@@ -183,11 +182,5 @@ export 'src/data_entry/check_list/ant_check_list.dart';
 export 'src/data_entry/check_list/ant_check_list_types.dart';
 export 'src/data_entry/selector/ant_selector.dart';
 export 'src/data_entry/selector/ant_selector_types.dart';
-export 'src/data_entry/number_keyboard/ant_number_keyboard.dart';
-export 'src/data_entry/number_keyboard/ant_number_keyboard_types.dart';
-export 'src/data_entry/passcode_input/ant_passcode_input.dart';
-export 'src/data_entry/passcode_input/ant_passcode_input_types.dart';
-export 'src/data_entry/virtual_input/ant_virtual_input.dart';
-export 'src/data_entry/virtual_input/ant_virtual_input_types.dart';
 export 'src/data_entry/image_uploader/ant_image_uploader.dart';
 export 'src/data_entry/image_uploader/ant_image_uploader_types.dart';

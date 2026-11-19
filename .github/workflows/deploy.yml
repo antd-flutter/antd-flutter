@@ -132,9 +132,17 @@ jobs:
         working-directory: packages/antd_floating/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/floating/
 
+      - name: Install antd_keyboard example dependencies
+        working-directory: packages/antd_keyboard/example
+        run: flutter pub get
+
+      - name: Build antd_keyboard example (release)
+        working-directory: packages/antd_keyboard/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/keyboard/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel site/masonry site/floating
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel site/masonry site/floating site/keyboard
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -148,6 +156,7 @@ jobs:
           cp -r packages/antd_carousel/example/build/web/* site/carousel/
           cp -r packages/antd_masonry/example/build/web/* site/masonry/
           cp -r packages/antd_floating/example/build/web/* site/floating/
+          cp -r packages/antd_keyboard/example/build/web/* site/keyboard/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
