@@ -28,6 +28,7 @@ const kPendingVerify = <String>[
   'check_list',
   'selector',
   'image_uploader',
+  'form',
   'search_bar',
   'number_keyboard',
   'passcode_input',
@@ -44,7 +45,6 @@ const kPendingVerify = <String>[
   'auto_complete',
   'mentions',
   // 批次 0-8 压轴三组件（form/transfer/table）
-  'form',
   'transfer',
   'table',
 ];
