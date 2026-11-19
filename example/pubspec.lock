@@ -114,6 +114,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_table:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_table"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_theme:
     dependency: "direct main"
     description:

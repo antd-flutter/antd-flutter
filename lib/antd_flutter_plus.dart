@@ -221,9 +221,9 @@ export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 // ============================================================
 // 数据展示 Data Display — 批次C
 // ============================================================
-// AntTable 表格已迁移至 antd_flutter_ui（P08 批次 0-8），此处 re-export 保持符号兼容
-export 'package:antd_flutter_ui/src/display/table/ant_table.dart';
-export 'package:antd_flutter_ui/src/display/table/ant_table_types.dart';
+// AntTable 已迁移至独立包 antd_table（P08 批次 2，从 ui 迁出），此处 re-export 保持符号兼容
+export 'package:antd_table/src/table/ant_table.dart';
+export 'package:antd_table/src/table/ant_table_types.dart';
 // AntTree 已迁移至独立包 antd_tree（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
 export 'package:antd_tree/src/tree/ant_tree.dart';
 export 'package:antd_tree/src/tree/ant_tree_types.dart';

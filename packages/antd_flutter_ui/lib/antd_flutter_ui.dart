@@ -217,10 +217,6 @@ export 'src/data_entry/mentions/ant_mentions_types.dart';
 export 'src/data_entry/transfer/ant_transfer.dart';
 export 'src/data_entry/transfer/ant_transfer_types.dart';
 
-// ── Table 表格（批次 0-8 压轴，自主包 antd_flutter_plus 迁入）──
-export 'src/display/table/ant_table.dart';
-export 'src/display/table/ant_table_types.dart';
-
 // ── 导航族（批次 0-6，自主包 antd_flutter_plus 迁入）──
 export 'src/navigation/breadcrumb/ant_breadcrumb.dart';
 export 'src/navigation/breadcrumb/ant_breadcrumb_types.dart';

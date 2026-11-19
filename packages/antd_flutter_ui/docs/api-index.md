@@ -2,9 +2,9 @@
 
 # antd_flutter_ui API 文档总览
 
-> 自动生成时间：2026-11-19T22:48:01.805766；共 426 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-19T23:01:49.754824；共 405 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
-## 类（185）
+## 类（177）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -165,14 +165,6 @@
 | [`AntSwitch`](api/AntSwitch.md) | 开关组件 — 对齐 antd React Switch |
 | [`AntTabBar`](api/AntTabBar.md) | 底部标签栏 — 移动端页面底部 Tab 切换 |
 | [`AntTabBarItem`](api/AntTabBarItem.md) | 底部标签栏项 |
-| [`AntTable`](api/AntTable.md) | 表格 — 展示行列数据 |
-| [`AntTableCellSpan`](api/AntTableCellSpan.md) | 单元格合并配置（对齐 antd React onCell 返回的 rowSpan / colSpan） |
-| [`AntTableColumn`](api/AntTableColumn.md) | 列定义 |
-| [`AntTableFilterItem`](api/AntTableFilterItem.md) | 列筛选项 |
-| [`AntTableRowCheckboxProps`](api/AntTableRowCheckboxProps.md) | 行选择复选框属性（对齐 antd getCheckboxProps） |
-| [`AntTableRowSelection`](api/AntTableRowSelection.md) | 行选择配置（对齐 antd rowSelection） |
-| [`AntTableRowSelectionItem`](api/AntTableRowSelectionItem.md) | 自定义选择项（对齐 antd rowSelection.selections） |
-| [`AntTableSummaryCell`](api/AntTableSummaryCell.md) | 汇总行单元格 |
 | [`AntTabs`](api/AntTabs.md) | 选项卡 — 对内容进行分区切换的导航组件 |
 | [`AntTabsItem`](api/AntTabsItem.md) | 选项卡项 |
 | [`AntTag`](api/AntTag.md) | 标签 — 进行标记和分类的小标签 |
@@ -194,7 +186,7 @@
 | [`PopupEngine`](api/PopupEngine.md) | 统一弹层位置计算引擎 |
 | [`WheelPickerColumn`](api/WheelPickerColumn.md) | 单列滚轮引擎组件 — 基于 CupertinoPicker 的 iOS 风格滚轮 |
 
-## 枚举（116）
+## 枚举（112）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -296,10 +288,6 @@
 | [`AntStepsStatus`](api/AntStepsStatus.md) | 步骤状态 |
 | [`AntSwitchSize`](api/AntSwitchSize.md) | 开关尺寸 |
 | [`AntTabPosition`](api/AntTabPosition.md) | 选项卡位置 |
-| [`AntTableAlign`](api/AntTableAlign.md) | 单元格对齐方式 |
-| [`AntTableFixed`](api/AntTableFixed.md) | 固定列方向 |
-| [`AntTableSize`](api/AntTableSize.md) | 表格尺寸 |
-| [`AntTableSortOrder`](api/AntTableSortOrder.md) | 排序方向 |
 | [`AntTabsEditAction`](api/AntTabsEditAction.md) | 编辑动作类型 |
 | [`AntTabsSize`](api/AntTabsSize.md) | 选项卡尺寸 |
 | [`AntTabsType`](api/AntTabsType.md) | 选项卡类型 |
@@ -448,20 +436,11 @@
 | [`kCalendarDaysPerWeek`](api/kCalendarDaysPerWeek.md) | 一周的列数 |
 | [`kCalendarMaxWeeks`](api/kCalendarMaxWeeks.md) | 每个日期网格的最大单元格数量（6 行 × 7 列，月视图） |
 
-## 类型定义（12）
+## 类型定义（3）
 
 | 名称 | 说明 |
 | --- | --- |
 | [`AntPickerColumn`](api/AntPickerColumn.md) | 选择器列 |
 | [`AntPickerValue`](api/AntPickerValue.md) | 选择器值类型 |
 | [`AntPopconfirmOpenChange`](api/AntPopconfirmOpenChange.md) | 显示状态变化回调签名 |
-| [`AntTableCellSpanFn`](api/AntTableCellSpanFn.md) | 合并单元格配置函数（对齐 antd column.onCell） |
-| [`AntTableExpandChangeFn`](api/AntTableExpandChangeFn.md) | 展开行变化回调 |
-| [`AntTableFilterChangeFn`](api/AntTableFilterChangeFn.md) | 筛选变化回调 |
-| [`AntTableFilterFn`](api/AntTableFilterFn.md) | 列过滤函数 |
-| [`AntTableRenderFn`](api/AntTableRenderFn.md) | 单元格自定义渲染 |
-| [`AntTableRowKeyFn`](api/AntTableRowKeyFn.md) | 行 key 提取函数 |
-| [`AntTableSortChangeFn`](api/AntTableSortChangeFn.md) | 排序变化回调 |
-| [`AntTableSorter`](api/AntTableSorter.md) | 列比较函数 |
-| [`AntTableSummaryFn`](api/AntTableSummaryFn.md) | 汇总行构建函数（对齐 antd summary） |
 

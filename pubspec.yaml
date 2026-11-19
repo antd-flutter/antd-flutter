@@ -40,6 +40,7 @@ dependencies:
   antd_masonry: ^0.1.0-beta.1
   antd_floating: ^0.1.0-beta.1
   antd_keyboard: ^0.1.0-beta.1
+  antd_table: ^0.1.0-beta.1
   cached_network_image: ^4.0.7
 
   material_ui: any
@@ -83,6 +84,8 @@ dependency_overrides:
     path: packages/antd_floating
   antd_keyboard:
     path: packages/antd_keyboard
+  antd_table:
+    path: packages/antd_table
 
 dev_dependencies:
   analyzer: ^8.0.0

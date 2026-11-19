@@ -55,6 +55,8 @@ dependency_overrides:
     path: ../packages/antd_floating
   antd_keyboard:
     path: ../packages/antd_keyboard
+  antd_table:
+    path: ../packages/antd_table
 
 dev_dependencies:
   flutter_test:
