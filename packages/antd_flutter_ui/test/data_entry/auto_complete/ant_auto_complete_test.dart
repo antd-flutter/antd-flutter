@@ -231,4 +231,55 @@ void main() {
       expect(find.text('Banana'), findsNothing);
     });
   });
+
+  group('AntAutoComplete — 单一外层描边（双层边框回归）', () {
+    /// 探针：统计子树内绘制边框的 DecoratedBox 数量（触发容器应恰好 1 个）
+    int countBorderedDecorations(Element root) {
+      var count = 0;
+      void visit(Element e) {
+        final w = e.widget;
+        if (w is DecoratedBox && w.decoration is BoxDecoration) {
+          final d = w.decoration as BoxDecoration;
+          final b = d.border;
+          if (b != null && !(b is Border && b.dimensions == const EdgeInsets.all(0))) {
+            count++;
+          }
+        }
+        e.visitChildren(visit);
+      }
+      visit(root);
+      return count;
+    }
+
+    testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
+      // 模拟 app 主题注入 enabledBorder/focusedBorder（双层边框根因场景）
+      await tester.pumpWidget(AntScreenUtilInit(
+        builder: (context, _) => MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(),
+            ),
+          ),
+          home: Scaffold(
+            body: AntTheme(
+              data: AntThemeData.light(),
+              child: const Material(child: AntAutoComplete(options: _options)),
+            ),
+          ),
+        ),
+      ),);
+      await tester.pumpAndSettle();
+      // 输入框自身四态边框均为 none（单一外层描边语义）
+      final decoration =
+          tester.widget<TextField>(find.byType(TextField)).decoration!;
+      expect(decoration.border, InputBorder.none);
+      expect(decoration.enabledBorder, InputBorder.none);
+      expect(decoration.focusedBorder, InputBorder.none);
+      expect(decoration.disabledBorder, InputBorder.none);
+      // 探针出图核对：触发区域整棵子树只有外层容器 1 道边框
+      final root = tester.element(find.byType(AntAutoComplete));
+      expect(countBorderedDecorations(root), 1);
+    });
+  });
 }

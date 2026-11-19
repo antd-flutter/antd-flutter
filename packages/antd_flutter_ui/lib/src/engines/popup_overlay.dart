@@ -131,10 +131,18 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
     // R36 安全区：统一读根视图设备真实安全区（antDeviceSafePadding），
     // 不用 MediaQuery.paddingOf——页面 SafeArea 之下会被消费为 0，
     // 真机刘海屏上弹层会被状态栏/摄像头遮挡。
+    // 移动端软键盘：视口扣除 viewInsets.bottom——键盘唤起后 Scaffold body
+    // 上移、触发元素移动，若视口仍按全屏计算，引擎会判下方空间充足而把
+    // 面板放进键盘遮挡区（表现为「弹窗消失」）；扣除后引擎自动翻转到
+    // 键盘上方的可用空间。本 State 依赖 MediaQuery.of（全量），键盘
+    // inset 变化会触发本处重建重算。
     final mediaQuery = MediaQuery.of(context);
     final padding =
         widget.viewportPadding ?? const EdgeInsets.all(PopupEngine.defaultMargin);
-    final viewport = _viewportRect(antDeviceSafePadding() + padding, mediaQuery.size);
+    final insets = antDeviceSafePadding() +
+        padding +
+        EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom);
+    final viewport = _viewportRect(insets, mediaQuery.size);
 
     // 气泡尺寸：首帧用估算，post-frame 实测校正；内容变化（如树节点展开、
     // 菜单项增删）后每帧复测，尺寸变化即重算位置——否则面板以陈旧尺寸

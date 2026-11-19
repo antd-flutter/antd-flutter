@@ -169,10 +169,15 @@ class _AntSelectState<T> extends State<AntSelect<T>>
       ),
     );
     Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    // 登记到 PopupContentRefresher：多选勾选等面板内容变化时经
+    // refreshPopupContent 原地重建（builder 闭包重读 State 最新值）；
+    // 不登记则 markNeedsBuild 永不触发，面板选中态停留旧值。
+    popupContentEntry = _overlayEntry;
   }
 
   void _hideOverlay() {
     _overlayEntry?.remove();
+    popupContentEntry = null;
     _overlayEntry = null;
   }
 

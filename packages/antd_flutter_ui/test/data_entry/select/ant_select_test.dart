@@ -1,6 +1,7 @@
 import 'package:antd_flutter_ui/src/data_entry/select/ant_select.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -178,6 +179,60 @@ void main() {
       // 夹回：面板左缘不小于安全边距，右缘不超视口
       expect(panel.left, greaterThanOrEqualTo(0));
       expect(panel.right, lessThanOrEqualTo(screen.width + 0.01));
+    });
+  });
+
+  group('AntSelect — 验收回归（多选面板刷新 / 移动端搜索）', () {
+    testWidgets('多选选择后面板内勾选态即时更新', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSelect<String>(
+        mode: AntSelectMode.multiple,
+        options: _options,
+      ),),);
+      await tester.tap(find.byType(AntSelect<String>));
+      await tester.pumpAndSettle();
+      // 初始全部未勾选
+      expect(find.byIcon(Icons.check_box), findsNothing);
+      // 面板内勾选「选项一」→ 面板勾选态刷新（不复选框停留旧值）
+      await tester.tap(find.text('选项一').last);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.check_box), findsOneWidget);
+      expect(find.byIcon(Icons.check_box_outline_blank), findsNWidgets(2));
+      // 取消勾选 → 面板同步回未勾选
+      await tester.tap(find.text('选项一').last);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.check_box), findsNothing);
+      expect(find.byIcon(Icons.check_box_outline_blank), findsNWidgets(3));
+    });
+
+    testWidgets('移动端键盘唤起：搜索输入不关弹窗，面板上移到键盘上方', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      addTearDown(() {
+        debugDefaultTargetPlatformOverride = null;
+        tester.view.resetViewInsets();
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300); // 软键盘
+      await tester.pumpWidget(_wrap(const AntSelect<String>(
+        options: _options,
+        showSearch: true,
+      ),),);
+      await tester.tap(find.byType(AntSelect<String>));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('ant_select_panel')), findsOneWidget);
+      // 点击面板内搜索框并输入 → 弹窗保持打开、过滤正常
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '二');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('ant_select_panel')), findsOneWidget);
+      expect(find.text('选项二'), findsOneWidget);
+      expect(find.text('选项一'), findsNothing);
+      // 面板不被键盘遮挡：底缘高于键盘顶（视口高 800 - 键盘 300）
+      final panel = tester.getRect(find.byKey(const Key('ant_select_panel')));
+      expect(panel.bottom, lessThanOrEqualTo(500 + 0.01));
     });
   });
 }

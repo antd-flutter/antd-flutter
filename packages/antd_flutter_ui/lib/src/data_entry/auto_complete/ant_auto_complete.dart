@@ -317,7 +317,14 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                     color: widget.disabled ? t.colorTextDisabled : t.colorText,),
                 decoration: InputDecoration(
                   isCollapsed: true,
+                  // 单一外层描边语义（antd web AutoComplete）：输入框自身无边框，
+                  // enabled/focused/disabled 边框显式置 none——Material 主题的
+                  // InputDecorationTheme.enabledBorder 优先级高于 border，
+                  // 不显式覆盖会内层再画一圈描边形成双层边框。
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
                   hintText: widget.placeholder,
                   hintStyle: TextStyle(
                       fontSize: fontSize.sp, color: t.colorTextPlaceholder,),

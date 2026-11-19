@@ -285,4 +285,47 @@ void main() {
       expect(find.text('afc163'), findsOneWidget);
     });
   });
+
+  group('AntMentions — 单一外层描边（双层边框回归）', () {
+    testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
+      await tester.pumpWidget(AntScreenUtilInit(
+        builder: (context, _) => MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(),
+            ),
+          ),
+          home: Scaffold(
+            body: AntTheme(
+              data: AntThemeData.light(),
+              child: const Material(child: AntMentions(options: _testOptions)),
+            ),
+          ),
+        ),
+      ),);
+      await tester.pumpAndSettle();
+      final decoration =
+          tester.widget<TextField>(find.byType(TextField)).decoration!;
+      expect(decoration.border, InputBorder.none);
+      expect(decoration.enabledBorder, InputBorder.none);
+      expect(decoration.focusedBorder, InputBorder.none);
+      expect(decoration.disabledBorder, InputBorder.none);
+      // 探针：触发容器是子树内唯一绘制边框的 DecoratedBox
+      var borderedCount = 0;
+      void visit(Element e) {
+        final w = e.widget;
+        if (w is DecoratedBox && w.decoration is BoxDecoration) {
+          final b = (w.decoration as BoxDecoration).border;
+          if (b != null &&
+              !(b is Border && b.dimensions == const EdgeInsets.all(0))) {
+            borderedCount++;
+          }
+        }
+        e.visitChildren(visit);
+      }
+      visit(tester.element(find.byType(AntMentions)));
+      expect(borderedCount, 1);
+    });
+  });
 }
