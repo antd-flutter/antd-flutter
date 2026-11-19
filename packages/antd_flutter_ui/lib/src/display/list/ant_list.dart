@@ -197,7 +197,7 @@ class _AntListState<T> extends State<AntList<T>> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: theme.paddingLG),
         decoration: _outerDecoration(theme),
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        child: const Center(child: AntLoading()),
       );
     }
 

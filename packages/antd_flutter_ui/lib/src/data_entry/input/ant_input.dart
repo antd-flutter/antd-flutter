@@ -9,6 +9,7 @@
 library;
 
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
+import '../../feedback/loading/ant_loading.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -877,13 +878,9 @@ class _AntInputSearchState extends State<AntInputSearch> {
         ),
         alignment: Alignment.center,
         child: widget.loading
-            ? SizedBox(
-                width: iconSize,
-                height: iconSize,
-                child: CircularProgressIndicator(
-                  strokeWidth: 1.5.w,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+            ? AntLoading(
+                size: iconSize,
+                color: Colors.white,
               )
             : isTextButton
                 ? Text(

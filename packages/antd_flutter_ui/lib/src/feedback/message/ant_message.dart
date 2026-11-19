@@ -21,6 +21,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_message_types.dart';
+import '../loading/ant_loading.dart';
 import '../../engines/overlay_shell.dart';
 export 'ant_message_types.dart';
 
@@ -294,13 +295,9 @@ class _MessageItemState extends State<_MessageItem>
       height: indicatorBoxHeight,
       child: Center(
         child: widget.item.type == AntMessageType.loading
-            ? SizedBox(
-                width: 16.w,
-                height: 16.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorPrimary),
-                ),
+            ? AntLoading(
+                size: 16.w,
+                color: theme.colorPrimary,
               )
             : Icon(icon, size: 16.w, color: color),
       ),

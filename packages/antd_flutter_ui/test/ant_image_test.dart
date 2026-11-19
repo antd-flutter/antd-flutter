@@ -1,4 +1,5 @@
 import 'package:antd_flutter_ui/src/display/image/ant_image.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
@@ -232,7 +233,7 @@ void main() {
     testWidgets('default placeholder shows progress indicator', (tester) async {
       await tester.pumpWidget(_wrap(const AntImage(src: _okUrl)));
       await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AntLoading), findsOneWidget);
     });
   });
 }

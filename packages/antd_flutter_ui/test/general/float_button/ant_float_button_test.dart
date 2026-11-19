@@ -133,7 +133,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntFloatButton(tooltip: '帮助')),
       );
-      expect(find.byType(Tooltip), findsOneWidget);
+      expect(find.byType(AntTooltip), findsOneWidget);
     });
   });
 

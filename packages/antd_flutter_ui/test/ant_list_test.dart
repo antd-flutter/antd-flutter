@@ -1,4 +1,5 @@
 import 'package:antd_flutter_ui/src/display/empty/ant_empty.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_flutter_ui/src/display/list/ant_list.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -188,7 +189,7 @@ void main() {
         height: 600,
         child: _list(loading: true),
       ),),);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AntLoading), findsOneWidget);
       expect(find.text('条目一'), findsNothing);
     });
 

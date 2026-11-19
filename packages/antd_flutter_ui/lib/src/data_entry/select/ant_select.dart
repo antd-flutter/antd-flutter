@@ -24,6 +24,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import '../../feedback/loading/ant_loading.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
@@ -329,13 +330,9 @@ class _AntSelectState<T> extends State<AntSelect<T>>
           ] else if (widget.loading)
             Padding(
               padding: EdgeInsets.only(left: 4.w),
-              child: SizedBox(
-                width: 14.w,
-                height: 14.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 1.5.w,
-                  color: theme.colorPrimary,
-                ),
+              child: AntLoading(
+                size: 14.w,
+                color: theme.colorPrimary,
               ),
             )
           else
@@ -543,13 +540,9 @@ class _SelectOverlay<T> extends StatelessWidget {
           if (loading)
             Padding(
               padding: EdgeInsets.all(24.w),
-              child: SizedBox(
-                width: 20.w,
-                height: 20.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.w,
-                  color: theme.colorPrimary,
-                ),
+              child: AntLoading(
+                size: 20.w,
+                color: theme.colorPrimary,
               ),
             )
           else if (filtered.isEmpty)

@@ -13,6 +13,7 @@
 library;
 
 import 'package:antd_flutter_ui/src/data_entry/switch/ant_switch_types.dart';
+import '../../feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/switch/ant_switch_types.dart';
@@ -182,9 +183,9 @@ class _AntSwitchState extends State<AntSwitch> {
                 child: isLoading
                     ? Padding(
                         padding: EdgeInsets.all(2.w),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5.w,
-                          valueColor: AlwaysStoppedAnimation<Color>(t.colorPrimary),
+                        child: AntLoading(
+                          size: 16.w,
+                          color: t.colorPrimary,
                         ),
                       )
                     : null,

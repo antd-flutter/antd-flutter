@@ -2,6 +2,7 @@
 library;
 
 import 'package:antd_flutter_ui/src/feedback/toast/ant_toast.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,7 +92,7 @@ void main() {
   testWidgets('icon loading 渲染加载指示器', (tester) async {
     await tester.pumpWidget(_wrap(const SizedBox.shrink()));
     await showToast(tester, '加载中', icon: AntToastIconType.loading);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AntLoading), findsOneWidget);
   });
 
   testWidgets('icon 支持自定义 Widget', (tester) async {

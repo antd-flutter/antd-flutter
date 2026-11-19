@@ -260,12 +260,14 @@ class _AntTourState extends State<AntTour> {
         builder: (dialogContext) => AlertDialog(
           title: Text(widget.skipConfirmTitle ?? '确定要结束引导吗？'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
+            AntButton(
+              type: AntButtonType.text,
+              onTap: () => Navigator.of(dialogContext).pop(false),
               child: const Text('取消'),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+            AntButton(
+              type: AntButtonType.text,
+              onTap: () => Navigator.of(dialogContext).pop(true),
               child: const Text('确定'),
             ),
           ],
@@ -852,13 +854,11 @@ class _TourCardState extends State<_TourCard>
                 ),
               ),
               const Spacer(),
-              TextButton(
+              AntButton(
                 key: kAntTourSkipButtonKey,
-                onPressed: widget.onSkip,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  minimumSize: Size(32.w, 32.w),
-                ),
+                type: AntButtonType.text,
+                size: AntButtonSize.small,
+                onTap: widget.onSkip,
                 child: Text(
                   kAntTourSkipLabel,
                   style: TextStyle(
@@ -868,13 +868,11 @@ class _TourCardState extends State<_TourCard>
                 ),
               ),
               if (!isFirst)
-                TextButton(
+                AntButton(
                   key: kAntTourPrevButtonKey,
-                  onPressed: widget.onPrev,
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    minimumSize: Size(32.w, 32.w),
-                  ),
+                  type: AntButtonType.text,
+                  size: AntButtonSize.small,
+                  onTap: widget.onPrev,
                   child: Text(
                     kAntTourPrevLabel,
                     style: TextStyle(

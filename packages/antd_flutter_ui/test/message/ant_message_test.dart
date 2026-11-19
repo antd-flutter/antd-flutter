@@ -2,6 +2,7 @@
 library;
 
 import 'package:antd_flutter_ui/src/feedback/message/ant_message.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +93,7 @@ void main() {
   testWidgets('loading 类型渲染加载指示器', (tester) async {
     await showMessage(tester, const Text('加载中...'), type: AntMessageType.loading);
     expect(find.text('加载中...'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AntLoading), findsOneWidget);
     expect(find.byIcon(Icons.info), findsNothing);
   });
 
@@ -150,7 +151,7 @@ void main() {
     await tester.pump(const Duration(seconds: 10));
     await tester.pump(const Duration(milliseconds: 250));
     expect(find.text('持续加载'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AntLoading), findsOneWidget);
   });
 
   testWidgets('内容支持任意 Widget', (tester) async {

@@ -1,4 +1,5 @@
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,7 +74,7 @@ void main() {
           ),
         ],
       ),),);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AntLoading), findsOneWidget);
     });
 
     testWidgets('shows failed indicator for failed status', (tester) async {

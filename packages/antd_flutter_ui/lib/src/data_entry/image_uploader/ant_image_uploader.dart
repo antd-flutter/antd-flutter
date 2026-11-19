@@ -14,6 +14,7 @@
 library;
 
 import 'package:antd_flutter_ui/src/data_entry/image_uploader/ant_image_uploader_types.dart';
+import '../../feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/image_uploader/ant_image_uploader_types.dart';
@@ -226,13 +227,9 @@ class _AntImageUploaderState extends State<AntImageUploader> {
               child: Container(
                 color: Colors.black.withValues(alpha: 0.4),
                 alignment: Alignment.center,
-                child: SizedBox(
-                  width: 20.w,
-                  height: 20.w,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.w,
-                    color: Colors.white,
-                  ),
+                child: AntLoading(
+                  size: 20.w,
+                  color: Colors.white,
                 ),
               ),
             ),

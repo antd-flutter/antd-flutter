@@ -22,6 +22,7 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 
 import 'ant_timeline_types.dart';
+import '../../feedback/loading/ant_loading.dart';
 export 'ant_timeline_types.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -74,13 +75,9 @@ class AntTimeline extends StatelessWidget {
         ...displayItems,
         AntTimelineItem(
           customDot: pendingDot ??
-              SizedBox(
-                width: 14.w,
-                height: 14.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.w,
-                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorPrimary),
-                ),
+              AntLoading(
+                size: 14.w,
+                color: theme.colorPrimary,
               ),
           content: pendingContent,
         ),

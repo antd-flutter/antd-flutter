@@ -1,4 +1,5 @@
 import 'package:antd_flutter_ui/src/display/timeline/ant_timeline.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -86,10 +87,10 @@ void main() {
         items: _basicItems(),
         pending: true,
       ),),);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AntLoading), findsOneWidget);
       // pending 节点在最后一个 item 之后
       final last = tester.getTopLeft(find.text('待处理'));
-      final spinner = tester.getTopLeft(find.byType(CircularProgressIndicator));
+      final spinner = tester.getTopLeft(find.byType(AntLoading));
       expect(spinner.dy, greaterThan(last.dy));
     });
 
@@ -100,7 +101,7 @@ void main() {
         pendingDot: const Icon(Icons.more_horiz),
       ),),);
       expect(find.byIcon(Icons.more_horiz), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AntLoading), findsNothing);
     });
 
     testWidgets('reverse flips order', (tester) async {

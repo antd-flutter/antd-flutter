@@ -407,15 +407,10 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
             SizedBox(height: 8.w),
             SizedBox(
               width: double.infinity,
-              child: TextButton(
-                onPressed: widget.onConfirm,
-                style: TextButton.styleFrom(
-                  backgroundColor: theme.colorPrimary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
-                  ),
-                ),
+              child: AntButton(
+                type: AntButtonType.primary,
+                block: true,
+                onTap: widget.onConfirm,
                 child: Text(
                   '确定',
                   style: TextStyle(fontSize: theme.fontSizeSM.sp),

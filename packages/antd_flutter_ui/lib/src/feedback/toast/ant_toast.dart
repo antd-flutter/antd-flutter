@@ -24,6 +24,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_toast_types.dart';
+import '../loading/ant_loading.dart';
 import '../../engines/overlay_shell.dart';
 export 'ant_toast_types.dart';
 
@@ -240,15 +241,9 @@ class _ToastViewState extends State<_ToastView> {
             size: size,
             color: theme.colorError,
           ),
-        AntToastIconType.loading => SizedBox(
-            width: size,
-            height: size,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                theme.colorTextLightSolid,
-              ),
-            ),
+        AntToastIconType.loading => AntLoading(
+            size: size,
+            color: theme.colorTextLightSolid,
           ),
       };
     }

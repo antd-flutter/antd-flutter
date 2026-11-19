@@ -22,6 +22,8 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
+import '../../display/popover/ant_dropdown.dart';
+import '../../display/popover/ant_dropdown_types.dart';
 import 'ant_pagination_types.dart';
 
 // ============================================================
@@ -342,27 +344,34 @@ class _AntPaginationState extends State<AntPagination> {
         border: Border.all(color: theme.colorBorder),
         borderRadius: BorderRadius.circular(theme.borderRadius),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _currentPageSize,
-          isDense: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            size: theme.fontSizeIcon,
-            color: theme.colorTextTertiary,
-          ),
-          style: TextStyle(fontSize: theme.fontSize, color: theme.colorText),
-          items: options
-              .map((size) => DropdownMenuItem(
-                    value: size,
-                    child: Text('$size 条/页'),
-                  ),)
-              .toList(),
-          onChanged: widget.disabled
-              ? null
-              : (value) {
-                  if (value != null) _changePageSize(value);
-                },
+      child: AntDropdown(
+        trigger: AntDropdownTrigger.click,
+        disabled: widget.disabled,
+        items: options
+            .map((size) => AntDropdownItem(
+                  key: '$size',
+                  label: '$size 条/页',
+                ),)
+            .toList(),
+        onClick: (key) {
+          final value = int.tryParse(key);
+          if (value != null) _changePageSize(value);
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$_currentPageSize 条/页',
+              style:
+                  TextStyle(fontSize: theme.fontSize, color: theme.colorText),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: theme.fontSizeIcon,
+              color: theme.colorTextTertiary,
+            ),
+          ],
         ),
       ),
     );

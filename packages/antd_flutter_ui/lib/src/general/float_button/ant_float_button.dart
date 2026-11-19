@@ -14,6 +14,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../basic/tooltip/ant_tooltip.dart';
 import 'ant_float_button_types.dart';
 
 // ============================================================
@@ -254,7 +255,7 @@ class _AntFloatButtonState extends State<AntFloatButton> {
 
     // ---- 提示 ----
     if (widget.tooltip != null) {
-      button = Tooltip(message: widget.tooltip!, child: button);
+      button = AntTooltip(tooltip: Text(widget.tooltip!), child: button);
     }
 
     return button;

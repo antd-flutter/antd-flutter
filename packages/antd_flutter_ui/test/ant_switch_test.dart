@@ -1,4 +1,5 @@
 import 'package:antd_flutter_ui/src/data_entry/switch/ant_switch.dart';
+import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,7 +86,7 @@ void main() {
 
     testWidgets('loading shows progress indicator', (tester) async {
       await tester.pumpWidget(_wrap(const AntSwitch(loading: true)));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AntLoading), findsOneWidget);
     });
 
     testWidgets('checkedChildren renders when checked', (tester) async {

@@ -1,6 +1,8 @@
 /// AntPagination Widget 测试
 library;
 
+import 'package:antd_flutter_ui/src/display/popover/ant_dropdown.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_dropdown_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -386,7 +388,7 @@ void main() {
   });
 
   group('AntPagination — 附加功能', () {
-    testWidgets('showSizeChanger renders DropdownButton', (tester) async {
+    testWidgets('showSizeChanger renders AntDropdown', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntPagination(
           total: 100,
@@ -396,7 +398,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntPagination),
-          matching: find.byType(DropdownButton<int>),
+          matching: find.byType(AntDropdown),
         ),
         findsOneWidget,
       );
@@ -456,7 +458,7 @@ void main() {
       );
 
       // 打开下拉
-      await tester.tap(find.byType(DropdownButton<int>));
+      await tester.tap(find.byType(AntDropdown));
       await tester.pumpAndSettle();
 
       // 选择 20 条/页
@@ -476,7 +478,7 @@ void main() {
       );
 
       // 初始 10 条/页 → 10 页
-      await tester.tap(find.byType(DropdownButton<int>));
+      await tester.tap(find.byType(AntDropdown));
       await tester.pumpAndSettle();
       await tester.tap(find.text('20 条/页').last);
       await tester.pumpAndSettle();
