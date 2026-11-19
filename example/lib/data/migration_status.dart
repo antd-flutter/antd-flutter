@@ -40,7 +40,7 @@ const kPendingVerify = <String>[
   'float_button',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
 
-  'color_picker',
+
   'auto_complete',
   'mentions',
   // 批次 0-8 压轴三组件（form/transfer/table）
@@ -59,6 +59,7 @@ const kMigratedVerified = <String>[
   'skeleton',
   'spin',
   'select',
+  'color_picker',
   'dialog',
   'drawer',
   'modal',
