@@ -188,7 +188,8 @@ class _AntInputState extends State<AntInput> {
     _controller.addListener(_handleControllerChange);
     _hasValue = _controller.text.isNotEmpty;
     if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _focusNode.requestFocus());
     }
   }
 
@@ -265,29 +266,25 @@ class _AntInputState extends State<AntInput> {
           if (widget.addonBefore != null)
             _buildAddon(t, widget.addonBefore!, height, fontSize, true),
           Expanded(
-            // 垂直居中：embedded 字段零内边距，由 Center 在 addon 行内垂直居中
-            // （修复 addon stretch 下 editable 顶置导致的文字偏上）
-            child: Center(
-              child: AntInputField(
-                size: widget.size,
-                controller: _controller,
-                focusNode: _focusNode,
-                enabled: !widget.disabled,
-                readOnly: widget.readOnly,
-                obscureText: widget.obscureText,
-                maxLength: widget.maxLength,
-                keyboardType: widget.keyboardType,
-                inputFormatters: widget.inputFormatters,
-                placeholder: widget.placeholder,
-                status: widget.status,
-                mode: AntInputFieldMode.embedded,
-                contentPadding: EdgeInsets.zero,
-                autofocus: widget.autofocus,
-                onChanged: (_) => widget.onChange?.call(_controller.text),
-                onSubmitted: widget.onPressEnter == null
-                    ? null
-                    : (_) => widget.onPressEnter!(),
-              ),
+            // 高度锁定与垂直居中由基座统一处理（embedded 输出居中字段块）
+            child: AntInputField(
+              size: widget.size,
+              controller: _controller,
+              focusNode: _focusNode,
+              enabled: !widget.disabled,
+              readOnly: widget.readOnly,
+              obscureText: widget.obscureText,
+              maxLength: widget.maxLength,
+              keyboardType: widget.keyboardType,
+              inputFormatters: widget.inputFormatters,
+              placeholder: widget.placeholder,
+              status: widget.status,
+              mode: AntInputFieldMode.embedded,
+              autofocus: widget.autofocus,
+              onChanged: (_) => widget.onChange?.call(_controller.text),
+              onSubmitted: widget.onPressEnter == null
+                  ? null
+                  : (_) => widget.onPressEnter!(),
             ),
           ),
           if (widget.addonAfter != null)
@@ -299,13 +296,11 @@ class _AntInputState extends State<AntInput> {
       duration: const Duration(milliseconds: 200),
       height: height.w,
       decoration: BoxDecoration(
-        color: widget.disabled
-            ? t.colorBgContainerDisabled
-            : t.colorBgContainer,
+        color:
+            widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadius.w),
-        border: widget.bordered
-            ? Border.all(color: borderColor, width: 1.w)
-            : null,
+        border:
+            widget.bordered ? Border.all(color: borderColor, width: 1.w) : null,
         boxShadow: widget.bordered && _focused && !widget.disabled
             ? [
                 BoxShadow(
@@ -344,13 +339,15 @@ class _AntInputState extends State<AntInput> {
   }
 
   /// 构建输入框主体（边框/填充/hover/禁用态统一由 [AntInputField] 承载）
-  Widget _buildInputBody(AntThemeData t, double height, double fontSize, double iconSize) {
+  Widget _buildInputBody(
+      AntThemeData t, double height, double fontSize, double iconSize,) {
     final suffixWidgets = <Widget>[
       if (widget.allowClear && _hasValue && !widget.disabled)
         GestureDetector(
           onTap: _clear,
           behavior: HitTestBehavior.opaque,
-          child: Icon(Icons.cancel, size: iconSize, color: t.colorTextQuaternary),
+          child:
+              Icon(Icons.cancel, size: iconSize, color: t.colorTextQuaternary),
         ),
       if (widget.suffix != null) widget.suffix!,
     ];
@@ -390,24 +387,28 @@ class _AntInputState extends State<AntInput> {
       bordered: widget.bordered,
       autofocus: widget.autofocus,
       onChanged: (_) => widget.onChange?.call(_controller.text),
-      onSubmitted: widget.onPressEnter == null
-          ? null
-          : (_) => widget.onPressEnter!(),
+      onSubmitted:
+          widget.onPressEnter == null ? null : (_) => widget.onPressEnter!(),
     );
 
-    // 单行输入锁定标准高度
-    return SizedBox(height: height.w, child: Center(child: field));
+    // 高度锁定与垂直居中由基座统一处理
+    return field;
   }
 
   /// 构建前置/后置标签（灰底 + 内侧 1px 分隔线，边框由外层容器统一绘制）
-  Widget _buildAddon(AntThemeData t, Widget child, double height, double fontSize, bool before) {
+  Widget _buildAddon(AntThemeData t, Widget child, double height,
+      double fontSize, bool before,) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
       decoration: BoxDecoration(
         color: t.colorFillQuaternary,
         border: Border(
-          right: before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
-          left: !before ? BorderSide(color: t.colorBorder, width: 1.w) : BorderSide.none,
+          right: before
+              ? BorderSide(color: t.colorBorder, width: 1.w)
+              : BorderSide.none,
+          left: !before
+              ? BorderSide(color: t.colorBorder, width: 1.w)
+              : BorderSide.none,
         ),
       ),
       alignment: Alignment.center,
@@ -525,7 +526,8 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
     _focusNode.addListener(_handleFocusChange);
     _controller.addListener(_handleControllerChange);
     if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _focusNode.requestFocus());
     }
   }
 
@@ -593,9 +595,8 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
         vertical: 8.w,
       ),
       onChanged: (_) => widget.onChange?.call(_controller.text),
-      onSubmitted: widget.onPressEnter == null
-          ? null
-          : (_) => widget.onPressEnter!(),
+      onSubmitted:
+          widget.onPressEnter == null ? null : (_) => widget.onPressEnter!(),
     );
 
     final body = field;
@@ -842,11 +843,10 @@ class _AntInputSearchState extends State<AntInputSearch> {
     final iconSize = widget.size == AntInputSize.small ? 12.sp : 14.sp;
 
     // 搜索按钮
-    final isTextButton = widget.enterButton == true ||
-        (widget.enterButton is String);
-    final buttonText = widget.enterButton is String
-        ? widget.enterButton as String
-        : '搜索';
+    final isTextButton =
+        widget.enterButton == true || (widget.enterButton is String);
+    final buttonText =
+        widget.enterButton is String ? widget.enterButton as String : '搜索';
 
     final searchButton = GestureDetector(
       onTap: widget.disabled ? null : _doSearch,
@@ -897,7 +897,8 @@ class _AntInputSearchState extends State<AntInputSearch> {
           ? GestureDetector(
               onTap: widget.disabled ? null : _doSearch,
               behavior: HitTestBehavior.opaque,
-              child: Icon(Icons.search, size: iconSize, color: t.colorTextTertiary),
+              child: Icon(Icons.search,
+                  size: iconSize, color: t.colorTextTertiary,),
             )
           : null,
     );

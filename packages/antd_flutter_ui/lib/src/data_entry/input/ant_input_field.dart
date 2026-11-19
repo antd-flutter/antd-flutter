@@ -1,11 +1,20 @@
-/// AntInputField — 输入族共享的基础字段（TextFormField 封装）
+/// AntInputField — 输入族共享字段基座（TextFormField 封装）
 ///
-/// 参考 antd Input 规范与 zino_ui ZinoTextFormField 的实现方式：
-/// - 单一 TextFormField 承载边框/填充/hover/禁用/校验态，显式覆盖全局
-///   `inputDecorationTheme`，杜绝主题默认样式渗入（如禁用态 hover 局部填充、双边框）
-/// - `standalone` 模式：字段自绘边框与填充（AntInput / AntInputTextArea 使用）
-/// - `embedded` 模式：无边框无填充，由外层容器统一绘制（Stepper / InputNumber /
-///   SearchBar / PasscodeInput 桌面态 / VirtualInput 桌面态使用）
+/// **基座级统一语义（唯一实现点，全家族继承）**：
+/// - **垂直居中**：单行模式下由基座内部锁定高度并垂直居中（基于字段高度而非
+///   padding 拼凑）；多行输入（minLines/maxLines>1）例外——顶部对齐语义，
+///   不做垂直居中（见 multiline 分支）
+/// - **hover 态**：standalone 模式边框 hover 反馈（colorPrimaryHover token），
+///   desktop 密度附加悬停底色；embedded 模式 hover 由外层容器承接
+/// - **disabled 态**：禁用灰底（colorBgContainerDisabled）+ 禁用文字
+///   （colorTextQuaternary）+ 光标封锁（basic 鼠标样式）+ 输入封锁（enabled:false），
+///   全家族统一，不再逐组件打补丁
+///
+/// 模式：
+/// - `standalone`：字段自绘边框与填充（AntInput / AntInputTextArea）
+/// - `embedded`：无边框无填充，输出「高度锁定 + 居中」的字段块，
+///   由外层容器统一绘制边框（InputNumber / SearchBar / Stepper /
+///   PasscodeInput 桌面态 / VirtualInput 桌面态）
 ///
 /// 内部共享组件，不进 barrel 导出。
 library;
@@ -46,6 +55,7 @@ Color antFieldBorderColorOf(
   AntThemeData t,
   AntInputStatus status, {
   bool focused = false,
+  bool hovered = false,
 }) {
   switch (status) {
     case AntInputStatus.error:
@@ -53,11 +63,14 @@ Color antFieldBorderColorOf(
     case AntInputStatus.warning:
       return t.colorWarning;
     case AntInputStatus.normal:
-      return focused ? t.colorPrimary : t.colorBorder;
+      if (focused) return t.colorPrimary;
+      // hover 反馈色（基座单点，全家族继承）
+      if (hovered) return t.colorPrimaryHover;
+      return t.colorBorder;
   }
 }
 
-class AntInputField extends StatelessWidget {
+class AntInputField extends StatefulWidget {
   const AntInputField({
     super.key,
     this.size = AntInputSize.middle,
@@ -77,6 +90,7 @@ class AntInputField extends StatelessWidget {
     this.mode = AntInputFieldMode.standalone,
     this.bordered = true,
     this.contentPadding,
+    this.height,
     this.minLines = 1,
     this.maxLines = 1,
     this.textAlign = TextAlign.start,
@@ -86,13 +100,13 @@ class AntInputField extends StatelessWidget {
     this.onTap,
   });
 
-  /// 尺寸。
+  /// 尺寸（决定单行高度与字号）。
   final AntInputSize size;
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
 
-  /// 是否启用（false = 禁用态：填充色/光标/鼠标样式联动）。
+  /// 是否启用（false = 禁用态：灰底/禁用文字/光标封锁，基座统一）。
   final bool enabled;
 
   final bool readOnly;
@@ -120,8 +134,11 @@ class AntInputField extends StatelessWidget {
   /// standalone 模式下是否绘制边框（false = 无边框变体）。
   final bool bordered;
 
-  /// 覆盖内容内边距（embedded 模式常用 EdgeInsets.zero）。
+  /// 多行模式的内容内边距覆盖（单行模式由基座统一，忽略此参数）。
   final EdgeInsetsGeometry? contentPadding;
+
+  /// 高度覆盖（null 时按 [size] 取 token 高度）。
+  final double? height;
 
   final int minLines;
   final int? maxLines;
@@ -134,122 +151,229 @@ class AntInputField extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<AntInputField> createState() => _AntInputFieldState();
+}
+
+class _AntInputFieldState extends State<AntInputField> {
+  bool _hovered = false;
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode?.addListener(_handleFocusChange);
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.focusNode?.requestFocus();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AntInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusNode != oldWidget.focusNode) {
+      oldWidget.focusNode?.removeListener(_handleFocusChange);
+      widget.focusNode?.addListener(_handleFocusChange);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode?.removeListener(_handleFocusChange);
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (mounted) setState(() => _focused = widget.focusNode?.hasFocus ?? false);
+  }
+
+  bool get _isMultiline {
+    final maxLines = widget.maxLines ?? 1;
+    return widget.minLines > 1 || maxLines > 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final height = antFieldHeightOf(t, size);
-    final fontSize = antFieldFontSizeOf(t, size).sp;
-    final standalone = mode == AntInputFieldMode.standalone;
+    final standalone = widget.mode == AntInputFieldMode.standalone;
+    final fontSize = antFieldFontSizeOf(t, widget.size).sp;
+    final multiline = _isMultiline;
+    final height = widget.height ?? antFieldHeightOf(t, widget.size);
 
-    final radius = BorderRadius.circular(t.borderRadius.w);
-    InputBorder borderOf(Color color, {double width = 1}) =>
-        OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: color, width: width));
-    const noneBorder = InputBorder.none;
-
-    // 边框色：standalone 自绘；embedded 一律 none
-    final idleColor = antFieldBorderColorOf(t, status);
-    final focusColor = antFieldBorderColorOf(t, status, focused: true);
-    final disabledColor = t.colorBorder;
-
-    InputBorder border;
-    InputBorder enabledBorder;
-    InputBorder focusedBorder;
-    InputBorder disabledBorder;
-    InputBorder errorBorder;
-    InputBorder focusedErrorBorder;
-    if (!standalone || !bordered) {
-      border = noneBorder;
-      enabledBorder = noneBorder;
-      focusedBorder = noneBorder;
-      disabledBorder = noneBorder;
-      errorBorder = noneBorder;
-      focusedErrorBorder = noneBorder;
-    } else {
-      // antd 规范：1px 边框，聚焦主色加粗（模拟 focus ring）
-      border = borderOf(idleColor);
-      enabledBorder = borderOf(idleColor);
-      focusedBorder = borderOf(focusColor, width: 2);
-      disabledBorder = borderOf(disabledColor);
-      errorBorder = borderOf(t.colorError);
-      focusedErrorBorder = borderOf(t.colorError, width: 2);
-      if (status == AntInputStatus.warning) {
-        errorBorder = borderOf(t.colorWarning);
-        focusedErrorBorder = borderOf(t.colorWarning, width: 2);
-      }
-    }
-
-    final fillColor = enabled ? t.colorBgContainer : t.colorBgContainerDisabled;
-
-    final decoration = InputDecoration(
-      // 显式全状态覆盖，防止全局 inputDecorationTheme（filled/hoverColor/outline）渗入
-      isDense: true,
-      filled: standalone,
-      fillColor: fillColor,
-      // 禁用/悬浮不产生局部填充高亮（修复禁用态 hover 只显示一部分的问题）
-      hoverColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      border: border,
-      enabledBorder: enabledBorder,
-      focusedBorder: focusedBorder,
-      disabledBorder: disabledBorder,
-      errorBorder: errorBorder,
-      focusedErrorBorder: focusedErrorBorder,
-      counterText: '',
-      hintText: placeholder,
-      hintStyle: TextStyle(fontSize: fontSize, color: t.colorTextPlaceholder),
-      contentPadding: contentPadding ??
-          EdgeInsets.symmetric(
-            horizontal: t.marginSM.w,
-            vertical: (height - fontSize) / 2,
-          ),
-      prefixIcon: prefix != null
-          ? _FieldSlot(
-              height: height,
-              isLeading: true,
-              child: prefix!,
-            )
-          : null,
-      prefixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
-      suffixIcon: suffix != null
-          ? _FieldSlot(
-              height: height,
-              isLeading: false,
-              child: suffix!,
-            )
-          : null,
-      suffixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
-    );
-
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      enabled: enabled,
-      readOnly: readOnly,
-      obscureText: obscureText,
-      maxLength: maxLength,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      textInputAction: textInputAction,
-      autofocus: autofocus,
-      minLines: minLines,
-      maxLines: maxLines,
-      textAlign: textAlign,
-      textAlignVertical: TextAlignVertical.center,
+    // ----------------------------------------------------------
+    // 基座单点：垂直居中（单行）/ 顶部对齐（多行例外）
+    // ----------------------------------------------------------
+    final field = TextFormField(
+      controller: widget.controller,
+      focusNode: widget.focusNode,
+      enabled: widget.enabled,
+      readOnly: widget.readOnly,
+      obscureText: widget.obscureText,
+      maxLength: widget.maxLength,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      textInputAction: widget.textInputAction,
+      autofocus: widget.autofocus,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
+      textAlign: widget.textAlign,
+      textAlignVertical:
+          multiline ? TextAlignVertical.top : TextAlignVertical.center,
       style: TextStyle(
         fontSize: fontSize,
-        color: enabled ? t.colorText : t.colorTextDisabled,
+        height: 1.0,
+        color: widget.enabled ? t.colorText : t.colorTextQuaternary,
       ),
       cursorColor: t.colorPrimary,
-      mouseCursor: !enabled
+      cursorHeight: fontSize,
+      mouseCursor: !widget.enabled
           ? SystemMouseCursors.basic
-          : readOnly
+          : widget.readOnly
               ? SystemMouseCursors.basic
               : SystemMouseCursors.text,
-      decoration: decoration,
-      onChanged: onChanged,
-      onSubmitted: onSubmitted,
-      onTap: onTap,
+      decoration: InputDecoration(
+        isDense: true,
+        // 基座统一：填充与 hover 全显式接管，全局主题不再渗入
+        filled: standalone,
+        fillColor:
+            widget.enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
+        hoverColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        counterText: '',
+        hintText: widget.placeholder,
+        hintStyle: TextStyle(
+          fontSize: fontSize,
+          height: 1.0,
+          color: t.colorTextPlaceholder,
+        ),
+        contentPadding:
+            multiline ? EdgeInsets.symmetric(horizontal: t.marginSM.w, vertical: t.marginSM.w) : EdgeInsets.zero,
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        prefixIcon: widget.prefix != null
+            ? _FieldSlot(
+                height: height,
+                isLeading: true,
+                child: widget.prefix!,
+              )
+            : null,
+        prefixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
+        suffixIcon: widget.suffix != null
+            ? _FieldSlot(
+                height: height,
+                isLeading: false,
+                child: widget.suffix!,
+              )
+            : null,
+        suffixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
+      ),
+      onChanged: widget.onChanged,
+      onFieldSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
       // 点击字段外部统一失焦（与 antd 行为一致；桌面端系统键盘同样适用）
-      onTapOutside: (_) => focusNode?.unfocus(),
+      onTapOutside: (_) => widget.focusNode?.unfocus(),
+    );
+
+    // 多行例外：顶部对齐，不锁高度不居中
+    if (multiline) {
+      if (!standalone) return field;
+      return Container(
+        decoration: _decorationOf(t, height, multiline: true),
+        padding: widget.bordered
+            ? EdgeInsets.symmetric(horizontal: t.marginSM.w)
+            : EdgeInsets.zero,
+        child: field,
+      );
+    }
+
+    // 单行：基座锁定高度并垂直居中（文字/光标相对容器垂直居中的唯一实现点）
+    final centered = SizedBox(
+      height: height.w,
+      child: Center(
+        child: field,
+      ),
+    );
+
+    if (!standalone) {
+      // embedded：输出高度锁定 + 居中的字段块，边框由外层容器绘制
+      return centered;
+    }
+
+    // standalone 无边框变体：不绘制边框容器
+    if (!widget.bordered) {
+      return MouseRegion(
+        cursor: !widget.enabled
+            ? SystemMouseCursors.basic
+            : widget.readOnly
+                ? SystemMouseCursors.basic
+                : SystemMouseCursors.text,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: SizedBox(height: height.w, child: centered),
+      );
+    }
+
+    // standalone：基座绘制边框/填充/hover/聚焦环
+    return MouseRegion(
+      cursor: !widget.enabled
+          ? SystemMouseCursors.basic
+          : widget.readOnly
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.text,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        height: height.w,
+        alignment: Alignment.center,
+        decoration: _decorationOf(t, height),
+        clipBehavior: Clip.antiAlias,
+        padding: EdgeInsets.symmetric(
+          horizontal: widget.bordered ? 0 : t.marginSM.w,
+        ),
+        child: centered,
+      ),
+    );
+  }
+
+  BoxDecoration _decorationOf(
+    AntThemeData t,
+    double height, {
+    bool multiline = false,
+  }) {
+    final enabled = widget.enabled;
+    final radius = BorderRadius.circular(t.borderRadius.w);
+    final baseColor = enabled
+        ? antFieldBorderColorOf(
+            t,
+            widget.status,
+            focused: _focused,
+            hovered: _hovered && !_focused,
+          )
+        : t.colorBorder;
+    if (!widget.bordered || widget.mode != AntInputFieldMode.standalone) {
+      return BoxDecoration(
+        color: enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
+        borderRadius: radius,
+      );
+    }
+    return BoxDecoration(
+      color: enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
+      borderRadius: radius,
+      border: Border.all(color: baseColor, width: 1.w),
+      boxShadow: _focused && enabled
+          ? [
+              BoxShadow(
+                color: t.controlOutline.withValues(alpha: 0.8),
+                blurRadius: t.controlOutlineWidth.w,
+              ),
+            ]
+          : null,
     );
   }
 }
@@ -284,6 +408,6 @@ enum AntInputFieldMode {
   /// 字段自绘边框与填充（AntInput / AntInputTextArea）
   standalone,
 
-  /// 无边框无填充，由外层容器统一绘制（Stepper / InputNumber / SearchBar 等）
+  /// 无边框无填充，由外层容器统一绘制（InputNumber / SearchBar / Stepper 等）
   embedded,
 }
