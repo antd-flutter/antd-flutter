@@ -9,11 +9,16 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_layout.dart';
 import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_theme.dart';
+import 'package:antd_keyboard/src/engines/input_platform.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+
+/// 移动端触控目标下限（iOS HIG / Material 无障碍最低触控尺寸）
+const double kAntKeyboardMinTouchTarget = 44.0;
 
 /// 通用屏上键盘
 class AntKeyboard extends StatefulWidget {
@@ -201,16 +206,38 @@ class _AntKeyboardState extends State<AntKeyboard> {
 
   AntKeyboardThemeData _resolveTheme() {
     final t = AntTheme.of(context);
-    return AntKeyboardThemeData.resolve(t, desktop: widget.theme?.desktop ?? false)
-        .merge(widget.theme);
+    // 形态判定：显式传入主题时尊重其 desktop 标记（API 兼容）；
+    // 未传主题时按平台自动选择——移动端（iOS/Android）固定触控形态
+    // （≥44 触控目标、无 hover、按压态强化），桌面端自动使用桌面密度。
+    final desktop = widget.theme?.desktop ??
+        (widget.theme == null && isDesktopInputPlatform());
+    final resolved =
+        AntKeyboardThemeData.resolve(t, desktop: desktop).merge(widget.theme);
+    // 移动端触控目标下限：自定义主题 keyHeight 过小时钳制到 44（桌面密度不受限）
+    if (!desktop) {
+      return resolved.copyWith(
+        keyHeight:
+            math.max(kAntKeyboardMinTouchTarget, resolved.keyHeight ?? 44.0),
+      );
+    }
+    return resolved;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = _resolveTheme();
+    // R36 安全区避让：贴底使用时避开 home indicator / 手势条。
+    // 经 AntKeyboardOverlayController 弹出时外层 SafeArea 已消费 bottom inset，
+    // 此处 MediaQuery 值为 0，不会重复避让。
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Container(
       color: theme.surfaceColor,
-      padding: EdgeInsets.all(theme.sectionPadding!),
+      padding: EdgeInsets.fromLTRB(
+        theme.sectionPadding!,
+        theme.sectionPadding!,
+        theme.sectionPadding!,
+        theme.sectionPadding! + bottomInset,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

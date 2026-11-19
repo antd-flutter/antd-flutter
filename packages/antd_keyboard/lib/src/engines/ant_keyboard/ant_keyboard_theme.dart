@@ -81,6 +81,52 @@ class AntKeyboardThemeData {
   /// 桌面密度（键高更大、间距更宽、启用悬停反馈）
   final bool desktop;
 
+  /// 复制并覆盖（仅覆盖非 null 字段）
+  AntKeyboardThemeData copyWith({
+    Color? surfaceColor,
+    Color? keyBackgroundColor,
+    Color? keyForegroundColor,
+    Color? keyPressedBackgroundColor,
+    Color? keyHoverBackgroundColor,
+    Color? actionKeyBackgroundColor,
+    Color? actionKeyForegroundColor,
+    Color? actionKeyPressedBackgroundColor,
+    Color? confirmBackgroundColor,
+    Color? confirmForegroundColor,
+    double? keyBorderRadius,
+    double? keyHeight,
+    double? keySpacing,
+    double? sectionPadding,
+    double? fontSize,
+    double? iconSize,
+    bool? desktop,
+  }) {
+    return AntKeyboardThemeData(
+      surfaceColor: surfaceColor ?? this.surfaceColor,
+      keyBackgroundColor: keyBackgroundColor ?? this.keyBackgroundColor,
+      keyForegroundColor: keyForegroundColor ?? this.keyForegroundColor,
+      keyPressedBackgroundColor:
+          keyPressedBackgroundColor ?? this.keyPressedBackgroundColor,
+      keyHoverBackgroundColor:
+          keyHoverBackgroundColor ?? this.keyHoverBackgroundColor,
+      actionKeyBackgroundColor:
+          actionKeyBackgroundColor ?? this.actionKeyBackgroundColor,
+      actionKeyForegroundColor:
+          actionKeyForegroundColor ?? this.actionKeyForegroundColor,
+      actionKeyPressedBackgroundColor: actionKeyPressedBackgroundColor ??
+          this.actionKeyPressedBackgroundColor,
+      confirmBackgroundColor: confirmBackgroundColor ?? this.confirmBackgroundColor,
+      confirmForegroundColor: confirmForegroundColor ?? this.confirmForegroundColor,
+      keyBorderRadius: keyBorderRadius ?? this.keyBorderRadius,
+      keyHeight: keyHeight ?? this.keyHeight,
+      keySpacing: keySpacing ?? this.keySpacing,
+      sectionPadding: sectionPadding ?? this.sectionPadding,
+      fontSize: fontSize ?? this.fontSize,
+      iconSize: iconSize ?? this.iconSize,
+      desktop: desktop ?? this.desktop,
+    );
+  }
+
   /// 从 antd 主题 token 派生默认主题（亮/暗自适应 + 桌面密度）
   factory AntKeyboardThemeData.resolve(
     AntThemeData t, {

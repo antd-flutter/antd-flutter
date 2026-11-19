@@ -20,6 +20,11 @@ Ant Design（antd-mobile）虚拟键盘族独立组件包：通用键盘引擎 +
 
 `antd_keyboard` → `antd_theme` / `material_ui`（引擎零 `antd_flutter_ui` 依赖），不依赖其他独立组件包。
 
+## 移动端形态与 R36 安全区
+
+- 移动端（iOS/Android）固定触控形态：键触控目标 ≥44（自定义过小 keyHeight 自动钳制）、无 hover 反馈（MouseRegion 仅桌面注入）、按压态反馈；桌面端未传主题时自动桌面密度（48 键高 + hover），显式 `desktop: false` 保持移动形态（API 兼容）。
+- R36：引擎贴底时经 `MediaQuery` bottom inset 避让 home indicator/手势条；经 `AntKeyboardOverlayController` 弹出时外层 SafeArea 已消费 inset，不重复避让。
+
 ## R33 判定
 
 键盘为**浮层唤起类**组件（Overlay 弹出键盘，非滚动场景），**不需要 sliver 支持**（R33）。
