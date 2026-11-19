@@ -92,9 +92,17 @@ jobs:
         working-directory: packages/antd_upload/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/upload/
 
+      - name: Install antd_picker example dependencies
+        working-directory: packages/antd_picker/example
+        run: flutter pub get
+
+      - name: Build antd_picker example (release)
+        working-directory: packages/antd_picker/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/picker/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -103,6 +111,7 @@ jobs:
           cp -r packages/antd_splitter/example/build/web/* site/splitter/
           cp -r packages/antd_image_viewer/example/build/web/* site/image_viewer/
           cp -r packages/antd_upload/example/build/web/* site/upload/
+          cp -r packages/antd_picker/example/build/web/* site/picker/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

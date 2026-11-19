@@ -44,6 +44,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_picker:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_picker"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_qrcode:
     dependency: "direct overridden"
     description:
