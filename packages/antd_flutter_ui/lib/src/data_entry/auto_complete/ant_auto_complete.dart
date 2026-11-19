@@ -24,6 +24,7 @@ import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
+import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -285,8 +286,6 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final fontSize =
-        widget.size == AntAutoCompleteSize.small ? t.fontSizeSM : t.fontSize;
     final showClear =
         widget.allowClear && _currentValue.isNotEmpty && !widget.disabled;
 
@@ -315,6 +314,9 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                 focusNode: _focusNode,
                 enabled: !widget.disabled,
                 placeholder: widget.placeholder,
+                size: widget.size == AntAutoCompleteSize.small
+                    ? AntInputSize.small
+                    : AntInputSize.middle,
                 mode: AntInputFieldMode.embedded,
                 height: _height.h,
                 onChanged: _onInputChanged,
