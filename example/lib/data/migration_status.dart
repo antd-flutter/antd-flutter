@@ -27,11 +27,11 @@ const kPendingVerify = <String>[
   'input_number',
   'check_list',
   'selector',
+  'image_uploader',
   'search_bar',
   'number_keyboard',
   'passcode_input',
   'virtual_input',
-  'image_uploader',
   // 批次 0-7 misc/general 族（affix/app/config_provider/border_beam/float_button）
   'affix',
   'border_beam',
