@@ -34,6 +34,11 @@ void main() {
       expect(find.text('A'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
       expect(find.text('C'), findsOneWidget);
+      // height 同时作为项的实际高度约束（瀑布流高低错落）。
+      final box = tester.getSize(find
+          .ancestor(of: find.text('A'), matching: find.byType(SizedBox))
+          .first,);
+      expect(box.height, 100);
     });
 
     testWidgets('columns 控制列数', (tester) async {

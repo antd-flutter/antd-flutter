@@ -67,15 +67,19 @@ CustomScrollView(
 );
 ```
 
-## 轮子对照（R30.1：flutter_staggered_grid_view，MIT）
+## 轮子对照（R30.1：flutter_staggered_grid_view + masonry_kit，均 MIT）
 
-| 能力 | flutter_staggered_grid_view | antd_masonry 现状 | 处置 |
-| --- | --- | --- | --- |
-| 列分配算法 | 最短列优先（逐项放置） | 有高度项贪心最短列优先，无高度项 round-robin 交错 | 已对齐，自绘实现 |
-| 跨列 span | StaggeredTile.count(w, h) 跨列 tile | `AntMasonryItem.span`，跨列窗口取最大高度对齐放置 | 已吸收（span>1 走绝对定位路径） |
-| 响应式列数 | 需手工按宽度传列数 | `AntMasonryResponsive` 断点列数 | 原生更强 |
-| sliver 懒加载 | RenderSliverMasonryGrid 增量挂载 | sliver 形态组合可用，非懒加载 | 缺口：懒加载虚拟化为后续增强项（见 R33 判定） |
-| 间距 | mainAxisSpacing/crossAxisSpacing | gutter / verticalGutter | 语义等价 |
+| 能力 | flutter_staggered_grid_view | masonry_kit | antd_masonry 现状 | 处置 |
+| --- | --- | --- | --- | --- |
+| 列分配算法 | 最短列优先（逐项放置） | 最短列优先（测量后永久定位） | 有高度项贪心最短列优先，无高度项 round-robin 交错 | 已对齐，自绘实现 |
+| 跨列 span | StaggeredTile.count(w, h) 跨列 tile | —（仅纯瀑布流） | `AntMasonryItem.span`，跨列窗口取最大高度对齐放置 | 已吸收（staggered 语义） |
+| 项高度约束 | tile 声明式 | 由子项自身测量 | `AntMasonryItem.height` 同时作分配依据与实际高度约束（SizedBox 包裹） | 已落地 |
+| 响应式列数 | 需手工按宽度传列数 | 需手工 | `AntMasonryResponsive` 断点列数 | 原生更强 |
+| sliver 懒加载 | RenderSliverMasonryGrid 增量挂载 | 真·懒加载 sliver（测量一次永久缓存，不发 scrollOffsetCorrection，多 sliver 同视口不回跳） | sliver 形态组合可用，非懒加载（一次全量布局，位置由声明高度确定、无修正回跳风险，但不虚拟化） | 缺口：懒加载虚拟化（对照 masonry_kit 的 measure-once 缓存 + builder 无限流）为后续增强项，API 已按 sliver 形态对齐不破坏调用方 |
+| 无限流 builder | itemBuilder 委托 | itemCount 可省略，builder 返回 null 即末尾（分页 feed） | children 列表式，增量加载走 setState 替换（example「动态添加」） | 中等列表（数百项）场景无感知差异；超长 feed 为增强项 |
+| 间距 | mainAxisSpacing/crossAxisSpacing | mainAxisSpacing/crossAxisSpacing | gutter / verticalGutter | 语义等价 |
+
+**结论**：antd_masonry 定位为 antd 组件体系内的轻量瀑布流（声明高度 + 贪心分配，零三方依赖），数百项以内的常规场景覆盖完整；masonry_kit 的核心价值（真懒加载 sliver、多 grid 同视口稳定滚动、诚实滚动条）在其超大 feed 场景，作为 R33 增强方向记录，暂不引依赖。
 
 ## 依赖方向
 
