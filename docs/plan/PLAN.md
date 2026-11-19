@@ -145,30 +145,29 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 
 ---
 
-## 六、剩余队列（两阶段执行——用户指定：ui 迁移先行，独立包拆分最后）
+## 六、剩余队列（用户澄清后的最终规则）
 
-> **执行纪律（用户确认）**：阶段 A 全部组件迁入 ui 并验收完成后，才允许开始阶段 B 独立包拆分——期间不穿插任何独立包任务
+> **组件去向规则（严格遵守）**：最终去向为独立包的组件，**不经过 ui 中转**，轮到时直接从主包拆独立包；只有最终归属 ui 的组件才迁入 ui。所有 ui 归属组件迁移完成并验收后，才进入独立包拆分批次。
 
-### 阶段 A：剩余组件全部迁入 antd_flutter_ui（按复杂度递增）
-1. **Picker 族迁 ui**：AntPicker / AntDatePicker / AntTimePicker / AntCascader / AntCascaderView（滚轮引擎已上移 ui；R31 CupertinoPicker 继承评估）
-2. **AntTree / AntTreeSelect 迁 ui**（树引擎）
-3. **AntCarousel 迁 ui**（carousel_slider 页面变换参考）
-4. **AntMasonry 迁 ui**（staggered_grid_view 瀑布流参考 + AntSliverMasonry sliver 变体 R33）
-5. **AntFloatingPanel / AntFloatingBubble 迁 ui**（拖拽吸附引擎 + R35 Controller 评估）
-6. **AutoComplete / Mentions 迁 ui**（输入联想）
-7. **AntForm 迁 ui**（表单状态/校验引擎）
-8. **Transfer 迁 ui**（穿梭框）
-9. **antd_table 迁 ui**（pluto_grid 参考——最复杂，阶段 A 压轴）
-10. **AntTabs/AntSteps 无界高度 bug 修复**（P09 记录，随批次）
-11. Calendar 完善（⏱ 项：双 UI 一致性打磨）+ 全量回归
+### 批次 1：antd_picker 独立包（Picker 族已误迁 ui——从 ui 拆出，机械搬运 + R31 评估）
+packages/antd_flutter_ui/lib/src/data_entry/{picker,date_picker,time_picker,cascader}/ → packages/antd_picker/（标准五件套：example R35.4 多平台适配 + R32.2 图标命名 AntdPicker + CI 静态部署 + ui/plus re-export 链调整 + R33 判定 + R35.3 macos 验证）；AntPickerView 留 ui（通用滚轮视图，此前裁决）；R31 CupertinoPicker 继承评估随任务
 
-### 阶段 B：独立包拆分（ui 迁移验收全部完成后，标准五件套机械拆分）
-按审计拆分清单从 ui 拆出独立包（组件已验收，拆分为机械搬运）：antd_picker / antd_tree / antd_carousel / antd_masonry / antd_floating / antd_form / antd_table——每个按五件套执行（example 创建含 **R35.4 多平台 UI 适配** + R32.2 图标命名 + CI 静态部署 + re-export + R33 判定 + R35.3 macos 运行验证）
+### 批次 2：独立包直接从主包拆分（不经 ui，逐个串行）
+1. **antd_tree**（Tree/TreeSelect，主包 → 独立包）
+2. **antd_carousel**（Carousel，carousel_slider 参考）
+3. **antd_masonry**（Masonry，staggered_grid_view 参考 + sliver 变体 R33）
+4. **antd_floating**（FloatingPanel/FloatingBubble + R35 Controller 评估）
+5. **antd_form**（Form/AutoComplete/Mentions/Transfer——读代码后确定归属边界，汇报说明）
+6. **antd_table**（pluto_grid 参考——最复杂，压轴）
 
-### 阶段 C：收尾
-1. 伞包 antd_flutter_plus README 更新（全量伞包/单组件包两种接入方式）
-2. 全量回归 + 各 example R35.4 多平台适配核查
-3. **发布 1.0.0**（CHANGELOG 正式化/去 beta/tag/发布，pub.dev 授权停下交用户）
+### 批次 3：ui 归属收尾
+1. **AutoComplete/Mentions**：若批次 2 归属 antd_form 则随包走；确认 ui 归属部分迁移/收尾
+2. **AntTabs/AntSteps 无界高度 bug 修复**（P09 记录）
+3. **Calendar 完善**（⏱ 项：双 UI 一致性打磨）
+4. 全量回归 + 伞包 README（全量伞包/单组件包两种接入方式）
+
+### 批次 4：发布 1.0.0
+CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 
 
 ## 七、遗留问题登记
