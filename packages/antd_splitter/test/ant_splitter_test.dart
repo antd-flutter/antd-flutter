@@ -1,7 +1,8 @@
 /// AntSplitter Widget 测试
 library;
 
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:antd_splitter/antd_splitter.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -88,8 +88,9 @@ export 'package:antd_flutter_ui/src/basic/safe_area/ant_safe_area_types.dart';
 // Space 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/space/ant_space.dart';
 export 'package:antd_flutter_ui/src/basic/space/ant_space_types.dart';
-export 'src/components/layout/splitter/ant_splitter.dart';
-export 'src/components/layout/splitter/ant_splitter_types.dart';
+// Splitter 分割面板已迁移至 antd_splitter（P08），此处 re-export 保持符号兼容
+export 'package:antd_splitter/src/splitter/ant_splitter.dart';
+export 'package:antd_splitter/src/splitter/ant_splitter_types.dart';
 
 // L4 组件层 — 数据录入
 export 'src/components/data_entry/input/ant_input.dart';

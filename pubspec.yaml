@@ -30,6 +30,7 @@ dependencies:
   antd_refresh: ^0.1.0-beta.1
   antd_swipe_action: ^0.1.0-beta.1
   antd_calendar: ^0.1.0-beta.1
+  antd_splitter: ^0.1.0-beta.1
   cached_network_image: ^4.0.7
 
   material_ui: any
@@ -53,6 +54,8 @@ dependency_overrides:
     path: packages/antd_swipe_action
   antd_calendar:
     path: packages/antd_calendar
+  antd_splitter:
+    path: packages/antd_splitter
 
 dev_dependencies:
   analyzer: ^8.0.0
