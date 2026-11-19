@@ -657,15 +657,13 @@ class _AntSplitterState extends State<AntSplitter> {
       );
     }
 
-    // 面板已折叠时隐藏其按钮（避免折叠贴边后两按钮重叠），
-    // 仅保留展开侧按钮：点击它折叠本侧会自动展开对侧。
-    // 但对侧不可折叠时保留折叠侧按钮（否则无任何途径恢复）。
-    final otherCollapsible = widget.children[draggerIndex].collapsible &&
-        widget.children[draggerIndex + 1].collapsible;
+    // 对齐 antd 交互：默认两侧各一个按钮；某侧折叠后**只保留折叠侧的
+    // 展开按钮**（隐藏展开侧按钮，避免折叠贴边后两按钮重叠），点击该
+    // 按钮恢复折叠前布局，两按钮重现，可重复操作。
     final showStart = widget.children[draggerIndex].collapsible &&
-        (!_collapsed[draggerIndex] || !otherCollapsible);
+        (_collapsed[draggerIndex] || !_collapsed[draggerIndex + 1]);
     final showEnd = widget.children[draggerIndex + 1].collapsible &&
-        (!_collapsed[draggerIndex + 1] || !otherCollapsible);
+        (_collapsed[draggerIndex + 1] || !_collapsed[draggerIndex]);
     if (showStart) {
       boxes.add(buildBox(draggerIndex, true));
     }

@@ -427,22 +427,25 @@ void main() {
         ),
       );
 
-      // 先折叠面板 A，再折叠面板 B
+      // 先折叠面板 A：只剩折叠侧（A）的展开按钮，B 的按钮隐藏
       await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_1')));
-      await tester.pumpAndSettle();
+      expect(_panelWidths(tester)[0], closeTo(0, 1));
+      expect(
+        tester.any(find.byKey(const ValueKey('ant_splitter_collapse_0_1'))),
+        isFalse,
+      );
 
-      // 面板 B 折叠时面板 A 自动展开（两面板不可同时保持折叠，防死锁）
+      // 点击折叠侧按钮恢复原布局，两按钮重现，可重复操作
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
+      await tester.pumpAndSettle();
       final widths = _panelWidths(tester);
       expect(widths[0], greaterThan(0));
-      expect(widths[1], closeTo(0, 1));
-
-      // A 展开后其按钮恢复可见（B 的按钮隐藏）；点击 A 的按钮折叠 A，
-      // B 自动展开，不会卡死
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
-      await tester.pumpAndSettle();
-      expect(_panelWidths(tester)[1], greaterThan(0));
+      expect(widths[1], greaterThan(0));
+      expect(
+        tester.any(find.byKey(const ValueKey('ant_splitter_collapse_0_1'))),
+        isTrue,
+      );
     });
 
     testWidgets('collapsed panel space goes to neighbor', (tester) async {
