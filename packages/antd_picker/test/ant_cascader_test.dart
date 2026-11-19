@@ -311,4 +311,36 @@ void main() {
       expect(fn.children, 'subs');
     });
   });
+
+    testWidgets('非叶子节点展开不回填触发框（antd 语义，非 changeOnSelect）', (tester) async {
+      await tester.pumpWidget(_wrap(
+        AntCascader(
+          options: _testOptions(),
+          placeholder: '请选择',
+        ),
+      ),);
+      await tester.tap(find.byType(AntCascader));
+      await tester.pumpAndSettle();
+      // 点击非叶子节点"浙江"：仅展开子列，触发框仍显示占位文本
+      await tester.tap(find.text('浙江').first);
+      await tester.pumpAndSettle();
+      expect(find.text('杭州'), findsWidgets); // 子列已展开
+      expect(find.text('浙江 / 杭州'), findsNothing); // 触发框未回填
+      expect(find.text('请选择'), findsOneWidget); // 触发框保持占位
+    });
+
+    testWidgets('changeOnSelect 非叶子节点回填触发框', (tester) async {
+      await tester.pumpWidget(_wrap(
+        AntCascader(
+          options: _testOptions(),
+          changeOnSelect: true,
+          placeholder: '请选择',
+        ),
+      ),);
+      await tester.tap(find.byType(AntCascader));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('浙江').first);
+      await tester.pumpAndSettle();
+      expect(find.text('浙江'), findsWidgets);
+    });
 }

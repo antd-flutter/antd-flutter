@@ -164,10 +164,17 @@ class _AntCascaderState extends State<AntCascader>
     return search(widget.options, 0);
   }
 
-  /// 获取显示文本：路径标签用 " / " 连接
+  /// 触发框显示文本：已确认值（_currentValue）路径的标签用 " / " 连接。
+  ///
+  /// antd 语义：非 changeOnSelect 时点击非叶子节点只展开不回填——
+  /// 触发框只反映已确认选择（onChange 触发过的值），不反映面板内
+  /// 临时展开路径（_activePath 仅用于面板高亮/展开，不作显示来源）。
   String get _displayText {
-    if (_activePath.isEmpty) return '';
-    return _activePath.map((o) => o.label).join(' / ');
+    final path = _currentValue;
+    if (path.isEmpty) return '';
+    final displayPath = _findPathByValue(path);
+    if (displayPath == null || displayPath.isEmpty) return '';
+    return displayPath.map((o) => o.label).join(' / ');
   }
 
   void _showOverlay() {
