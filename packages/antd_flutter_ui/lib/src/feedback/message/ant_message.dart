@@ -284,16 +284,24 @@ class _MessageItemState extends State<_MessageItem>
     final theme = widget.themeData;
     final (:icon, :color) = _resolveIndicator(theme);
 
-    final indicator = widget.item.type == AntMessageType.loading
-        ? SizedBox(
-            width: 16.w,
-            height: 16.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(theme.colorPrimary),
-            ),
-          )
-        : Icon(icon, size: 16.w, color: color);
+    // 图标盒高度与文字行高一致并居中，保证图标与文字垂直对齐
+    final indicatorBoxHeight = theme.fontSize * 1.4;
+    final indicator = SizedBox(
+      width: 16.w,
+      height: indicatorBoxHeight,
+      child: Center(
+        child: widget.item.type == AntMessageType.loading
+            ? SizedBox(
+                width: 16.w,
+                height: 16.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorPrimary),
+                ),
+              )
+            : Icon(icon, size: 16.w, color: color),
+      ),
+    );
 
     final card = Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
@@ -323,14 +331,22 @@ class _MessageItemState extends State<_MessageItem>
           ),
           if (widget.item.closable) ...[
             SizedBox(width: 8.w),
-            GestureDetector(
-              key: kAntMessageCloseKey,
-              onTap: widget.item.dismiss,
-              behavior: HitTestBehavior.opaque,
-              child: Icon(
-                Icons.close,
-                size: 14.w,
-                color: theme.colorTextSecondary,
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                key: kAntMessageCloseKey,
+                onTap: widget.item.dismiss,
+                behavior: HitTestBehavior.opaque,
+                child: SizedBox(
+                  height: indicatorBoxHeight,
+                  child: Center(
+                    child: Icon(
+                      Icons.close,
+                      size: 14.w,
+                      color: theme.colorTextSecondary,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

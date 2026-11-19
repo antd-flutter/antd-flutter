@@ -417,16 +417,25 @@ class _NotificationCardState extends State<_NotificationCard>
                     ),
                   ),
                   if (item.closable)
-                    GestureDetector(
-                      key: kAntNotificationCloseKey,
-                      onTap: _handleClose,
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 8.w),
-                        child: Icon(
-                          Icons.close,
-                          size: 14.w,
-                          color: theme.colorTextSecondary,
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        key: kAntNotificationCloseKey,
+                        onTap: _handleClose,
+                        behavior: HitTestBehavior.opaque,
+                        // 与标题行高（20.w）同高居中，保证关闭图标与文字垂直对齐
+                        child: SizedBox(
+                          height: 20.w,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8.w),
+                              child: Icon(
+                                Icons.close,
+                                size: 14.w,
+                                color: theme.colorTextSecondary,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
