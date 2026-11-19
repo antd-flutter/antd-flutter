@@ -19,6 +19,9 @@ export 'package:antd_flutter_ui/src/data_entry/virtual_input/ant_virtual_input_t
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../engines/ant_keyboard/ant_keyboard.dart';
+import '../../engines/ant_keyboard/ant_keyboard_layout.dart';
+import '../../engines/ant_keyboard/ant_keyboard_theme.dart';
 import '../../engines/input_platform.dart';
 import '../../engines/keyboard_overlay.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
@@ -40,6 +43,9 @@ class AntVirtualInput extends StatefulWidget {
     this.onEnterPress,
     this.randomOrder = false,
     this.customKey,
+    this.keyboardLayout,
+    this.keyboardTheme,
+    this.keyboardDesktop = false,
     this.autoFocus = false,
     this.onFocus,
     this.onBlur,
@@ -74,6 +80,15 @@ class AntVirtualInput extends StatefulWidget {
 
   /// 键盘自定义按键。
   final String? customKey;
+
+  /// 通用键盘布局（null 时使用数字键盘预设 AntNumberKeyboard）。
+  final AntKeyboardLayout? keyboardLayout;
+
+  /// 键盘主题覆盖。
+  final AntKeyboardThemeData? keyboardTheme;
+
+  /// 键盘桌面密度（展示形态由调用方决定）。
+  final bool keyboardDesktop;
 
   /// 是否自动聚焦。
   final bool autoFocus;
@@ -190,19 +205,43 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
 
   void _showKeyboard() {
     // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
+    final layout = widget.keyboardLayout;
     _kb.show(
       context,
-      AntNumberKeyboard(
-        value: _currentValue,
-        onChange: _handleChange,
-        confirmText: widget.confirmText,
-        onConfirm: () {
-          _handleConfirm();
-          _blur();
-        },
-        randomOrder: widget.randomOrder,
-        customKey: widget.customKey,
-      ),
+      layout != null
+          // 通用键盘引擎：文本/符号/邮箱/自定义布局
+          ? AntKeyboard(
+              layout: layout,
+              theme: widget.keyboardTheme ??
+                  AntKeyboardThemeData(desktop: widget.keyboardDesktop),
+              onTextInput: (s) => _handleChange(_currentValue + s),
+              onBackspace: () {
+                if (_currentValue.isNotEmpty) {
+                  _handleChange(
+                    _currentValue.substring(0, _currentValue.length - 1),
+                  );
+                }
+              },
+              onConfirm: () {
+                _handleConfirm();
+                _blur();
+              },
+              onHide: _blur,
+            )
+          // 默认：数字键盘预设
+          : AntNumberKeyboard(
+              value: _currentValue,
+              onChange: _handleChange,
+              confirmText: widget.confirmText,
+              onConfirm: () {
+                _handleConfirm();
+                _blur();
+              },
+              randomOrder: widget.randomOrder,
+              customKey: widget.customKey,
+              theme: widget.keyboardTheme,
+              desktop: widget.keyboardDesktop,
+            ),
       onDismiss: _blur,
     );
   }
