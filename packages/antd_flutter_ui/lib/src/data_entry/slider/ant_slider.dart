@@ -133,13 +133,15 @@ class _AntSliderState extends State<AntSlider> {
         : theme.colorFillSecondary;
 
     final hasMarks = widget.marks.isNotEmpty;
+    final baseHeight = (hasMarks ? 32 : 16).w;
+    final trackCenter = baseHeight / 2;
 
     Widget slider = LayoutBuilder(
       builder: (context, constraints) {
         final trackWidth = constraints.maxWidth;
         final thumbDx = percent * trackWidth;
 
-        return GestureDetector(
+        final track = GestureDetector(
           behavior: HitTestBehavior.opaque,
           onHorizontalDragStart: widget.disabled
               ? null
@@ -166,7 +168,7 @@ class _AntSliderState extends State<AntSlider> {
                   widget.onChangeEnd?.call(_currentValue);
                 },
           child: SizedBox(
-            height: (hasMarks ? 32 : 16).w,
+            height: baseHeight,
             width: trackWidth,
             child: Stack(
               clipBehavior: Clip.none,
@@ -176,7 +178,7 @@ class _AntSliderState extends State<AntSlider> {
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: (hasMarks ? 32 : 16).w / 2 - trackHeight / 2,
+                  top: trackCenter - trackHeight / 2,
                   child: Container(
                     height: trackHeight,
                     decoration: BoxDecoration(
@@ -189,7 +191,7 @@ class _AntSliderState extends State<AntSlider> {
                 Positioned(
                   left: 0,
                   width: thumbDx,
-                  top: (hasMarks ? 32 : 16).w / 2 - trackHeight / 2,
+                  top: trackCenter - trackHeight / 2,
                   child: Container(
                     height: trackHeight,
                     decoration: BoxDecoration(
@@ -205,7 +207,7 @@ class _AntSliderState extends State<AntSlider> {
                     final isPassed = _currentValue >= mark.value;
                     return Positioned(
                       left: markPercent * trackWidth - 2.w,
-                      top: (hasMarks ? 32 : 16).w / 2 - 2.w,
+                      top: trackCenter - 2.w,
                       child: Container(
                         width: 4.w,
                         height: 4.w,
@@ -228,42 +230,11 @@ class _AntSliderState extends State<AntSlider> {
                       ),
                     );
                   }),
-                // 提示气泡
-                if (showTooltip)
-                  Positioned(
-                    left: thumbDx - 20.w,
-                    top: 0,
-                    child: Container(
-                      width: 40.w,
-                      height: 22.w,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: theme.colorBgContainer,
-                        borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
-                        border: Border.all(color: theme.colorSplit),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        _currentValue % 1 == 0
-                            ? _currentValue.toInt().toString()
-                            : _currentValue.toStringAsFixed(1),
-                        style: TextStyle(
-                          fontSize: theme.fontSizeSM.sp,
-                          color: theme.colorText,
-                        ),
-                      ),
-                    ),
-                  ),
+                // 提示气泡：绘制于外层 overlay（见下方），不参与布局
                 // 拖拽手柄
                 Positioned(
                   left: thumbDx - thumbSize / 2,
-                  top: (hasMarks ? 32 : 16).w / 2 - thumbSize / 2,
+                  top: trackCenter - thumbSize / 2,
                   child: Container(
                     width: thumbSize,
                     height: thumbSize,
@@ -291,6 +262,45 @@ class _AntSliderState extends State<AntSlider> {
               ],
             ),
           ),
+        );
+
+        // 提示气泡 overlay：悬浮于轨道上方，不占布局空间、不影响滑块自身位置
+        final bubble = Positioned(
+          left: (thumbDx - 20.w)
+              .clamp(0.0, (trackWidth - 40.w).clamp(0.0, double.infinity)),
+          bottom: baseHeight + 6.w,
+          child: Container(
+            width: 40.w,
+            height: 22.w,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: theme.colorBgContainer,
+              borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
+              border: Border.all(color: theme.colorSplit),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              _currentValue % 1 == 0
+                  ? _currentValue.toInt().toString()
+                  : _currentValue.toStringAsFixed(1),
+              style: TextStyle(
+                fontSize: theme.fontSizeSM.sp,
+                color: theme.colorText,
+              ),
+            ),
+          ),
+        );
+
+        return Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.topLeft,
+          children: [track, if (showTooltip) bubble],
         );
       },
     );

@@ -135,10 +135,12 @@ class _AntRadioState extends State<AntRadio> {
 
   void _select() {
     if (widget.disabled) return;
+    // 支持点击已选中项取消选中（移动端交互习惯）
+    final next = !(widget.checked ?? _checked);
     if (widget.checked == null) {
-      setState(() => _checked = true);
+      setState(() => _checked = next);
     }
-    widget.onChange?.call(true);
+    widget.onChange?.call(next);
   }
 
   @override
@@ -363,10 +365,12 @@ class _AntRadioGroupState<T> extends State<AntRadioGroup<T>> {
 
   void _handleSelect(dynamic val) {
     if (widget.disabled) return;
+    // 支持点击已选中项取消选中（再次点击置空）
+    final next = val == (widget.value ?? _selected) ? null : val;
     if (widget.value == null) {
-      setState(() => _selected = val);
+      setState(() => _selected = next);
     }
-    widget.onChange?.call(val as T?);
+    widget.onChange?.call(next as T?);
   }
 
   @override

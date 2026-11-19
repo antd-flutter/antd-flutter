@@ -121,11 +121,14 @@ class AntCheckbox extends StatefulWidget {
 
 class _AntCheckboxState extends State<AntCheckbox> {
   late bool _checked;
+  /// 半选态（独立使用时内部可消化：点击半选框 → 变为全选并清除半选）
+  late bool _indeterminate;
 
   @override
   void initState() {
     super.initState();
     _checked = widget.checked ?? widget.defaultChecked;
+    _indeterminate = widget.indeterminate;
   }
 
   @override
@@ -134,12 +137,24 @@ class _AntCheckboxState extends State<AntCheckbox> {
     if (widget.checked != null && widget.checked != _checked) {
       _checked = widget.checked!;
     }
+    if (widget.indeterminate != oldWidget.indeterminate) {
+      _indeterminate = widget.indeterminate;
+    }
   }
 
   void _toggle() {
     if (widget.disabled) return;
-    final next = !_checked;
-    setState(() => _checked = next);
+    // antd 规则：半选态点击后变为全选，并清除半选标记
+    final bool next;
+    if (_indeterminate) {
+      next = true;
+      _indeterminate = false;
+    } else {
+      next = !_checked;
+    }
+    setState(() {
+      _checked = next;
+    });
     widget.onChange?.call(next);
   }
 
@@ -173,7 +188,8 @@ class _AntCheckboxState extends State<AntCheckbox> {
         children: [
           _CheckboxBox(
             checked: isChecked,
-            indeterminate: widget.indeterminate,
+            // 独立使用时半选态由内部状态消化（点击后清除）；组内仍由外部控制
+            indeterminate: inGroup ? widget.indeterminate : _indeterminate,
             disabled: isDisabled,
             size: 16,
             theme: t,

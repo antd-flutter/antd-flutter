@@ -242,8 +242,8 @@ class _AntStepperState extends State<AntStepper> {
       height: h,
       decoration: BoxDecoration(
         color: inputBg,
-        borderRadius: BorderRadius.circular(theme.borderRadius),
-        border: Border.all(color: borderColor, width: theme.controlOutlineWidth),
+        borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
+        border: Border.all(color: borderColor, width: 1.w),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -278,9 +278,15 @@ class _AntStepperState extends State<AntStepper> {
                 color: widget.disabled ? theme.colorTextDisabled : theme.colorText,
               ),
               decoration: InputDecoration(
+                // 覆盖全局 inputDecorationTheme 的 outline 边框，避免双边框
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
                 isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(vertical: (h - theme.fontSizeSM) / 2),
+                contentPadding: EdgeInsets.symmetric(vertical: (h - theme.fontSizeSM.sp) / 2),
               ),
               onChanged: _handleInputChange,
             ),

@@ -256,7 +256,13 @@ class _AntInputNumberState extends State<AntInputNumber> {
       cursorColor: t.colorPrimary,
       decoration: InputDecoration(
         isCollapsed: true,
+        // 覆盖全局 inputDecorationTheme 的 outline 边框，避免双边框
         border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
         counterText: '',
         isDense: true,
         contentPadding: EdgeInsets.zero,

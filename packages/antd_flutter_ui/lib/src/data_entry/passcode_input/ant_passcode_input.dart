@@ -16,8 +16,10 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/passcode_input/ant_passcode_input_types.dart';
 
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../engines/input_platform.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
 
 /// 密码格子输入 — 用于验证码/密码场景的格子输入组件。
@@ -77,14 +79,29 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
   late String _internalValue;
   bool _active = false;
 
+  /// 桌面端系统输入支持（透明 TextField 覆盖格子区域采集输入）
+  late final bool _desktop;
+  TextEditingController? _desktopController;
+  FocusNode? _desktopFocus;
+
   String get _currentValue => widget.value ?? _internalValue;
 
   @override
   void initState() {
     super.initState();
     _internalValue = widget.defaultValue;
+    _desktop = isDesktopInputPlatform();
+    if (_desktop) {
+      _desktopController = TextEditingController(text: _internalValue)
+        ..addListener(_handleDesktopInput);
+      _desktopFocus = FocusNode()..addListener(_handleDesktopFocus);
+    }
     if (widget.autofocus) {
       _active = true;
+      if (_desktop) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => _desktopFocus?.requestFocus());
+      }
     }
   }
 
@@ -93,7 +110,29 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != oldWidget.value) {
       _internalValue = widget.value!;
+      if (_desktop &&
+          _desktopController != null &&
+          _desktopController!.text != _internalValue) {
+        _desktopController!.text = _internalValue;
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _desktopFocus?.removeListener(_handleDesktopFocus);
+    _desktopFocus?.dispose();
+    _desktopController?.removeListener(_handleDesktopInput);
+    _desktopController?.dispose();
+    super.dispose();
+  }
+
+  void _handleDesktopFocus() {
+    setState(() => _active = _desktopFocus?.hasFocus ?? false);
+  }
+
+  void _handleDesktopInput() {
+    _handleChange(_desktopController?.text ?? '');
   }
 
   void _handleChange(String v) {
@@ -110,6 +149,10 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
   }
 
   void _toggleActive() {
+    if (_desktop) {
+      _desktopFocus?.requestFocus();
+      return;
+    }
     if (!widget.keyboard) return;
     setState(() => _active = !_active);
   }
@@ -160,9 +203,38 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
         GestureDetector(
           onTap: _toggleActive,
           behavior: HitTestBehavior.opaque,
-          child: cellsRow,
+          child: _desktop
+              ? Stack(
+                  children: [
+                    cellsRow,
+                    // 桌面端：透明 TextField 覆盖格子区域，走系统键盘输入
+                    Positioned.fill(
+                      child: TextField(
+                        controller: _desktopController,
+                        focusNode: _desktopFocus,
+                        maxLength: widget.length,
+                        obscureText: !widget.plain,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style: const TextStyle(color: Colors.transparent),
+                        cursorColor: Colors.transparent,
+                        decoration: const InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          counterText: '',
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : cellsRow,
         ),
-        if (widget.keyboard && _active) ...[
+        if (!_desktop && widget.keyboard && _active) ...[
           SizedBox(height: t.marginSM.w),
           AntNumberKeyboard(
             value: value,
