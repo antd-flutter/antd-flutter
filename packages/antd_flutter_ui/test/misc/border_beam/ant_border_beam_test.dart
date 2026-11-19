@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/misc/border_beam/ant_border_beam.dart';
+import 'package:antd_flutter_ui/src/misc/border_beam/ant_border_beam.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

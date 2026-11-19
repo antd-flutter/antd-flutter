@@ -32,6 +32,12 @@ const kPendingVerify = <String>[
   'passcode_input',
   'virtual_input',
   'image_uploader',
+  // 批次 0-7 misc/general 族（affix/app/config_provider/border_beam/float_button）
+  'affix',
+  'app',
+  'config_provider',
+  'border_beam',
+  'float_button',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
   'select',
   'color_picker',

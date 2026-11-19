@@ -17,8 +17,8 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/misc/affix/ant_affix_types.dart';
-export 'package:antd_flutter_plus/src/components/misc/affix/ant_affix_types.dart';
+import 'ant_affix_types.dart';
+export 'ant_affix_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================

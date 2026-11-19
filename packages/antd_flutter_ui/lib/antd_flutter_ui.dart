@@ -236,3 +236,17 @@ export 'src/navigation/capsule_tabs/ant_capsule_tabs.dart';
 export 'src/navigation/capsule_tabs/ant_capsule_tabs_types.dart';
 export 'src/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
 export 'src/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
+
+// ── misc 族（批次 0-7，自主包 antd_flutter_plus 迁入）──
+export 'src/misc/affix/ant_affix.dart';
+export 'src/misc/affix/ant_affix_types.dart';
+export 'src/misc/app/ant_app.dart';
+export 'src/misc/app/ant_app_types.dart';
+export 'src/misc/border_beam/ant_border_beam.dart';
+export 'src/misc/border_beam/ant_border_beam_types.dart';
+export 'src/misc/config_provider/ant_config_provider.dart';
+export 'src/misc/config_provider/ant_config_provider_types.dart';
+
+// ── FloatButton 悬浮按钮（批次 0-7，自主包 antd_flutter_plus 迁入，antd 归类通用）──
+export 'src/general/float_button/ant_float_button.dart';
+export 'src/general/float_button/ant_float_button_types.dart';

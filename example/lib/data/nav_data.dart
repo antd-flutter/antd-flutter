@@ -46,6 +46,10 @@ const List<NavGroup> navGroups = [
     NavItem('Button 按钮', 'button'),
     NavItem('NoticeBar 通告栏', 'notice_bar'),
     NavItem('Typography 排版', 'typography'),
+    NavItem('Affix 固定', 'affix'),
+    NavItem('FloatButton 悬浮按钮', 'float_button'),
+    NavItem('App 全局应用', 'app'),
+    NavItem('ConfigProvider 全局化', 'config_provider'),
   ]),
   NavGroup('布局', [
     NavItem('AutoCenter 自动居中', 'auto_center'),
@@ -84,6 +88,7 @@ const List<NavGroup> navGroups = [
     NavItem('Tour 引导弹览', 'tour'),
     NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Watermark 水印', 'watermark'),
+    NavItem('BorderBeam 边框光束', 'border_beam'),
     NavItem('CalendarPicker 日历选择器', 'calendar_picker'),
     NavItem('PickerView 选择器视图', 'picker_view'),
     NavItem('Tag 标签', 'tag'),

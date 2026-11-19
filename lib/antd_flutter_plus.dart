@@ -72,8 +72,9 @@ export 'package:antd_flutter_ui/src/basic/button/ant_button_types.dart';
 // Typography 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/basic/typography/ant_typography.dart';
 export 'package:antd_flutter_ui/src/basic/typography/ant_typography_types.dart';
-export 'src/components/general/float_button/ant_float_button.dart';
-export 'src/components/general/float_button/ant_float_button_types.dart';
+// FloatButton 已迁移至 antd_flutter_ui（P08 批次 0-7），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/general/float_button/ant_float_button.dart';
+export 'package:antd_flutter_ui/src/general/float_button/ant_float_button_types.dart';
 // NoticeBar 通告栏已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar.dart';
 export 'package:antd_flutter_ui/src/feedback/notice_bar/ant_notice_bar_types.dart';
@@ -321,11 +322,12 @@ export 'package:antd_flutter_ui/src/feedback/result_page/ant_result_page.dart';
 // ============================================================
 // 其他 Misc — App / ConfigProvider（Phase 8 最后一批）
 // ============================================================
-export 'src/components/misc/app/ant_app.dart';
-export 'src/components/misc/app/ant_app_types.dart';
-export 'src/components/misc/config_provider/ant_config_provider.dart';
-export 'src/components/misc/config_provider/ant_config_provider_types.dart';
-export 'src/components/misc/affix/ant_affix.dart';
-export 'src/components/misc/affix/ant_affix_types.dart';
-export 'src/components/misc/border_beam/ant_border_beam.dart';
-export 'src/components/misc/border_beam/ant_border_beam_types.dart';
+// App/ConfigProvider/Affix/BorderBeam 已迁移至 antd_flutter_ui（P08 批次 0-7），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/misc/app/ant_app.dart';
+export 'package:antd_flutter_ui/src/misc/app/ant_app_types.dart';
+export 'package:antd_flutter_ui/src/misc/config_provider/ant_config_provider.dart';
+export 'package:antd_flutter_ui/src/misc/config_provider/ant_config_provider_types.dart';
+export 'package:antd_flutter_ui/src/misc/affix/ant_affix.dart';
+export 'package:antd_flutter_ui/src/misc/affix/ant_affix_types.dart';
+export 'package:antd_flutter_ui/src/misc/border_beam/ant_border_beam.dart';
+export 'package:antd_flutter_ui/src/misc/border_beam/ant_border_beam_types.dart';

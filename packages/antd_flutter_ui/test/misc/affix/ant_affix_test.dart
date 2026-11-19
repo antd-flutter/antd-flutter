@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/misc/affix/ant_affix.dart';
+import 'package:antd_flutter_ui/src/misc/affix/ant_affix.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
