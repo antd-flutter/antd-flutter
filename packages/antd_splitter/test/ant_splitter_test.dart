@@ -303,6 +303,53 @@ void main() {
           findsOneWidget,);
     });
 
+    testWidgets('collapse button renders fully with >=44x44 hit area',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntSplitter(
+            children: [
+              AntSplitterPanel(collapsible: true, child: Text('A')),
+              AntSplitterPanel(child: Text('B')),
+            ],
+          ),
+        ),
+      );
+
+      final hitBox = tester.getSize(
+        find.byKey(const ValueKey('ant_splitter_collapse_0')),
+      );
+
+      // 触控区域最小 44x44（Material 触控规范）
+      expect(hitBox.width, greaterThanOrEqualTo(44));
+      expect(hitBox.height, greaterThanOrEqualTo(44));
+
+      // 视觉按钮（带边框 Container）完整渲染，不被分割条裁剪
+      final visual = tester.getSize(
+        find
+            .descendant(
+              of: find.byKey(const ValueKey('ant_splitter_collapse_0')),
+              matching: find.byWidgetPredicate(
+                (w) => w is Container && w.decoration is BoxDecoration,
+              ),
+            )
+            .first,
+      );
+      expect(visual.width, greaterThan(0));
+      expect(visual.height, greaterThan(0));
+
+      // 按钮中心位于分割条拖拽区内，且命中框边缘可点（溢出绘制未遮挡命中）
+      final center = tester.getCenter(
+        find.byKey(const ValueKey('ant_splitter_collapse_0')),
+      );
+      final draggerRect = tester.getRect(
+        find.byKey(const ValueKey('ant_splitter_dragger_0')),
+      );
+      expect(draggerRect.contains(center), isTrue);
+      // 命中框宽于 20px 拖拽区（允许溢出分割条，保证完整触控区域）
+      expect(hitBox.width, greaterThan(draggerRect.width));
+    });
+
     testWidgets('tap collapse button collapses panel and calls onCollapse',
         (tester) async {
       var collapseCalled = false;

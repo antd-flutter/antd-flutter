@@ -544,6 +544,9 @@ class _AntSplitterState extends State<AntSplitter> {
             alignment: Alignment.center,
             child: Stack(
               alignment: Alignment.center,
+              // 允许折叠按钮溢出分割条绘制：按钮视觉尺寸大于分割条拖拽区
+              // （20px），hardEdge 会把按钮两侧裁掉导致显示不全（R 复验修复）。
+              clipBehavior: Clip.none,
               children: [
                 // 分割线
                 Container(
@@ -601,22 +604,32 @@ class _AntSplitterState extends State<AntSplitter> {
     }
 
     final btnSize = _kCollapseIconSize.w * 1.6;
+    // 触控区域最小 44x44（Material 触控规范）：命中框大于视觉按钮，
+    // 视觉按钮居中绘制，允许溢出分割条（配合 Stack clipBehavior: Clip.none）。
+    const hitTarget = 44.0;
 
     return GestureDetector(
       key: ValueKey('ant_splitter_collapse_$panelIndex'),
+      behavior: HitTestBehavior.opaque,
       onTap: () => _toggleCollapse(panelIndex),
-      child: Container(
-        width: btnSize,
-        height: btnSize,
-        decoration: BoxDecoration(
-          color: theme.colorBgContainer,
-          border: Border.all(color: theme.colorSplit),
-          borderRadius: BorderRadius.circular(4.r),
-        ),
-        child: AntdIcon(
-          icon,
-          size: _kCollapseIconSize.sp,
-          color: theme.colorTextSecondary,
+      child: SizedBox(
+        width: hitTarget.w,
+        height: hitTarget.w,
+        child: Center(
+          child: Container(
+            width: btnSize,
+            height: btnSize,
+            decoration: BoxDecoration(
+              color: theme.colorBgContainer,
+              border: Border.all(color: theme.colorSplit),
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+            child: AntdIcon(
+              icon,
+              size: _kCollapseIconSize.sp,
+              color: theme.colorTextSecondary,
+            ),
+          ),
         ),
       ),
     );
