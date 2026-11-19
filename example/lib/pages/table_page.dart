@@ -226,6 +226,143 @@ class TablePage extends StatelessWidget {
               ],
             ),
           ),
+          // ---------------- 行选择 ----------------
+          _Section(
+            title: '行选择（全选 / 半选 / 禁用行 / 自定义选择项）',
+            theme: theme,
+            child: AntTable(
+              columns: _sizeColumns(),
+              dataSource: _mockData(5),
+              rowSelection: AntTableRowSelection(
+                onChange: (keys) {},
+                getCheckboxProps: (record) =>
+                    AntTableRowCheckboxProps(disabled: record['id'] == 3),
+                selections: [
+                  AntTableRowSelectionItem(
+                    text: '全选',
+                    onSelect: (keys) {},
+                  ),
+                  AntTableRowSelectionItem(
+                    text: '清空',
+                    onSelect: (_) {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 16.w),
+
+          // ---------------- 树形数据 ----------------
+          _Section(
+            title: '树形数据（children 展开 + 与行选择联动）',
+            theme: theme,
+            child: AntTable(
+              columns: _sizeColumns(),
+              dataSource: _treeData(),
+              defaultExpandAllRows: false,
+              rowSelection: const AntTableRowSelection(),
+            ),
+          ),
+          SizedBox(height: 16.w),
+
+          // ---------------- 合并单元格 ----------------
+          _Section(
+            title: '合并单元格（onCell rowSpan / colSpan）',
+            theme: theme,
+            child: AntTable(
+              bordered: true,
+              columns: [
+                AntTableColumn(
+                  title: '城市',
+                  dataIndex: 'city',
+                  onCell: (record, _) => record['id'] == 1
+                      ? const AntTableCellSpan(rowSpan: 3)
+                      : const AntTableCellSpan(rowSpan: 0),
+                ),
+                const AntTableColumn(title: '姓名', dataIndex: 'name'),
+                const AntTableColumn(title: '年龄', dataIndex: 'age'),
+              ],
+              dataSource: _mockData(3),
+            ),
+          ),
+          SizedBox(height: 16.w),
+
+          // ---------------- 展开行 ----------------
+          _Section(
+            title: '展开行（expandedRowRender，点击行展开）',
+            theme: theme,
+            child: AntTable(
+              columns: _sizeColumns(),
+              dataSource: _mockData(4),
+              expandRowByClick: true,
+              expandedRowRender: (record, index) => Text(
+                '详情：${record['name']}，城市 ${record['city']}，状态 ${record['status']}',
+              ),
+            ),
+          ),
+          SizedBox(height: 16.w),
+
+          // ---------------- 汇总行 ----------------
+          _Section(
+            title: '汇总行（summary：人数合计 + 年龄均值）',
+            theme: theme,
+            child: AntTable(
+              columns: _sizeColumns(),
+              dataSource: _mockData(5),
+              summary: (data) => [
+                AntTableSummaryCell(
+                  columnIndex: 0,
+                  child: Text('总计 ${data.length} 人'),
+                ),
+                AntTableSummaryCell(
+                  columnIndex: 1,
+                  child: Text(
+                    '平均 ${data.isEmpty ? 0 : (data.fold<int>(0, (s, r) => s + r['age'] as int) ~/ data.length)} 岁',
+                  ),
+                ),
+                const AntTableSummaryCell(
+                  columnIndex: 2,
+                  child: Text('—'),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16.w),
+
+          // ---------------- 表头分组 ----------------
+          _Section(
+            title: '表头分组（多级表头，分组内叶子列支持排序）',
+            theme: theme,
+            child: AntTable(
+              columns: [
+                const AntTableColumn(title: '姓名', dataIndex: 'name'),
+                AntTableColumn(
+                  title: '基本信息',
+                  children: [
+                    AntTableColumn(
+                      title: '年龄',
+                      dataIndex: 'age',
+                      sorter: (a, b) =>
+                          (a['age'] as int).compareTo(b['age'] as int),
+                    ),
+                    const AntTableColumn(title: '城市', dataIndex: 'city'),
+                  ],
+                ),
+                AntTableColumn(
+                  title: '其他',
+                  children: [
+                    const AntTableColumn(title: '状态', dataIndex: 'status'),
+                    AntTableColumn(
+                      title: 'ID',
+                      dataIndex: 'id',
+                      fixed: AntTableFixed.right,
+                    ),
+                  ],
+                ),
+              ],
+              dataSource: _mockData(4),
+            ),
+          ),
         ],
       ),
     );
@@ -235,6 +372,20 @@ class TablePage extends StatelessWidget {
         AntTableColumn(title: '姓名', dataIndex: 'name'),
         AntTableColumn(title: '年龄', dataIndex: 'age'),
         AntTableColumn(title: '城市', dataIndex: 'city'),
+      ];
+
+  static List<Map<String, dynamic>> _treeData() => [
+        {
+          'id': 1,
+          'name': '华东区',
+          'age': 40,
+          'city': '上海',
+          'children': [
+            {'id': 11, 'name': '用户 11', 'age': 21, 'city': '上海'},
+            {'id': 12, 'name': '用户 12', 'age': 22, 'city': '杭州'},
+          ],
+        },
+        {'id': 2, 'name': '华北区', 'age': 35, 'city': '北京'},
       ];
 }
 
