@@ -255,6 +255,8 @@ class _AntSearchBarState extends State<AntSearchBar> {
                       color: t.colorText,
                     ),
                     decoration: InputDecoration(
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
                       hintText: widget.placeholder,
                       hintStyle: TextStyle(
                         fontSize: t.fontSize,

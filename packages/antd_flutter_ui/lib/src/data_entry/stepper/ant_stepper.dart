@@ -278,8 +278,10 @@ class _AntStepperState extends State<AntStepper> {
                 color: widget.disabled ? theme.colorTextDisabled : theme.colorText,
               ),
               decoration: InputDecoration(
-                // 覆盖全局 inputDecorationTheme 的 outline 边框，避免双边框
+                // 覆盖全局 inputDecorationTheme（outline/填充/hover），避免双边框与禁用态 hover 局部填充
                 border: InputBorder.none,
+                hoverColor: Colors.transparent,
+                focusColor: Colors.transparent,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 disabledBorder: InputBorder.none,
