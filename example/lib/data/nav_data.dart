@@ -68,6 +68,7 @@ const List<NavGroup> navGroups = [
     NavItem('Image 图片', 'image'),
     NavItem('PageIndicator 页面指示器', 'page_indicator'),
     NavItem('Popover 气泡卡片', 'popover'),
+    NavItem('Tree 树形控件', 'tree'),
     NavItem('Splitter 分割容器', 'splitter'),
     NavItem('Upload 上传', 'upload'),
     NavItem('Segmented 分段控制器', 'segmented'),
@@ -88,6 +89,7 @@ const List<NavGroup> navGroups = [
     NavItem('Popconfirm 气泡确认框', 'popconfirm'),
   ]),
   NavGroup('数据录入', [
+    NavItem('TreeSelect 树选择', 'tree_select'),
     NavItem('Picker 选择器', 'picker'),
     NavItem('DatePicker 日期选择器', 'date_picker'),
     NavItem('TimePicker 时间选择器', 'time_picker'),
