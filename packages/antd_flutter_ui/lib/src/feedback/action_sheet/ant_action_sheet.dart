@@ -249,13 +249,23 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
         BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG));
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: radius),
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        // 阴影挂在外层容器（含安全区同色区域），避免内层 Material 阴影
+        // 与底部安全区填充之间出现割裂的阴影分界线
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorShadow.withValues(alpha: 0.5),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Material(
         color: theme.colorBgContainer,
         borderRadius: radius,
-        elevation: 8,
-        shadowColor: theme.colorShadow,
+        elevation: 0,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
