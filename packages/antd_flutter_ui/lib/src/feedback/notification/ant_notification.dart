@@ -259,7 +259,9 @@ class _NotificationStack extends StatelessWidget {
         final stack = Column(
           key: kAntNotificationStackKey,
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          // 右侧弹出右对齐、左侧弹出左对齐（卡片宽度小于上限时贴弹出侧）
+          crossAxisAlignment:
+              isRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             for (final item in ordered)
               _NotificationCard(
