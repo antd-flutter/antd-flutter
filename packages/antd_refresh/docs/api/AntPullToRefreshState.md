@@ -8,8 +8,8 @@
 class AntPullToRefreshState
 ```
 
-`AntPullToRefresh` 的 State（公开以便外部经 GlobalKey 程序化触发刷新，
-对应 easy_refresh controller 的 `callRefresh` 能力）。
+`AntPullToRefresh` 的 State（公开供 `AntPullToRefreshController` 挂载；
+GlobalKey State.callRefresh 路径保留向后兼容，推荐使用 controller）。
 
 ## 字段
 
@@ -38,7 +38,7 @@ class AntPullToRefreshState
 | `_handleWheelEvent` | `void` | 桌面端鼠标滚轮拉动（与触摸共用同一状态机） |
 | `_syncPhysicsOverscroll` | `void` | 从滚动度量同步 Bouncing 过冲位移（iOS/macOS/web Bouncing 物理路径） |
 | `build` | `Widget` | — |
-| `callRefresh` | `Future<void>` | 程序化触发下拉刷新（对应 easyrefresh controller 的 callRefresh）： 头部展开 … |
+| `callRefresh` | `Future<void>` | 程序化触发下拉刷新（GlobalKey 兼容路径 |
 | `didUpdateWidget` | `void` | — |
 | `dispose` | `void` | — |
 | `initState` | `void` | — |

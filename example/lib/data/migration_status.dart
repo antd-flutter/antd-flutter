@@ -16,6 +16,7 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  'splitter',
 ];
 const kMigratedVerified = <String>[
   'image',

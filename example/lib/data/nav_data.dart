@@ -68,6 +68,7 @@ const List<NavGroup> navGroups = [
     NavItem('Image 图片', 'image'),
     NavItem('PageIndicator 页面指示器', 'page_indicator'),
     NavItem('Popover 气泡卡片', 'popover'),
+    NavItem('Splitter 分割容器', 'splitter'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
     NavItem('QRCode 二维码', 'qr_code'),

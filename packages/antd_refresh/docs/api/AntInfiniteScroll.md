@@ -14,7 +14,7 @@ class AntInfiniteScroll
 
 ## 构造函数
 
-### `AntInfiniteScroll({super.key, required this.child, required this.loadMore, this.threshold = AntInfiniteScrollDefaults.threshold, this.loadingText, this.hasMoreText, this.noMoreText, this.loadFailedText, this.loadFailedRetryText})`
+### `AntInfiniteScroll({super.key, required this.child, required this.loadMore, this.threshold = AntInfiniteScrollDefaults.threshold, this.loadingText, this.hasMoreText, this.noMoreText, this.loadFailedText, this.loadFailedRetryText, this.controller})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -26,12 +26,14 @@ class AntInfiniteScroll
 | `noMoreText` | `String?` | 可选 | — |
 | `loadFailedText` | `String?` | 可选 | — |
 | `loadFailedRetryText` | `String?` | 可选 | — |
+| `controller` | `AntInfiniteScrollController?` | 可选 | — |
 
 ## 字段
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `child` | `Widget` | 列表内容，由使用方传入（ListView / Column 等任意滚动内容） |
+| `controller` | `AntInfiniteScrollController?` | 程序化控制器（R35.2 Controller 优先）：经 AntInfiniteScrollController… |
 | `hasMoreText` | `String?` | 还有更多数据时的提示文案，为空时取默认文案 |
 | `loadFailedRetryText` | `String?` | 加载失败重试按钮文案，为空时取默认文案 |
 | `loadFailedText` | `String?` | 加载失败提示文案，为空时取默认文案 |
@@ -44,5 +46,5 @@ class AntInfiniteScroll
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntInfiniteScroll>` | — |
+| `createState` | `AntInfiniteScrollState` | — |
 
