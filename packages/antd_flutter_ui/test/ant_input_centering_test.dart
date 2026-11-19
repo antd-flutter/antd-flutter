@@ -257,9 +257,11 @@ void main() {
       // 垂直居中
       expectVerticallyCentered(tester, find.byType(AntInput));
       // 字形内缩 = marginSM(12) + 5（桌面缩放因子 1，与移动端同公式）
-      expect(glyphInset(tester, find.byType(AntInput)),
-          closeTo(t.marginSM.w + 5, 2.5),
-          reason: '桌面模式字形内缩与移动端同基座标准');
+      expect(
+        glyphInset(tester, find.byType(AntInput)),
+        closeTo(t.marginSM.w + 5, 2.5),
+        reason: '桌面模式字形内缩与移动端同基座标准',
+      );
     });
 
     testWidgets('desktop: disabled uses disabled tokens (grey bg full box)',
