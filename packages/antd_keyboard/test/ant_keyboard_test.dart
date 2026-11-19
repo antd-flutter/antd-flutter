@@ -2,6 +2,7 @@ import 'package:antd_keyboard/src/number_keyboard/ant_number_keyboard.dart';
 import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard.dart';
 import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_layout.dart';
 import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_theme.dart';
+import 'package:antd_keyboard/src/virtual_input/ant_virtual_input.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
@@ -32,7 +33,10 @@ void main() {
           for (final k in row.keys)
             if (k.text != null) k.text!,
       ];
-      expect(texts, containsAll(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']));
+      expect(
+        texts,
+        containsAll(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']),
+      );
       expect(layout.rows.last.keys.any((k) => k.isBackspace), isTrue);
     });
 
@@ -44,22 +48,39 @@ void main() {
       );
     });
 
-    test('text 含 QWERTY 全键与字母长按变体', () {
+    test('text 含 QWERTY 全键与字母长按变体（多模式）', () {
       final layout = AntKeyboardLayout.text();
+      expect(layout.modes, isNotNull);
+      expect(layout.modes!.keys, containsAll(['letters', 'symbols']));
       final texts = [
-        for (final row in layout.rows)
-          for (final k in row.keys)
-            if (k.text != null) k.text!,
+        for (final rows in layout.modes!.values)
+          for (final row in rows)
+            for (final k in row.keys)
+              if (k.text != null) k.text!,
       ];
       expect(texts, containsAll(['q', 'w', 'e', 'a', 's', 'z', 'm']));
       // 长按变体（重音字符）
       final withVariants = [
-        for (final row in layout.rows)
-          for (final k in row.keys)
-            if (k.hasVariants) k,
+        for (final rows in layout.modes!.values)
+          for (final row in rows)
+            for (final k in row.keys)
+              if (k.hasVariants) k,
       ];
       expect(withVariants, isNotEmpty);
       expect(withVariants.first.variants, isNotEmpty);
+    });
+
+    test('qwertyDesktop 含数字行 secondary/Tab/CapsLock/Enter', () {
+      final layout = AntKeyboardLayout.qwertyDesktop();
+      final keys = [
+        for (final row in layout.rows)
+          for (final k in row.keys) k,
+      ];
+      expect(keys.any((k) => k.action == AntKeyAction.tab), isTrue);
+      expect(keys.any((k) => k.action == AntKeyAction.capslock), isTrue);
+      expect(keys.any((k) => k.action == AntKeyAction.shift), isTrue);
+      expect(keys.any((k) => k.action == AntKeyAction.enter), isTrue);
+      expect(keys.any((k) => k.text == '~' || k.secondary == '~'), isTrue);
     });
 
     test('symbol 含常用符号', () {
@@ -83,11 +104,19 @@ void main() {
     });
 
     testWidgets('custom layout renders', (tester) async {
-      await tester.pumpWidget(_wrap(const AntKeyboard(
-        layout: AntKeyboardLayout(rows: [
-          AntKeyboardRow([AntKeyboardKey.text('X'), AntKeyboardKey.text('Y')]),
-        ],),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntKeyboard(
+            layout: AntKeyboardLayout(
+              rows: [
+                AntKeyboardRow(
+                  [AntKeyboardKey.text('X'), AntKeyboardKey.text('Y')],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
       expect(find.text('X'), findsOneWidget);
       expect(find.text('Y'), findsOneWidget);
     });
@@ -96,10 +125,14 @@ void main() {
   group('AntKeyboard — 按键行为', () {
     testWidgets('tap text key fires onTextInput', (tester) async {
       final inputs = <String>[];
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        onTextInput: inputs.add,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            onTextInput: inputs.add,
+          ),
+        ),
+      );
       await tester.tap(find.text('5'));
       await tester.pump();
       expect(inputs, ['5']);
@@ -107,10 +140,14 @@ void main() {
 
     testWidgets('tap backspace fires onBackspace', (tester) async {
       var backspaces = 0;
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        onBackspace: () => backspaces++,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            onBackspace: () => backspaces++,
+          ),
+        ),
+      );
       await tester.tap(find.byIcon(Icons.backspace_outlined));
       await tester.pump();
       expect(backspaces, 1);
@@ -118,10 +155,14 @@ void main() {
 
     testWidgets('long-press backspace repeats delete', (tester) async {
       var deletes = 0;
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        onBackspace: () => deletes++,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            onBackspace: () => deletes++,
+          ),
+        ),
+      );
       final gesture = await tester.startGesture(
         tester.getCenter(find.byIcon(Icons.backspace_outlined)),
       );
@@ -146,12 +187,17 @@ void main() {
     testWidgets('long-press letter shows variants, tap selects',
         (tester) async {
       final inputs = <String>[];
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.text(),
-        onTextInput: inputs.add,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.text(),
+            onTextInput: inputs.add,
+          ),
+        ),
+      );
       // 手势驱动长按（kLongPressTimeout 500ms）
-      final gesture = await tester.startGesture(tester.getCenter(find.text('a')));
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.text('a')));
       await tester.pump(const Duration(milliseconds: 600));
       await gesture.up();
       await tester.pumpAndSettle();
@@ -166,15 +212,17 @@ void main() {
   group('AntKeyboard — 主题适配', () {
     testWidgets('dark theme derives dark tokens', (tester) async {
       late AntKeyboardThemeData resolved;
-      await tester.pumpWidget(_wrap(
-        Builder(
-          builder: (context) {
-            resolved = AntKeyboardThemeData.resolve(AntTheme.of(context));
-            return AntKeyboard(layout: AntKeyboardLayout.numeric());
-          },
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) {
+              resolved = AntKeyboardThemeData.resolve(AntTheme.of(context));
+              return AntKeyboard(layout: AntKeyboardLayout.numeric());
+            },
+          ),
+          dark: true,
         ),
-        dark: true,
-      ),);
+      );
       await tester.pump();
       final t = AntThemeData.dark();
       expect(resolved.keyBackgroundColor, t.colorFillSecondary);
@@ -185,10 +233,14 @@ void main() {
       const custom = AntKeyboardThemeData(
         keyBackgroundColor: Color(0xFF123456),
       );
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        theme: custom,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            theme: custom,
+          ),
+        ),
+      );
       await tester.pump();
       final containers = tester.widgetList<Container>(
         find.byWidgetPredicate(
@@ -217,17 +269,25 @@ void main() {
         return containers.first.constraints!.maxHeight;
       }
 
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        theme: const AntKeyboardThemeData(desktop: false),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            theme: const AntKeyboardThemeData(desktop: false),
+          ),
+        ),
+      );
       await tester.pump();
       final mobileHeight = keyContainerHeight(true);
 
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        theme: const AntKeyboardThemeData(desktop: true),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            theme: const AntKeyboardThemeData(desktop: true),
+          ),
+        ),
+      );
       await tester.pump();
       final desktopHeight = keyContainerHeight(true);
       expect(desktopHeight, greaterThan(mobileHeight));
@@ -235,14 +295,18 @@ void main() {
 
     testWidgets('desktop hover feedback shows hover color', (tester) async {
       const hoverColor = Color(0xFF00FF00);
-      await tester.pumpWidget(_wrap(AntKeyboard(
-        layout: AntKeyboardLayout.numeric(),
-        theme: const AntKeyboardThemeData(
-          desktop: true,
-          keyBackgroundColor: Colors.black,
-          keyHoverBackgroundColor: hoverColor,
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.numeric(),
+            theme: const AntKeyboardThemeData(
+              desktop: true,
+              keyBackgroundColor: Colors.black,
+              keyHoverBackgroundColor: hoverColor,
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.pump();
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
@@ -265,9 +329,13 @@ void main() {
   group('AntNumberKeyboard — 引擎集成（向后兼容）', () {
     testWidgets('numeric preset renders and inputs', (tester) async {
       final values = <String>[];
-      await tester.pumpWidget(_wrap(AntNumberKeyboard(
-        onChange: values.add,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntNumberKeyboard(
+            onChange: values.add,
+          ),
+        ),
+      );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('0'), findsOneWidget);
       await tester.tap(find.text('7'));
@@ -277,14 +345,152 @@ void main() {
 
     testWidgets('confirmText renders confirm key', (tester) async {
       var confirmed = false;
-      await tester.pumpWidget(_wrap(AntNumberKeyboard(
-        confirmText: '确定',
-        onConfirm: () => confirmed = true,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntNumberKeyboard(
+            confirmText: '确定',
+            onConfirm: () => confirmed = true,
+          ),
+        ),
+      );
       expect(find.text('确定'), findsOneWidget);
       await tester.tap(find.text('确定'));
       await tester.pump();
       expect(confirmed, isTrue);
+    });
+  });
+  group('AntKeyboard — 多模式/修饰态（参考库适配回归）', () {
+    testWidgets('modeSwitch cycles letters → symbols', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.text(),
+            onTextInput: (_) {},
+          ),
+        ),
+      );
+      expect(find.text('q'), findsOneWidget);
+      expect(find.text('-'), findsNothing);
+      await tester.tap(find.byIcon(Icons.swap_horiz_rounded));
+      await tester.pump();
+      expect(find.text('q'), findsNothing);
+      expect(find.text('-'), findsOneWidget);
+    });
+
+    testWidgets('shift outputs uppercase and auto-resets', (tester) async {
+      final inputs = <String>[];
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.text(),
+            onTextInput: inputs.add,
+          ),
+        ),
+      );
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump();
+      expect(find.text('Q'), findsOneWidget); // 大写显示
+      await tester.tap(find.text('Q'));
+      await tester.pump();
+      expect(inputs, ['Q']);
+      // 一次性语义：输入后复位
+      expect(find.text('Q'), findsNothing);
+      expect(find.text('q'), findsOneWidget);
+    });
+
+    testWidgets('capslock persists uppercase', (tester) async {
+      final inputs = <String>[];
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.text(),
+            onTextInput: inputs.add,
+          ),
+        ),
+      );
+      await tester.tap(find.byIcon(Icons.keyboard_capslock_rounded));
+      await tester.pump();
+      await tester.tap(find.text('A'));
+      await tester.pump();
+      await tester.tap(find.text('B'));
+      await tester.pump();
+      expect(inputs, ['A', 'B']); // 持久大写不复位
+    });
+
+    testWidgets('shift outputs secondary on numeric row', (tester) async {
+      final inputs = <String>[];
+      // desktop 布局数字行带 secondary 符号
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.qwertyDesktop(),
+            onTextInput: inputs.add,
+          ),
+        ),
+      );
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump();
+      // shift 后显示副字符 '!'
+      expect(find.text('!'), findsOneWidget);
+      await tester.tap(find.text('!'));
+      await tester.pump();
+      expect(inputs, ['!']); // secondary 副字符优先
+    });
+
+    testWidgets('qwertyDesktop renders desktop action keys', (tester) async {
+      var confirmed = false;
+      await tester.pumpWidget(
+        _wrap(
+          AntKeyboard(
+            layout: AntKeyboardLayout.qwertyDesktop(),
+            onConfirm: () => confirmed = true,
+          ),
+        ),
+      );
+      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.keyboard_capslock_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.keyboard_return_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.keyboard_return_rounded));
+      await tester.pump();
+      expect(confirmed, isTrue);
+    });
+  });
+
+  group('AntVirtualInput — 预设/对齐/控制条（回归）', () {
+    testWidgets('keyboardPreset qwertyDesktop renders desktop keys',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntVirtualInput(
+            keyboardPreset: AntKeyboardPreset.qwertyDesktop,
+            keyboardDesktop: true,
+            autoFocus: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
+    });
+
+    testWidgets('keyboardShowControlBar renders control bar on desktop',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntVirtualInput(
+            keyboardPreset: AntKeyboardPreset.qwertyDesktop,
+            keyboardDesktop: true,
+            keyboardShowControlBar: true,
+            autoFocus: true,
+            keyboardAlignTop: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      // 控制条贴顶/贴底切换按钮
+      expect(find.byIcon(Icons.vertical_align_top_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.vertical_align_bottom_rounded), findsOneWidget);
     });
   });
 }

@@ -142,24 +142,26 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
     final d = _keyOrder;
 
     // numeric 预设：随机序/自定义键参数化布局
-    final layout = AntKeyboardLayout(rows: [
-      AntKeyboardRow(_keys([d[0], d[1], d[2]])),
-      AntKeyboardRow(_keys([d[3], d[4], d[5]])),
-      AntKeyboardRow(_keys([d[6], d[7], d[8]])),
-      AntKeyboardRow([
-        widget.customKey != null
-            ? AntKeyboardKey.text(widget.customKey!)
-            : const AntKeyboardKey.action(AntKeyAction.none),
-        const AntKeyboardKey.text('0'),
-        const AntKeyboardKey.action(AntKeyAction.backspace),
-        if (hasConfirm)
-          AntKeyboardKey.action(
-            AntKeyAction.confirm,
-            actionLabel: widget.confirmText,
-            flex: 2,
-          ),
-      ]),
-    ],);
+    final layout = AntKeyboardLayout(
+      rows: [
+        AntKeyboardRow(_keys([d[0], d[1], d[2]])),
+        AntKeyboardRow(_keys([d[3], d[4], d[5]])),
+        AntKeyboardRow(_keys([d[6], d[7], d[8]])),
+        AntKeyboardRow([
+          widget.customKey != null
+              ? AntKeyboardKey.text(widget.customKey!)
+              : const AntKeyboardKey.action(AntKeyAction.none),
+          const AntKeyboardKey.text('0'),
+          const AntKeyboardKey.action(AntKeyAction.backspace),
+          if (hasConfirm)
+            AntKeyboardKey.action(
+              AntKeyAction.confirm,
+              actionLabel: widget.confirmText,
+              flex: 2,
+            ),
+        ]),
+      ],
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,

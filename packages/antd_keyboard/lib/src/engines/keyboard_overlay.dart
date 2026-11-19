@@ -24,6 +24,7 @@ class AntKeyboardOverlayController {
     BuildContext context,
     Widget keyboard, {
     VoidCallback? onDismiss, // 保留参数兼容：不再渲染遮罩时也支持回调
+    bool alignTop = false,
   }) {
     hide();
     final overlay = Overlay.maybeOf(context, rootOverlay: true);
@@ -32,12 +33,13 @@ class AntKeyboardOverlayController {
     _entry = OverlayEntry(
       builder: (ctx) => Stack(
         children: [
-          // 底部 dock 键盘（不设全屏遮罩：不拦截输入区/页面其余点击，
-          // 收起通过输入框上的收起按钮或再次点击输入框）
+          // dock 键盘（不设全屏遮罩：不拦截输入区/页面其余点击）；
+          // 贴底（默认）/贴顶两种对齐（桌面展示形态可切换）
           Positioned(
             left: 0,
             right: 0,
-            bottom: 0,
+            top: _alignTop ? 0 : null,
+            bottom: _alignTop ? null : 0,
             child: Material(
               color: t.colorBgContainer,
               elevation: 8,
@@ -54,6 +56,16 @@ class AntKeyboardOverlayController {
     _entry?.remove();
     _entry = null;
   }
+
+  /// 重新弹出（保持最近一次配置）并切换对齐（贴底/贴顶）
+  void realign(BuildContext context, {required bool alignTop}) {
+    if (_lastKeyboard == null) return;
+    show(context, _lastKeyboard!, onDismiss: _lastDismiss, alignTop: alignTop);
+  }
+
+  Widget? _lastKeyboard;
+  VoidCallback? _lastDismiss;
+  final bool _alignTop = false;
 
   /// 兼容无 Overlay 环境（如部分测试裸泵组件）：返回 false 表示未支持弹出
   static bool isOverlayAvailable(BuildContext context) =>

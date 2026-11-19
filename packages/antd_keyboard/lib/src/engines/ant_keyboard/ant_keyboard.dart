@@ -32,6 +32,9 @@ class AntKeyboard extends StatefulWidget {
     this.onConfirm,
     this.onHide,
     this.onKey,
+    this.showControlBar = false,
+    this.onAlignTop,
+    this.onAlignBottom,
   });
 
   /// 布局（预设或自定义）
@@ -58,6 +61,15 @@ class AntKeyboard extends StatefulWidget {
   /// 原始按键回调（所有按键统一出口，便于扩展）
   final ValueChanged<AntKeyboardKey>? onKey;
 
+  /// 桌面展示形态：顶部控制条（贴底/贴顶切换按钮）
+  final bool showControlBar;
+
+  /// 控制条：切到贴顶
+  final VoidCallback? onAlignTop;
+
+  /// 控制条：切到贴底
+  final VoidCallback? onAlignBottom;
+
   @override
   State<AntKeyboard> createState() => _AntKeyboardState();
 }
@@ -69,6 +81,58 @@ class _AntKeyboardState extends State<AntKeyboard> {
 
   // 长按变体气泡
   OverlayEntry? _variantEntry;
+
+  // 多模式布局：当前模式名（单模式布局为 null）
+  String? _modeName;
+
+  // Shift（一次性：文本输入后自动复位）与 CapsLock（持久）状态
+  bool _shiftOn = false;
+  bool _capsOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _modeName = widget.layout.initialMode;
+  }
+
+  @override
+  void didUpdateWidget(covariant AntKeyboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.layout != oldWidget.layout) {
+      _modeName = widget.layout.initialMode;
+      _shiftOn = false;
+      _capsOn = false;
+    }
+  }
+
+  /// 当前模式行（单模式布局直接返回 rows）
+  List<AntKeyboardRow> get _currentRows {
+    final modes = widget.layout.modes;
+    if (modes == null || modes.isEmpty) return widget.layout.rows;
+    return modes[_modeName] ?? modes.values.first;
+  }
+
+  /// Shift/CapsLock 激活态（影响文本键输出与显示）
+  bool get _shiftActive => _shiftOn || _capsOn;
+
+  /// 解析文本键在当前修饰态下的实际输出字符
+  String? _resolveText(AntKeyboardKey key) {
+    final text = key.text;
+    if (text == null) return null;
+    if (!_shiftActive) return text;
+    // 副字符优先（数字行 1→!）；否则单字母大写
+    if (key.secondary != null) return key.secondary;
+    if (text.length == 1) return text.toUpperCase();
+    return text;
+  }
+
+  void _cycleMode() {
+    final modes = widget.layout.modes;
+    if (modes == null || modes.isEmpty) return;
+    final names = modes.keys.toList();
+    final idx = names.indexOf(_modeName ?? names.first);
+    setState(() => _modeName = names[(idx + 1) % names.length]);
+  }
 
   @override
   void dispose() {
@@ -102,15 +166,32 @@ class _AntKeyboardState extends State<AntKeyboard> {
     widget.onKey?.call(key);
     switch (key.action) {
       case AntKeyAction.text:
-        widget.onTextInput?.call(key.text ?? '');
+        widget.onTextInput?.call(_resolveText(key) ?? '');
+        // Shift 一次性语义：输入一个字符后自动复位（CapsLock 除外）
+        if (_shiftOn && !_capsOn) setState(() => _shiftOn = false);
       case AntKeyAction.backspace:
         widget.onBackspace?.call();
       case AntKeyAction.space:
         widget.onTextInput?.call(' ');
+        if (_shiftOn && !_capsOn) setState(() => _shiftOn = false);
       case AntKeyAction.confirm:
         widget.onConfirm?.call();
       case AntKeyAction.hide:
         widget.onHide?.call();
+      case AntKeyAction.shift:
+        setState(() => _shiftOn = !_shiftOn);
+      case AntKeyAction.capslock:
+        setState(() {
+          _capsOn = !_capsOn;
+          _shiftOn = false;
+        });
+      case AntKeyAction.modeSwitch:
+        _cycleMode();
+      case AntKeyAction.enter:
+        // 语义与确认一致（搜索/提交场景），调用方经 onConfirm 承接
+        widget.onConfirm?.call();
+      case AntKeyAction.tab:
+        break;
       case AntKeyAction.none:
         break;
     }
@@ -241,15 +322,36 @@ class _AntKeyboardState extends State<AntKeyboard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (var i = 0; i < widget.layout.rows.length; i++) ...[
-            if (i > 0) SizedBox(height: theme.keySpacing),
+          // 桌面展示形态控制条（贴底/贴顶切换）
+          if (widget.showControlBar)
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.keySpacing ?? 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _KeyboardControlButton(
+                    icon: Icons.vertical_align_bottom_rounded,
+                    onTap: widget.onAlignBottom,
+                    theme: theme,
+                  ),
+                  SizedBox(width: theme.keySpacing ?? 4),
+                  _KeyboardControlButton(
+                    icon: Icons.vertical_align_top_rounded,
+                    onTap: widget.onAlignTop,
+                    theme: theme,
+                  ),
+                ],
+              ),
+            ),
+          for (var i = 0; i < _currentRows.length; i++) ...[
+            if (i > 0) SizedBox(height: theme.keySpacing ?? 4),
             Row(
               children: [
-                for (var j = 0; j < widget.layout.rows[i].keys.length; j++) ...[
+                for (var j = 0; j < _currentRows[i].keys.length; j++) ...[
                   if (j > 0) SizedBox(width: theme.keySpacing),
                   Expanded(
-                    flex: widget.layout.rows[i].keys[j].flex,
-                    child: _buildKey(theme, widget.layout.rows[i].keys[j]),
+                    flex: _currentRows[i].keys[j].flex,
+                    child: _buildKey(theme, _currentRows[i].keys[j]),
                   ),
                 ],
               ],
@@ -280,10 +382,67 @@ class _AntKeyboardState extends State<AntKeyboard> {
         return _KeyboardTextKey(
           theme: theme,
           key_: key,
+          displayText: _resolveText(key),
           onTap: () => _handleKeyTap(key),
           onLongPress: key.hasVariants
               ? (anchorContext) => _showVariants(key, anchorContext)
               : null,
+        );
+      case AntKeyAction.shift:
+        return _KeyboardActionButton(
+          theme: theme,
+          active: _shiftActive,
+          onTap: () => _handleKeyTap(key),
+          child: Icon(
+            Icons.arrow_upward_rounded,
+            size: theme.iconSize,
+            color: _shiftActive
+                ? theme.confirmBackgroundColor
+                : theme.actionKeyForegroundColor,
+          ),
+        );
+      case AntKeyAction.capslock:
+        return _KeyboardActionButton(
+          theme: theme,
+          active: _capsOn,
+          onTap: () => _handleKeyTap(key),
+          child: Icon(
+            Icons.keyboard_capslock_rounded,
+            size: theme.iconSize,
+            color: _capsOn
+                ? theme.confirmBackgroundColor
+                : theme.actionKeyForegroundColor,
+          ),
+        );
+      case AntKeyAction.modeSwitch:
+        return _KeyboardActionButton(
+          theme: theme,
+          onTap: () => _handleKeyTap(key),
+          child: Icon(
+            Icons.swap_horiz_rounded,
+            size: theme.iconSize,
+            color: theme.actionKeyForegroundColor,
+          ),
+        );
+      case AntKeyAction.enter:
+        return _KeyboardActionButton(
+          theme: theme,
+          onTap: () => _handleKeyTap(key),
+          child: Icon(
+            Icons.keyboard_return_rounded,
+            size: theme.iconSize,
+            color: theme.actionKeyForegroundColor,
+          ),
+        );
+      case AntKeyAction.tab:
+        return _KeyboardActionButton(
+          theme: theme,
+          onTap: () => _handleKeyTap(key),
+          child: Icon(
+            Icons.keyboard_tab_rounded,
+            size: theme.iconSize,
+            color: theme.actionKeyForegroundColor,
+          ),
         );
       case AntKeyAction.space:
         return _KeyboardActionButton(
@@ -334,12 +493,16 @@ class _KeyboardTextKey extends StatefulWidget {
     required this.key_,
     required this.onTap,
     this.onLongPress,
+    this.displayText,
   });
 
   final AntKeyboardThemeData theme;
   final AntKeyboardKey key_;
   final VoidCallback onTap;
   final ValueChanged<BuildContext>? onLongPress;
+
+  /// 当前修饰态下显示的字符（null 时用 key_.text）
+  final String? displayText;
 
   @override
   State<_KeyboardTextKey> createState() => _KeyboardTextKeyState();
@@ -373,7 +536,7 @@ class _KeyboardTextKeyState extends State<_KeyboardTextKey> {
           borderRadius: BorderRadius.circular(theme.keyBorderRadius!),
         ),
         child: Text(
-          widget.key_.text ?? '',
+          widget.displayText ?? widget.key_.text ?? '',
           style: TextStyle(
             fontSize: theme.fontSize,
             color: theme.keyForegroundColor,
@@ -403,6 +566,7 @@ class _KeyboardActionButton extends StatefulWidget {
     this.onTapUp,
     this.isBackspace = false,
     this.isConfirm = false,
+    this.active = false,
   });
 
   final AntKeyboardThemeData theme;
@@ -412,6 +576,9 @@ class _KeyboardActionButton extends StatefulWidget {
   final VoidCallback? onTapUp;
   final bool isBackspace;
   final bool isConfirm;
+
+  /// 锁定/激活态（Shift/CapsLock 开启时高亮）
+  final bool active;
 
   @override
   State<_KeyboardActionButton> createState() => _KeyboardActionButtonState();
@@ -435,6 +602,9 @@ class _KeyboardActionButtonState extends State<_KeyboardActionButton> {
     }
     if (_pressed && !widget.isConfirm) {
       bg = theme.actionKeyPressedBackgroundColor ?? bg;
+    }
+    if (widget.active && !widget.isConfirm) {
+      bg = theme.confirmBackgroundColor ?? bg;
     }
 
     final btn = GestureDetector(
@@ -469,6 +639,35 @@ class _KeyboardActionButtonState extends State<_KeyboardActionButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: btn,
+    );
+  }
+}
+
+/// 控制条按钮（桌面展示形态：贴底/贴顶切换）
+class _KeyboardControlButton extends StatelessWidget {
+  const _KeyboardControlButton({
+    required this.icon,
+    required this.onTap,
+    required this.theme,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+  final AntKeyboardThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: theme.keySpacing ?? 4),
+        child: Icon(
+          icon,
+          size: (theme.iconSize ?? 20) * 0.8,
+          color: theme.actionKeyForegroundColor,
+        ),
+      ),
     );
   }
 }

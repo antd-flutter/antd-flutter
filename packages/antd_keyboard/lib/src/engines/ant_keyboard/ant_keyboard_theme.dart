@@ -115,8 +115,10 @@ class AntKeyboardThemeData {
           actionKeyForegroundColor ?? this.actionKeyForegroundColor,
       actionKeyPressedBackgroundColor: actionKeyPressedBackgroundColor ??
           this.actionKeyPressedBackgroundColor,
-      confirmBackgroundColor: confirmBackgroundColor ?? this.confirmBackgroundColor,
-      confirmForegroundColor: confirmForegroundColor ?? this.confirmForegroundColor,
+      confirmBackgroundColor:
+          confirmBackgroundColor ?? this.confirmBackgroundColor,
+      confirmForegroundColor:
+          confirmForegroundColor ?? this.confirmForegroundColor,
       keyBorderRadius: keyBorderRadius ?? this.keyBorderRadius,
       keyHeight: keyHeight ?? this.keyHeight,
       keySpacing: keySpacing ?? this.keySpacing,
@@ -137,9 +139,7 @@ class AntKeyboardThemeData {
       surfaceColor: dark ? t.colorBgContainer : t.colorFillQuaternary,
       keyBackgroundColor: dark ? t.colorFillSecondary : t.colorBgContainer,
       keyForegroundColor: t.colorText,
-      keyPressedBackgroundColor: dark
-          ? t.colorFill
-          : t.colorFillSecondary,
+      keyPressedBackgroundColor: dark ? t.colorFill : t.colorFillSecondary,
       keyHoverBackgroundColor: dark ? t.colorFill : t.colorFillSecondary,
       actionKeyBackgroundColor: dark ? t.colorFill : t.colorFillTertiary,
       actionKeyForegroundColor: t.colorTextSecondary,
@@ -173,8 +173,10 @@ class AntKeyboardThemeData {
           other.actionKeyForegroundColor ?? actionKeyForegroundColor,
       actionKeyPressedBackgroundColor: other.actionKeyPressedBackgroundColor ??
           actionKeyPressedBackgroundColor,
-      confirmBackgroundColor: other.confirmBackgroundColor ?? confirmBackgroundColor,
-      confirmForegroundColor: other.confirmForegroundColor ?? confirmForegroundColor,
+      confirmBackgroundColor:
+          other.confirmBackgroundColor ?? confirmBackgroundColor,
+      confirmForegroundColor:
+          other.confirmForegroundColor ?? confirmForegroundColor,
       keyBorderRadius: other.keyBorderRadius ?? keyBorderRadius,
       keyHeight: other.keyHeight ?? keyHeight,
       keySpacing: other.keySpacing ?? keySpacing,

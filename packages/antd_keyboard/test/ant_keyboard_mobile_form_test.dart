@@ -79,11 +79,17 @@ void main() {
         await tester.pumpAndSettle();
 
         for (final label in ['1', '5', '9']) {
-          expect(_keyHeight(tester, label), greaterThanOrEqualTo(44.0),
-              reason: label,);
+          expect(
+            _keyHeight(tester, label),
+            greaterThanOrEqualTo(44.0),
+            reason: label,
+          );
         }
-        expect(_keyboardMouseRegions(), findsNothing,
-            reason: '触屏无悬停，移动端键盘不应注入 MouseRegion',);
+        expect(
+          _keyboardMouseRegions(),
+          findsNothing,
+          reason: '触屏无悬停，移动端键盘不应注入 MouseRegion',
+        );
       });
 
       testWidgets('$platform：自定义 keyHeight 过小被钳制到 44', (tester) async {
@@ -100,36 +106,45 @@ void main() {
         expect(_keyHeight(tester, '5'), greaterThanOrEqualTo(44.0));
       });
 
-      testWidgets('$platform：R36 贴底 bottom inset 避让（大于水平内边距）',
-          (tester) async {
+      testWidgets('$platform：R36 贴底 bottom inset 避让（大于水平内边距）', (tester) async {
         _platform(platform);
-        await tester.pumpWidget(_wrap(
-          AntKeyboard(layout: AntKeyboardLayout.numeric()),
-          safePadding: const EdgeInsets.only(bottom: 34),
-        ),);
+        await tester.pumpWidget(
+          _wrap(
+            AntKeyboard(layout: AntKeyboardLayout.numeric()),
+            safePadding: const EdgeInsets.only(bottom: 34),
+          ),
+        );
         await tester.pumpAndSettle();
 
         final padding = _rootContainer(tester).padding! as EdgeInsets;
-        expect(padding.bottom, greaterThan(padding.left),
-            reason: 'bottom inset 应叠加在 sectionPadding 之上',);
+        expect(
+          padding.bottom,
+          greaterThan(padding.left),
+          reason: 'bottom inset 应叠加在 sectionPadding 之上',
+        );
         expect(padding.bottom, greaterThanOrEqualTo(34.0));
       });
 
       testWidgets('$platform：SafeArea 消费 inset 后不重复避让（overlay 路径）',
           (tester) async {
         _platform(platform);
-        await tester.pumpWidget(_wrap(
-          SafeArea(
-            top: false,
-            child: AntKeyboard(layout: AntKeyboardLayout.numeric()),
+        await tester.pumpWidget(
+          _wrap(
+            SafeArea(
+              top: false,
+              child: AntKeyboard(layout: AntKeyboardLayout.numeric()),
+            ),
+            safePadding: const EdgeInsets.only(bottom: 34),
           ),
-          safePadding: const EdgeInsets.only(bottom: 34),
-        ),);
+        );
         await tester.pumpAndSettle();
 
         final padding = _rootContainer(tester).padding! as EdgeInsets;
-        expect(padding.bottom, equals(padding.left),
-            reason: '外层 SafeArea 已消费 bottom inset，引擎不叠加',);
+        expect(
+          padding.bottom,
+          equals(padding.left),
+          reason: '外层 SafeArea 已消费 bottom inset，引擎不叠加',
+        );
       });
     }
   });
@@ -146,8 +161,7 @@ void main() {
       expect(_keyboardMouseRegions(), findsWidgets);
     });
 
-    testWidgets('显式主题 desktop: false：桌面端保持移动触控形态（API 兼容）',
-        (tester) async {
+    testWidgets('显式主题 desktop: false：桌面端保持移动触控形态（API 兼容）', (tester) async {
       _platform(TargetPlatform.macOS);
       await tester.pumpWidget(
         _wrap(

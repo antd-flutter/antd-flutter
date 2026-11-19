@@ -22,11 +22,13 @@ void main() {
     testWidgets('renders default length 6 cells with plain value',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          defaultValue: '123456',
-          plain: true,
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            defaultValue: '123456',
+            plain: true,
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('6'), findsOneWidget);
@@ -34,12 +36,14 @@ void main() {
 
     testWidgets('renders custom length cells', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          length: 4,
-          defaultValue: '1234',
-          plain: true,
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            length: 4,
+            defaultValue: '1234',
+            plain: true,
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
@@ -48,10 +52,12 @@ void main() {
 
     testWidgets('masked mode shows dots not text', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          defaultValue: '12',
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            defaultValue: '12',
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.text('1'), findsNothing);
       expect(find.text('2'), findsNothing);
@@ -66,11 +72,13 @@ void main() {
 
     testWidgets('plain mode shows digits', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          defaultValue: '12',
-          plain: true,
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            defaultValue: '12',
+            plain: true,
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
@@ -78,21 +86,25 @@ void main() {
 
     testWidgets('separated mode renders without error', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          separated: true,
-          defaultValue: '1',
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            separated: true,
+            defaultValue: '1',
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.byType(AntPasscodeInput), findsOneWidget);
     });
 
     testWidgets('error mode renders without error', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          error: true,
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            error: true,
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.byType(AntPasscodeInput), findsOneWidget);
     });
@@ -119,8 +131,7 @@ void main() {
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('keyboard false does not show keyboard on tap',
-        (tester) async {
+    testWidgets('keyboard false does not show keyboard on tap', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntPasscodeInput(keyboard: false)),
       );
@@ -129,12 +140,15 @@ void main() {
       expect(find.text('1'), findsNothing);
     });
 
-    testWidgets('tap digit fires onChange with appended value',
-        (tester) async {
+    testWidgets('tap digit fires onChange with appended value', (tester) async {
       var changed = '';
-      await tester.pumpWidget(_wrap(AntPasscodeInput(
-        onChange: (v) => changed = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntPasscodeInput(
+            onChange: (v) => changed = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -147,10 +161,14 @@ void main() {
 
     testWidgets('backspace removes last character', (tester) async {
       var changed = '';
-      await tester.pumpWidget(_wrap(AntPasscodeInput(
-        defaultValue: '12',
-        onChange: (v) => changed = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntPasscodeInput(
+            defaultValue: '12',
+            onChange: (v) => changed = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.byIcon(Icons.backspace_outlined));
@@ -160,10 +178,14 @@ void main() {
 
     testWidgets('onFill fires when all cells filled', (tester) async {
       var filled = '';
-      await tester.pumpWidget(_wrap(AntPasscodeInput(
-        length: 2,
-        onFill: (v) => filled = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntPasscodeInput(
+            length: 2,
+            onFill: (v) => filled = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('1'));
@@ -176,11 +198,15 @@ void main() {
 
     testWidgets('maxLength prevents typing beyond length', (tester) async {
       var changed = '';
-      await tester.pumpWidget(_wrap(AntPasscodeInput(
-        length: 2,
-        defaultValue: '12',
-        onChange: (v) => changed = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntPasscodeInput(
+            length: 2,
+            defaultValue: '12',
+            onChange: (v) => changed = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('3'));
@@ -192,11 +218,13 @@ void main() {
   group('AntPasscodeInput — controlled', () {
     testWidgets('value prop controls displayed content', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPasscodeInput(
-          value: '123',
-          plain: true,
-          keyboard: false,
-        ),),
+        _wrap(
+          const AntPasscodeInput(
+            value: '123',
+            plain: true,
+            keyboard: false,
+          ),
+        ),
       );
       expect(find.text('1'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
@@ -204,10 +232,14 @@ void main() {
 
     testWidgets('controlled tap digit fires onChange only', (tester) async {
       var changed = '';
-      await tester.pumpWidget(_wrap(AntPasscodeInput(
-        value: '1',
-        onChange: (v) => changed = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntPasscodeInput(
+            value: '1',
+            onChange: (v) => changed = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
       await tester.tap(find.text('2'));

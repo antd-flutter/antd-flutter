@@ -46,6 +46,9 @@ class AntVirtualInput extends StatefulWidget {
     this.keyboardLayout,
     this.keyboardTheme,
     this.keyboardDesktop = false,
+    this.keyboardPreset,
+    this.keyboardAlignTop = false,
+    this.keyboardShowControlBar = false,
     this.autoFocus = false,
     this.onFocus,
     this.onBlur,
@@ -81,8 +84,18 @@ class AntVirtualInput extends StatefulWidget {
   /// 键盘自定义按键。
   final String? customKey;
 
-  /// 通用键盘布局（null 时使用数字键盘预设 AntNumberKeyboard）。
+  /// 通用键盘布局（优先级高于 [keyboardPreset]；两者都为 null 时使用
+  /// 数字键盘预设 AntNumberKeyboard）。
   final AntKeyboardLayout? keyboardLayout;
+
+  /// 键盘预设类型（便捷参数；[keyboardLayout] 显式指定时忽略）。
+  final AntKeyboardPreset? keyboardPreset;
+
+  /// 键盘弹出对齐：贴底（默认）/贴顶（桌面展示形态可切换）。
+  final bool keyboardAlignTop;
+
+  /// 桌面展示形态下显示控制条（贴底/贴顶切换按钮）。
+  final bool keyboardShowControlBar;
 
   /// 键盘主题覆盖。
   final AntKeyboardThemeData? keyboardTheme;
@@ -205,7 +218,10 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
 
   void _showKeyboard() {
     // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
-    final layout = widget.keyboardLayout;
+    final layout = widget.keyboardLayout ??
+        (widget.keyboardPreset == null
+            ? null
+            : AntKeyboardLayouts.of(widget.keyboardPreset!));
     _kb.show(
       context,
       layout != null
@@ -227,6 +243,10 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
                 _blur();
               },
               onHide: _blur,
+              showControlBar:
+                  widget.keyboardDesktop && widget.keyboardShowControlBar,
+              onAlignTop: () => _kb.realign(context, alignTop: true),
+              onAlignBottom: () => _kb.realign(context, alignTop: false),
             )
           // 默认：数字键盘预设
           : AntNumberKeyboard(
@@ -345,7 +365,8 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
       height: t.controlHeight.w,
       padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
       decoration: BoxDecoration(
-        color: widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+        color:
+            widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
         border: Border.all(color: borderColor, width: 1.w),
         borderRadius: BorderRadius.circular(t.borderRadius.w),
       ),
@@ -360,7 +381,9 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+              ],
               style: TextStyle(
                 fontSize: t.fontSize.sp,
                 color: widget.disabled ? t.colorTextDisabled : t.colorText,
