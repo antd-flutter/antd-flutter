@@ -43,6 +43,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_form:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_form"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_icons_flutter:
     dependency: transitive
     description:

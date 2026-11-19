@@ -34,6 +34,7 @@ dependencies:
   antd_image_viewer: ^0.1.0-beta.1
   antd_upload: ^0.1.0-beta.1
   antd_picker: ^0.1.0-beta.1
+  antd_form: ^0.1.0-beta.1
   antd_tree: ^0.1.0-beta.1
   antd_carousel: ^0.1.0-beta.1
   antd_masonry: ^0.1.0-beta.1
@@ -70,6 +71,8 @@ dependency_overrides:
     path: packages/antd_upload
   antd_picker:
     path: packages/antd_picker
+  antd_form:
+    path: packages/antd_form
   antd_tree:
     path: packages/antd_tree
   antd_carousel:

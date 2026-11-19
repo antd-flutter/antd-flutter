@@ -27,11 +27,10 @@
 /// ```
 library;
 
-import 'package:antd_flutter_ui/src/data_entry/form/ant_form_types.dart';
+import 'package:antd_form/src/form/ant_form_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-export 'package:antd_flutter_ui/src/data_entry/form/ant_form_types.dart';
 
 // ============================================================
 // AntFormController

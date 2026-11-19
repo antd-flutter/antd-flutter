@@ -43,6 +43,8 @@ dependency_overrides:
     path: ../packages/antd_upload
   antd_picker:
     path: ../packages/antd_picker
+  antd_form:
+    path: ../packages/antd_form
   antd_tree:
     path: ../packages/antd_tree
   antd_carousel:

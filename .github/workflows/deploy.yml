@@ -100,6 +100,14 @@ jobs:
         working-directory: packages/antd_picker/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/picker/
 
+      - name: Install antd_form example dependencies
+        working-directory: packages/antd_form/example
+        run: flutter pub get
+
+      - name: Build antd_form example (release)
+        working-directory: packages/antd_form/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/form/
+
       - name: Install antd_tree example dependencies
         working-directory: packages/antd_tree/example
         run: flutter pub get
@@ -142,7 +150,7 @@ jobs:
 
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel site/masonry site/floating site/keyboard
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/form site/tree site/carousel site/masonry site/floating site/keyboard
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -152,6 +160,7 @@ jobs:
           cp -r packages/antd_image_viewer/example/build/web/* site/image_viewer/
           cp -r packages/antd_upload/example/build/web/* site/upload/
           cp -r packages/antd_picker/example/build/web/* site/picker/
+          cp -r packages/antd_form/example/build/web/* site/form/
           cp -r packages/antd_tree/example/build/web/* site/tree/
           cp -r packages/antd_carousel/example/build/web/* site/carousel/
           cp -r packages/antd_masonry/example/build/web/* site/masonry/
