@@ -107,8 +107,9 @@ export 'package:antd_flutter_ui/src/data_entry/radio/ant_radio.dart';
 export 'package:antd_flutter_ui/src/data_entry/radio/ant_radio_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/switch/ant_switch.dart';
 export 'package:antd_flutter_ui/src/data_entry/switch/ant_switch_types.dart';
-export 'src/components/data_entry/select/ant_select.dart';
-export 'src/components/data_entry/select/ant_select_types.dart';
+// AntSelect 已迁移至 antd_flutter_ui（P08 批次 0-4，从主包迁入），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/select/ant_select.dart';
+export 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/selector/ant_selector.dart';
 export 'package:antd_flutter_ui/src/data_entry/selector/ant_selector_types.dart';
 // AntDatePicker / AntTimePicker 已迁移至独立包 antd_picker（P08 批次 1，从 ui 迁出），此处 re-export 保持符号兼容
@@ -122,20 +123,24 @@ export 'package:antd_flutter_ui/src/data_entry/rate/ant_rate.dart';
 export 'package:antd_flutter_ui/src/data_entry/rate/ant_rate_types.dart';
 export 'src/components/data_entry/form/ant_form.dart';
 export 'src/components/data_entry/form/ant_form_types.dart';
-export 'src/components/data_entry/auto_complete/ant_auto_complete.dart';
-export 'src/components/data_entry/auto_complete/ant_auto_complete_types.dart';
+// AntAutoComplete 已迁移至 antd_flutter_ui（P08 批次 0-4，从主包迁入），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete.dart';
+export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
 // AntCascader 已迁移至独立包 antd_picker（P08 批次 1，从 ui 迁出），此处 re-export 保持符号兼容
 export 'package:antd_picker/src/cascader/ant_cascader.dart';
 export 'package:antd_picker/src/cascader/ant_cascader_types.dart';
 export 'package:antd_picker/src/cascader/ant_cascader_view.dart';
-export 'src/components/data_entry/color_picker/ant_color_picker.dart';
+// AntColorPicker 已迁移至 antd_flutter_ui（P08 批次 0-4，从主包迁入），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker.dart';
+export 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/image_uploader/ant_image_uploader.dart';
 export 'package:antd_flutter_ui/src/data_entry/image_uploader/ant_image_uploader_types.dart';
 // AntTreeSelect 已迁移至独立包 antd_tree（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
 export 'package:antd_tree/src/tree_select/ant_tree_select.dart';
 export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
-export 'src/components/data_entry/mentions/ant_mentions.dart';
-export 'src/components/data_entry/mentions/ant_mentions_types.dart';
+// AntMentions 已迁移至 antd_flutter_ui（P08 批次 0-4，从主包迁入），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions.dart';
+export 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions_types.dart';
 export 'package:antd_keyboard/src/number_keyboard/ant_number_keyboard.dart';
 export 'package:antd_keyboard/src/number_keyboard/ant_number_keyboard_types.dart';
 export 'package:antd_keyboard/src/passcode_input/ant_passcode_input.dart';

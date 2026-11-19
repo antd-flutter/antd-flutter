@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_entry/select/ant_select.dart';
+import 'package:antd_flutter_ui/src/data_entry/select/ant_select.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -142,6 +142,42 @@ void main() {
         loading: true,
       ),),);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+  });
+
+  group('AntSelect — popup_engine 边界（翻转/夹回）', () {
+    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: AntSelect<String>(options: _options),
+        ),
+      ),);
+      await tester.tap(find.byType(AntSelect<String>));
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_select_panel')));
+      final trigger = tester.getRect(find.byType(AntSelect<String>));
+      // 触发元素贴近视口底部，面板应翻转到触发元素上方
+      expect(panel.bottom, lessThanOrEqualTo(trigger.top + 0.01));
+    });
+
+    testWidgets('面板不溢出视口（滑动夹回）', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 60,
+            child: AntSelect<String>(options: _options),
+          ),
+        ),
+      ),);
+      await tester.tap(find.byType(AntSelect<String>));
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_select_panel')));
+      final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+      // 夹回：面板左缘不小于安全边距，右缘不超视口
+      expect(panel.left, greaterThanOrEqualTo(0));
+      expect(panel.right, lessThanOrEqualTo(screen.width + 0.01));
     });
   });
 }

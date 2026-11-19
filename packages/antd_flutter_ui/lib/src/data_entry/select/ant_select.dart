@@ -23,10 +23,12 @@ library;
 
 import 'dart:math' as math;
 
-import 'package:antd_flutter_plus/src/components/data_entry/select/ant_select_types.dart';
+import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
+import 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/select/ant_select_types.dart';
+export 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================
@@ -93,9 +95,10 @@ class AntSelect<T> extends StatefulWidget {
   State<AntSelect<T>> createState() => _AntSelectState<T>();
 }
 
-class _AntSelectState<T> extends State<AntSelect<T>> {
+class _AntSelectState<T> extends State<AntSelect<T>>
+    with PopupContentRefresher<AntSelect<T>> {
+  /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
   final GlobalKey _fieldKey = GlobalKey();
-  final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
   Object? _internalValue;
@@ -147,7 +150,6 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
     _overlayEntry = OverlayEntry(
       builder: (context) => _SelectOverlay<T>(
         fieldKey: _fieldKey,
-        layerLink: _layerLink,
         options: widget.options,
         isMultiple: _isMultiple,
         selectedValue: _currentValue,
@@ -158,6 +160,8 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
         onSearch: (text) {
           if (!mounted) return;
           setState(() => _searchText = text);
+          // 搜索输入在事件期触发（非 build 期），原地重建可即时生效；
+          // 不走 PopupContentRefresher 的帧末延迟——会慢一帧丢输入反馈。
           _overlayEntry?.markNeedsBuild();
         },
         onSelect: _handleSelect,
@@ -189,7 +193,7 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
     }
     if (mounted) {
       setState(() {});
-      _overlayEntry?.markNeedsBuild();
+      refreshPopupContent();
     }
   }
 
@@ -229,14 +233,16 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
           (o) => o.value == v,
           orElse: () => AntSelectOption<T>(value: v, label: '$v'),
         );
-        selectedLabels.add(_Tag(
-          label: opt.label,
-          theme: theme,
-          disabled: widget.disabled,
-          onClear: widget.allowClear && !widget.disabled
-              ? () => _handleSelect(v, false)
-              : null,
-        ),);
+        selectedLabels.add(
+          _Tag(
+            label: opt.label,
+            theme: theme,
+            disabled: widget.disabled,
+            onClear: widget.allowClear && !widget.disabled
+                ? () => _handleSelect(v, false)
+                : null,
+          ),
+        );
       }
     } else {
       final v = _currentValue as T?;
@@ -274,15 +280,15 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
         vertical: _isMultiple && selectedLabels.length > 1 ? 4.w : 0,
       ),
       decoration: BoxDecoration(
-        color: widget.disabled ? theme.colorBgContainerDisabled : theme.colorBgContainer,
+        color: widget.disabled
+            ? theme.colorBgContainerDisabled
+            : theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadius.w),
         border: Border.all(
           color: open && !widget.disabled
               ? theme.controlOutline
               : theme.colorBorder,
-          width: open && !widget.disabled
-              ? theme.controlOutlineWidth.w
-              : 1.w,
+          width: open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
         ),
       ),
       child: Row(
@@ -315,8 +321,7 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
                 color: theme.colorTextPlaceholder,
               ),
             ),
-          ]
-          else if (widget.loading)
+          ] else if (widget.loading)
             Padding(
               padding: EdgeInsets.only(left: 4.w),
               child: SizedBox(
@@ -345,11 +350,6 @@ class _AntSelectState<T> extends State<AntSelect<T>> {
             ),
         ],
       ),
-    );
-
-    content = CompositedTransformTarget(
-      link: _layerLink,
-      child: content,
     );
 
     return GestureDetector(
@@ -418,7 +418,6 @@ class _Tag extends StatelessWidget {
 class _SelectOverlay<T> extends StatelessWidget {
   const _SelectOverlay({
     required this.fieldKey,
-    required this.layerLink,
     required this.options,
     required this.isMultiple,
     required this.selectedValue,
@@ -431,8 +430,8 @@ class _SelectOverlay<T> extends StatelessWidget {
     required this.onDismiss,
   });
 
+  /// 触发元素 GlobalKey（弹层基座定位/镂空遮挡）。
   final GlobalKey fieldKey;
-  final LayerLink layerLink;
   final List<AntSelectOption<T>> options;
   final bool isMultiple;
   final Object? selectedValue;
@@ -449,144 +448,137 @@ class _SelectOverlay<T> extends StatelessWidget {
     final theme = themeData;
     final mediaSize = MediaQuery.sizeOf(context);
 
-    final fieldCtx = fieldKey.currentContext;
-    if (fieldCtx == null) return const SizedBox.shrink();
-    final fieldBox = fieldCtx.findRenderObject() as RenderBox?;
-    if (fieldBox == null || !fieldBox.hasSize) return const SizedBox.shrink();
-    final fieldSize = fieldBox.size;
-
     final filtered = searchText.isEmpty
         ? options
         : options
-            .where((o) =>
-                o.label.toLowerCase().contains(searchText.toLowerCase()),)
+            .where(
+              (o) => o.label.toLowerCase().contains(searchText.toLowerCase()),
+            )
             .toList();
 
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
-        ),
-        Positioned(
-          left: 0,
-          top: fieldSize.height + 4,
-          width: math.max(fieldSize.width, 120),
-          child: CompositedTransformFollower(
-            link: layerLink,
-            showWhenUnlinked: false,
-            child: TapRegion(
-              onTapOutside: (_) => onDismiss(),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: math.min(256, mediaSize.height * 0.5),
+    // 统一弹层基座：placement 首选下方，视口下方放不下自动翻转到上方；
+    // 方向决策/滑动夹回/镂空遮挡/fade+scale 动画由基座承担（antd Select 无箭头）。
+    return AntPopupOverlay(
+      targetKey: fieldKey,
+      placement: AntPopupPlacement.bottom,
+      arrow: false,
+      gap: 4,
+      onDismiss: onDismiss,
+      child: _buildPanel(context, theme, mediaSize, filtered),
+    );
+  }
+
+  /// 下拉面板：宽度对齐触发元素（不小于 120，基座 Stack 为宽松约束需定宽），
+  /// 高度上限 min(256, 视口一半)，超出面板内滚动。
+  Widget _buildPanel(
+    BuildContext context,
+    AntThemeData theme,
+    Size mediaSize,
+    List<AntSelectOption<T>> filtered,
+  ) {
+    final fieldBox = fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    final fieldWidth =
+        (fieldBox != null && fieldBox.hasSize) ? fieldBox.size.width : 0.0;
+    return Container(
+      key: const Key('ant_select_panel'),
+      width: math.max(fieldWidth, 120),
+      constraints: BoxConstraints(
+        maxHeight: math.min(256, mediaSize.height * 0.5),
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorBgContainer,
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+        border: Border.all(color: theme.colorSplit),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showSearch)
+            Padding(
+              padding: EdgeInsets.all(8.w),
+              child: TextField(
+                autofocus: true,
+                style: TextStyle(
+                  fontSize: theme.fontSize.sp,
+                  color: theme.colorText,
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 6.w,
                   ),
-                  decoration: BoxDecoration(
-                    color: theme.colorBgContainer,
-                    borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-                    border: Border.all(color: theme.colorSplit),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                  hintText: '搜索',
+                  hintStyle: TextStyle(
+                    fontSize: theme.fontSizeSM.sp,
+                    color: theme.colorTextPlaceholder,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (showSearch)
-                        Padding(
-                          padding: EdgeInsets.all(8.w),
-                          child: TextField(
-                            autofocus: true,
-                            style: TextStyle(
-                              fontSize: theme.fontSize.sp,
-                              color: theme.colorText,
-                            ),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 6.w,
-                              ),
-                              hintText: '搜索',
-                              hintStyle: TextStyle(
-                                fontSize: theme.fontSizeSM.sp,
-                                color: theme.colorTextPlaceholder,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(theme.borderRadius.w),
-                                borderSide:
-                                    BorderSide(color: theme.colorBorder),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(theme.borderRadius.w),
-                                borderSide: BorderSide(
-                                    color: theme.colorPrimary, width: 1.5.w,),
-                              ),
-                            ),
-                            onChanged: onSearch,
-                          ),
-                        ),
-                      if (loading)
-                        Padding(
-                          padding: EdgeInsets.all(24.w),
-                          child: SizedBox(
-                            width: 20.w,
-                            height: 20.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.w,
-                              color: theme.colorPrimary,
-                            ),
-                          ),
-                        )
-                      else if (filtered.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.all(24.w),
-                          child: Text(
-                            '暂无数据',
-                            style: TextStyle(
-                              fontSize: theme.fontSize.sp,
-                              color: theme.colorTextDisabled,
-                            ),
-                          ),
-                        )
-                      else
-                        Flexible(
-                          child: ListView(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.symmetric(vertical: 4.w),
-                            children: filtered.map((option) {
-                              final selected =
-                                  _isSelected(option.value);
-                              return _OptionItem<T>(
-                                option: option,
-                                selected: selected,
-                                isMultiple: isMultiple,
-                                theme: theme,
-                                onTap: option.disabled
-                                    ? null
-                                    : () =>
-                                        onSelect(option.value, !selected),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                    ],
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
+                    borderSide: BorderSide(color: theme.colorBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
+                    borderSide: BorderSide(
+                      color: theme.colorPrimary,
+                      width: 1.5.w,
+                    ),
                   ),
                 ),
+                onChanged: onSearch,
               ),
             ),
-          ),
-        ),
-      ],
+          if (loading)
+            Padding(
+              padding: EdgeInsets.all(24.w),
+              child: SizedBox(
+                width: 20.w,
+                height: 20.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.w,
+                  color: theme.colorPrimary,
+                ),
+              ),
+            )
+          else if (filtered.isEmpty)
+            Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Text(
+                '暂无数据',
+                style: TextStyle(
+                  fontSize: theme.fontSize.sp,
+                  color: theme.colorTextDisabled,
+                ),
+              ),
+            )
+          else
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.symmetric(vertical: 4.w),
+                children: filtered.map((option) {
+                  final selected = _isSelected(option.value);
+                  return _OptionItem<T>(
+                    option: option,
+                    selected: selected,
+                    isMultiple: isMultiple,
+                    theme: theme,
+                    onTap: option.disabled
+                        ? null
+                        : () => onSelect(option.value, !selected),
+                  );
+                }).toList(),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

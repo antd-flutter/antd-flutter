@@ -184,3 +184,14 @@ export 'src/data_entry/selector/ant_selector.dart';
 export 'src/data_entry/selector/ant_selector_types.dart';
 export 'src/data_entry/image_uploader/ant_image_uploader.dart';
 export 'src/data_entry/image_uploader/ant_image_uploader_types.dart';
+
+// ── 数据录入·select-like 族（批次 0-4，自主包 antd_flutter_plus 迁入，
+//    弹层统一接入 popup_engine 底座）──
+export 'src/data_entry/select/ant_select.dart';
+export 'src/data_entry/select/ant_select_types.dart';
+export 'src/data_entry/color_picker/ant_color_picker.dart';
+export 'src/data_entry/color_picker/ant_color_picker_types.dart';
+export 'src/data_entry/auto_complete/ant_auto_complete.dart';
+export 'src/data_entry/auto_complete/ant_auto_complete_types.dart';
+export 'src/data_entry/mentions/ant_mentions.dart';
+export 'src/data_entry/mentions/ant_mentions_types.dart';

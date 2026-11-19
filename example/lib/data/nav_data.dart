@@ -111,6 +111,10 @@ const List<NavGroup> navGroups = [
   ]),
   NavGroup('数据录入', [
     NavItem('TreeSelect 树选择', 'tree_select'),
+    NavItem('Select 选择器', 'select'),
+    NavItem('ColorPicker 颜色选择器', 'color_picker'),
+    NavItem('AutoComplete 自动完成', 'auto_complete'),
+    NavItem('Mentions 提及', 'mentions'),
     NavItem('Picker 选择器', 'picker'),
     NavItem('DatePicker 日期选择器', 'date_picker'),
     NavItem('TimePicker 时间选择器', 'time_picker'),

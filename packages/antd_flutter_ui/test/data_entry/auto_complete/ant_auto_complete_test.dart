@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_entry/auto_complete/ant_auto_complete.dart';
+import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -200,6 +200,35 @@ void main() {
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       expect(find.text('onlyValue'), findsOneWidget);
+    });
+  });
+
+  group('AntAutoComplete — popup_engine 边界（翻转/夹回）', () {
+    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: AntAutoComplete(options: _options),
+        ),
+      ),);
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_auto_complete_panel')));
+      final trigger = tester.getRect(find.byType(AntAutoComplete));
+      expect(panel.top, lessThanOrEqualTo(trigger.top + 0.01));
+    });
+
+    testWidgets('镂空遮挡不干扰输入框继续输入', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntAutoComplete(options: _options, defaultValue: ''),
+      ),);
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      // 弹层打开时输入框仍可输入（弹层遮挡镂空触发区域）
+      await tester.enterText(find.byType(TextField), 'ap');
+      await tester.pumpAndSettle();
+      expect(find.text('Apple'), findsOneWidget);
+      expect(find.text('Banana'), findsNothing);
     });
   });
 }

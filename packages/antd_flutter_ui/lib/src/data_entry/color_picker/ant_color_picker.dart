@@ -12,7 +12,9 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'ant_color_picker_types.dart';
+import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
+import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
+import 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker_types.dart';
 
 export 'ant_color_picker_types.dart';
 
@@ -82,12 +84,18 @@ class AntColorPicker extends StatefulWidget {
   State<AntColorPicker> createState() => _AntColorPickerState();
 }
 
-class _AntColorPickerState extends State<AntColorPicker> {
+class _AntColorPickerState extends State<AntColorPicker>
+    with
+        PopupOpenScheduler<AntColorPicker>,
+        PopupContentRefresher<AntColorPicker> {
+  /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
   final GlobalKey _triggerKey = GlobalKey();
-  final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
   HSVColor? _internalColor;
+
+  /// 当前主题（组件 context 下捕获，overlay builder 经字段重读）。
+  AntThemeData _themeData = AntThemeData.light();
 
   bool get _currentOpen => widget.open ?? _internalOpen;
 
@@ -113,12 +121,10 @@ class _AntColorPickerState extends State<AntColorPicker> {
     if (widget.value != null && widget.value != oldWidget.value) {
       _internalColor = _hexToHsv(widget.value!);
     }
+    // 受控 open 切换统一延迟到帧末执行（PopupOpenScheduler 防构建期插 Overlay）
     if (widget.open != null && widget.open != oldWidget.open) {
-      if (widget.open!) {
-        _showOverlay();
-      } else {
-        _hideOverlay();
-      }
+      schedulePopupOpen(
+          open: widget.open!, show: _showOverlay, hide: () => _setOpen(false),);
     }
   }
 
@@ -152,12 +158,14 @@ class _AntColorPickerState extends State<AntColorPicker> {
     final theme = AntTheme.of(context);
     final currentHex = _currentColorHex;
     final hsv = _internalColor ??
-        (currentHex != null ? _hexToHsv(currentHex) : HSVColor.fromColor(const Color(0xFF1677FF)));
+        (currentHex != null
+            ? _hexToHsv(currentHex)
+            : HSVColor.fromColor(const Color(0xFF1677FF)));
+    _themeData = theme;
     _overlayEntry = OverlayEntry(
       builder: (context) => _ColorPickerOverlay(
-        layerLink: _layerLink,
         triggerKey: _triggerKey,
-        themeData: theme,
+        themeData: _themeData,
         hsv: hsv,
         presets: widget.presets,
         disabledAlpha: widget.disabledAlpha,
@@ -168,18 +176,20 @@ class _AntColorPickerState extends State<AntColorPicker> {
           if (widget.value == null) {
             setState(() => _internalColor = color);
           }
-          widget.onChange?.call(_hsvToHex(color, disableAlpha: widget.disabledAlpha));
-          _overlayEntry?.markNeedsBuild();
+          widget.onChange
+              ?.call(_hsvToHex(color, disableAlpha: widget.disabledAlpha));
+          refreshPopupContent();
         },
         onColorChangeComplete: (color) {
-          widget.onChangeComplete?.call(_hsvToHex(color, disableAlpha: widget.disabledAlpha));
+          widget.onChangeComplete
+              ?.call(_hsvToHex(color, disableAlpha: widget.disabledAlpha));
         },
         onClear: () {
           if (widget.value == null) {
             setState(() => _internalColor = null);
           }
           widget.onChange?.call(null);
-          _overlayEntry?.markNeedsBuild();
+          refreshPopupContent();
         },
         onDismiss: () => _setOpen(false),
       ),
@@ -209,43 +219,40 @@ class _AntColorPickerState extends State<AntColorPicker> {
     final hex = _currentColorHex;
     final color = hex != null ? _parseHex(hex) : null;
 
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: GestureDetector(
-        key: _triggerKey,
-        onTap: widget.disabled ? null : () => _setOpen(!_currentOpen),
-        child: Container(
-          padding: EdgeInsets.all(4.r),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
-            border: Border.all(color: t.colorBorder),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: _triggerSize,
-                height: _triggerSize,
-                decoration: BoxDecoration(
-                  color: color ?? Colors.transparent,
-                  borderRadius: BorderRadius.circular(t.borderRadiusXS.r),
-                  border: Border.all(
-                    color: color == null ? t.colorSplit : Colors.transparent,
-                  ),
+    return GestureDetector(
+      key: _triggerKey,
+      onTap: widget.disabled ? null : () => _setOpen(!_currentOpen),
+      child: Container(
+        padding: EdgeInsets.all(4.r),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+          border: Border.all(color: t.colorBorder),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: _triggerSize,
+              height: _triggerSize,
+              decoration: BoxDecoration(
+                color: color ?? Colors.transparent,
+                borderRadius: BorderRadius.circular(t.borderRadiusXS.r),
+                border: Border.all(
+                  color: color == null ? t.colorSplit : Colors.transparent,
                 ),
               ),
-              if (widget.showText) ...[
-                SizedBox(width: 8.w),
-                Text(
-                  hex ?? '-',
-                  style: TextStyle(
-                    fontSize: t.fontSizeSM.sp,
-                    color: t.colorText,
-                  ),
+            ),
+            if (widget.showText) ...[
+              SizedBox(width: 8.w),
+              Text(
+                hex ?? '-',
+                style: TextStyle(
+                  fontSize: t.fontSizeSM.sp,
+                  color: t.colorText,
                 ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -300,7 +307,8 @@ int _blueOf(Color c) => (c.b * 255.0).round().clamp(0, 255);
 int _alphaOf(Color c) => (c.a * 255.0).round().clamp(0, 255);
 
 /// HSV 转 HSL 值（hue 0-360, saturation 0-1, lightness 0-1）
-({double hue, double saturation, double lightness}) _hsvToHslValues(HSVColor hsv) {
+({double hue, double saturation, double lightness}) _hsvToHslValues(
+    HSVColor hsv,) {
   final v = hsv.value;
   final s = hsv.saturation;
   final l = v * (1 - s / 2);
@@ -338,7 +346,6 @@ String _formatColor(HSVColor hsv, AntColorFormat format) {
 /// 颜色选择器浮层
 class _ColorPickerOverlay extends StatefulWidget {
   const _ColorPickerOverlay({
-    required this.layerLink,
     required this.triggerKey,
     required this.themeData,
     required this.hsv,
@@ -353,7 +360,7 @@ class _ColorPickerOverlay extends StatefulWidget {
     required this.onDismiss,
   });
 
-  final LayerLink layerLink;
+  /// 触发元素 GlobalKey（弹层基座定位/镂空遮挡）。
   final GlobalKey triggerKey;
   final AntThemeData themeData;
   final HSVColor hsv;
@@ -392,124 +399,122 @@ class _ColorPickerOverlayState extends State<_ColorPickerOverlay> {
   @override
   Widget build(BuildContext context) {
     final t = widget.themeData;
-    return Stack(
-      children: [
-        // 全屏 barrier
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: widget.onDismiss,
-          child: const SizedBox.expand(),
-        ),
-        // 定位面板
-        CompositedTransformFollower(
-          link: widget.layerLink,
-          targetAnchor: Alignment.bottomLeft,
-          followerAnchor: Alignment.topLeft,
-          offset: Offset(0, 4.h),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: 240.w,
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: t.colorBgContainer,
-                borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
-                border: Border.all(color: t.colorSplit),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 12.r,
-                    offset: Offset(0, 4.h),
-                  ),
-                ],
+    // 统一弹层基座：placement 首选下方，视口下方放不下自动翻转上方，
+    // 面板较宽（240）由引擎滑动夹回保证不溢出视口；带箭头（antd ColorPicker 语义）。
+    return AntPopupOverlay(
+      targetKey: widget.triggerKey,
+      placement: AntPopupPlacement.bottom,
+      arrow: true,
+      arrowColor: t.colorBgContainer,
+      gap: 4,
+      onDismiss: widget.onDismiss,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          key: const Key('ant_color_picker_panel'),
+          width: 240.w,
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: t.colorBgContainer,
+            borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
+            border: Border.all(color: t.colorSplit),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 12.r,
+                offset: Offset(0, 4.h),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // SV 面板
-                  _SvPanel(
-                    hsv: _hsv,
-                    themeData: t,
-                    onChanged: _updateColor,
-                    onComplete: _completeColor,
-                  ),
-                  SizedBox(height: 12.h),
-                  // 色相滑块
-                  _HueSlider(
-                    hue: _hsv.hue,
-                    onChanged: (hue) => _updateColor(_hsv.withHue(hue)),
-                    onComplete: _completeColor,
-                  ),
-                  // 透明度滑块
-                  if (!widget.disabledAlpha) ...[
-                    SizedBox(height: 8.h),
-                    _AlphaSlider(
-                      hsv: _hsv,
-                      onChanged: (alpha) => _updateColor(_hsv.withAlpha(alpha)),
-                      onComplete: _completeColor,
-                    ),
-                  ],
-                  // 颜色文本 + 清空按钮
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _formatColor(_hsv, widget.format),
-                          style: TextStyle(
-                            fontSize: t.fontSizeSM.sp,
-                            color: t.colorText,
-                          ),
-                        ),
-                      ),
-                      if (widget.allowClear)
-                        GestureDetector(
-                          onTap: widget.onClear,
-                          child: Icon(
-                            Icons.cancel,
-                            size: 16.r,
-                            color: t.colorTextTertiary,
-                          ),
-                        ),
-                    ],
-                  ),
-                  // 预设颜色
-                  if (widget.presets.isNotEmpty) ...[
-                    SizedBox(height: 12.h),
-                    for (final preset in widget.presets) ...[
-                      Text(
-                        preset.label,
-                        style: TextStyle(
-                          fontSize: t.fontSizeSM.sp,
-                          color: t.colorTextSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Wrap(
-                        spacing: 8.w,
-                        runSpacing: 8.h,
-                        children: [
-                          for (final hex in preset.colors)
-                            _PresetSwatch(
-                              hex: hex,
-                              themeData: t,
-                              isSelected: _hsv.toColor() == _parseHex(hex),
-                              onTap: () {
-                                _updateColor(_hexToHsv(hex));
-                                _completeColor();
-                              },
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                    ],
-                  ],
-                ],
+            ],
+          ),
+          child: _buildPanelBody(t),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPanelBody(AntThemeData t) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // SV 面板
+        _SvPanel(
+          hsv: _hsv,
+          themeData: t,
+          onChanged: _updateColor,
+          onComplete: _completeColor,
+        ),
+        SizedBox(height: 12.h),
+        // 色相滑块
+        _HueSlider(
+          hue: _hsv.hue,
+          onChanged: (hue) => _updateColor(_hsv.withHue(hue)),
+          onComplete: _completeColor,
+        ),
+        // 透明度滑块
+        if (!widget.disabledAlpha) ...[
+          SizedBox(height: 8.h),
+          _AlphaSlider(
+            hsv: _hsv,
+            onChanged: (alpha) => _updateColor(_hsv.withAlpha(alpha)),
+            onComplete: _completeColor,
+          ),
+        ],
+        // 颜色文本 + 清空按钮
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _formatColor(_hsv, widget.format),
+                style: TextStyle(
+                  fontSize: t.fontSizeSM.sp,
+                  color: t.colorText,
+                ),
               ),
             ),
-          ),
+            if (widget.allowClear)
+              GestureDetector(
+                onTap: widget.onClear,
+                child: Icon(
+                  Icons.cancel,
+                  size: 16.r,
+                  color: t.colorTextTertiary,
+                ),
+              ),
+          ],
         ),
+        // 预设颜色
+        if (widget.presets.isNotEmpty) ...[
+          SizedBox(height: 12.h),
+          for (final preset in widget.presets) ...[
+            Text(
+              preset.label,
+              style: TextStyle(
+                fontSize: t.fontSizeSM.sp,
+                color: t.colorTextSecondary,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: [
+                for (final hex in preset.colors)
+                  _PresetSwatch(
+                    hex: hex,
+                    themeData: t,
+                    isSelected: _hsv.toColor() == _parseHex(hex),
+                    onTap: () {
+                      _updateColor(_hexToHsv(hex));
+                      _completeColor();
+                    },
+                  ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+          ],
+        ],
       ],
     );
   }
@@ -574,8 +579,11 @@ class _SvPanelState extends State<_SvPanel> {
                 child: Stack(
                   children: [
                     Positioned(
-                      left: (widget.hsv.saturation * (constraints.maxWidth - 12.r)).clamp(0.0, constraints.maxWidth - 12.r),
-                      top: ((1.0 - widget.hsv.value) * (panelHeight - 12.r)).clamp(0.0, panelHeight - 12.r),
+                      left: (widget.hsv.saturation *
+                              (constraints.maxWidth - 12.r))
+                          .clamp(0.0, constraints.maxWidth - 12.r),
+                      top: ((1.0 - widget.hsv.value) * (panelHeight - 12.r))
+                          .clamp(0.0, panelHeight - 12.r),
                       child: Container(
                         width: 12.r,
                         height: 12.r,
@@ -675,8 +683,10 @@ class _HueSliderState extends State<_HueSlider> {
         return GestureDetector(
           key: _key,
           behavior: HitTestBehavior.opaque,
-          onPanDown: (details) => widget.onChanged(_hueFromPosition(details.localPosition)),
-          onPanUpdate: (details) => widget.onChanged(_hueFromPosition(details.localPosition)),
+          onPanDown: (details) =>
+              widget.onChanged(_hueFromPosition(details.localPosition)),
+          onPanUpdate: (details) =>
+              widget.onChanged(_hueFromPosition(details.localPosition)),
           onPanEnd: (_) => widget.onComplete(),
           child: SizedBox(
             height: 12.r,
@@ -691,14 +701,16 @@ class _HueSliderState extends State<_HueSlider> {
                   ),
                 ),
                 Positioned(
-                  left: (widget.hue / 360 * (width - 12.r)).clamp(0.0, width - 12.r),
+                  left: (widget.hue / 360 * (width - 12.r))
+                      .clamp(0.0, width - 12.r),
                   top: -2.r,
                   child: Container(
                     width: 14.r,
                     height: 14.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: HSVColor.fromAHSV(1.0, widget.hue, 1.0, 1.0).toColor(),
+                      color: HSVColor.fromAHSV(1.0, widget.hue, 1.0, 1.0)
+                          .toColor(),
                       border: Border.all(color: Colors.white, width: 2.r),
                       boxShadow: [
                         BoxShadow(
@@ -776,8 +788,10 @@ class _AlphaSliderState extends State<_AlphaSlider> {
         return GestureDetector(
           key: _key,
           behavior: HitTestBehavior.opaque,
-          onPanDown: (details) => widget.onChanged(_alphaFromPosition(details.localPosition)),
-          onPanUpdate: (details) => widget.onChanged(_alphaFromPosition(details.localPosition)),
+          onPanDown: (details) =>
+              widget.onChanged(_alphaFromPosition(details.localPosition)),
+          onPanUpdate: (details) =>
+              widget.onChanged(_alphaFromPosition(details.localPosition)),
           onPanEnd: (_) => widget.onComplete(),
           child: SizedBox(
             height: 12.r,
@@ -792,7 +806,8 @@ class _AlphaSliderState extends State<_AlphaSlider> {
                   ),
                 ),
                 Positioned(
-                  left: (widget.hsv.alpha * (width - 12.r)).clamp(0.0, width - 12.r),
+                  left: (widget.hsv.alpha * (width - 12.r))
+                      .clamp(0.0, width - 12.r),
                   top: -2.r,
                   child: Container(
                     width: 14.r,
@@ -836,7 +851,8 @@ class _AlphaPainter extends CustomPainter {
         Paint()..color = i.isEven ? Colors.white : const Color(0xFFE0E0E0),
       );
       canvas.drawRect(
-        Rect.fromLTWH(i * cellWidth, size.height / 2, cellWidth, size.height / 2),
+        Rect.fromLTWH(
+            i * cellWidth, size.height / 2, cellWidth, size.height / 2,),
         Paint()..color = i.isOdd ? Colors.white : const Color(0xFFE0E0E0),
       );
     }

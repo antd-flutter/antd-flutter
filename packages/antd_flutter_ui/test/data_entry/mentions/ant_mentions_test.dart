@@ -1,7 +1,8 @@
 /// AntMentions widget tests
 library;
 
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -254,6 +255,34 @@ void main() {
       expect(AntMentionsSize.values, contains(AntMentionsSize.large));
       expect(AntMentionsSize.values, contains(AntMentionsSize.middle));
       expect(AntMentionsSize.values, contains(AntMentionsSize.small));
+    });
+  });
+
+  group('AntMentions — popup_engine 边界（翻转/夹回）', () {
+    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: AntMentions(options: _testOptions),
+        ),
+      ),);
+      await tester.enterText(find.byType(TextField), '@');
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_mentions_panel')));
+      final trigger = tester.getRect(find.byType(AntMentions));
+      expect(panel.bottom, lessThanOrEqualTo(trigger.top + 0.01));
+    });
+
+    testWidgets('镂空遮挡不干扰输入框继续输入', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntMentions(options: _testOptions),
+      ),);
+      await tester.enterText(find.byType(TextField), '@a');
+      await tester.pumpAndSettle();
+      // 弹层打开（@ 触发）后继续输入仍可过滤选项
+      await tester.enterText(find.byType(TextField), '@af');
+      await tester.pumpAndSettle();
+      expect(find.text('afc163'), findsOneWidget);
     });
   });
 }

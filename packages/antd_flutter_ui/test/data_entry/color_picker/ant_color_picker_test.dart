@@ -1,7 +1,8 @@
 /// AntColorPicker widget tests
 library;
 
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker.dart';
+import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -245,6 +246,37 @@ void main() {
       const preset = AntColorPreset(label: '测试', colors: ['#fff', '#000']);
       expect(preset.label, '测试');
       expect(preset.colors.length, 2);
+    });
+  });
+
+  group('AntColorPicker — popup_engine 边界（翻转/夹回）', () {
+    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: AntColorPicker(defaultValue: '#1677ff'),
+        ),
+      ),);
+      await tester.tap(find.byType(AntColorPicker));
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_color_picker_panel')));
+      final trigger = tester.getRect(find.byType(AntColorPicker));
+      expect(panel.bottom, lessThanOrEqualTo(trigger.top + 0.01));
+    });
+
+    testWidgets('面板较宽不溢出视口右缘（滑动夹回）', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: AntColorPicker(defaultValue: '#1677ff'),
+        ),
+      ),);
+      await tester.tap(find.byType(AntColorPicker));
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(find.byKey(const Key('ant_color_picker_panel')));
+      final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+      expect(panel.left, greaterThanOrEqualTo(0));
+      expect(panel.right, lessThanOrEqualTo(screen.width + 0.01));
     });
   });
 }
