@@ -30,6 +30,16 @@ const double kAntMobileOverlayDefaultMaxWidth = 375.0;
 bool antIsDesktopViewport(BuildContext context) =>
     MediaQuery.sizeOf(context).shortestSide >= 600;
 
+/// 设备真实安全区 insets（取根视图 MediaQuery.padding）。
+///
+/// Overlay 弹层的 builder context 处于页面 SafeArea 之下时，
+/// `MediaQuery.paddingOf`/`viewPaddingOf` 可能已被消费/覆盖为 0，
+/// 导致真机（刘海屏）上弹层被摄像头/状态栏遮挡；本方法直接读根视图
+/// MediaQuery，返回未经消费的设备真实安全区，屏级弹层统一使用。
+EdgeInsets antDeviceSafePadding() => MediaQueryData.fromView(
+      WidgetsBinding.instance.platformDispatcher.views.first,
+    ).padding;
+
 /// 屏级弹层统一基座。
 ///
 /// 由各弹层组件在 OverlayEntry 中构造：

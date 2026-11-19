@@ -257,9 +257,9 @@ class _DrawerOverlay extends StatelessWidget {
 
   Widget _buildPanel(BuildContext context) {
     final theme = themeData;
-    // Overlay 内 padding 已被页面 SafeArea 消费，用 viewPadding 取真实安全区，
+    // 设备真实安全区（根视图 MediaQuery，不受页面 SafeArea 消费影响），
     // 标题/底部操作区不被状态栏与底部横条遮挡
-    final vp = MediaQuery.viewPaddingOf(context);
+    final vp = antDeviceSafePadding();
     return Material(
       color: theme.colorBgContainer,
       elevation: 8,

@@ -243,8 +243,7 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
   Widget _buildPanel() {
     final theme = themeData;
     // 底部安全区留白与面板同色填充（SafeArea 透明留白在深色页面下有割裂感）
-    final bottomInset =
-        sheet.safeArea ? MediaQuery.viewPaddingOf(context).bottom : 0.0;
+    final bottomInset = sheet.safeArea ? antDeviceSafePadding().bottom : 0.0;
     final radius =
         BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG));
     // 面板整体贴底（移入安全区），安全距离作为面板内部的同色留白，

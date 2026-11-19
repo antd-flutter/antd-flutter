@@ -282,9 +282,8 @@ class _NotificationStack extends StatelessWidget {
         return Positioned(
           left: isRight ? null : margin,
           right: isRight ? margin : null,
-          top: isTop ? margin + MediaQuery.viewPaddingOf(context).top : null,
-          bottom:
-              isTop ? null : margin + MediaQuery.viewPaddingOf(context).bottom,
+          top: isTop ? margin + antDeviceSafePadding().top : null,
+          bottom: isTop ? null : margin + antDeviceSafePadding().bottom,
           child: Material(
             color: Colors.transparent,
             child: stack,
