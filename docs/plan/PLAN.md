@@ -107,6 +107,7 @@ packages/
   - AntCalendar（antd_calendar 独立包）→ table_calendar（已确认吸收，task-p08-calendar2 执行中）
   - AntPullToRefresh → pull_to_refresh_flutter3（✅ 已改造完成）
   - AntSwipeAction → flutter_swipe_action_cell（✅ 已改造完成，Apache-2.0）
+  - AntNumberKeyboard 虚拟键盘 → flutter_onscreen_keyboard（布局/按键行为/长按连续删除参考，用户指定）
   - 弹层底座 → popover（P15 立项吸收）
   - Picker 族滚轮引擎 → 系统 CupertinoPicker 继承评估（R31 第一优先级）
 - R30.2 迁移时直接改造吸收，一步到位（禁止先搬家再二次改造）
