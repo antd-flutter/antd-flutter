@@ -89,6 +89,7 @@ packages/
   - 排查/改造组件清单：AntPullToRefresh（现 GlobalKey State.callRefresh → AntRefreshController 类 R35.2 化）、AntInfiniteScroll、AntCalendar/AntCalendarPicker（受控 visible/value）、AntSegmented（受控 value）、AntTooltip/AntPopover/AntPopconfirm/AntDropdown（p15-ctrl 四弹层 Controller 改造已覆盖）、AntFloatingPanel/AntFloatingBubble、AntDropdown 等——逐个对照 Flutter Controller 惯例修正
 - R35.2 **Controller 优先，减少 key/state 引用（用户指定）**：受控模式的操作入口优先使用 **Controller 类**（如 AntTooltipController.show()/hide()），减少 GlobalKey 与外部 state 引用（除非必要）；已实现组件统一排查改造一轮（Tooltip/Popover/Popconfirm/Dropdown 受控模式首批）
 - R35.3 **独立包 example 运行验证（用户指定）**：每个独立包 example 创建后，必须执行一次 `flutter run -d macos` 真机验证（正常启动、页面渲染、交互无报错），验证通过后退出自身启动的进程再收尾；「不要 flutter run」纪律针对的是用户正在跑的会话，独立包 example 的启动验证不受此限（跑完即退，不占用户会话）
+- R35.4 **独立包 example 多平台 UI 适配（用户指定）**：独立包 example 不只是创建目录——demo UI 必须做多平台适配（AntResponsive 断点：desktop 宽屏布局 / phone 窄屏布局自适应、暗色切换、窗口缩放无溢出），验证覆盖 macOS + 移动端形态
 
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
