@@ -162,9 +162,9 @@ export 'package:antd_keyboard/src/passcode_input/ant_passcode_input.dart';
 export 'package:antd_keyboard/src/passcode_input/ant_passcode_input_types.dart';
 export 'package:antd_keyboard/src/virtual_input/ant_virtual_input.dart';
 export 'package:antd_keyboard/src/virtual_input/ant_virtual_input_types.dart';
-// AntTransfer 穿梭框已迁移至 antd_flutter_ui（P08 批次 0-8），此处 re-export 保持符号兼容
-export 'package:antd_flutter_ui/src/data_entry/transfer/ant_transfer.dart';
-export 'package:antd_flutter_ui/src/data_entry/transfer/ant_transfer_types.dart';
+// AntTransfer 穿梭框已迁移至独立包 antd_transfer（P08 拆分批次，经 ui 再迁独立包），此处 re-export 保持符号兼容
+export 'package:antd_transfer/src/transfer/ant_transfer.dart';
+export 'package:antd_transfer/src/transfer/ant_transfer_types.dart';
 export 'package:antd_upload/src/upload/ant_upload.dart';
 export 'package:antd_upload/src/upload/ant_upload_types.dart';
 export 'package:antd_flutter_ui/src/data_entry/stepper/ant_stepper.dart';

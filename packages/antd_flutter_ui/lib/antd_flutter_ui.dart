@@ -213,9 +213,7 @@ export 'src/data_entry/mentions/ant_mentions.dart';
 export 'src/data_entry/mentions/ant_mentions_types.dart';
 
 
-// ── Transfer 穿梭框（批次 0-8 压轴，自主包 antd_flutter_plus 迁入）──
-export 'src/data_entry/transfer/ant_transfer.dart';
-export 'src/data_entry/transfer/ant_transfer_types.dart';
+// Transfer 穿梭框已迁移至独立包 antd_transfer（P08 拆分批次，从 ui 迁出），主包经 re-export 兼容
 
 // ── 导航族（批次 0-6，自主包 antd_flutter_plus 迁入）──
 export 'src/navigation/breadcrumb/ant_breadcrumb.dart';

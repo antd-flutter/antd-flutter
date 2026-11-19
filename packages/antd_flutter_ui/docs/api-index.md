@@ -2,9 +2,9 @@
 
 # antd_flutter_ui API 文档总览
 
-> 自动生成时间：2026-11-19T23:01:49.754824；共 405 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-19T23:15:30.911570；共 402 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
-## 类（177）
+## 类（175）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -179,14 +179,12 @@
 | [`AntTooltipController`](api/AntTooltipController.md) | AntTooltip 的程序化控制器（R35.2 受控操作 Controller 化） |
 | [`AntTour`](api/AntTour.md) | 漫游式引导 — 分步引导用户了解产品功能的气泡卡片组件 |
 | [`AntTourStep`](api/AntTourStep.md) | 漫游式引导的单个步骤 |
-| [`AntTransfer`](api/AntTransfer.md) | 穿梭框 |
-| [`AntTransferItem`](api/AntTransferItem.md) | 穿梭框数据项 传入 children 即为树形（TreeTransfer）模式 |
 | [`AntTypography`](api/AntTypography.md) | Ant Design Typography 基础组件 |
 | [`AntWatermark`](api/AntWatermark.md) | 水印 — 给页面指定区域添加水印 |
 | [`PopupEngine`](api/PopupEngine.md) | 统一弹层位置计算引擎 |
 | [`WheelPickerColumn`](api/WheelPickerColumn.md) | 单列滚轮引擎组件 — 基于 CupertinoPicker 的 iOS 风格滚轮 |
 
-## 枚举（112）
+## 枚举（111）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -300,7 +298,6 @@
 | [`AntTooltipPlacement`](api/AntTooltipPlacement.md) | 气泡弹出位置 |
 | [`AntTooltipTrigger`](api/AntTooltipTrigger.md) | 气泡触发方式 |
 | [`AntTourPlacement`](api/AntTourPlacement.md) | 引导卡片相对于目标元素的位置（对齐 antd v6 Tour placement） |
-| [`AntTransferDirection`](api/AntTransferDirection.md) | 穿梭方向 |
 | [`AntTypographyType`](api/AntTypographyType.md) | 文本语义类型 |
 
 ## 混入（2）

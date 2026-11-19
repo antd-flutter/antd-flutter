@@ -135,6 +135,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  antd_transfer:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_transfer"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_tree:
     dependency: "direct overridden"
     description:
