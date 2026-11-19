@@ -4,6 +4,7 @@ import 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number.dar
 import 'package:antd_flutter_ui/src/data_entry/search_bar/ant_search_bar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -243,6 +244,58 @@ void main() {
         closeTo(reference, 1.5),
         reason: 'AutoComplete 字形内缩应与 Input 家族基座标准一致',
       );
+    });
+  });
+  group('AntInputField — 桌面模式（macOS，回归）', () {
+    testWidgets('desktop: centering, glyph inset and full-width disabled fill',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      final t = AntThemeData.light();
+      await tester.pumpWidget(_wrap(const AntInput(defaultValue: 'wenzi')));
+      await tester.pump();
+      // 垂直居中
+      expectVerticallyCentered(tester, find.byType(AntInput));
+      // 字形内缩 = marginSM(12) + 5（桌面缩放因子 1，与移动端同公式）
+      expect(glyphInset(tester, find.byType(AntInput)),
+          closeTo(t.marginSM.w + 5, 2.5),
+          reason: '桌面模式字形内缩与移动端同基座标准');
+      // 禁用态：灰底铺满（editable 全宽，无「灰条只显示一部分」回归）
+      await tester.pumpWidget(_wrap(const AntInput(
+        disabled: true,
+        defaultValue: 'wenzi',
+      )));
+      await tester.pump();
+      final cRect = tester.getRect(find.byType(AntInput).first);
+      final eRect = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(AntInput),
+              matching: find.byType(EditableText),
+            )
+            .first,
+      );
+      expect(eRect.width, greaterThan(cRect.width - 2 * (t.marginSM.w + 2)),
+          reason: '禁用态字段应铺满宽度（decorator fill 整框绘制）');
+      // hover 边框反馈（桌面鼠标交互）
+      await tester.pumpWidget(_wrap(const AntInput(defaultValue: 'abc')));
+      await tester.pump();
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: Offset.zero);
+      addTearDown(gesture.removePointer);
+      await gesture.moveTo(tester.getCenter(find.byType(AntInput).first));
+      await tester.pumpAndSettle();
+      final borders = tester
+          .widgetList<Container>(
+            find.byWidgetPredicate(
+              (w) => w is Container && w.decoration is BoxDecoration,
+            ),
+          )
+          .map((c) => (c.decoration as BoxDecoration).border)
+          .whereType<Border>()
+          .toList();
+      expect(borders.any((b) => b.top.color == t.colorPrimaryHover), isTrue,
+          reason: '桌面 hover 边框反馈（colorPrimaryHover）');
     });
   });
 }

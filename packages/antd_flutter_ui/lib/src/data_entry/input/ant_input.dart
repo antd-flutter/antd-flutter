@@ -604,8 +604,9 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
       minLines: minLines,
       maxLines: maxLines,
       autofocus: widget.autofocus,
+      // 左右内边距统一基座单点（marginSM），与单行形态一致
       contentPadding: EdgeInsets.symmetric(
-        horizontal: 8.w,
+        horizontal: t.marginSM.w,
         vertical: 8.w,
       ),
       onChanged: (_) => widget.onChange?.call(_controller.text),

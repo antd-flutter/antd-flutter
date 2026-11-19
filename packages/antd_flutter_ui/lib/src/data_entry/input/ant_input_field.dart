@@ -298,9 +298,17 @@ class _AntInputFieldState extends State<AntInputField> {
     }
 
     // 单行：基座锁定高度并垂直居中（文字/光标相对容器垂直居中的唯一实现点）
+    // 字段以 tight 约束填充高度锁定块：decorator 铺满整框（fill/disabled 灰底
+    // 整框绘制），文字垂直居中由 textAlignVertical.center 单点保证——
+    // 避免 Center 松约束下 disabled 字段按 intrinsic 收缩出现灰条/偏移
+    //（桌面字体度量下实测偏移 4px）。水平边距由外层容器 padding 承担。
+    // 垂直居中：Center（height 松约束 → 字段行盒居中）；
+    // widthFactor:1 → 宽度铺满（decorator fill 行为与宽度无关，禁用灰底
+    // 由外层容器统一绘制，避免 disabled 字段 intrinsic 收缩灰条）
     final centered = SizedBox(
       height: height.w,
       child: Center(
+        widthFactor: 1,
         child: field,
       ),
     );
