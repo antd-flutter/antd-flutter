@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/floating_panel/ant_floating_panel.dart';
+import 'package:antd_floating/src/floating_panel/ant_floating_panel.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +26,7 @@ AntFloatingPanel _defaultPanel({
   Widget? handle,
   double? contentHeight,
   void Function(double)? onHeightChange,
+  AntFloatingPanelController? controller,
   Widget? child,
 }) {
   return AntFloatingPanel(
@@ -35,6 +36,7 @@ AntFloatingPanel _defaultPanel({
     handle: handle,
     contentHeight: contentHeight,
     onHeightChange: onHeightChange,
+    controller: controller,
     child: child ?? const Text('面板内容'),
   );
 }
@@ -232,6 +234,61 @@ void main() {
       await tester.pumpAndSettle();
       // 回退到默认最低锚点 0.6 → 360。
       expect(_panelRect(tester).height, closeTo(360, 1));
+    });
+  });
+
+  group('AntFloatingPanelController (R35)', () {
+    testWidgets('snapToAnchorAt 吸附到指定锚点', (tester) async {
+      final controller = AntFloatingPanelController();
+      await tester.pumpWidget(_wrap(_defaultPanel(controller: controller)));
+      await tester.pumpAndSettle();
+      controller.snapToAnchorAt(2); // 最高锚点 1 → 600
+      await tester.pumpAndSettle();
+      expect(_panelRect(tester).height, closeTo(600, 1));
+      expect(controller.heightRatio, closeTo(1.0, 0.01));
+    });
+
+    testWidgets('expand / collapse / resetToInitial', (tester) async {
+      final controller = AntFloatingPanelController();
+      await tester.pumpWidget(_wrap(_defaultPanel(controller: controller)));
+      await tester.pumpAndSettle();
+      controller.expand();
+      await tester.pumpAndSettle();
+      expect(_panelRect(tester).height, closeTo(600, 1));
+      controller.collapse();
+      await tester.pumpAndSettle();
+      expect(_panelRect(tester).height, closeTo(360, 1));
+      controller.expand();
+      await tester.pumpAndSettle();
+      controller.resetToInitial();
+      await tester.pumpAndSettle();
+      expect(_panelRect(tester).height, closeTo(360, 1));
+    });
+
+    testWidgets('heightRatio 随拖拽/吸附变化并可监听', (tester) async {
+      final controller = AntFloatingPanelController();
+      final List<double> ratios = [];
+      controller.addListener(() {
+        if (controller.heightRatio != null) ratios.add(controller.heightRatio!);
+      });
+      await tester.pumpWidget(_wrap(_defaultPanel(controller: controller)));
+      await tester.pumpAndSettle();
+      await tester.drag(
+        find.byKey(kAntFloatingPanelHandleKey),
+        const Offset(0, -120),
+      );
+      await tester.pumpAndSettle();
+      expect(ratios, isNotEmpty);
+      expect(controller.heightRatio, closeTo(0.8, 0.01));
+    });
+
+    testWidgets('未挂接时调用为安全空操作', (tester) async {
+      final controller = AntFloatingPanelController();
+      controller.expand();
+      controller.collapse();
+      controller.snapToAnchorAt(1);
+      controller.resetToInitial();
+      expect(controller.heightRatio, isNull);
     });
   });
 }

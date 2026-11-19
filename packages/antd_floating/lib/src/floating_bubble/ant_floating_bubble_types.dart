@@ -15,6 +15,15 @@ enum AntFloatingBubbleAxis {
   both,
 }
 
+/// 悬浮气泡可吸附的父容器边缘。
+enum AntFloatingBubbleEdge {
+  /// 左边缘。
+  left,
+
+  /// 右边缘。
+  right,
+}
+
 /// 悬浮气泡菜单项（点击按钮展开的动作条目）。
 class AntFloatingBubbleMenuAction {
   const AntFloatingBubbleMenuAction({

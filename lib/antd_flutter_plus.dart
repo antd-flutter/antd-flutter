@@ -231,8 +231,9 @@ export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator_ty
 // Tour 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/tour/ant_tour.dart';
 export 'package:antd_flutter_ui/src/display/tour/ant_tour_types.dart';
-export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
-export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
+// FloatingBubble 已迁移至 antd_floating（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
+export 'package:antd_floating/src/floating_bubble/ant_floating_bubble.dart';
+export 'package:antd_floating/src/floating_bubble/ant_floating_bubble_types.dart';
 // InfiniteScroll / PullToRefresh 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
 export 'package:antd_refresh/src/ant_refresh_controller.dart';
 export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll.dart';
@@ -240,8 +241,9 @@ export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll_types.dart'
 // ImageViewer 图片查看器已迁移至 antd_image_viewer（P08），此处 re-export 保持符号兼容
 export 'package:antd_image_viewer/src/image_viewer/ant_image_viewer.dart';
 export 'package:antd_image_viewer/src/image_viewer/ant_image_viewer_types.dart';
-export 'src/components/data_display/floating_panel/ant_floating_panel.dart';
-export 'src/components/data_display/floating_panel/ant_floating_panel_types.dart';
+// FloatingPanel 已迁移至 antd_floating（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
+export 'package:antd_floating/src/floating_panel/ant_floating_panel.dart';
+export 'package:antd_floating/src/floating_panel/ant_floating_panel_types.dart';
 
 // ============================================================
 // 反馈 Feedback — 批次A

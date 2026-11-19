@@ -18,9 +18,11 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/floating_panel/ant_floating_panel_types.dart';
-export 'package:antd_flutter_plus/src/components/data_display/floating_panel/ant_floating_panel_types.dart';
+import 'package:antd_floating/src/floating_panel/ant_floating_panel_types.dart';
+export 'package:antd_floating/src/floating_panel/ant_floating_panel_types.dart';
 import 'package:material_ui/material_ui.dart';
+
+part 'ant_floating_panel_controller.dart';
 
 /// 默认锚点（最低 / 中间 / 最高）。
 const List<double> _kDefaultAnchors = <double>[0.6, 0.8, 1.0];
@@ -54,6 +56,7 @@ class AntFloatingPanel extends StatefulWidget {
     this.handle,
     this.contentHeight,
     this.onHeightChange,
+    this.controller,
     required this.child,
   });
 
@@ -76,6 +79,9 @@ class AntFloatingPanel extends StatefulWidget {
   /// 高度变化回调，参数为当前高度比例（0~1）。
   final AntFloatingPanelHeightChange? onHeightChange;
 
+  /// 程序化控制器（R35）：吸附到锚点/展开/收起/重置，高度比例经其监听读取。
+  final AntFloatingPanelController? controller;
+
   /// 面板内容。
   final Widget child;
 
@@ -89,6 +95,54 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
 
   /// 是否处于拖拽过程中（拖拽时不做隐式动画，松手后动画吸附）。
   bool _dragging = false;
+
+  /// 最近一次布局计算的锚点像素高度（升序）与基准高度（供 Controller 使用）。
+  List<double> _anchorHeights = <double>[];
+  double _baseHeight = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _attachController();
+  }
+
+  @override
+  void didUpdateWidget(covariant AntFloatingPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._detach();
+      _attachController();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?._detach();
+    super.dispose();
+  }
+
+  void _attachController() {
+    final AntFloatingPanelController? controller = widget.controller;
+    if (controller != null) {
+      controller._attach(_AntFloatingPanelDelegate(this));
+    }
+  }
+
+  /// 面板高度变化统一出口：回调外部 + 同步 Controller。
+  void _emitHeight(double pixelHeight) {
+    if (_baseHeight <= 0) return;
+    widget.onHeightChange?.call(pixelHeight / _baseHeight);
+    widget.controller?._notifyHeight(pixelHeight / _baseHeight);
+  }
+
+  /// 吸附到升序锚点列表的指定像素高度（动画过渡，拖拽态复位）。
+  void _snapToHeight(double target) {
+    setState(() {
+      _dragging = false;
+      _height = target;
+    });
+    _emitHeight(target);
+  }
 
   double _nearestAnchorHeight(double height, List<double> anchorHeights) {
     double nearest = anchorHeights.first;
@@ -123,15 +177,14 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
         final double minHeight = anchorHeights.first;
         final double maxHeight = anchorHeights.last;
 
+        // 缓存布局结果，供 Controller 程序化操作使用。
+        _anchorHeights = anchorHeights;
+        _baseHeight = baseHeight;
+
         // 初始停在最低锚点。
         _height ??= minHeight;
         final double height =
             _height!.clamp(minHeight, maxHeight);
-
-        void notifyHeight(double value) {
-          if (baseHeight <= 0) return;
-          widget.onHeightChange?.call(value / baseHeight);
-        }
 
         final Widget handleNode = widget.handle ??
             Center(
@@ -183,17 +236,13 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
                               _dragging = true;
                               _height = (_height! - details.delta.dy)
                                   .clamp(minHeight, maxHeight);
-                              notifyHeight(_height!);
                             });
+                            _emitHeight(_height!);
                           },
                           onVerticalDragEnd: (DragEndDetails details) {
-                            final double target =
-                                _nearestAnchorHeight(_height!, anchorHeights);
-                            setState(() {
-                              _dragging = false;
-                              _height = target;
-                            });
-                            notifyHeight(target);
+                            _snapToHeight(
+                              _nearestAnchorHeight(_height!, anchorHeights),
+                            );
                           },
                           onVerticalDragCancel: () {
                             setState(() => _dragging = false);
@@ -222,4 +271,29 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
       },
     );
   }
+}
+
+/// [AntFloatingPanelController] 委托实现：面板挂接期间承接程序化操作。
+class _AntFloatingPanelDelegate
+    implements AntFloatingPanelControllerDelegate {
+  _AntFloatingPanelDelegate(this._state);
+
+  final _AntFloatingPanelState _state;
+
+  @override
+  void snapToAnchorAt(int index) {
+    if (_state._anchorHeights.isEmpty) return;
+    final int clamped =
+        index.clamp(0, _state._anchorHeights.length - 1);
+    _state._snapToHeight(_state._anchorHeights[clamped]);
+  }
+
+  @override
+  void expand() => snapToAnchorAt(_state._anchorHeights.length - 1);
+
+  @override
+  void collapse() => snapToAnchorAt(0);
+
+  @override
+  void resetToInitial() => snapToAnchorAt(0);
 }

@@ -124,9 +124,17 @@ jobs:
         working-directory: packages/antd_masonry/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/masonry/
 
+      - name: Install antd_floating example dependencies
+        working-directory: packages/antd_floating/example
+        run: flutter pub get
+
+      - name: Build antd_floating example (release)
+        working-directory: packages/antd_floating/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/floating/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel site/masonry
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel site/masonry site/floating
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -139,6 +147,7 @@ jobs:
           cp -r packages/antd_tree/example/build/web/* site/tree/
           cp -r packages/antd_carousel/example/build/web/* site/carousel/
           cp -r packages/antd_masonry/example/build/web/* site/masonry/
+          cp -r packages/antd_floating/example/build/web/* site/floating/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

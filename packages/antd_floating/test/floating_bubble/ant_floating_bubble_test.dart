@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble.dart';
+import 'package:antd_floating/src/floating_bubble/ant_floating_bubble.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -255,6 +255,146 @@ void main() {
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       expect(tapped, isTrue);
+    });
+  });
+
+  group('AntFloatingBubbleController (R35)', () {
+    AntFloatingBubble makeBubble({
+      Key? key,
+      AntFloatingBubbleController? controller,
+      Offset initialPos = Offset.zero,
+      VoidCallback? onClick,
+    }) {
+      return AntFloatingBubble(
+        key: key,
+        controller: controller,
+        initialPos: initialPos,
+        onClick: onClick,
+      );
+    }
+
+    testWidgets('moveTo 移动到指定位置（约束在边界内）', (tester) async {
+      final controller = AntFloatingBubbleController();
+      await tester.pumpWidget(
+        _wrap(
+        SizedBox(
+          width: _canvasW,
+          height: _canvasH,
+          child: makeBubble(controller: controller),
+        ),
+      ),
+      );
+      await tester.pumpAndSettle();
+      controller.moveTo(const Offset(1000, 1000)); // 越界 → clamp 到右下角
+      await tester.pumpAndSettle();
+      final pos = _bubblePosition(tester);
+      expect(controller.position, isNotNull);
+      expect(controller.position!.dx, closeTo(_canvasW - 48.w, 1));
+      expect(controller.position!.dy, closeTo(_canvasH - 48.w, 1));
+      expect(pos.left, closeTo(_canvasW - 48.w, 1));
+    });
+
+    testWidgets('snapToEdge / snapToNearestEdge 吸附边缘', (tester) async {
+      final controller = AntFloatingBubbleController();
+      await tester.pumpWidget(
+        _wrap(
+        SizedBox(
+          width: _canvasW,
+          height: _canvasH,
+          child: makeBubble(
+            controller: controller,
+            initialPos: const Offset(200, 100),
+          ),
+        ),
+      ),
+      );
+      await tester.pumpAndSettle();
+      controller.snapToNearestEdge(); // x=200 靠右 → 吸附右边缘
+      await tester.pumpAndSettle();
+      expect(controller.position!.dx, closeTo(_canvasW - 48.w, 1));
+      expect(controller.position!.dy, closeTo(100.w, 1));
+      controller.snapToEdge(AntFloatingBubbleEdge.left);
+      await tester.pumpAndSettle();
+      expect(controller.position!.dx, 0.0);
+    });
+
+    testWidgets('hide / show 控制可见性', (tester) async {
+      final controller = AntFloatingBubbleController();
+      await tester.pumpWidget(
+        _wrap(
+        SizedBox(
+          width: _canvasW,
+          height: _canvasH,
+          child: makeBubble(controller: controller),
+        ),
+      ),
+      );
+      await tester.pumpAndSettle();
+      controller.hide();
+      await tester.pumpAndSettle();
+      expect(controller.visible, isFalse);
+      expect(find.byType(AntFloatingBubble), findsOneWidget);
+      // 隐藏后气泡本体不再渲染（无 AnimatedContainer 气泡）。
+      expect(find.byType(AnimatedContainer), findsNothing);
+      controller.show();
+      await tester.pumpAndSettle();
+      expect(controller.visible, isTrue);
+      expect(find.byType(AnimatedContainer), findsOneWidget);
+    });
+
+    testWidgets('resetPosition 回到初始位置', (tester) async {
+      final controller = AntFloatingBubbleController();
+      await tester.pumpWidget(
+        _wrap(
+        SizedBox(
+          width: _canvasW,
+          height: _canvasH,
+          child: makeBubble(
+            controller: controller,
+            initialPos: const Offset(40, 60),
+          ),
+        ),
+      ),
+      );
+      await tester.pumpAndSettle();
+      controller.moveTo(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      controller.resetPosition();
+      await tester.pumpAndSettle();
+      expect(controller.position!.dx, closeTo(40.w, 1));
+      expect(controller.position!.dy, closeTo(60.w, 1));
+    });
+
+    testWidgets('onClick 在 Controller 操作之外仍正常触发', (tester) async {
+      final controller = AntFloatingBubbleController();
+      var clicks = 0;
+      await tester.pumpWidget(
+        _wrap(
+        SizedBox(
+          width: _canvasW,
+          height: _canvasH,
+          child: makeBubble(
+            controller: controller,
+            onClick: () => clicks++,
+          ),
+        ),
+      ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pumpAndSettle();
+      expect(clicks, 1);
+    });
+
+    testWidgets('未挂接时调用为安全空操作', (tester) async {
+      final controller = AntFloatingBubbleController();
+      controller.hide();
+      controller.show();
+      controller.moveTo(const Offset(1, 1));
+      controller.snapToNearestEdge();
+      controller.resetPosition();
+      expect(controller.visible, isTrue);
+      expect(controller.position, isNull);
     });
   });
 }

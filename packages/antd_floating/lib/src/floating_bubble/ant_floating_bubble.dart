@@ -16,9 +16,11 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
-export 'package:antd_flutter_plus/src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
+import 'package:antd_floating/src/floating_bubble/ant_floating_bubble_types.dart';
+export 'package:antd_floating/src/floating_bubble/ant_floating_bubble_types.dart';
 import 'package:material_ui/material_ui.dart';
+
+part 'ant_floating_bubble_controller.dart';
 
 // ============================================================
 // 内部：尺寸常量（对齐 floating-bubble.less，--size 48px）
@@ -41,6 +43,7 @@ class AntFloatingBubble extends StatefulWidget {
     this.constraint = true,
     this.menu,
     this.onClick,
+    this.controller,
     this.child,
     this.backgroundColor,
     this.size,
@@ -61,6 +64,9 @@ class AntFloatingBubble extends StatefulWidget {
   /// 气泡点击回调（配置 [menu] 时在展开/收起切换之外仍会触发）。
   final VoidCallback? onClick;
 
+  /// 程序化控制器（R35）：显示/隐藏/移动/边缘吸附/重置位置。
+  final AntFloatingBubbleController? controller;
+
   /// 自定义图标内容。
   final Widget? child;
 
@@ -74,9 +80,53 @@ class AntFloatingBubble extends StatefulWidget {
   State<AntFloatingBubble> createState() => _AntFloatingBubbleState();
 }
 
-class _AntFloatingBubbleState extends State<AntFloatingBubble> {
+class _AntFloatingBubbleState extends State<AntFloatingBubble>
+    implements AntFloatingBubbleControllerDelegate {
   late Offset _pos = Offset(widget.initialPos.dx.w, widget.initialPos.dy.w);
+
+  /// 初始位置（供 Controller resetPosition 使用）。
+  late final Offset _initialPos =
+      Offset(widget.initialPos.dx.w, widget.initialPos.dy.w);
+
+  /// 气泡可见性（Controller show/hide 控制）。
+  bool _visible = true;
+
   bool _menuOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _attachController();
+  }
+
+  @override
+  void didUpdateWidget(covariant AntFloatingBubble oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._detach();
+      _attachController();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?._detach();
+    super.dispose();
+  }
+
+  void _attachController() {
+    final AntFloatingBubbleController? controller = widget.controller;
+    if (controller != null) {
+      controller._attach(this);
+    }
+  }
+
+  void _setPos(Offset pos) {
+    setState(() => _pos = pos);
+    widget.controller?._notifyPosition(pos);
+  }
+
+  double get _bubbleSizePx => (widget.size ?? _kBubbleSize).w;
 
   bool get _draggableX =>
       widget.axis == AntFloatingBubbleAxis.x ||
@@ -89,13 +139,17 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble> {
   void _handlePanUpdate(DragUpdateDetails d, Size bounds) {
     var dx = _draggableX ? _pos.dx + d.delta.dx : _pos.dx;
     var dy = _draggableY ? _pos.dy + d.delta.dy : _pos.dy;
-    if (widget.constraint) {
-      final maxX = bounds.width - (widget.size ?? _kBubbleSize).w;
-      final maxY = bounds.height - (widget.size ?? _kBubbleSize).w;
-      dx = dx.clamp(0.0, maxX < 0 ? 0.0 : maxX);
-      dy = dy.clamp(0.0, maxY < 0 ? 0.0 : maxY);
-    }
-    setState(() => _pos = Offset(dx, dy));
+    _setPos(_constrainPos(Offset(dx, dy), bounds));
+  }
+
+  /// 按约束开关与气泡尺寸裁剪位置（Controller moveTo / 拖拽共用）。
+  Offset _constrainPos(Offset pos, Size bounds) {
+    if (!widget.constraint) return pos;
+    final maxX = bounds.width - _bubbleSizePx;
+    final maxY = bounds.height - _bubbleSizePx;
+    final dx = pos.dx.clamp(0.0, maxX < 0 ? 0.0 : maxX);
+    final dy = pos.dy.clamp(0.0, maxY < 0 ? 0.0 : maxY);
+    return Offset(dx, dy);
   }
 
   void _handleTap() {
@@ -107,8 +161,54 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble> {
 
   bool get _hasMenu => widget.menu != null && widget.menu!.isNotEmpty;
 
+  // ---- R35 Controller 委托实现 ----
+
+  @override
+  void show() {
+    setState(() => _visible = true);
+    widget.controller?._notifyVisible(true);
+  }
+
+  @override
+  void hide() {
+    setState(() => _visible = false);
+    widget.controller?._notifyVisible(false);
+  }
+
+  @override
+  void moveTo(Offset pos) => _setPos(_constrainPos(pos, _bounds ?? Size.zero));
+
+  @override
+  void snapToEdge(AntFloatingBubbleEdge edge) {
+    if (_bounds == null) return;
+    final x = edge == AntFloatingBubbleEdge.left
+        ? 0.0
+        : (_bounds!.width - _bubbleSizePx).clamp(0.0, double.infinity);
+    _setPos(_constrainPos(Offset(x, _pos.dy), _bounds!));
+  }
+
+  @override
+  void snapToNearestEdge() {
+    if (_bounds == null) return;
+    final double centerX = _pos.dx + _bubbleSizePx / 2;
+    snapToEdge(
+      centerX < _bounds!.width / 2
+          ? AntFloatingBubbleEdge.left
+          : AntFloatingBubbleEdge.right,
+    );
+  }
+
+  @override
+  void resetPosition() => _setPos(_initialPos);
+
   @override
   Widget build(BuildContext context) {
+    if (!_visible) {
+      return SizedBox(
+        width: _bounds?.width,
+        height: _bounds?.height,
+      );
+    }
     final theme = AntTheme.of(context);
     final bubbleSize = (widget.size ?? _kBubbleSize).w;
     final bg = widget.backgroundColor ?? theme.colorPrimary;

@@ -49,6 +49,8 @@ dependency_overrides:
     path: ../packages/antd_carousel
   antd_masonry:
     path: ../packages/antd_masonry
+  antd_floating:
+    path: ../packages/antd_floating
 
 dev_dependencies:
   flutter_test:
