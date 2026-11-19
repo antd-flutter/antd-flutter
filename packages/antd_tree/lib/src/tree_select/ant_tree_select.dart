@@ -8,6 +8,10 @@
 /// - [treeDefaultExpandAll] — 默认展开全部节点
 /// - [multiple] — 多选模式
 ///
+/// 下拉弹层承载于 antd_flutter_ui 统一弹层基座 [AntPopupOverlay]：
+/// 方向决策（下方放不下自动翻转上方）、滑动夹回、镂空遮挡（触发元素
+/// 不误关）、fade+scale 出现动画均由基座统一承担；面板内容渲染不变。
+///
 /// ```dart
 /// AntTreeSelect(
 ///   treeData: [
@@ -20,6 +24,9 @@
 /// ```
 library;
 
+import 'dart:math' as math;
+
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -46,6 +53,9 @@ class AntTreeSelect extends StatefulWidget {
     this.treeDefaultExpandAll = false,
     this.multiple = false,
     this.size = AntTreeSelectSize.middle,
+    this.height,
+    this.width,
+    this.dropdownHeight,
   });
 
   /// 树节点数据
@@ -78,12 +88,24 @@ class AntTreeSelect extends StatefulWidget {
   /// 尺寸
   final AntTreeSelectSize size;
 
+  /// 触发器自定义高度（逻辑像素），设置后覆盖 [size] 对应高度。
+  final double? height;
+
+  /// 触发器自定义宽度（逻辑像素）。默认 null：宽度随内容自适应，
+  /// 父级为紧约束（如 Expanded / 定宽容器）时随父级。
+  final double? width;
+
+  /// 下拉面板最大高度（逻辑像素）。默认 null：取 min(256, 视口高度一半)，
+  /// 超出后面板内部滚动（SingleChildScrollView）。
+  final double? dropdownHeight;
+
   @override
   State<AntTreeSelect> createState() => _AntTreeSelectState();
 }
 
 class _AntTreeSelectState extends State<AntTreeSelect> {
-  final LayerLink _layerLink = LayerLink();
+  /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
+  final GlobalKey _triggerKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _open = false;
 
@@ -174,10 +196,17 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
 
   void _showOverlay() {
     if (_open || widget.disabled) return;
+    _insertOverlay();
+    if (mounted) setState(() => _open = true);
+  }
+
+  /// 构造弹层 OverlayEntry：承载层换为统一弹层基座 [AntPopupOverlay]
+  /// （方向决策/边界翻转/滑动夹回/镂空遮挡/fade+scale 动画），面板内容不变。
+  void _insertOverlay() {
     final t = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => _TreeSelectOverlay(
-        layerLink: _layerLink,
+        triggerKey: _triggerKey,
         themeData: t,
         treeData: widget.treeData,
         expandedKeys: _expandedKeys,
@@ -187,16 +216,16 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
         onSelect: _onSelect,
         onToggleExpand: _onToggleExpand,
         onDismiss: _removeOverlay,
+        dropdownHeight: widget.dropdownHeight,
       ),
     );
-    Overlay.of(context).insert(_overlayEntry!);
-    setState(() => _open = true);
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    if (_open) setState(() => _open = false);
+    if (_open && mounted) setState(() => _open = false);
   }
 
   void _onToggleExpand(String key) {
@@ -231,23 +260,9 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
 
   void _updateOverlay() {
     if (_overlayEntry != null) {
-      final t = AntTheme.of(context);
+      // 移除后重建，保证面板拿到最新展开/选中状态。
       _overlayEntry!.remove();
-      _overlayEntry = OverlayEntry(
-        builder: (context) => _TreeSelectOverlay(
-          layerLink: _layerLink,
-          themeData: t,
-          treeData: widget.treeData,
-          expandedKeys: _expandedKeys,
-          selectedValue: widget.multiple ? null : _currentSingleValue,
-          selectedMultiValues: widget.multiple ? _currentMultiValue : null,
-          multiple: widget.multiple,
-          onSelect: _onSelect,
-          onToggleExpand: _onToggleExpand,
-          onDismiss: _removeOverlay,
-        ),
-      );
-      Overlay.of(context).insert(_overlayEntry!);
+      _insertOverlay();
     }
   }
 
@@ -271,12 +286,13 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
         : _currentSingleValue != null;
     final showClear = widget.allowClear && hasValue && !widget.disabled;
 
-    return CompositedTransformTarget(
-      link: _layerLink,
+    return KeyedSubtree(
+      key: _triggerKey,
       child: GestureDetector(
         onTap: widget.disabled ? null : (_open ? _removeOverlay : _showOverlay),
         child: Container(
-          height: _height.h,
+          height: (widget.height ?? _height).h,
+          width: widget.width?.w,
           padding: EdgeInsets.symmetric(
             horizontal: (widget.size == AntTreeSelectSize.small ? 7 : 12).w,
             vertical: (widget.multiple ? 2 : 0).h,
@@ -289,9 +305,13 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
             ),
             borderRadius: BorderRadius.circular(t.borderRadius),
           ),
+          // 宽度自适应内容（对齐 antd Select 触发器 inline-block 语义）：
+          // 不再被宽松约束撑满整行，由占位/已选文字决定宽度；
+          // 长文字仍走省略号，父级给紧约束（如 Row 内 Expanded）时依旧随父。
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
+              Flexible(
                 child: Text(
                   _displayText.isNotEmpty ? _displayText : (widget.placeholder ?? ''),
                   maxLines: 1,
@@ -336,7 +356,7 @@ class _AntTreeSelectState extends State<AntTreeSelect> {
 
 class _TreeSelectOverlay extends StatelessWidget {
   const _TreeSelectOverlay({
-    required this.layerLink,
+    required this.triggerKey,
     required this.themeData,
     required this.treeData,
     required this.expandedKeys,
@@ -346,9 +366,11 @@ class _TreeSelectOverlay extends StatelessWidget {
     required this.onSelect,
     required this.onToggleExpand,
     required this.onDismiss,
+    required this.dropdownHeight,
   });
 
-  final LayerLink layerLink;
+  /// 触发元素 GlobalKey（弹层基座定位）。
+  final GlobalKey triggerKey;
   final AntThemeData themeData;
   final List<AntTreeSelectOption> treeData;
   final Set<String> expandedKeys;
@@ -359,51 +381,61 @@ class _TreeSelectOverlay extends StatelessWidget {
   final ValueChanged<String> onToggleExpand;
   final VoidCallback onDismiss;
 
+  /// 面板最大高度配置（透传自 AntTreeSelect.dropdownHeight）。
+  final double? dropdownHeight;
+
   @override
   Widget build(BuildContext context) {
     final t = themeData;
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            onTap: onDismiss,
-            behavior: HitTestBehavior.translucent,
-            child: const SizedBox.expand(),
+    // 统一弹层基座：placement 首选下方，视口下方放不下自动翻转到上方
+    // （方向决策/滑动夹回/镂空遮挡由基座承担）；无箭头（antd Select 语义）。
+    return AntPopupOverlay(
+      targetKey: triggerKey,
+      placement: AntPopupPlacement.bottom,
+      arrow: false,
+      gap: 4,
+      onDismiss: onDismiss,
+      child: _buildPanel(context, t),
+    );
+  }
+
+  /// 下拉面板最大高度：显式配置优先；否则 256 与视口可用高度的一半取小，
+  /// 避免小屏超屏；面板内 SingleChildScrollView 负责超出后的内部滚动。
+  double _panelMaxHeight(BuildContext context) {
+    if (dropdownHeight != null) return dropdownHeight!.h;
+    final screenH = MediaQuery.sizeOf(context).height;
+    return math.min(256.h, screenH / 2);
+  }
+
+  /// 下拉面板（内容渲染逻辑不变；宽度对齐触发元素，不小于 160，
+  /// 基座 Stack 为宽松宽度约束，需定宽以保证面板内 Expanded 正常布局）。
+  Widget _buildPanel(BuildContext context, AntThemeData t) {
+    final triggerBox =
+        triggerKey.currentContext?.findRenderObject() as RenderBox?;
+    final triggerWidth =
+        (triggerBox != null && triggerBox.hasSize) ? triggerBox.size.width : 0.0;
+    final panelWidth = triggerWidth > 160.w ? triggerWidth : 160.w;
+    return Container(
+      key: const Key('ant_tree_select_panel'),
+      width: panelWidth,
+      constraints: BoxConstraints(
+        maxHeight: _panelMaxHeight(context),
+      ),
+      decoration: BoxDecoration(
+        color: t.colorBgContainer,
+        borderRadius: BorderRadius.circular(t.borderRadiusLG),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
-        Positioned(
-          child: CompositedTransformFollower(
-            link: layerLink,
-            targetAnchor: Alignment.bottomLeft,
-            followerAnchor: Alignment.topLeft,
-            offset: Offset(0, 4.h),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                constraints: BoxConstraints(
-                  maxHeight: 256.h,
-                  minWidth: 160.w,
-                ),
-                decoration: BoxDecoration(
-                  color: t.colorBgContainer,
-                  borderRadius: BorderRadius.circular(t.borderRadiusLG),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  child: _buildNodes(treeData, 0, t),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: _buildNodes(treeData, 0, t),
+      ),
     );
   }
 

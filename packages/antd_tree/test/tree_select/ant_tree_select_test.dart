@@ -302,6 +302,51 @@ void main() {
       final box = tester.getSize(find.byType(AntTreeSelect));
       expect(box.height, lessThan(30));
     });
+
+    testWidgets('dropdown opens downward when space below is enough',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        AntTreeSelect(treeData: _testTreeData()),
+      ),);
+      await tester.tap(find.byType(AntTreeSelect));
+      await tester.pumpAndSettle();
+
+      final triggerBox =
+          tester.renderObject<RenderBox>(find.byType(AntTreeSelect));
+      final panelBox = tester.renderObject<RenderBox>(
+          find.byKey(const Key('ant_tree_select_panel')),);
+      final triggerTop = triggerBox.localToGlobal(Offset.zero).dy;
+      final panelTop = panelBox.localToGlobal(Offset.zero).dy;
+      // 触发元素上方空间充足，面板应贴在触发元素下方
+      expect(panelTop, greaterThan(triggerTop));
+    });
+
+    testWidgets('dropdown flips upward near viewport bottom edge',
+        (tester) async {
+      // 触发元素放置在视口底部（下方空间不足），面板应自动翻转到上方。
+      await tester.pumpWidget(_wrap(
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AntTreeSelect(treeData: _testTreeData()),
+        ),
+      ),);
+      await tester.tap(find.byType(AntTreeSelect));
+      await tester.pumpAndSettle();
+
+      final triggerBox =
+          tester.renderObject<RenderBox>(find.byType(AntTreeSelect));
+      final panelBox = tester.renderObject<RenderBox>(
+          find.byKey(const Key('ant_tree_select_panel')),);
+      final triggerTop = triggerBox.localToGlobal(Offset.zero).dy;
+      final panelBottom =
+          panelBox.localToGlobal(Offset.zero).dy + panelBox.size.height;
+      final viewportHeight =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      // 触发元素贴近视口底部，面板翻转后在触发元素上方且未超出视口
+      expect(triggerTop, greaterThan(viewportHeight / 2));
+      expect(panelBottom, lessThan(triggerTop));
+      expect(panelBottom, lessThanOrEqualTo(viewportHeight));
+    });
   });
 
   group('AntTreeSelectOption', () {
@@ -323,6 +368,24 @@ void main() {
     test('disabled defaults to false', () {
       const opt = AntTreeSelectOption(value: 'a', label: 'A');
       expect(opt.disabled, isFalse);
+    });
+  });
+
+  group('AntTreeSelect 自定义宽高', () {
+    testWidgets('height/width 覆盖触发器尺寸', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTreeSelect(
+          treeData: [AntTreeSelectOption(value: 'a', label: 'A')],
+          height: 48,
+          width: 260,
+        ),
+      ),);
+      await tester.pump(const Duration(milliseconds: 100));
+      final box = tester.renderObject<RenderBox>(
+        find.byType(AntTreeSelect).first,
+      );
+      expect(box.size.height, closeTo(48.h, 2));
+      expect(box.size.width, closeTo(260.w, 2));
     });
   });
 
