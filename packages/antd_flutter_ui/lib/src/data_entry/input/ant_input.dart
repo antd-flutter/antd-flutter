@@ -8,6 +8,7 @@
 /// - [AntInputGroup] — 输入框组（compact）
 library;
 
+import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -38,30 +39,6 @@ double _fontSizeOf(AntThemeData t, AntInputSize size) {
       return t.fontSize;
     case AntInputSize.small:
       return t.fontSizeSM;
-  }
-}
-
-/// 根据状态获取边框色
-Color _borderColorOf(AntThemeData t, AntInputStatus status, bool focused) {
-  switch (status) {
-    case AntInputStatus.error:
-      return focused ? t.colorError : t.colorError;
-    case AntInputStatus.warning:
-      return focused ? t.colorWarning : t.colorWarning;
-    case AntInputStatus.normal:
-      return focused ? t.colorPrimary : t.colorBorder;
-  }
-}
-
-/// 根据状态获取焦点阴影色
-Color _outlineColorOf(AntThemeData t, AntInputStatus status) {
-  switch (status) {
-    case AntInputStatus.error:
-      return t.colorErrorOutline;
-    case AntInputStatus.warning:
-      return t.colorWarningOutline;
-    case AntInputStatus.normal:
-      return t.controlOutline;
   }
 }
 
@@ -185,7 +162,6 @@ class _AntInputState extends State<AntInput> {
   late TextEditingController _controller;
   bool _isControllerExternal = false;
   late FocusNode _focusNode;
-  bool _focused = false;
   bool _hasValue = false;
 
   @override
@@ -231,7 +207,7 @@ class _AntInputState extends State<AntInput> {
   }
 
   void _handleFocusChange() {
-    setState(() => _focused = _focusNode.hasFocus);
+    setState(() {});
   }
 
   void _handleControllerChange() {
@@ -298,112 +274,60 @@ class _AntInputState extends State<AntInput> {
     );
   }
 
-  /// 构建输入框主体（边框 + 内容行）
+  /// 构建输入框主体（边框/填充/hover/禁用态统一由 [AntInputField] 承载）
   Widget _buildInputBody(AntThemeData t, double height, double fontSize, double iconSize) {
-    final borderColor = widget.disabled
-        ? t.colorBorder
-        : _borderColorOf(t, widget.status, _focused);
-    final bg = widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer;
+    final suffixWidgets = <Widget>[
+      if (widget.allowClear && _hasValue && !widget.disabled)
+        GestureDetector(
+          onTap: _clear,
+          behavior: HitTestBehavior.opaque,
+          child: Icon(Icons.cancel, size: iconSize, color: t.colorTextQuaternary),
+        ),
+      if (widget.suffix != null) widget.suffix!,
+    ];
 
-    final content = Row(
-      children: [
-        if (widget.prefix != null)
-          Padding(
-            padding: EdgeInsets.only(right: 4.w),
-            child: IconTheme.merge(
+    final field = AntInputField(
+      size: widget.size,
+      controller: _controller,
+      focusNode: _focusNode,
+      enabled: !widget.disabled,
+      readOnly: widget.readOnly,
+      obscureText: widget.obscureText,
+      maxLength: widget.maxLength,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      placeholder: widget.placeholder,
+      prefix: widget.prefix == null
+          ? null
+          : IconTheme.merge(
               data: IconThemeData(size: iconSize, color: t.colorTextTertiary),
               child: widget.prefix!,
             ),
-          ),
-        Expanded(
-          child: TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            enabled: !widget.disabled,
-            readOnly: widget.readOnly,
-            obscureText: widget.obscureText,
-            maxLength: widget.maxLength,
-            keyboardType: widget.keyboardType,
-            inputFormatters: widget.inputFormatters,
-            style: TextStyle(
-              fontSize: fontSize.sp,
-              color: widget.disabled ? t.colorTextDisabled : t.colorText,
-            ),
-            cursorColor: t.colorPrimary,
-            decoration: InputDecoration(
-              isCollapsed: true,
-              // 覆盖全局 inputDecorationTheme 的 outline 边框，边框由外层容器统一绘制，避免双边框
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
-              counterText: '',
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              hintStyle: TextStyle(
-                fontSize: fontSize.sp,
-                color: t.colorTextPlaceholder,
-              ),
-              hintText: widget.placeholder,
-            ),
-            onSubmitted: widget.onPressEnter != null
-                ? (_) => widget.onPressEnter!()
-                : null,
-          ),
-        ),
-        if (widget.allowClear && _hasValue && !widget.disabled)
-          GestureDetector(
-            onTap: _clear,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: EdgeInsets.only(left: 4.w),
-              child: Icon(Icons.cancel, size: iconSize, color: t.colorTextQuaternary),
-            ),
-          ),
-        if (widget.suffix != null)
-          Padding(
-            padding: EdgeInsets.only(left: 4.w),
-            child: IconTheme.merge(
+      suffix: suffixWidgets.isEmpty
+          ? null
+          : IconTheme.merge(
               data: IconThemeData(size: iconSize, color: t.colorTextTertiary),
-              child: widget.suffix!,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < suffixWidgets.length; i++) ...[
+                    if (i > 0) SizedBox(width: 4.w),
+                    suffixWidgets[i],
+                  ],
+                ],
+              ),
             ),
-          ),
-      ],
+      status: widget.status,
+      bordered: widget.bordered,
+      autofocus: widget.autofocus,
+      onChanged: (_) => widget.onChange?.call(_controller.text),
+      onSubmitted: widget.onPressEnter == null
+          ? null
+          : (_) => widget.onPressEnter!(),
     );
 
-    if (!widget.bordered) {
-      return Container(
-        height: height.w,
-        color: bg,
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        alignment: Alignment.center,
-        child: content,
-      );
-    }
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      height: height.w,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(t.borderRadius.w),
-        border: Border.all(color: borderColor, width: 1.w),
-        boxShadow: _focused && !widget.disabled
-            ? [
-                BoxShadow(
-                  color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
-                  blurRadius: t.controlOutlineWidth.w,
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
-      alignment: Alignment.center,
-      child: content,
-    );
+    // 单行输入锁定标准高度
+    return SizedBox(height: height.w, child: Center(child: field));
   }
 
   /// 构建前置/后置标签
@@ -528,7 +452,6 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
   late TextEditingController _controller;
   bool _isControllerExternal = false;
   late FocusNode _focusNode;
-  bool _focused = false;
 
   @override
   void initState() {
@@ -562,7 +485,7 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
   }
 
   void _handleFocusChange() {
-    setState(() => _focused = _focusNode.hasFocus);
+    setState(() {});
   }
 
   void _handleControllerChange() {
@@ -589,77 +512,31 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final borderColor = widget.disabled
-        ? t.colorBorder
-        : _borderColorOf(t, widget.status, _focused);
-    final bg = widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer;
     final minLines = _minLines ?? 1;
     final maxLines = _maxLines;
 
-    final field = TextField(
+    final field = AntInputField(
       controller: _controller,
       focusNode: _focusNode,
       enabled: !widget.disabled,
       readOnly: widget.readOnly,
       maxLength: widget.maxLength,
+      status: widget.status,
+      placeholder: widget.placeholder,
       minLines: minLines,
       maxLines: maxLines,
-      style: TextStyle(
-        fontSize: t.fontSize.sp,
-        color: widget.disabled ? t.colorTextDisabled : t.colorText,
+      autofocus: widget.autofocus,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 8.w,
+        vertical: 8.w,
       ),
-      cursorColor: t.colorPrimary,
-      decoration: InputDecoration(
-        isCollapsed: true,
-        // 覆盖全局 inputDecorationTheme 的 outline 边框，避免双边框
-        border: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        focusedErrorBorder: InputBorder.none,
-        counterText: '',
-        isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 8.w,
-          vertical: 8.w,
-        ),
-        hintStyle: TextStyle(
-          fontSize: t.fontSize.sp,
-          color: t.colorTextPlaceholder,
-        ),
-        hintText: widget.placeholder,
-      ),
-      onSubmitted: widget.onPressEnter != null
-          ? (_) => widget.onPressEnter!()
-          : null,
+      onChanged: (_) => widget.onChange?.call(_controller.text),
+      onSubmitted: widget.onPressEnter == null
+          ? null
+          : (_) => widget.onPressEnter!(),
     );
 
-    Widget body;
-    if (!widget.bordered) {
-      body = Container(
-        color: bg,
-        child: field,
-      );
-    } else {
-      body = AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(t.borderRadius.w),
-          border: Border.all(color: borderColor, width: 1.w),
-          boxShadow: _focused && !widget.disabled
-              ? [
-                  BoxShadow(
-                    color: _outlineColorOf(t, widget.status).withValues(alpha: 0.8),
-                    blurRadius: t.controlOutlineWidth.w,
-                  ),
-                ]
-              : null,
-        ),
-        child: field,
-      );
-    }
+    final body = field;
 
     if (!widget.showCount || widget.maxLength == null) return body;
     return Column(
