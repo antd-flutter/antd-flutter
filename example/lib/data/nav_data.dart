@@ -87,4 +87,11 @@ const List<NavGroup> navGroups = [
     NavItem('SwipeAction 滑动操作', 'swipe_action'),
     NavItem('Popconfirm 气泡确认框', 'popconfirm'),
   ]),
+  NavGroup('数据录入', [
+    NavItem('Picker 选择器', 'picker'),
+    NavItem('DatePicker 日期选择器', 'date_picker'),
+    NavItem('TimePicker 时间选择器', 'time_picker'),
+    NavItem('Cascader 级联选择', 'cascader'),
+    NavItem('CascaderView 级联视图', 'cascader_view'),
+  ]),
 ];

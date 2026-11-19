@@ -16,6 +16,11 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  'picker',
+  'date_picker',
+  'time_picker',
+  'cascader',
+  'cascader_view',
 ];
 const kMigratedVerified = <String>[
   'image',

@@ -14,10 +14,10 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/date_picker/ant_date_picker_types.dart';
+import 'ant_date_picker_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/date_picker/ant_date_picker_types.dart';
+export 'ant_date_picker_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================

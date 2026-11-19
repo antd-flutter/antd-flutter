@@ -14,7 +14,7 @@ library;
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/picker/ant_picker_types.dart';
+export 'ant_picker_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 底部弹出选择器 — 弹出面板中展示多列滚轮。

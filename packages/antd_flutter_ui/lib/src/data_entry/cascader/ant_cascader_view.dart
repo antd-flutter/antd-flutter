@@ -23,11 +23,11 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/cascader/ant_cascader_types.dart';
+import 'ant_cascader_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/cascader/ant_cascader_types.dart';
+export 'ant_cascader_types.dart';
 
 /// 级联层级数据
 class _CascaderLevel {

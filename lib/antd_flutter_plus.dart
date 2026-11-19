@@ -109,10 +109,12 @@ export 'src/components/data_entry/select/ant_select.dart';
 export 'src/components/data_entry/select/ant_select_types.dart';
 export 'src/components/data_entry/selector/ant_selector.dart';
 export 'src/components/data_entry/selector/ant_selector_types.dart';
-export 'src/components/data_entry/date_picker/ant_date_picker.dart';
-export 'src/components/data_entry/date_picker/ant_date_picker_types.dart';
-export 'src/components/data_entry/time_picker/ant_time_picker.dart';
-export 'src/components/data_entry/time_picker/ant_time_picker_types.dart';
+// AntDatePicker 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/date_picker/ant_date_picker.dart';
+export 'package:antd_flutter_ui/src/data_entry/date_picker/ant_date_picker_types.dart';
+// AntTimePicker 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/time_picker/ant_time_picker.dart';
+export 'package:antd_flutter_ui/src/data_entry/time_picker/ant_time_picker_types.dart';
 export 'src/components/data_entry/slider/ant_slider.dart';
 export 'src/components/data_entry/slider/ant_slider_types.dart';
 export 'src/components/data_entry/rate/ant_rate.dart';
@@ -121,9 +123,10 @@ export 'src/components/data_entry/form/ant_form.dart';
 export 'src/components/data_entry/form/ant_form_types.dart';
 export 'src/components/data_entry/auto_complete/ant_auto_complete.dart';
 export 'src/components/data_entry/auto_complete/ant_auto_complete_types.dart';
-export 'src/components/data_entry/cascader/ant_cascader.dart';
-export 'src/components/data_entry/cascader/ant_cascader_types.dart';
-export 'src/components/data_entry/cascader/ant_cascader_view.dart';
+// AntCascader 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/cascader/ant_cascader.dart';
+export 'package:antd_flutter_ui/src/data_entry/cascader/ant_cascader_types.dart';
+export 'package:antd_flutter_ui/src/data_entry/cascader/ant_cascader_view.dart';
 export 'src/components/data_entry/color_picker/ant_color_picker.dart';
 export 'src/components/data_entry/image_uploader/ant_image_uploader.dart';
 export 'src/components/data_entry/image_uploader/ant_image_uploader_types.dart';
@@ -144,8 +147,9 @@ export 'src/components/data_entry/stepper/ant_stepper.dart';
 export 'src/components/data_entry/stepper/ant_stepper_types.dart';
 export 'src/components/data_entry/search_bar/ant_search_bar.dart';
 export 'src/components/data_entry/search_bar/ant_search_bar_types.dart';
-export 'src/components/data_entry/picker/ant_picker.dart';
-export 'src/components/data_entry/picker/ant_picker_types.dart';
+// AntPicker 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/data_entry/picker/ant_picker.dart';
+export 'package:antd_flutter_ui/src/data_entry/picker/ant_picker_types.dart';
 // P08 拆分：AntCalendarPicker（含内嵌视图）与 AntCalendar 经独立包 antd_calendar
 // re-export；AntPickerView 已沉淀 antd_flutter_ui 基础库，经 antd_calendar
 // barrel 保持符号兼容（下方「Calendar 日历」区同样经该 re-export 覆盖）。
