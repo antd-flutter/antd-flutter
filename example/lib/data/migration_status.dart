@@ -16,6 +16,8 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+];
+const kMigratedVerified = <String>[
   'alert',
   'error_block',
   'loading',
@@ -25,8 +27,6 @@ const kPendingVerify = <String>[
   'result_page',
   'skeleton',
   'spin',
-];
-const kMigratedVerified = <String>[
   'image',
   'page_indicator',
   'picker_view',
