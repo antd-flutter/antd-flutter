@@ -284,8 +284,10 @@ class _MessageItemState extends State<_MessageItem>
     final theme = widget.themeData;
     final (:icon, :color) = _resolveIndicator(theme);
 
-    // 图标盒高度与文字行高一致并居中，保证图标与文字垂直对齐
-    final indicatorBoxHeight = theme.fontSize * 1.4;
+    // 图标盒高度与文字行高一致并居中，保证图标与文字垂直对齐；
+    // 文字显式使用同行高（默认行高随平台字体度量波动，无法保证对齐）
+    const kMessageLineHeight = 1.4;
+    final indicatorBoxHeight = theme.fontSize * kMessageLineHeight;
     final indicator = SizedBox(
       width: 16.w,
       height: indicatorBoxHeight,
@@ -325,6 +327,7 @@ class _MessageItemState extends State<_MessageItem>
           DefaultTextStyle(
             style: TextStyle(
               fontSize: theme.fontSize,
+              height: kMessageLineHeight,
               color: theme.colorText,
             ),
             child: widget.item.content,

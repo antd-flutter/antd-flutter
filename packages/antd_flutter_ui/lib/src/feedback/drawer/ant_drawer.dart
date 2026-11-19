@@ -282,16 +282,19 @@ class _DrawerOverlay extends StatelessWidget {
                     ),
                   ),
                   if (drawer.closable)
-                    GestureDetector(
-                      key: kAntDrawerCloseKey,
-                      onTap: _handleClose,
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: EdgeInsets.all(4.w),
-                        child: Icon(
-                          Icons.close,
-                          size: 18.sp,
-                          color: theme.colorTextSecondary,
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        key: kAntDrawerCloseKey,
+                        onTap: _handleClose,
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: EdgeInsets.all(4.w),
+                          child: Icon(
+                            Icons.close,
+                            size: 18.sp,
+                            color: theme.colorTextSecondary,
+                          ),
                         ),
                       ),
                     ),
