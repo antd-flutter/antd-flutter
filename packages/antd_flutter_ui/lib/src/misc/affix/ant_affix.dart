@@ -126,6 +126,8 @@ class _AntAffixState extends State<AntAffix> {
   }
 
   /// 以当前布局为准重新测量原始位置与尺寸基准。
+  ///
+  /// 测量失败/尺寸非法时回退到视口宽度（钉住层宽度约束永远有界）。
   void _measure() {
     if (!mounted) return;
     final box = context.findRenderObject();
@@ -136,6 +138,16 @@ class _AntAffixState extends State<AntAffix> {
     _width = box.size.width;
     _height = box.size.height;
     _lastPixels = _position?.pixels ?? 0;
+    _sanitizeMetrics();
+  }
+
+  /// 钉住层尺寸守卫：宽度必须落在 (0, 视口宽] 内，否则回退视口宽度约束。
+  void _sanitizeMetrics() {
+    final viewportWidth = MediaQuery.sizeOf(context).width;
+    if (_width <= 0 || _width > viewportWidth || _left < 0 || _left >= viewportWidth) {
+      _left = 0;
+      _width = viewportWidth;
+    }
   }
 
   void _onScroll() {
@@ -144,6 +156,11 @@ class _AntAffixState extends State<AntAffix> {
     // 滚动引起的位置变化直接用增量换算，避免依赖尚未完成的布局
     _originalTop -= (pixels - _lastPixels);
     _lastPixels = pixels;
+    if (_affixed) {
+      // 钉住期间同步刷新占位尺寸/横向位置（窗口变化、内容自适应重排），
+      // 保证 Overlay 钉住层宽度约束始终等于原占位宽度
+      _measure();
+    }
     _apply();
   }
 
@@ -279,31 +296,32 @@ class _AntAffixState extends State<AntAffix> {
         _fallbackWithoutOverlay = false;
         _computeSlot();
         _overlayEntry = OverlayEntry(
-          builder: (_) => _pinToBottom
-              ? Positioned(
-                  bottom: _pinnedBottom,
-                  left: _left,
+          builder: (_) {
+            final pinnedChild = KeyedSubtree(
+              key: kAntAffixShiftKey,
+              child: KeyedSubtree(
+                key: kAntAffixChildKey,
+                // 显式宽度约束：child 在原占位宽度内有界布局（长文本换行不溢出）
+                child: SizedBox(
                   width: _width,
-                  child: KeyedSubtree(
-                    key: kAntAffixShiftKey,
-                    child: KeyedSubtree(
-                      key: kAntAffixChildKey,
-                      child: widget.child,
-                    ),
-                  ),
-                )
-              : Positioned(
-                  top: _pinnedTop,
-                  left: _left,
-                  width: _width,
-                  child: KeyedSubtree(
-                    key: kAntAffixShiftKey,
-                    child: KeyedSubtree(
-                      key: kAntAffixChildKey,
-                      child: widget.child,
-                    ),
-                  ),
+                  child: widget.child,
                 ),
+              ),
+            );
+            return _pinToBottom
+                ? Positioned(
+                    bottom: _pinnedBottom,
+                    left: _left,
+                    width: _width,
+                    child: pinnedChild,
+                  )
+                : Positioned(
+                    top: _pinnedTop,
+                    left: _left,
+                    width: _width,
+                    child: pinnedChild,
+                  );
+          },
         );
         overlay.insert(_overlayEntry!);
       } else if (!_affixed && _overlayEntry != null) {

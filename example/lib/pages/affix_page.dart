@@ -110,7 +110,8 @@ class _AffixPageState extends State<AffixPage> {
         children: [
           Icon(AntIcons.pushpinOutlined, size: 16.w, color: theme.colorPrimary),
           SizedBox(width: 8.w),
-          Text(text),
+          // Expanded：窄屏/钉住宽度约束下长文本换行，不产生横向溢出
+          Expanded(child: Text(text, softWrap: true)),
         ],
       ),
     );

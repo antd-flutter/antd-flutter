@@ -310,5 +310,38 @@ void main() {
       expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top, closeTo(50, 1.0));
       expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top, closeTo(400, 1.0)); // 回到原位
     });
+
+    testWidgets('iPhone Duo 宽屏模拟：钉住 child 宽度 == 原占位宽度，无溢出（探针回归）',
+        (tester) async {
+      // iPhone Duo 模拟尺寸（逻辑 430x932）
+      tester.view.physicalSize = const Size(430, 932);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      const longText = '滚过顶部后钉住，下方内容不跳动——这是一段较长的固钉文案，'
+          '用于验证钉住层在有界宽度内正常换行不溢出';
+      final errors = <FlutterErrorDetails>[];
+      final original = FlutterError.onError;
+      FlutterError.onError = (details) => errors.add(details);
+
+      await tester.pumpWidget(_wrap(_scrollPage(offsetTop: 100, affixChild: const SizedBox(
+        width: double.infinity,
+        child: Text(longText, softWrap: true),
+      ),),),);
+      await tester.pumpAndSettle();
+      final placeholderRect = tester.getRect(find.byKey(kAntAffixChildKey));
+
+      await _scrollTo(tester, 300);
+      await tester.pumpAndSettle();
+
+      // 钉住层宽度 == 原占位宽度（±2px）
+      final pinnedRect = tester.getRect(find.byKey(kAntAffixChildKey));
+      expect(pinnedRect.width, closeTo(placeholderRect.width, 2.0));
+      // 且宽度有界（不超过视口宽）
+      expect(pinnedRect.width, lessThanOrEqualTo(430));
+      // 无溢出/布局异常
+      FlutterError.onError = original;
+      expect(errors.where((e) => e.toString().contains('OVERFLOWED')), isEmpty);
+    });
   });
 }
