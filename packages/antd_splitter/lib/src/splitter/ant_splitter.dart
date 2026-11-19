@@ -324,8 +324,12 @@ class _AntSplitterState extends State<AntSplitter> {
             index + 1 < widget.children.length ? index + 1 : index - 1;
         final freed = sizes[index];
         sizes[index] = 0;
-        // 折叠空间全部交给相邻面板并自动展开：对侧完全撑开到最大。
-        sizes[neighbor] = freed;
+        // 自动展开相邻面板并恢复其折叠前尺寸（不超可用空间）——
+        // 先还原两面板布局，用户可继续操作（不直接撑到最大）。
+        final restoreTarget =
+            (_sizesBeforeCollapse?[neighbor] ?? _averageSize(sizes))
+                .clamp(0.0, freed);
+        sizes[neighbor] = restoreTarget;
         _collapsed[neighbor] = false;
       } else {
         _sizesBeforeCollapse = List<double>.from(sizes);
