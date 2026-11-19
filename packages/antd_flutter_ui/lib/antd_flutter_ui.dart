@@ -92,6 +92,22 @@ export 'src/display/card/ant_card_types.dart';
 export 'src/display/statistic/ant_statistic.dart';
 export 'src/display/statistic/ant_statistic_types.dart';
 
+// ── Collapse 折叠面板 ───────────────────────────────────────
+export 'src/display/collapse/ant_collapse.dart';
+export 'src/display/collapse/ant_collapse_types.dart';
+
+// ── Descriptions 描述列表 ───────────────────────────────────
+export 'src/display/descriptions/ant_descriptions.dart';
+export 'src/display/descriptions/ant_descriptions_types.dart';
+
+// ── List 列表 ──────────────────────────────────────────────
+export 'src/display/list/ant_list.dart';
+export 'src/display/list/ant_list_types.dart';
+
+// ── Timeline 时间轴 ────────────────────────────────────────
+export 'src/display/timeline/ant_timeline.dart';
+export 'src/display/timeline/ant_timeline_types.dart';
+
 // ── Ellipsis 文本省略 ───────────────────────────────────────
 export 'src/display/ellipsis/ant_ellipsis.dart';
 export 'src/display/ellipsis/ant_ellipsis_types.dart';

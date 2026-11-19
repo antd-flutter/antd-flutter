@@ -212,14 +212,15 @@ export 'package:antd_tree/src/tree/ant_tree_types.dart';
 // AntCarousel 已迁移至独立包 antd_carousel（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
 export 'package:antd_carousel/src/carousel/ant_carousel.dart';
 export 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
-export 'src/components/data_display/descriptions/ant_descriptions.dart';
-export 'src/components/data_display/descriptions/ant_descriptions_types.dart';
-export 'src/components/data_display/timeline/ant_timeline.dart';
-export 'src/components/data_display/timeline/ant_timeline_types.dart';
-export 'src/components/data_display/collapse/ant_collapse.dart';
-export 'src/components/data_display/collapse/ant_collapse_types.dart';
-export 'src/components/data_display/list/ant_list.dart';
-export 'src/components/data_display/list/ant_list_types.dart';
+// Collapse/Descriptions/List/Timeline 已迁移至 antd_flutter_ui（P08 批次 0-5），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/descriptions/ant_descriptions.dart';
+export 'package:antd_flutter_ui/src/display/descriptions/ant_descriptions_types.dart';
+export 'package:antd_flutter_ui/src/display/timeline/ant_timeline.dart';
+export 'package:antd_flutter_ui/src/display/timeline/ant_timeline_types.dart';
+export 'package:antd_flutter_ui/src/display/collapse/ant_collapse.dart';
+export 'package:antd_flutter_ui/src/display/collapse/ant_collapse_types.dart';
+export 'package:antd_flutter_ui/src/display/list/ant_list.dart';
+export 'package:antd_flutter_ui/src/display/list/ant_list_types.dart';
 
 // ============================================================
 // 数据展示 Data Display — 批次D

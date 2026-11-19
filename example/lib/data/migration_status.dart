@@ -107,6 +107,10 @@ const kMigratedVerified = <String>[
   'popover',
   'popconfirm',
   'dropdown',
+  'collapse',
+  'descriptions',
+  'list',
+  'timeline',
 ];
 
 /// 迁移状态
