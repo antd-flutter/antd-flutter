@@ -179,7 +179,8 @@ class _MessageStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final safeTop = MediaQuery.paddingOf(context).top;
+    // Overlay 内 padding 已被页面 SafeArea 消费，用 viewPadding 取真实安全区
+    final safeTop = MediaQuery.viewPaddingOf(context).top;
     final theme = items.isEmpty ? null : items.first.themeData;
     return Positioned(
       top: safeTop + 16.w,

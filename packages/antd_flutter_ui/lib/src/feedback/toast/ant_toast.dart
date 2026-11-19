@@ -204,8 +204,9 @@ class _ToastViewState extends State<_ToastView> {
 
   /// 按 position 解析对齐配置。
   ({Alignment alignment, EdgeInsets padding}) _resolvePosition() {
-    final vertical = MediaQuery.paddingOf(context).top +
-        MediaQuery.paddingOf(context).bottom;
+    // Overlay 内 padding 已被页面 SafeArea 消费，用 viewPadding 取真实安全区
+    final vertical = MediaQuery.viewPaddingOf(context).top +
+        MediaQuery.viewPaddingOf(context).bottom;
     return switch (widget.toast.position) {
       AntToastPosition.top => (
           alignment: Alignment.topCenter,

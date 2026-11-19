@@ -246,7 +246,7 @@ class _DrawerOverlay extends StatelessWidget {
         key: kAntDrawerPanelKey,
         width: width,
         height: height,
-        child: _buildPanel(),
+        child: _buildPanel(context),
       ),
     );
   }
@@ -255,77 +255,88 @@ class _DrawerOverlay extends StatelessWidget {
     drawer.onClose?.call();
   }
 
-  Widget _buildPanel() {
+  Widget _buildPanel(BuildContext context) {
     final theme = themeData;
+    // Overlay 内 padding 已被页面 SafeArea 消费，用 viewPadding 取真实安全区，
+    // 标题/底部操作区不被状态栏与底部横条遮挡
+    final vp = MediaQuery.viewPaddingOf(context);
     return Material(
       color: theme.colorBgContainer,
       elevation: 8,
       shadowColor: theme.colorShadow,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题栏
-          if (drawer.title != null || drawer.closable)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: DefaultTextStyle(
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorTextHeading,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: vp.top,
+          bottom: vp.bottom,
+          left: vp.left,
+          right: vp.right,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 标题栏
+            if (drawer.title != null || drawer.closable)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: DefaultTextStyle(
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorTextHeading,
+                        ),
+                        child: drawer.title ?? const SizedBox.shrink(),
                       ),
-                      child: drawer.title ?? const SizedBox.shrink(),
                     ),
-                  ),
-                  if (drawer.closable)
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        key: kAntDrawerCloseKey,
-                        onTap: _handleClose,
-                        behavior: HitTestBehavior.opaque,
-                        child: Padding(
-                          padding: EdgeInsets.all(4.w),
-                          child: Icon(
-                            Icons.close,
-                            size: 18.sp,
-                            color: theme.colorTextSecondary,
+                    if (drawer.closable)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          key: kAntDrawerCloseKey,
+                          onTap: _handleClose,
+                          behavior: HitTestBehavior.opaque,
+                          child: Padding(
+                            padding: EdgeInsets.all(4.w),
+                            child: Icon(
+                              Icons.close,
+                              size: 18.sp,
+                              color: theme.colorTextSecondary,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          Divider(height: 1, color: theme.colorBorderSecondary),
-          // 内容区（可滚动）
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(24.w),
-              child: DefaultTextStyle(
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
-                child: drawer.child,
-              ),
-            ),
-          ),
-          // 底部操作区
-          if (drawer.footer != null) ...[
             Divider(height: 1, color: theme.colorBorderSecondary),
-            Container(
-              key: kAntDrawerFooterKey,
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.w),
-              child: DefaultTextStyle(
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
-                child: drawer.footer!,
+            // 内容区（可滚动）
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(24.w),
+                child: DefaultTextStyle(
+                  style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                  child: drawer.child,
+                ),
               ),
             ),
+            // 底部操作区
+            if (drawer.footer != null) ...[
+              Divider(height: 1, color: theme.colorBorderSecondary),
+              Container(
+                key: kAntDrawerFooterKey,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.w),
+                child: DefaultTextStyle(
+                  style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                  child: drawer.footer!,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
