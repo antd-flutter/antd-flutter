@@ -155,5 +155,169 @@ void main() {
       final box = tester.widget<SizedBox>(find.byKey(const Key('custom-size')));
       expect(box.width, 50);
     });
+
+    group('特殊样式补齐（批次 0-1 优化）', () {
+      testWidgets('dot 指示器渲染四点阵', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              indicatorType: AntSpinIndicatorType.dot,
+              tip: '点阵加载',
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(find.byKey(kAntSpinDotsKey), findsOneWidget);
+        // 默认 circle 模式不应出现 dots key。
+        await tester.pumpWidget(
+          _wrap(const AntSpin(indicatorType: AntSpinIndicatorType.circle)),
+        );
+        await tester.pump();
+        expect(find.byKey(kAntSpinDotsKey), findsNothing);
+      });
+
+      testWidgets('size 三档对应指示器尺寸', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              size: AntSpinSize.small,
+              indicatorType: AntSpinIndicatorType.dot,
+            ),
+          ),
+        );
+        await tester.pump();
+        final small = tester.getRect(find.byKey(kAntSpinDotsKey));
+
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              size: AntSpinSize.middle,
+              indicatorType: AntSpinIndicatorType.dot,
+            ),
+          ),
+        );
+        await tester.pump();
+        final middle = tester.getRect(find.byKey(kAntSpinDotsKey));
+
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              size: AntSpinSize.large,
+              indicatorType: AntSpinIndicatorType.dot,
+            ),
+          ),
+        );
+        await tester.pump();
+        final large = tester.getRect(find.byKey(kAntSpinDotsKey));
+
+        expect(small.width, 14);
+        expect(middle.width, 20);
+        expect(large.width, 32);
+      });
+
+      testWidgets('tip 文案显示在指示器下方', (tester) async {
+        await tester.pumpWidget(
+          _wrap(const AntSpin(tip: '正在保存')),
+        );
+        await tester.pump();
+        expect(find.text('正在保存'), findsOneWidget);
+      });
+
+      testWidgets('fullscreen 独立模式渲染全屏遮罩', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(fullscreen: true, tip: '全屏加载中'),
+          ),
+        );
+        await tester.pump();
+        final overlay = tester.getRect(find.byKey(kAntSpinFullscreenKey));
+        // 全屏遮罩铺满测试视口（800x600 默认）。
+        expect(overlay.width, 800);
+        expect(overlay.height, 600);
+        expect(find.text('全屏加载中'), findsOneWidget);
+      });
+
+      testWidgets('fullscreen 包裹模式叠加在 child 之上', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            AntSpin(
+              fullscreen: true,
+              child: Container(
+                width: 200,
+                height: 200,
+                color: const Color(0xFF00FF00),
+                child: const Text('页面内容'),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(find.byKey(kAntSpinFullscreenKey), findsOneWidget);
+        expect(find.text('页面内容'), findsOneWidget);
+      });
+
+      testWidgets('fullscreen spinning=false 不渲染遮罩', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(fullscreen: true, spinning: false, tip: '不显示'),
+          ),
+        );
+        await tester.pump();
+        expect(find.byKey(kAntSpinFullscreenKey), findsNothing);
+        expect(find.text('不显示'), findsNothing);
+      });
+
+      testWidgets('delay：未到延迟不显示，到时后显示', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              delay: Duration(milliseconds: 400),
+              tip: '延迟加载',
+            ),
+          ),
+        );
+        await tester.pump();
+        // 延迟期内：不显示指示器与 tip。
+        expect(find.text('延迟加载'), findsNothing);
+        expect(find.byKey(kAntSpinDotsKey), findsNothing);
+
+        // 推进超过延迟时长后显示。
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.text('延迟加载'), findsOneWidget);
+      });
+
+      testWidgets('delay：延迟期内停止 spinning 则永不显示', (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              delay: Duration(milliseconds: 400),
+              tip: '闪烁防护',
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(find.text('闪烁防护'), findsNothing);
+
+        // 延迟期内切换为 false，再推进也不应显示。
+        await tester.pumpWidget(
+          _wrap(
+            const AntSpin(
+              spinning: false,
+              delay: Duration(milliseconds: 400),
+              tip: '闪烁防护',
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.text('闪烁防护'), findsNothing);
+      });
+
+      testWidgets('无 delay 时立即显示（向后兼容）', (tester) async {
+        await tester.pumpWidget(_wrap(const AntSpin(tip: '立即显示')));
+        await tester.pump();
+        expect(find.text('立即显示'), findsOneWidget);
+      });
+    });
   });
 }
+
