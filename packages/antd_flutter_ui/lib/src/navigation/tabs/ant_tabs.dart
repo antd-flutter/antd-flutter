@@ -155,17 +155,36 @@ class _AntTabsState extends State<AntTabs> {
     final tabBar = _buildTabBar(context);
     final content = _buildContent(context);
 
+    Widget result;
     if (_isHorizontal) {
-      return Column(
+      result = Column(
         children: widget.tabPosition == AntTabPosition.top
             ? [tabBar, content]
             : [content, tabBar],
       );
+    } else {
+      result = Row(
+        children: widget.tabPosition == AntTabPosition.left
+            ? [tabBar, content]
+            : [content, tabBar],
+      );
     }
-    return Row(
-      children: widget.tabPosition == AntTabPosition.left
-          ? [tabBar, content]
-          : [content, tabBar],
+
+    // 无界主轴自适应：内部使用 Expanded 撑满主轴，在
+    // SingleChildScrollView / 未约束 Column 等无界容器中会触发
+    // "given unbounded height/width" 崩溃。检测到无界约束时改用
+    // Intrinsic 尺寸自适应（对齐 AntSegmented 无界处理先例）。
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        Widget adapted = result;
+        if (!constraints.hasBoundedHeight) {
+          adapted = IntrinsicHeight(child: adapted);
+        }
+        if (!constraints.hasBoundedWidth) {
+          adapted = IntrinsicWidth(child: adapted);
+        }
+        return adapted;
+      },
     );
   }
 

@@ -404,4 +404,38 @@ void main() {
       );
     });
   });
+  group('AntTabs — 无界容器回归（P09 bug 修复）', () {
+    testWidgets('horizontal tabs in SingleChildScrollView does not crash',
+        (tester) async {
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        child: Column(
+          children: [
+            AntTabs(items: _sampleItems()),
+            const Text('after'),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Tab 1'), findsOneWidget);
+      expect(find.text('after'), findsOneWidget);
+    });
+
+    testWidgets('vertical tabs in SingleChildScrollView does not crash',
+        (tester) async {
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        child: Column(
+          children: [
+            AntTabs(
+              tabPosition: AntTabPosition.left,
+              items: _sampleItems(),
+            ),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Tab 1'), findsOneWidget);
+    });
+  });
 }

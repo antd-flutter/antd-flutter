@@ -81,10 +81,30 @@ class AntSteps extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
+    Widget result;
     if (direction == AntStepsDirection.vertical) {
-      return _buildVertical(context);
+      result = _buildVertical(context);
+    } else {
+      result = _buildHorizontal(context);
     }
-    return _buildHorizontal(context);
+
+    // 无界主轴自适应：内部使用 Expanded 撑满主轴，在
+    // SingleChildScrollView / 未约束 Column 等无界容器中会触发
+    // "Vertical viewport was given unbounded height" 类崩溃。
+    // 检测到无界约束时改用 Intrinsic 尺寸自适应
+    // （对齐 AntSegmented 无界处理先例）。
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        Widget adapted = result;
+        if (!constraints.hasBoundedHeight) {
+          adapted = IntrinsicHeight(child: adapted);
+        }
+        if (!constraints.hasBoundedWidth) {
+          adapted = IntrinsicWidth(child: adapted);
+        }
+        return adapted;
+      },
+    );
   }
 
   // ------------------------------------------------------------

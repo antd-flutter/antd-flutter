@@ -312,4 +312,40 @@ void main() {
       expect(find.text('1'), findsNothing);
     });
   });
+  group('AntSteps — 无界容器回归（P09 bug 修复）', () {
+    testWidgets('horizontal steps in SingleChildScrollView does not crash',
+        (tester) async {
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        child: Column(
+          children: [
+            AntSteps(items: _sampleItems()),
+            const Text('after'),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Finished'), findsOneWidget);
+      expect(find.text('after'), findsOneWidget);
+    });
+
+    testWidgets('vertical steps in SingleChildScrollView does not crash',
+        (tester) async {
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        child: Column(
+          children: [
+            AntSteps(
+              direction: AntStepsDirection.vertical,
+              items: _sampleItems(),
+            ),
+            const Text('after'),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('In Progress'), findsOneWidget);
+      expect(find.text('after'), findsOneWidget);
+    });
+  });
 }
