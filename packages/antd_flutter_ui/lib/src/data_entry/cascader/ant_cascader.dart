@@ -22,7 +22,7 @@
 /// ```
 library;
 
-import 'ant_cascader_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -85,7 +85,7 @@ class AntCascader extends StatefulWidget {
 }
 
 class _AntCascaderState extends State<AntCascader> {
-  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _fieldKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _open = false;
 
@@ -142,12 +142,16 @@ class _AntCascaderState extends State<AntCascader> {
 
   /// 根据值路径查找选项路径
   List<AntCascaderOption>? _findPathByValue(List<String> values) {
-    List<AntCascaderOption>? search(List<AntCascaderOption> options, int depth) {
+    List<AntCascaderOption>? search(
+      List<AntCascaderOption> options,
+      int depth,
+    ) {
       if (depth >= values.length) return [];
       for (final opt in options) {
         if (opt.value == values[depth]) {
           if (depth == values.length - 1) return [opt];
-          final sub = opt.children != null ? search(opt.children!, depth + 1) : null;
+          final sub =
+              opt.children != null ? search(opt.children!, depth + 1) : null;
           if (sub != null) return [opt, ...sub];
           return [opt];
         }
@@ -169,7 +173,7 @@ class _AntCascaderState extends State<AntCascader> {
     final t = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => _CascaderOverlay(
-        layerLink: _layerLink,
+        fieldKey: _fieldKey,
         themeData: t,
         options: widget.options,
         activePath: _activePath,
@@ -218,25 +222,9 @@ class _AntCascaderState extends State<AntCascader> {
   }
 
   void _updateOverlay() {
-    if (_overlayEntry != null) {
-      final t = AntTheme.of(context);
-      _overlayEntry!.remove();
-      _overlayEntry = OverlayEntry(
-        builder: (context) => _CascaderOverlay(
-          layerLink: _layerLink,
-          themeData: t,
-          options: widget.options,
-          activePath: _activePath,
-          expandTrigger: widget.expandTrigger,
-          changeOnSelect: widget.changeOnSelect,
-          onPathChange: _onPathChange,
-          onConfirm: _onConfirm,
-          onConfirmKeepOpen: _onConfirmKeepOpen,
-          onDismiss: _removeOverlay,
-        ),
-      );
-      Overlay.of(context).insert(_overlayEntry!);
-    }
+    // 面板路径变化仅触发 overlay 重建（markNeedsBuild），
+    // 不 remove+insert —— 避免 AntPopupOverlay 重挂载重放出泡动画
+    _overlayEntry?.markNeedsBuild();
   }
 
   void _clear() {
@@ -250,59 +238,68 @@ class _AntCascaderState extends State<AntCascader> {
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final fontSize = widget.size == AntCascaderSize.small ? t.fontSizeSM : t.fontSize;
-    final showClear = widget.allowClear && _currentValue.isNotEmpty && !widget.disabled;
+    final fontSize =
+        widget.size == AntCascaderSize.small ? t.fontSizeSM : t.fontSize;
+    final showClear =
+        widget.allowClear && _currentValue.isNotEmpty && !widget.disabled;
 
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: GestureDetector(
-        onTap: widget.disabled ? null : (_open ? _removeOverlay : _showOverlay),
-        child: Container(
-          height: _height.h,
-          padding: EdgeInsets.symmetric(horizontal: (widget.size == AntCascaderSize.small ? 7 : 12).w),
-          decoration: BoxDecoration(
-            color: widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-            border: Border.all(
-              color: _open ? t.colorPrimary : t.colorBorder,
-              width: _open ? t.controlOutlineWidth : 1,
-            ),
-            borderRadius: BorderRadius.circular(t.borderRadius),
+    return GestureDetector(
+      key: _fieldKey,
+      onTap: widget.disabled ? null : (_open ? _removeOverlay : _showOverlay),
+      child: Container(
+        height: _height.h,
+        padding: EdgeInsets.symmetric(
+          horizontal: (widget.size == AntCascaderSize.small ? 7 : 12).w,
+        ),
+        decoration: BoxDecoration(
+          color:
+              widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+          border: Border.all(
+            color: _open ? t.colorPrimary : t.colorBorder,
+            width: _open ? t.controlOutlineWidth : 1,
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _displayText.isNotEmpty ? _displayText : (widget.placeholder ?? ''),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: fontSize.sp,
-                    color: _displayText.isNotEmpty
-                        ? (widget.disabled ? t.colorTextDisabled : t.colorText)
-                        : t.colorTextPlaceholder,
-                  ),
+          borderRadius: BorderRadius.circular(t.borderRadius),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                _displayText.isNotEmpty
+                    ? _displayText
+                    : (widget.placeholder ?? ''),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: fontSize.sp,
+                  color: _displayText.isNotEmpty
+                      ? (widget.disabled ? t.colorTextDisabled : t.colorText)
+                      : t.colorTextPlaceholder,
                 ),
               ),
-              if (showClear)
-                GestureDetector(
-                  onTap: _clear,
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 4.w),
-                    child: Icon(Icons.cancel, size: 14.sp, color: t.colorTextQuaternary),
-                  ),
-                )
-              else
-                Padding(
+            ),
+            if (showClear)
+              GestureDetector(
+                onTap: _clear,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
                   child: Icon(
-                    _open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    Icons.cancel,
                     size: 14.sp,
                     color: t.colorTextQuaternary,
                   ),
                 ),
-            ],
-          ),
+              )
+            else
+              Padding(
+                padding: EdgeInsets.only(left: 4.w),
+                child: Icon(
+                  _open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  size: 14.sp,
+                  color: t.colorTextQuaternary,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -315,7 +312,7 @@ class _AntCascaderState extends State<AntCascader> {
 
 class _CascaderOverlay extends StatelessWidget {
   const _CascaderOverlay({
-    required this.layerLink,
+    required this.fieldKey,
     required this.themeData,
     required this.options,
     required this.activePath,
@@ -327,7 +324,7 @@ class _CascaderOverlay extends StatelessWidget {
     required this.onDismiss,
   });
 
-  final LayerLink layerLink;
+  final GlobalKey fieldKey;
   final AntThemeData themeData;
   final List<AntCascaderOption> options;
   final List<AntCascaderOption> activePath;
@@ -351,7 +348,11 @@ class _CascaderOverlay extends StatelessWidget {
     return cols;
   }
 
-  void _handleOptionTap(List<AntCascaderOption> colOptions, int indexInCol, int colIndex) {
+  void _handleOptionTap(
+    List<AntCascaderOption> colOptions,
+    int indexInCol,
+    int colIndex,
+  ) {
     final option = colOptions[indexInCol];
     if (option.disabled) return;
 
@@ -376,56 +377,46 @@ class _CascaderOverlay extends StatelessWidget {
     final t = themeData;
     final cols = _columns;
 
-    return Stack(
-      children: [
-        // 全屏 barrier 点击关闭
-        Positioned.fill(
-          child: GestureDetector(
-            onTap: onDismiss,
-            behavior: HitTestBehavior.translucent,
-            child: const SizedBox.expand(),
-          ),
-        ),
-        // 级联面板
-        Positioned(
-          child: CompositedTransformFollower(
-            link: layerLink,
-            targetAnchor: Alignment.bottomLeft,
-            followerAnchor: Alignment.topLeft,
-            offset: Offset(0, 4.h),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                constraints: BoxConstraints(maxHeight: 256.h),
-                decoration: BoxDecoration(
-                  color: t.colorBgContainer,
-                  borderRadius: BorderRadius.circular(t.borderRadiusLG),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (var colIndex = 0; colIndex < cols.length; colIndex++)
-                      _buildColumn(cols[colIndex], colIndex, t),
-                  ],
-                ),
+    // 弹层基座：位置计算/边界翻转夹回/点击外部关闭统一走 AntPopupOverlay
+    return AntPopupOverlay(
+      targetKey: fieldKey,
+      placement: AntPopupPlacement.bottomLeft,
+      onDismiss: onDismiss,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 256.h),
+          decoration: BoxDecoration(
+            color: t.colorBgContainer,
+            borderRadius: BorderRadius.circular(t.borderRadiusLG),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-            ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var colIndex = 0; colIndex < cols.length; colIndex++)
+                _buildColumn(cols[colIndex], colIndex, t),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildColumn(List<AntCascaderOption> colOptions, int colIndex, AntThemeData t) {
-    final activeInCol = colIndex < activePath.length ? activePath[colIndex] : null;
+  Widget _buildColumn(
+    List<AntCascaderOption> colOptions,
+    int colIndex,
+    AntThemeData t,
+  ) {
+    final activeInCol =
+        colIndex < activePath.length ? activePath[colIndex] : null;
 
     return Container(
       width: 140.w,
@@ -455,9 +446,10 @@ class _CascaderOverlay extends StatelessWidget {
             colorFillSecondary: t.colorFillSecondary,
             expandTrigger: expandTrigger,
             onTap: () => _handleOptionTap(colOptions, index, colIndex),
-            onHover: option.isLeaf || expandTrigger == AntCascaderExpandTrigger.click
-                ? null
-                : () => _handleOptionTap(colOptions, index, colIndex),
+            onHover:
+                option.isLeaf || expandTrigger == AntCascaderExpandTrigger.click
+                    ? null
+                    : () => _handleOptionTap(colOptions, index, colIndex),
           );
         },
       ),

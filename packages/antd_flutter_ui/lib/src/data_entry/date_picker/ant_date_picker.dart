@@ -14,7 +14,7 @@
 /// ```
 library;
 
-import 'ant_date_picker_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'ant_date_picker_types.dart';
@@ -118,7 +118,6 @@ class _AntDatePickerState extends State<AntDatePicker> {
     _overlayEntry = OverlayEntry(
       builder: (context) => _DatePickerOverlay(
         fieldKey: _fieldKey,
-        layerLink: _layerLink,
         panelMonth: _panelMonth,
         selectedDate: _currentValue,
         themeData: theme,
@@ -193,9 +192,8 @@ class _AntDatePickerState extends State<AntDatePicker> {
               color: open && !widget.disabled
                   ? theme.controlOutline
                   : theme.colorBorder,
-              width: open && !widget.disabled
-                  ? theme.controlOutlineWidth.w
-                  : 1.w,
+              width:
+                  open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
             ),
           ),
           child: Row(
@@ -257,7 +255,6 @@ class _AntDatePickerState extends State<AntDatePicker> {
 class _DatePickerOverlay extends StatelessWidget {
   const _DatePickerOverlay({
     required this.fieldKey,
-    required this.layerLink,
     required this.panelMonth,
     required this.selectedDate,
     required this.themeData,
@@ -267,7 +264,6 @@ class _DatePickerOverlay extends StatelessWidget {
   });
 
   final GlobalKey fieldKey;
-  final LayerLink layerLink;
   final DateTime panelMonth;
   final DateTime? selectedDate;
   final AntThemeData themeData;
@@ -281,12 +277,6 @@ class _DatePickerOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = themeData;
 
-    final fieldCtx = fieldKey.currentContext;
-    if (fieldCtx == null) return const SizedBox.shrink();
-    final fieldBox = fieldCtx.findRenderObject() as RenderBox?;
-    if (fieldBox == null || !fieldBox.hasSize) return const SizedBox.shrink();
-    final fieldSize = fieldBox.size;
-
     final year = panelMonth.year;
     final month = panelMonth.month;
     final firstDay = DateTime(year, month, 1);
@@ -295,9 +285,7 @@ class _DatePickerOverlay extends StatelessWidget {
 
     final today = DateTime.now();
     bool isToday(d) =>
-        d.year == today.year &&
-        d.month == today.month &&
-        d.day == today.day;
+        d.year == today.year && d.month == today.month && d.day == today.day;
 
     final dayCells = <Widget>[];
     for (var i = 0; i < leadingBlanks; i++) {
@@ -320,103 +308,90 @@ class _DatePickerOverlay extends StatelessWidget {
       );
     }
 
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
+    // 弹层基座：位置计算/边界翻转夹回/点击外部关闭统一走 AntPopupOverlay
+    return AntPopupOverlay(
+      targetKey: fieldKey,
+      placement: AntPopupPlacement.bottomLeft,
+      onDismiss: onDismiss,
+      child: Container(
+        width: 280.w,
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: theme.colorBgContainer,
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+          border: Border.all(color: theme.colorSplit),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        Positioned(
-          left: 0,
-          top: fieldSize.height + 4,
-          child: CompositedTransformFollower(
-            link: layerLink,
-            showWhenUnlinked: false,
-            child: TapRegion(
-              onTapOutside: (_) => onDismiss(),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: 280.w,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: theme.colorBgContainer,
-                    borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-                    border: Border.all(color: theme.colorSplit),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 年月导航
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _NavButton(
-                            icon: Icons.chevron_left,
-                            theme: theme,
-                            onTap: () => onPanelChange(
-                                DateTime(year, month - 1, 1),),
-                          ),
-                          Text(
-                            '$year年$month月',
-                            style: TextStyle(
-                              fontSize: theme.fontSize.sp,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorText,
-                            ),
-                          ),
-                          _NavButton(
-                            icon: Icons.chevron_right,
-                            theme: theme,
-                            onTap: () => onPanelChange(
-                                DateTime(year, month + 1, 1),),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.w),
-                      // 星期表头
-                      Row(
-                        children: _weekdays
-                            .map((w) => Expanded(
-                                  child: Center(
-                                    child: Text(
-                                      w,
-                                      style: TextStyle(
-                                        fontSize: theme.fontSizeSM.sp,
-                                        color: theme.colorTextTertiary,
-                                      ),
-                                    ),
-                                  ),
-                                ),)
-                            .toList(),
-                      ),
-                      SizedBox(height: 4.w),
-                      // 日期网格
-                      GridView.count(
-                        crossAxisCount: 7,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: 2.w,
-                        crossAxisSpacing: 2.w,
-                        childAspectRatio: 1,
-                        children: dayCells,
-                      ),
-                    ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 年月导航
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _NavButton(
+                  icon: Icons.chevron_left,
+                  theme: theme,
+                  onTap: () => onPanelChange(
+                    DateTime(year, month - 1, 1),
                   ),
                 ),
-              ),
+                Text(
+                  '$year年$month月',
+                  style: TextStyle(
+                    fontSize: theme.fontSize.sp,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorText,
+                  ),
+                ),
+                _NavButton(
+                  icon: Icons.chevron_right,
+                  theme: theme,
+                  onTap: () => onPanelChange(
+                    DateTime(year, month + 1, 1),
+                  ),
+                ),
+              ],
             ),
-          ),
+            SizedBox(height: 8.w),
+            // 星期表头
+            Row(
+              children: _weekdays
+                  .map(
+                    (w) => Expanded(
+                      child: Center(
+                        child: Text(
+                          w,
+                          style: TextStyle(
+                            fontSize: theme.fontSizeSM.sp,
+                            color: theme.colorTextTertiary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+            SizedBox(height: 4.w),
+            // 日期网格
+            GridView.count(
+              crossAxisCount: 7,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 2.w,
+              crossAxisSpacing: 2.w,
+              childAspectRatio: 1,
+              children: dayCells,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

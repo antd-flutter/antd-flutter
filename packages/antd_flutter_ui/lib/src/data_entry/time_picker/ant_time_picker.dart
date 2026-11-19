@@ -16,7 +16,7 @@ library;
 
 import 'dart:math' as math;
 
-import 'ant_time_picker_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'ant_time_picker_types.dart';
@@ -123,7 +123,6 @@ class _AntTimePickerState extends State<AntTimePicker> {
     _overlayEntry = OverlayEntry(
       builder: (context) => _TimePickerOverlay(
         fieldKey: _fieldKey,
-        layerLink: _layerLink,
         value: _currentValue,
         hourStep: widget.hourStep,
         minuteStep: widget.minuteStep,
@@ -198,9 +197,8 @@ class _AntTimePickerState extends State<AntTimePicker> {
               color: open && !widget.disabled
                   ? theme.controlOutline
                   : theme.colorBorder,
-              width: open && !widget.disabled
-                  ? theme.controlOutlineWidth.w
-                  : 1.w,
+              width:
+                  open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
             ),
           ),
           child: Row(
@@ -262,7 +260,6 @@ class _AntTimePickerState extends State<AntTimePicker> {
 class _TimePickerOverlay extends StatefulWidget {
   const _TimePickerOverlay({
     required this.fieldKey,
-    required this.layerLink,
     required this.value,
     required this.hourStep,
     required this.minuteStep,
@@ -274,7 +271,6 @@ class _TimePickerOverlay extends StatefulWidget {
   });
 
   final GlobalKey fieldKey;
-  final LayerLink layerLink;
   final TimeOfDay? value;
   final int hourStep;
   final int minuteStep;
@@ -309,12 +305,6 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
   Widget build(BuildContext context) {
     final theme = widget.themeData;
 
-    final fieldCtx = widget.fieldKey.currentContext;
-    if (fieldCtx == null) return const SizedBox.shrink();
-    final fieldBox = fieldCtx.findRenderObject() as RenderBox?;
-    if (fieldBox == null || !fieldBox.hasSize) return const SizedBox.shrink();
-    final fieldSize = fieldBox.size;
-
     final hours = <int>[];
     for (var h = 0; h < 24; h += widget.hourStep) {
       hours.add(h);
@@ -328,117 +318,112 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
       seconds.add(s);
     }
 
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: widget.onDismiss,
-          behavior: HitTestBehavior.translucent,
-          child: const SizedBox.expand(),
+    // 弹层基座：位置计算/边界翻转夹回/点击外部关闭统一走 AntPopupOverlay
+    return AntPopupOverlay(
+      targetKey: widget.fieldKey,
+      placement: AntPopupPlacement.bottomLeft,
+      onDismiss: widget.onDismiss,
+      child: Container(
+        width: 280.w,
+        padding: EdgeInsets.symmetric(
+          horizontal: 8.w,
+          vertical: 8.w,
         ),
-        Positioned(
-          left: 0,
-          top: fieldSize.height + 4,
-          child: CompositedTransformFollower(
-            link: widget.layerLink,
-            showWhenUnlinked: false,
-            child: TapRegion(
-              onTapOutside: (_) => widget.onDismiss(),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: math.max(fieldSize.width, 220.w),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 8.w, vertical: 8.w,),
-                  decoration: BoxDecoration(
-                    color: theme.colorBgContainer,
-                    borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-                    border: Border.all(color: theme.colorSplit),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+        decoration: BoxDecoration(
+          color: theme.colorBgContainer,
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+          border: Border.all(color: theme.colorSplit),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _WheelColumn(
+                    items:
+                        hours.map((h) => h.toString().padLeft(2, '0')).toList(),
+                    selectedIndex: hours.indexOf(
+                      _hour.clamp(
+                        hours.first,
+                        hours.last,
                       ),
-                    ],
+                    ),
+                    theme: theme,
+                    onSelected: (index) {
+                      setState(() => _hour = hours[index]);
+                      _notifyChange();
+                    },
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _WheelColumn(
-                              items: hours
-                                  .map((h) => h.toString().padLeft(2, '0'))
-                                  .toList(),
-                              selectedIndex: hours.indexOf(_hour.clamp(
-                                  hours.first, hours.last,),),
-                              theme: theme,
-                              onSelected: (index) {
-                                setState(() => _hour = hours[index]);
-                                _notifyChange();
-                              },
-                            ),
-                          ),
-                          _Separator(theme: theme),
-                          Expanded(
-                            child: _WheelColumn(
-                              items: minutes
-                                  .map((m) => m.toString().padLeft(2, '0'))
-                                  .toList(),
-                              selectedIndex: minutes.indexOf(_minute.clamp(
-                                  minutes.first, minutes.last,),),
-                              theme: theme,
-                              onSelected: (index) {
-                                setState(() => _minute = minutes[index]);
-                                _notifyChange();
-                              },
-                            ),
-                          ),
-                          _Separator(theme: theme),
-                          Expanded(
-                            child: _WheelColumn(
-                              items: seconds
-                                  .map((s) => s.toString().padLeft(2, '0'))
-                                  .toList(),
-                              selectedIndex: seconds.indexOf(_second.clamp(
-                                  seconds.first, seconds.last,),),
-                              theme: theme,
-                              onSelected: (index) {
-                                setState(() => _second = seconds[index]);
-                                _notifyChange();
-                              },
-                            ),
-                          ),
-                        ],
+                ),
+                _Separator(theme: theme),
+                Expanded(
+                  child: _WheelColumn(
+                    items: minutes
+                        .map((m) => m.toString().padLeft(2, '0'))
+                        .toList(),
+                    selectedIndex: minutes.indexOf(
+                      _minute.clamp(
+                        minutes.first,
+                        minutes.last,
                       ),
-                      SizedBox(height: 8.w),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: widget.onConfirm,
-                          style: TextButton.styleFrom(
-                            backgroundColor: theme.colorPrimary,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(theme.borderRadius.w),
-                            ),
-                          ),
-                          child: Text(
-                            '确定',
-                            style: TextStyle(fontSize: theme.fontSizeSM.sp),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    theme: theme,
+                    onSelected: (index) {
+                      setState(() => _minute = minutes[index]);
+                      _notifyChange();
+                    },
                   ),
+                ),
+                _Separator(theme: theme),
+                Expanded(
+                  child: _WheelColumn(
+                    items: seconds
+                        .map((s) => s.toString().padLeft(2, '0'))
+                        .toList(),
+                    selectedIndex: seconds.indexOf(
+                      _second.clamp(
+                        seconds.first,
+                        seconds.last,
+                      ),
+                    ),
+                    theme: theme,
+                    onSelected: (index) {
+                      setState(() => _second = seconds[index]);
+                      _notifyChange();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.w),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: widget.onConfirm,
+                style: TextButton.styleFrom(
+                  backgroundColor: theme.colorPrimary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
+                  ),
+                ),
+                child: Text(
+                  '确定',
+                  style: TextStyle(fontSize: theme.fontSizeSM.sp),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
