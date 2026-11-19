@@ -311,6 +311,77 @@ void main() {
       expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top, closeTo(400, 1.0)); // 回到原位
     });
 
+
+    testWidgets('bottom 模式不被默认 offsetTop=0 顶部规则劫持：钉底/解除/再钉底（回归）',
+        (tester) async {
+      _controller?.dispose();
+      _controller = ScrollController();
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        controller: _controller,
+        child: Column(children: [
+          Container(height: 460, alignment: Alignment.center, child: const Text('头部')),
+          AntAffix(
+            offsetBottom: 100,
+            child: Container(
+              key: const ValueKey('pinBottom'),
+              height: 60,
+              alignment: Alignment.center,
+              child: const Text('底部固钉'),
+            ),
+          ),
+          for (var i = 0; i < 30; i++)
+            Container(height: 100, alignment: Alignment.center, child: Text('内容 $i')),
+        ],),
+      ),),);
+      await tester.pumpAndSettle();
+      // 视口 600，阈值线 = 600-100 = 500；初始 originalBottom=520 > 500 → 钉底
+      // （钉在 bottom=100：top=440，而不是被 offsetTop=0 劫持钉到 top=0）
+      expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).bottom, closeTo(500, 1.0));
+      expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).top, closeTo(440, 1.0));
+
+      // 向下滚 500：originalTop=-40（<0），不得钉顶；originalBottom=20<500 → 解除
+      await _scrollTo(tester, 500);
+      expect(find.byKey(kAntAffixShiftKey), findsNothing);
+      expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).top, closeTo(-40, 1.0));
+
+      // 向上滚回：重新钉在底部
+      await _scrollTo(tester, 0);
+      expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).bottom, closeTo(500, 1.0));
+    });
+
+    testWidgets('不同 offset 但视觉重叠的同向固钉顺序错开不重叠（回归）', (tester) async {
+      _controller?.dispose();
+      _controller = ScrollController();
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        controller: _controller,
+        child: Column(children: [
+          Container(height: 200, alignment: Alignment.center, child: const Text('头部')),
+          AntAffix(
+            offsetTop: 0,
+            child: Container(key: const ValueKey('pinTopA'), height: 60, alignment: Alignment.center, child: const Text('钉上')),
+          ),
+          Container(height: 400),
+          AntAffix(
+            offsetTop: 30,
+            child: Container(key: const ValueKey('pinTopB'), height: 60, alignment: Alignment.center, child: const Text('钉下')),
+          ),
+          for (var i = 0; i < 30; i++)
+            Container(height: 100, alignment: Alignment.center, child: Text('内容 $i')),
+        ],),
+      ),),);
+      await tester.pumpAndSettle();
+
+      // 滚 660：两钉都钉住（均越过阈值），后者槽位 = max(30, 0+60) = 60，与前者错开
+      await _scrollTo(tester, 660);
+      expect(tester.getRect(find.byKey(const ValueKey('pinTopA'))).top, closeTo(0, 1.0));
+      expect(tester.getRect(find.byKey(const ValueKey('pinTopB'))).top, closeTo(60, 1.0));
+      // 不重叠：前者下缘 == 后者上缘
+      expect(
+        tester.getRect(find.byKey(const ValueKey('pinTopA'))).bottom,
+        closeTo(tester.getRect(find.byKey(const ValueKey('pinTopB'))).top, 1.0),
+      );
+    });
+
     testWidgets('iPhone Duo 宽屏模拟：钉住 child 宽度 == 原占位宽度，无溢出（探针回归）',
         (tester) async {
       // iPhone Duo 模拟尺寸（逻辑 430x932）

@@ -35,17 +35,6 @@ class _AffixPageState extends State<AffixPage> {
           ),
           Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
           _Section(
-            title: 'offsetBottom',
-            theme: theme,
-            status: _statusText('bottom'),
-            child: AntAffix(
-              offsetBottom: 16,
-              onChange: (v) => setState(() => _affixed['bottom'] = v),
-              child: _bar(theme, '固定在底部 16px'),
-            ),
-          ),
-          Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
-          _Section(
             title: '回调状态',
             theme: theme,
             status: _statusText('callback'),
@@ -77,6 +66,18 @@ class _AffixPageState extends State<AffixPage> {
               ),
               child: Text('滚动内容块 $i'),
             ),
+          // offsetBottom 固钉放在长内容末尾：加载即钉在视口底部（原位低于
+          // 底部阈值线），向下滚过原位解除，向上滚回重新钉住
+          _Section(
+            title: 'offsetBottom（页面末尾，向上滚回即钉底）',
+            theme: theme,
+            status: _statusText('bottom'),
+            child: AntAffix(
+              offsetBottom: 16,
+              onChange: (v) => setState(() => _affixed['bottom'] = v),
+              child: _bar(theme, '固定在底部 16px'),
+            ),
+          ),
         ],
       ),
     );

@@ -90,6 +90,9 @@ class _AntAffixState extends State<AntAffix> {
   /// 当前钉住方向：true = 底部钉住（offsetBottom 模式）。
   bool _pinToBottom = false;
 
+  /// 钉住时快照的主题数据（Overlay 内恢复 AntTheme token / Material 上下文）。
+  AntThemeData? _pinnedTheme;
+
   /// 降级模式（无 Overlay 祖先）下的原位平移量。
   double _fallbackShift = 0;
 
@@ -173,18 +176,23 @@ class _AntAffixState extends State<AntAffix> {
     final viewportHeight = MediaQuery.sizeOf(context).height;
 
     double? pinnedTop;
-    if (offsetTop != null && _originalTop < offsetTop) {
-      // 越过顶部阈值：固定到视口顶部 offsetTop 处
-      pinnedTop = offsetTop;
-      _pinToBottom = false;
-    } else if (offsetBottom != null) {
+    // 模式互斥（对齐 antd 语义）：显式给定 offsetBottom 时只走底部规则——
+    // 否则默认 offsetTop=0 的顶部规则会在元素滚出视口上方（originalTop<0）时
+    // 把 bottom 模式的固钉错误钉到顶部。
+    if (offsetBottom != null) {
       final thresholdBottom = viewportHeight - offsetBottom;
       final originalBottom = _originalTop + _height;
       if (originalBottom > thresholdBottom) {
         // 越过底部阈值：固定到视口底部 offsetBottom 处（元素底缘贴 offsetBottom 线）
         pinnedTop = thresholdBottom - _height;
         _pinToBottom = true;
+      } else {
+        _pinToBottom = false;
       }
+    } else if (_originalTop < (offsetTop ?? 0)) {
+      // 越过顶部阈值：固定到视口顶部 offsetTop 处
+      pinnedTop = offsetTop;
+      _pinToBottom = false;
     }
 
     final newAffixed = pinnedTop != null;
@@ -233,33 +241,41 @@ class _AntAffixState extends State<AntAffix> {
   /// 本元素当前固定线的 offset 值（钉住状态下必有对应 offset）。
   double get _lineOffset => _pinToBottom ? (widget.offsetBottom ?? 0) : (widget.offsetTop ?? 0);
 
-  /// 依据钉住注册序计算本元素在同一条固定线上的堆叠槽位。
+  /// 依据钉住注册序计算本元素在同向钉住序列中的堆叠槽位。
   ///
-  /// top 模式：top = offsetTop + 前置同线元素累计高度（后钉的排在下方）；
-  /// bottom 模式：bottom = offsetBottom + 前置同线元素累计高度（后钉的排在上方）。
+  /// top 模式：top = max(offsetTop, 前置同向钉住元素的槽位下缘)——
+  /// 任意两个同向钉住元素只要重叠就顺序错开（后钉的在下方），
+  /// 不同 offset 值但视觉重叠的固钉同样生效；解除时同向元素重算补位。
+  /// bottom 模式对称（自下而上）。
   void _computeSlot() {
-    var acc = 0.0;
+    double slot = _lineOffset;
     for (final peer in _pinOrder) {
       if (identical(peer, this)) break;
-      if (peer._pinToBottom == _pinToBottom && peer._lineOffset == _lineOffset) {
-        acc += peer._height;
+      if (peer._pinToBottom != _pinToBottom) continue;
+      if (_pinToBottom) {
+        slot = slot > peer._pinnedBottom + peer._height
+            ? slot
+            : peer._pinnedBottom + peer._height;
+      } else {
+        slot = slot > peer._pinnedTop + peer._height
+            ? slot
+            : peer._pinnedTop + peer._height;
       }
     }
     if (_pinToBottom) {
-      _pinnedBottom = _lineOffset + acc;
+      _pinnedBottom = slot;
       _pinnedTop = MediaQuery.sizeOf(context).height - _pinnedBottom - _height;
     } else {
-      _pinnedTop = _lineOffset + acc;
+      _pinnedTop = slot;
     }
   }
 
-  /// 通知同线钉住元素重新计算槽位补位（延迟帧末，避免 dispose/build 期改动）。
+  /// 通知同向钉住元素重新计算槽位补位（延迟帧末，避免 dispose/build 期改动）。
   void _notifySameLinePeers() {
     final edge = _pinToBottom;
-    final offset = _lineOffset;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       for (final peer in List<_AntAffixState>.of(_pinOrder)) {
-        if (peer._pinToBottom == edge && peer._lineOffset == offset) {
+        if (peer._pinToBottom == edge) {
           peer._reposition();
         }
       }
@@ -297,14 +313,22 @@ class _AntAffixState extends State<AntAffix> {
         _computeSlot();
         _overlayEntry = OverlayEntry(
           builder: (_) {
-            final pinnedChild = KeyedSubtree(
-              key: kAntAffixShiftKey,
-              child: KeyedSubtree(
-                key: kAntAffixChildKey,
-                // 显式宽度约束：child 在原占位宽度内有界布局（长文本换行不溢出）
-                child: SizedBox(
-                  width: _width,
-                  child: widget.child,
+            // Overlay 内无 Material/AntTheme 祖先：Text 会渲染成黄色双下划线
+            // 错误样式、颜色 token 取不到——用快照主题 + 透明 Material 恢复上下文
+            final pinnedChild = AntTheme(
+              data: _pinnedTheme ?? AntThemeData.light(),
+              child: Material(
+                type: MaterialType.transparency,
+                child: KeyedSubtree(
+                  key: kAntAffixShiftKey,
+                  child: KeyedSubtree(
+                    key: kAntAffixChildKey,
+                    // 显式宽度约束：child 在原占位宽度内有界布局（长文本换行不溢出）
+                    child: SizedBox(
+                      width: _width,
+                      child: widget.child,
+                    ),
+                  ),
                 ),
               ),
             );
@@ -340,7 +364,8 @@ class _AntAffixState extends State<AntAffix> {
 
   @override
   Widget build(BuildContext context) {
-    AntTheme.of(context); // 主题令牌随主题刷新
+    // 主题令牌随主题刷新；同时快照供 Overlay 钉住层恢复 token 上下文
+    _pinnedTheme = AntTheme.of(context);
 
     if (!_affixed) {
       return KeyedSubtree(
