@@ -10,6 +10,8 @@
 /// 圆角浮层、遮罩交互），届时重构 show() 实现。
 library;
 
+import 'package:flutter/services.dart';
+
 import 'package:antd_theme/antd_theme.dart';
 // 项目约定：material 系组件统一经 material_ui 引入（同 ant_input_field）
 import 'package:material_ui/material_ui.dart';
@@ -19,6 +21,19 @@ class AntKeyboardOverlayController {
 
   bool get showing => _entry != null;
 
+  /// Esc 收起本地实现：弹出态监听硬件按键，hide 即注销（R37 语义）。
+  /// 包内自实现（HardwareKeyboard），不引入 ui 包键盘引擎依赖。
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape &&
+        _entry != null) {
+      hide();
+      _lastDismiss?.call();
+      return true;
+    }
+    return false;
+  }
+
   /// 在屏幕底部弹出键盘；点击遮罩/键盘外区域触发 [onDismiss]
   void show(
     BuildContext context,
@@ -27,6 +42,8 @@ class AntKeyboardOverlayController {
     bool alignTop = false,
   }) {
     hide();
+    _lastKeyboard = keyboard;
+    _lastDismiss = onDismiss;
     final overlay = Overlay.maybeOf(context, rootOverlay: true);
     if (overlay == null) return;
     final t = AntTheme.of(context);
@@ -50,9 +67,11 @@ class AntKeyboardOverlayController {
       ),
     );
     overlay.insert(_entry!);
+    HardwareKeyboard.instance.addHandler(_handleKey);
   }
 
   void hide() {
+    HardwareKeyboard.instance.removeHandler(_handleKey);
     _entry?.remove();
     _entry = null;
   }

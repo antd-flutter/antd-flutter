@@ -31,6 +31,8 @@ import 'package:antd_image_viewer/src/image_viewer/ant_image_viewer_types.dart';
 
 export 'package:antd_image_viewer/src/image_viewer/ant_image_viewer_types.dart';
 
+import 'package:flutter/services.dart';
+
 import 'package:antd_theme/antd_theme.dart';
 
 import 'package:material_ui/material_ui.dart';
@@ -195,8 +197,26 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
   late final PageController _pageController =
       PageController(initialPage: _index);
 
+  /// Esc 关闭本地实现：打开态监听硬件按键，浮层移除即注销（R37 语义）。
+  /// 包内自实现（HardwareKeyboard），不引入 ui 包键盘引擎依赖。
+  bool _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      widget.onClose?.call();
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_handleKey);
+  }
+
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKey);
     _pageController.dispose();
     super.dispose();
   }

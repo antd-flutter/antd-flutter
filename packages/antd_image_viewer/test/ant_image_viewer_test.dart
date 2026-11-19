@@ -2,6 +2,7 @@ import 'package:antd_image_viewer/src/image_viewer/ant_image_viewer.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 固定失败的资源路径：不依赖真实网络。
@@ -133,6 +134,30 @@ void main() {
       await tester.fling(find.byType(PageView), const Offset(600, 0), 2000);
       await tester.pumpAndSettle();
       expect(find.text('1 / 3'), findsOneWidget);
+    });
+
+    testWidgets('Esc closes viewer while open (local HardwareKeyboard)',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const _Host(
+            images: [kMissingAsset, kMissingAsset],
+            initialOpen: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 2'), findsOneWidget);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      // Esc 触发 onClose → 宿主 open=false → 浮层移除。
+      expect(find.text('1 / 2'), findsNothing);
+
+      // 关闭态按 Esc 不再触发（监听已注销，浮层不重现）。
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 2'), findsNothing);
     });
 
     testWidgets('close button triggers onClose', (tester) async {
