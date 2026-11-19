@@ -24,9 +24,9 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/tree/ant_tree_types.dart';
+import 'package:antd_tree/src/tree/ant_tree_types.dart';
 
-export 'package:antd_flutter_plus/src/components/data_display/tree/ant_tree_types.dart';
+export 'package:antd_tree/src/tree/ant_tree_types.dart';
 
 /// 勾选回调：[checkedKeys] 全选节点，[halfCheckedKeys] 半选节点。
 typedef AntTreeOnCheck = void Function(

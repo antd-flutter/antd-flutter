@@ -43,6 +43,8 @@ dependency_overrides:
     path: ../packages/antd_upload
   antd_picker:
     path: ../packages/antd_picker
+  antd_tree:
+    path: ../packages/antd_tree
 
 dev_dependencies:
   flutter_test:

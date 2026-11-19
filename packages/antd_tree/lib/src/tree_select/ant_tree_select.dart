@@ -20,11 +20,11 @@
 /// ```
 library;
 
-import 'package:antd_flutter_plus/src/components/data_entry/tree_select/ant_tree_select_types.dart';
+import 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-export 'package:antd_flutter_plus/src/components/data_entry/tree_select/ant_tree_select_types.dart';
+export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 
 // ============================================================
 // AntTreeSelect

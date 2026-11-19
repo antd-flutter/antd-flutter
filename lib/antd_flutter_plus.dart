@@ -129,8 +129,9 @@ export 'package:antd_picker/src/cascader/ant_cascader_view.dart';
 export 'src/components/data_entry/color_picker/ant_color_picker.dart';
 export 'src/components/data_entry/image_uploader/ant_image_uploader.dart';
 export 'src/components/data_entry/image_uploader/ant_image_uploader_types.dart';
-export 'src/components/data_entry/tree_select/ant_tree_select.dart';
-export 'src/components/data_entry/tree_select/ant_tree_select_types.dart';
+// AntTreeSelect 已迁移至独立包 antd_tree（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
+export 'package:antd_tree/src/tree_select/ant_tree_select.dart';
+export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 export 'src/components/data_entry/mentions/ant_mentions.dart';
 export 'src/components/data_entry/mentions/ant_mentions_types.dart';
 export 'src/components/data_entry/number_keyboard/ant_number_keyboard.dart';
@@ -198,8 +199,9 @@ export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 // ============================================================
 export 'src/components/data_display/table/ant_table.dart';
 export 'src/components/data_display/table/ant_table_types.dart';
-export 'src/components/data_display/tree/ant_tree.dart';
-export 'src/components/data_display/tree/ant_tree_types.dart';
+// AntTree 已迁移至独立包 antd_tree（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
+export 'package:antd_tree/src/tree/ant_tree.dart';
+export 'package:antd_tree/src/tree/ant_tree_types.dart';
 export 'src/components/data_display/carousel/ant_carousel.dart';
 export 'src/components/data_display/carousel/ant_carousel_types.dart';
 export 'src/components/data_display/descriptions/ant_descriptions.dart';

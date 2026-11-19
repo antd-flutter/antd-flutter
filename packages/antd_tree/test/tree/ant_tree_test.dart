@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/tree/ant_tree.dart';
+import 'package:antd_tree/src/tree/ant_tree.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
