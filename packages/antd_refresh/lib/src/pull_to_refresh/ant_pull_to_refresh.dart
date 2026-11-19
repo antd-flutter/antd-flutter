@@ -55,6 +55,7 @@ import 'package:flutter/gestures.dart'
         PointerSignalEvent;
 import 'package:material_ui/material_ui.dart';
 
+import '../ant_refresh_controller.dart';
 import 'ant_pull_to_refresh_header.dart';
 import 'ant_pull_to_refresh_notifier.dart';
 import 'ant_pull_to_refresh_types.dart';
@@ -137,6 +138,7 @@ class AntPullToRefresh extends StatefulWidget {
     this.pointer = AntPullToRefreshPointer.top,
     this.header,
     this.enableRefresh = true,
+    this.controller,
   });
 
   /// 可滚动内容（必须是 ListView / CustomScrollView 等可滚动组件才能下拉）。
@@ -183,15 +185,20 @@ class AntPullToRefresh extends StatefulWidget {
   /// 是否启用下拉刷新（默认 true）。
   final bool enableRefresh;
 
+  /// 程序化控制器（R35.2 Controller 优先）：经 [AntPullToRefreshController
+  /// .callRefresh] 触发刷新，替代 GlobalKey State 直调路径（后者保留兼容）。
+  final AntPullToRefreshController? controller;
+
   @override
   AntPullToRefreshState createState() => AntPullToRefreshState();
 }
 
-/// [AntPullToRefresh] 的 State（公开以便外部经 GlobalKey 程序化触发刷新，
-/// 对应 easy_refresh controller 的 `callRefresh` 能力）。
+/// [AntPullToRefresh] 的 State（公开供 [AntPullToRefreshController] 挂载；
+/// GlobalKey State.callRefresh 路径保留向后兼容，推荐使用 controller）。
 class AntPullToRefreshState extends State<AntPullToRefresh>
     with SingleTickerProviderStateMixin {
-  /// 程序化触发下拉刷新（对应 easy_refresh controller 的 `callRefresh`）：
+  /// 程序化触发下拉刷新（GlobalKey 兼容路径；新代码请使用
+  /// [AntPullToRefreshController.callRefresh]）：
   /// 头部展开 → 等待 [AntPullToRefresh.onRefresh] 完成 → 回弹。
   Future<void> callRefresh() => _indicator.runRefresh(widget.onRefresh);
 
@@ -250,6 +257,7 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
   @override
   void initState() {
     super.initState();
+    widget.controller?.attach(this);
     _indicator.configure(
       headHeight: widget.headHeight,
       threshold: widget.threshold,
@@ -260,6 +268,10 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
   @override
   void didUpdateWidget(covariant AntPullToRefresh oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller?.detach(this);
+      widget.controller?.attach(this);
+    }
     _indicator.configure(
       headHeight: widget.headHeight,
       threshold: widget.threshold,
@@ -269,6 +281,7 @@ class AntPullToRefreshState extends State<AntPullToRefresh>
 
   @override
   void dispose() {
+    widget.controller?.detach(this);
     _wheelSettleTimer?.cancel();
     _indicator.dispose();
     super.dispose();

@@ -15,6 +15,7 @@
 /// 主包 antd_flutter_plus 经 re-export 保持对外兼容。
 library;
 
+export 'src/ant_refresh_controller.dart';
 export 'src/infinite_scroll/ant_infinite_scroll.dart';
 export 'src/l10n/ant_refresh_strings.dart';
 export 'src/pull_to_refresh/ant_pull_to_refresh.dart';
