@@ -71,6 +71,8 @@ const List<NavGroup> navGroups = [
     NavItem('Tree 树形控件', 'tree'),
     NavItem('Carousel 走马灯', 'carousel'),
     NavItem('Masonry 瀑布流', 'masonry'),
+    NavItem('FloatingPanel 浮动面板', 'floating_panel'),
+    NavItem('FloatingBubble 浮动气泡', 'floating_bubble'),
     NavItem('Splitter 分割容器', 'splitter'),
     NavItem('Upload 上传', 'upload'),
     NavItem('Segmented 分段控制器', 'segmented'),

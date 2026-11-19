@@ -16,6 +16,8 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  'floating_panel',
+  'floating_bubble',
 ];
 const kMigratedVerified = <String>[
   'image',
