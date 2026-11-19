@@ -234,6 +234,8 @@ class _AntInputFieldState extends State<AntInputField> {
               : SystemMouseCursors.text,
       decoration: InputDecoration(
         isDense: true,
+        // isCollapsed：contentPadding 逐字生效（dense 模式装饰器会附加 4px 水平内边距）
+        isCollapsed: true,
         // 基座统一：填充与 hover 全显式接管，全局主题不再渗入
         filled: standalone,
         fillColor:
@@ -248,7 +250,11 @@ class _AntInputFieldState extends State<AntInputField> {
           color: t.colorTextPlaceholder,
         ),
         contentPadding:
-            multiline ? EdgeInsets.symmetric(horizontal: t.marginSM.w, vertical: t.marginSM.w) : EdgeInsets.zero,
+            multiline
+                ? EdgeInsets.symmetric(horizontal: t.marginSM.w, vertical: t.marginSM.w)
+                // 装饰器（dense/outline）对 contentPadding 追加固有 4px 水平偏移，
+                // 单行统一以 -4 抵消：文字水平内边距完全由外层容器单点决定
+                : const EdgeInsets.symmetric(horizontal: -4),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -333,9 +339,7 @@ class _AntInputFieldState extends State<AntInputField> {
         alignment: Alignment.center,
         decoration: _decorationOf(t, height),
         clipBehavior: Clip.antiAlias,
-        padding: EdgeInsets.symmetric(
-          horizontal: widget.bordered ? 0 : t.marginSM.w,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
         child: centered,
       ),
     );
