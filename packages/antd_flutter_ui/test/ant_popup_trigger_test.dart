@@ -335,4 +335,102 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     });
   });
+
+  group('联合 hover 判定——气泡内交互不误关', () {
+    testWidgets('hover Popover：鼠标移入气泡保持打开，气泡内按钮可点击', (tester) async {
+      var actionTapped = false;
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await tester.pumpWidget(_wrap(
+        AntPopover(
+          trigger: AntPopoverTrigger.hover,
+          content: AntButton(
+            onTap: () => actionTapped = true,
+            child: const Text('气泡内按钮'),
+          ),
+          child: const Text('悬停目标'),
+        ),
+      ),);
+      debugDefaultTargetPlatformOverride = null;
+      await tester.pumpAndSettle();
+
+      // 悬停打开（单一 mouse 指针贯穿三个区域）
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(gesture.removePointer);
+      await gesture
+          .addPointer(location: tester.getCenter(find.text('悬停目标')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡内按钮'), findsOneWidget);
+
+      // 移入气泡：不关闭
+      await gesture.moveTo(tester.getCenter(find.text('气泡内按钮')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡内按钮'), findsOneWidget);
+
+      // 气泡内按钮可点击
+      await tester.tap(find.text('气泡内按钮'));
+      await tester.pumpAndSettle();
+      expect(actionTapped, isTrue);
+      expect(find.text('气泡内按钮'), findsOneWidget);
+    });
+
+    testWidgets('hover Popover：移出触发元素与气泡后关闭', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await tester.pumpWidget(_wrap(
+        const AntPopover(
+          trigger: AntPopoverTrigger.hover,
+          content: Text('气泡内容'),
+          child: Text('悬停目标'),
+        ),
+      ),);
+      debugDefaultTargetPlatformOverride = null;
+      await tester.pumpAndSettle();
+
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(gesture.removePointer);
+      await gesture
+          .addPointer(location: tester.getCenter(find.text('悬停目标')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡内容'), findsOneWidget);
+
+      // 移入气泡再移出到远处：两者都离开 → 关闭
+      await gesture.moveTo(tester.getCenter(find.text('气泡内容')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡内容'), findsOneWidget);
+      await gesture.moveTo(const Offset(700, 550));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡内容'), findsNothing);
+    });
+
+    testWidgets('hover Tooltip：鼠标移入气泡保持打开，移出两者关闭', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await tester.pumpWidget(_wrap(
+        const AntTooltip(
+          trigger: AntTooltipTrigger.hover,
+          mouseEnterDelay: Duration.zero,
+          mouseLeaveDelay: Duration.zero,
+          tooltip: Text('气泡提示'),
+          child: Text('悬停目标'),
+        ),
+      ),);
+      debugDefaultTargetPlatformOverride = null;
+      await tester.pumpAndSettle();
+
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(gesture.removePointer);
+      await gesture
+          .addPointer(location: tester.getCenter(find.text('悬停目标')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡提示'), findsOneWidget);
+
+      // 移入气泡：不关闭
+      await gesture.moveTo(tester.getCenter(find.text('气泡提示')));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡提示'), findsOneWidget);
+
+      // 移出到远处：关闭
+      await gesture.moveTo(const Offset(700, 550));
+      await tester.pumpAndSettle();
+      expect(find.text('气泡提示'), findsNothing);
+    });
+  });
 }

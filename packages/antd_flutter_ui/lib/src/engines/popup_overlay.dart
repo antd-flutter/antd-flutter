@@ -44,6 +44,8 @@ class AntPopupOverlay extends StatefulWidget {
     this.onDismiss,
     this.dismissOnTapOutside = true,
     this.animationDuration = const Duration(milliseconds: 150),
+    this.onBubbleHoverEnter,
+    this.onBubbleHoverExit,
   });
 
   /// 触发元素的 GlobalKey（用于取全局矩形）。
@@ -81,6 +83,12 @@ class AntPopupOverlay extends StatefulWidget {
 
   /// 出现动画时长。
   final Duration animationDuration;
+
+  /// 鼠标进入气泡回调（联合 hover 判定：进入气泡视为未离开弹层）。
+  final VoidCallback? onBubbleHoverEnter;
+
+  /// 鼠标离开气泡回调（联合 hover 判定：与触发元素退出共同决定关闭）。
+  final VoidCallback? onBubbleHoverExit;
 
   @override
   State<AntPopupOverlay> createState() => _AntPopupOverlayState();
@@ -171,7 +179,15 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
                   layout.scaleAlignment.dx,
                   layout.scaleAlignment.dy,
                 ),
-                child: _buildBubbleWithArrow(layout, arrowLen),
+                child: MouseRegion(
+                  onEnter: widget.onBubbleHoverEnter != null
+                      ? (_) => widget.onBubbleHoverEnter!()
+                      : null,
+                  onExit: widget.onBubbleHoverExit != null
+                      ? (_) => widget.onBubbleHoverExit!()
+                      : null,
+                  child: _buildBubbleWithArrow(layout, arrowLen),
+                ),
               ),
             ),
           ),

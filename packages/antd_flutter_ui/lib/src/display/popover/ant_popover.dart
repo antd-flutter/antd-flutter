@@ -20,6 +20,8 @@
 /// ```
 library;
 
+import 'dart:async';
+
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_theme/antd_theme.dart';
@@ -112,6 +114,11 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
 
+  /// 联合 hover 判定状态（触发元素 / 气泡 是否有指针停留）。
+  bool _insideTrigger = false;
+  bool _insideBubble = false;
+  Timer? _hoverCloseTimer;
+
   bool get _currentOpen => widget.open ?? _internalOpen;
 
   @override
@@ -142,6 +149,7 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
 
   @override
   void dispose() {
+    _hoverCloseTimer?.cancel();
     _overlayEntry?.remove();
     _overlayEntry = null;
     super.dispose();
@@ -174,6 +182,9 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
         overlayStyle: widget.overlayStyle,
         themeData: theme,
         onDismiss: () => _setOpen(false),
+        onBubbleHoverEnter:
+            _hoverEffective ? _handleBubbleHoverEnter : null,
+        onBubbleHoverExit: _hoverEffective ? _handleBubbleHoverExit : null,
       ),
     );
     overlay.insert(_overlayEntry!);
@@ -193,12 +204,46 @@ class _AntPopoverState extends State<AntPopover> with PopupOpenScheduler {
 
   void _handleHoverEnter() {
     if (widget.disabled) return;
+    _insideTrigger = true;
+    _cancelHoverCloseTimer();
     if (!_currentOpen) _setOpen(true);
   }
 
   void _handleHoverExit() {
     if (widget.disabled) return;
-    if (_currentOpen) _setOpen(false);
+    _insideTrigger = false;
+    _scheduleHoverClose();
+  }
+
+  /// 联合 hover 判定——鼠标进入气泡：保持打开（不误关）。
+  void _handleBubbleHoverEnter() {
+    _insideBubble = true;
+    _cancelHoverCloseTimer();
+  }
+
+  /// 联合 hover 判定——鼠标离开气泡：与触发元素退出共同决定关闭。
+  void _handleBubbleHoverExit() {
+    _insideBubble = false;
+    _scheduleHoverClose();
+  }
+
+  /// 触发元素与气泡都已离开才启动关闭（短缓冲容忍区域间跳转的
+  /// exit/enter 乱序，气泡内按钮等交互不受影响）。
+  void _scheduleHoverClose() {
+    if (_insideTrigger || _insideBubble) return;
+    if (!_currentOpen) return;
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = Timer(const Duration(milliseconds: 100), () {
+      _hoverCloseTimer = null;
+      if (mounted && _currentOpen && !_insideTrigger && !_insideBubble) {
+        _setOpen(false);
+      }
+    });
+  }
+
+  void _cancelHoverCloseTimer() {
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = null;
   }
 
   @override
@@ -239,6 +284,8 @@ class _PopoverOverlay extends StatelessWidget {
     required this.overlayStyle,
     required this.themeData,
     required this.onDismiss,
+    this.onBubbleHoverEnter,
+    this.onBubbleHoverExit,
   });
 
   final GlobalKey childKey;
@@ -250,6 +297,8 @@ class _PopoverOverlay extends StatelessWidget {
   final AntPopoverOverlayStyle? overlayStyle;
   final AntThemeData themeData;
   final VoidCallback onDismiss;
+  final VoidCallback? onBubbleHoverEnter;
+  final VoidCallback? onBubbleHoverExit;
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +314,8 @@ class _PopoverOverlay extends StatelessWidget {
       arrowKey: arrow ? kAntPopoverArrowKey : null,
       gap: 8.w,
       onDismiss: onDismiss,
+      onBubbleHoverEnter: onBubbleHoverEnter,
+      onBubbleHoverExit: onBubbleHoverExit,
       child: _buildBubble(context, bubbleColor),
     );
   }

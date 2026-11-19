@@ -216,6 +216,7 @@ class _AntTooltipState extends State<AntTooltip> {
     if (!mounted) return;
 
     final theme = AntTheme.of(context);
+    final trigger = _trigger;
     final overlay = Overlay.of(context, rootOverlay: true);
     _overlayEntry = OverlayEntry(
       builder: (context) => _TooltipOverlay(
@@ -227,6 +228,12 @@ class _AntTooltipState extends State<AntTooltip> {
         overlayStyle: widget.overlayStyle,
         themeData: theme,
         onDismiss: () => _setOpen(false),
+        onBubbleHoverEnter: trigger == AntTooltipTrigger.hover
+            ? _handleBubbleHoverEnter
+            : null,
+        onBubbleHoverExit: trigger == AntTooltipTrigger.hover
+            ? _handleBubbleHoverExit
+            : null,
       ),
     );
     overlay.insert(_overlayEntry!);
@@ -244,8 +251,9 @@ class _AntTooltipState extends State<AntTooltip> {
   // ---- 事件处理 ----
 
   void _handleHoverEnter() {
-    if (_currentOpen) return;
+    _insideTrigger = true;
     _leaveTimer?.cancel();
+    if (_currentOpen) return;
     if (widget.mouseEnterDelay <= Duration.zero) {
       _setOpen(true);
     } else {
@@ -261,20 +269,40 @@ class _AntTooltipState extends State<AntTooltip> {
     // 必须取消 pending 的 enter 计时器，否则延迟到期后气泡弹出且再无 exit 事件关闭
     _enterTimer?.cancel();
     _enterTimer = null;
+    _insideTrigger = false;
+    // 联合 hover：指针在气泡内时触发元素的 exit 不构成「离开弹层」
+    if (_insideBubble) return;
     if (!_currentOpen) return;
-    if (widget.mouseLeaveDelay <= Duration.zero) {
-      _setOpen(false);
-    } else {
-      _leaveTimer?.cancel();
-      _leaveTimer = Timer(widget.mouseLeaveDelay, () {
-        if (mounted) _setOpen(false);
-      });
-    }
+    // 统一走可取消 Timer（延迟为 0 也一样）：联合 hover 下气泡 enter
+    // 会在事件序列中稍后到达，必须可被 _handleBubbleHoverEnter 取消
+    _leaveTimer?.cancel();
+    _leaveTimer = Timer(widget.mouseLeaveDelay, () {
+      _leaveTimer = null;
+      if (mounted && !_insideTrigger && !_insideBubble) {
+        _setOpen(false);
+      }
+    });
   }
 
   void _handleTap() => _setOpen(!_currentOpen);
 
   bool _longPressConsumed = false;
+
+  /// 联合 hover 判定：指针在触发元素 / 气泡内 任一区域即视为未离开弹层。
+  bool _insideTrigger = false;
+  bool _insideBubble = false;
+
+  /// 联合 hover——鼠标进入气泡：取消关闭计时，保持打开。
+  void _handleBubbleHoverEnter() {
+    _insideBubble = true;
+    _leaveTimer?.cancel();
+  }
+
+  /// 联合 hover——鼠标离开气泡：触发元素也已离开则走关闭流程。
+  void _handleBubbleHoverExit() {
+    _insideBubble = false;
+    _handleHoverExit();
+  }
 
   void _handleLongPress() {
     _longPressConsumed = true;
@@ -360,6 +388,8 @@ class _TooltipOverlay extends StatelessWidget {
     required this.overlayStyle,
     required this.themeData,
     required this.onDismiss,
+    this.onBubbleHoverEnter,
+    this.onBubbleHoverExit,
   });
 
   final GlobalKey childKey;
@@ -370,6 +400,8 @@ class _TooltipOverlay extends StatelessWidget {
   final BoxDecoration? overlayStyle;
   final AntThemeData themeData;
   final VoidCallback onDismiss;
+  final VoidCallback? onBubbleHoverEnter;
+  final VoidCallback? onBubbleHoverExit;
 
   @override
   Widget build(BuildContext context) {
@@ -396,6 +428,8 @@ class _TooltipOverlay extends StatelessWidget {
       gap: _tooltipGap,
       arrowSize: _arrowSize,
       onDismiss: onDismiss,
+      onBubbleHoverEnter: onBubbleHoverEnter,
+      onBubbleHoverExit: onBubbleHoverExit,
       child: _buildBubble(bgColor, decoration),
     );
   }
