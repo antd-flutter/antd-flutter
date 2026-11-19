@@ -99,6 +99,11 @@ enum _AntInfiniteScrollPhase {
   noMore,
 }
 
+/// footer 槽位高度：footer 可见时 child 底部预留的空间
+/// （上下 12 内边距 + 一行文案/指示器），保证最后一个 item
+/// 不被 footer 遮挡。
+const double kAntInfiniteScrollFooterSlot = 48;
+
 /// [AntInfiniteScroll] 的 State（公开供 [AntInfiniteScrollController] 挂载）。
 class AntInfiniteScrollState extends State<AntInfiniteScroll> {
   /// 底部状态区阶段（ValueNotifier + ListenableBuilder 局部刷新 footer，
@@ -252,15 +257,16 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
   /// 内层通知处理：只接受 child 子树最内层（depth == 0）滚动组件的通知，
   /// 度量存入 [_childMetrics] 后由状态机触发判定。
   ///
-  /// 消费隔离：滚动到达触发边缘后的继续滚动、以及 loading 期间的一切
-  /// 子树滚动通知就地消费（返回 true 阻断冒泡），不再驱动外层页面滚动；
-  /// 未到边缘且非加载中时放行冒泡，保留外层（如顶部下拉刷新组件）组合能力。
+  /// 消费隔离：滚动到达触发边缘后的继续滚动就地消费（返回 true 阻断
+  /// 冒泡），不再驱动外层页面滚动；未到边缘时放行冒泡，保留外层
+  /// （如顶部下拉刷新组件）组合能力——特别是 loading 期间放行，
+  /// 否则组合场景下 InfiniteScroll 加载中会吞掉 PTR 下拉刷新所需通知。
   bool _handleChildNotification(ScrollNotification notification) {
     if (notification.depth != 0) return false;
     final metrics = notification.metrics;
     _childMetrics = metrics;
     _check(metrics);
-    if (!_atTriggerEdge(metrics) && !_loading) return false;
+    if (!_atTriggerEdge(metrics)) return false;
     return true;
   }
 
@@ -269,25 +275,51 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
     return NotificationListener<ScrollNotification>(
       onNotification: _handleChildNotification,
       child: NotificationListener<ScrollMetricsNotification>(
-        // 布局变化（如列表内容变短）时同样检查，对齐 antd-mobile 行为。
-        // 该通知同样只来自 child 子树内的滚动组件。
+        // 布局变化（如列表内容增减）只更新度量缓存，不触发加载判定：
+        // PTR 刷新重置列表后 pixels 被钳制到底部，若在此触发会误判
+        // 「用户滚到底」立即加载下一页（组合场景误触发根因）。
         onNotification: (notification) {
           _childMetrics = notification.metrics;
-          _check(notification.metrics);
           return false;
         },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            widget.child,
-            // footer 局部刷新：阶段状态经 ValueNotifier 驱动，不做整组件
-            // setState（R35）。
-            ValueListenableBuilder<_AntInfiniteScrollPhase>(
-              valueListenable: _phase,
-              builder: (context, phase, _) => _buildFooter(context, phase),
-            ),
-          ],
+        // Stack 而非 Column：Column 会向 child 传递无界主轴约束，
+        // child 为 ListView/CustomScrollView 时直接布局崩溃
+        // （Vertical viewport was given unbounded height）；
+        // Stack 传递有界松约束，滚动组件与非滚动内容均可正常布局。
+        //
+        // footer 以底部浮层呈现，但 child 预留同等底部内边距
+        // （仅 footer 可见时），滚动尽头的内容与 footer 不重叠
+        // ——等价于 antd-mobile 内联 footer 的视觉效果，同时
+        // 保持对有界/无界约束宿主的兼容。
+        child: ValueListenableBuilder<_AntInfiniteScrollPhase>(
+          valueListenable: _phase,
+          builder: (context, phase, _) {
+            final bool footerVisible =
+                phase != _AntInfiniteScrollPhase.idle;
+            return Stack(
+              children: [
+                // 保持全宽（对齐原 Column stretch 布局语义），高度由内容
+                // 或外部约束决定；footer 可见时底部预留 footer 槽位，
+                // 最后一个 item 不会被 footer 遮挡。
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: footerVisible ? kAntInfiniteScrollFooterSlot : 0,
+                  ),
+                  child: SizedBox(width: double.infinity, child: widget.child),
+                ),
+                if (footerVisible)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SizedBox(
+                      height: kAntInfiniteScrollFooterSlot,
+                      child: _buildFooter(context, phase),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );
