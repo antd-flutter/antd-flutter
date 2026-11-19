@@ -70,6 +70,7 @@ const List<NavGroup> navGroups = [
     NavItem('Popover 气泡卡片', 'popover'),
     NavItem('Tree 树形控件', 'tree'),
     NavItem('Carousel 走马灯', 'carousel'),
+    NavItem('Masonry 瀑布流', 'masonry'),
     NavItem('Splitter 分割容器', 'splitter'),
     NavItem('Upload 上传', 'upload'),
     NavItem('Segmented 分段控制器', 'segmented'),
