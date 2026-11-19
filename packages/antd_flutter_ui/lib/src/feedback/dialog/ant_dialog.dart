@@ -359,9 +359,12 @@ class _DialogOverlayState extends State<_DialogOverlay> {
 
     final card = Container(
       key: kAntDialogCardKey,
+      // 宽度封顶仅桌面端视口生效，移动端保持 widthFactor 原生宽度
       width: (MediaQuery.of(context).size.width * config.widthFactor).clamp(
         0.0,
-        kAntMobileOverlayDefaultMaxWidth,
+        antIsDesktopViewport(context)
+            ? kAntMobileOverlayDefaultMaxWidth
+            : double.infinity,
       ),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
@@ -457,7 +460,10 @@ class _DialogOverlayState extends State<_DialogOverlay> {
   }
 
   /// 自定义按钮区。
-  Widget _buildCustomActions(AntThemeData theme, List<AntDialogAction> actions) {
+  Widget _buildCustomActions(
+    AntThemeData theme,
+    List<AntDialogAction> actions,
+  ) {
     final buttons = <Widget>[
       for (var i = 0; i < actions.length; i++)
         _ActionButton(

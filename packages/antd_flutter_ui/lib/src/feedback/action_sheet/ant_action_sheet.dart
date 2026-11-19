@@ -225,10 +225,12 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
       curve: Curves.easeOutCubic,
       onExited: widget.onRemove,
       panelKey: kAntActionSheetPanelKey,
-      // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸，居中展示
+      // 桌面端宽度封顶（移动端保持全宽贴边），居中展示
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: kAntMobileOverlayDefaultMaxWidth,
+        constraints: BoxConstraints(
+          maxWidth: antIsDesktopViewport(context)
+              ? kAntMobileOverlayDefaultMaxWidth
+              : double.infinity,
         ),
         child: _buildPanel(),
       ),
@@ -240,9 +242,12 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
 
   Widget _buildPanel() {
     final theme = themeData;
-    return SafeArea(
-      top: false,
-      bottom: sheet.safeArea,
+    // 底部安全区留白与面板同色填充（SafeArea 透明留白在深色页面下有割裂感）
+    final bottomInset =
+        sheet.safeArea ? MediaQuery.paddingOf(context).bottom : 0.0;
+    return Container(
+      color: theme.colorBgContainer,
+      padding: EdgeInsets.only(bottom: bottomInset),
       child: Material(
         color: theme.colorBgContainer,
         borderRadius:

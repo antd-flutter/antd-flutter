@@ -23,6 +23,13 @@ import 'package:material_ui/material_ui.dart';
 /// 不应随超宽视口无限拉伸，统一以移动端默认宽度（375）封顶、弹层对齐居中。
 const double kAntMobileOverlayDefaultMaxWidth = 375.0;
 
+/// 桌面端视口判定（最短边 ≥ 600 逻辑像素）。
+///
+/// [kAntMobileOverlayDefaultMaxWidth] 宽度封顶**只在桌面端视口生效**；
+/// 手机/移动端保持组件原生宽度（全宽贴边），平板及以上按桌面端封顶。
+bool antIsDesktopViewport(BuildContext context) =>
+    MediaQuery.sizeOf(context).shortestSide >= 600;
+
 /// 屏级弹层统一基座。
 ///
 /// 由各弹层组件在 OverlayEntry 中构造：

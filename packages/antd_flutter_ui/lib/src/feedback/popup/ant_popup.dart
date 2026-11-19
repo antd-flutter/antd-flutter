@@ -281,22 +281,39 @@ class _PopupOverlayState extends State<_PopupOverlay> {
 
   /// 面板尺寸约束。
   BoxConstraints _panelConstraints(Size screen) {
-    // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸（kAntMobileOverlayDefaultMaxWidth）
+    // 桌面端视口：宽度按 kAntMobileOverlayDefaultMaxWidth 封顶（水平方向居中）；
+    // 移动端保持原生语义（纵向上全宽贴边、横向 0.7 屏宽）
+    if (antIsDesktopViewport(context)) {
+      switch (widget.position) {
+        case AntPopupPosition.bottom:
+        case AntPopupPosition.top:
+          return BoxConstraints(
+            maxWidth: kAntMobileOverlayDefaultMaxWidth,
+            maxHeight: screen.height * kAntPopupVerticalMaxHeightFactor,
+          );
+        case AntPopupPosition.left:
+        case AntPopupPosition.right:
+          return BoxConstraints(
+            minHeight: screen.height,
+            maxWidth: math.min(
+              screen.width * kAntPopupSideWidthFactor,
+              kAntMobileOverlayDefaultMaxWidth,
+            ),
+          );
+      }
+    }
     switch (widget.position) {
       case AntPopupPosition.bottom:
       case AntPopupPosition.top:
         return BoxConstraints(
-          maxWidth: math.min(screen.width, kAntMobileOverlayDefaultMaxWidth),
+          minWidth: screen.width,
           maxHeight: screen.height * kAntPopupVerticalMaxHeightFactor,
         );
       case AntPopupPosition.left:
       case AntPopupPosition.right:
         return BoxConstraints(
           minHeight: screen.height,
-          maxWidth: math.min(
-            screen.width * kAntPopupSideWidthFactor,
-            kAntMobileOverlayDefaultMaxWidth,
-          ),
+          maxWidth: screen.width * kAntPopupSideWidthFactor,
         );
     }
   }

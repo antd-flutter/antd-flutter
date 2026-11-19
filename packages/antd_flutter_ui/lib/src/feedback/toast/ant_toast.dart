@@ -303,9 +303,11 @@ class _ToastViewState extends State<_ToastView> {
     Widget body = Align(
       alignment: alignment,
       child: ConstrainedBox(
-        // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸
-        constraints: const BoxConstraints(
-          maxWidth: kAntMobileOverlayDefaultMaxWidth,
+        // 宽度封顶仅桌面端视口生效，移动端保持原生宽度
+        constraints: BoxConstraints(
+          maxWidth: antIsDesktopViewport(context)
+              ? kAntMobileOverlayDefaultMaxWidth
+              : double.infinity,
         ),
         child: Material(color: Colors.transparent, child: card),
       ),
