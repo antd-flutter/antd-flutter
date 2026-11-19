@@ -111,6 +111,18 @@ const kMigratedVerified = <String>[
   'descriptions',
   'list',
   'timeline',
+  'tabs',
+  'capsule_tabs',
+  'tab_bar',
+  'steps',
+  'jumbo_tabs',
+  'side_bar',
+  'menu',
+  'nav_bar',
+  'pagination',
+  'anchor',
+  'breadcrumb',
+  'index_bar',
 ];
 
 /// 迁移状态

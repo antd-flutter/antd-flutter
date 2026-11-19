@@ -211,3 +211,28 @@ export 'src/data_entry/auto_complete/ant_auto_complete.dart';
 export 'src/data_entry/auto_complete/ant_auto_complete_types.dart';
 export 'src/data_entry/mentions/ant_mentions.dart';
 export 'src/data_entry/mentions/ant_mentions_types.dart';
+
+// ── 导航族（批次 0-6，自主包 antd_flutter_plus 迁入）──
+export 'src/navigation/breadcrumb/ant_breadcrumb.dart';
+export 'src/navigation/breadcrumb/ant_breadcrumb_types.dart';
+export 'src/navigation/pagination/ant_pagination.dart';
+export 'src/navigation/pagination/ant_pagination_types.dart';
+export 'src/navigation/steps/ant_steps.dart';
+export 'src/navigation/steps/ant_steps_types.dart';
+export 'src/navigation/tabs/ant_tabs.dart';
+export 'src/navigation/tabs/ant_tabs_types.dart';
+export 'src/navigation/menu/ant_menu.dart';
+export 'src/navigation/menu/ant_menu_types.dart';
+export 'src/navigation/anchor/ant_anchor.dart';
+export 'src/navigation/anchor/ant_anchor_types.dart';
+export 'src/navigation/nav_bar/ant_nav_bar.dart';
+export 'src/navigation/tab_bar/ant_tab_bar.dart';
+export 'src/navigation/tab_bar/ant_tab_bar_types.dart';
+export 'src/navigation/side_bar/ant_side_bar.dart';
+export 'src/navigation/side_bar/ant_side_bar_types.dart';
+export 'src/navigation/index_bar/ant_index_bar.dart';
+export 'src/navigation/index_bar/ant_index_bar_types.dart';
+export 'src/navigation/capsule_tabs/ant_capsule_tabs.dart';
+export 'src/navigation/capsule_tabs/ant_capsule_tabs_types.dart';
+export 'src/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
+export 'src/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';

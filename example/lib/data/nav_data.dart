@@ -90,6 +90,18 @@ const List<NavGroup> navGroups = [
   ]),
   NavGroup('导航', [
     NavItem('Dropdown 下拉菜单', 'dropdown'),
+    NavItem('Tabs 标签页', 'tabs'),
+    NavItem('CapsuleTabs 胶囊标签', 'capsule_tabs'),
+    NavItem('TabBar 标签栏', 'tab_bar'),
+    NavItem('Steps 步骤条', 'steps'),
+    NavItem('JumboTabs 大号标签', 'jumbo_tabs'),
+    NavItem('SideBar 侧边导航', 'side_bar'),
+    NavItem('Menu 菜单', 'menu'),
+    NavItem('NavBar 导航栏', 'nav_bar'),
+    NavItem('Pagination 分页', 'pagination'),
+    NavItem('Anchor 锚点', 'anchor'),
+    NavItem('Breadcrumb 面包屑', 'breadcrumb'),
+    NavItem('IndexBar 索引栏', 'index_bar'),
   ]),
   NavGroup('反馈', [
     NavItem('PullToRefresh 下拉刷新', 'pull_to_refresh'),

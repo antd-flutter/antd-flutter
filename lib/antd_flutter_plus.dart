@@ -25,32 +25,45 @@ export 'package:antd_theme/antd_theme.dart';
 // 图标资源层
 export 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
-// L4 组件层 — 导航
-export 'src/components/navigation/breadcrumb/ant_breadcrumb.dart';
-export 'src/components/navigation/breadcrumb/ant_breadcrumb_types.dart';
-export 'src/components/navigation/pagination/ant_pagination.dart';
-export 'src/components/navigation/pagination/ant_pagination_types.dart';
-export 'src/components/navigation/steps/ant_steps.dart';
-export 'src/components/navigation/steps/ant_steps_types.dart';
-export 'src/components/navigation/tabs/ant_tabs.dart';
-export 'src/components/navigation/tabs/ant_tabs_types.dart';
-export 'src/components/navigation/menu/ant_menu.dart';
-export 'src/components/navigation/menu/ant_menu_types.dart';
-export 'src/components/navigation/anchor/ant_anchor.dart';
-export 'src/components/navigation/anchor/ant_anchor_types.dart';
+// L4 组件层 — 导航（批次 0-6 已迁移至 antd_flutter_ui，此处 re-export 保持符号兼容）
+// Breadcrumb
+export 'package:antd_flutter_ui/src/navigation/breadcrumb/ant_breadcrumb.dart';
+export 'package:antd_flutter_ui/src/navigation/breadcrumb/ant_breadcrumb_types.dart';
+// Pagination
+export 'package:antd_flutter_ui/src/navigation/pagination/ant_pagination.dart';
+export 'package:antd_flutter_ui/src/navigation/pagination/ant_pagination_types.dart';
+// Steps
+export 'package:antd_flutter_ui/src/navigation/steps/ant_steps.dart';
+export 'package:antd_flutter_ui/src/navigation/steps/ant_steps_types.dart';
+// Tabs
+export 'package:antd_flutter_ui/src/navigation/tabs/ant_tabs.dart';
+export 'package:antd_flutter_ui/src/navigation/tabs/ant_tabs_types.dart';
+// Menu
+export 'package:antd_flutter_ui/src/navigation/menu/ant_menu.dart';
+export 'package:antd_flutter_ui/src/navigation/menu/ant_menu_types.dart';
+// Anchor
+export 'package:antd_flutter_ui/src/navigation/anchor/ant_anchor.dart';
+export 'package:antd_flutter_ui/src/navigation/anchor/ant_anchor_types.dart';
+// Dropdown（已迁至 antd_flutter_ui）
 export 'package:antd_flutter_ui/src/display/popover/ant_dropdown.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_dropdown_types.dart';
-export 'src/components/navigation/nav_bar/ant_nav_bar.dart';
-export 'src/components/navigation/tab_bar/ant_tab_bar.dart';
-export 'src/components/navigation/tab_bar/ant_tab_bar_types.dart';
-export 'src/components/navigation/side_bar/ant_side_bar.dart';
-export 'src/components/navigation/side_bar/ant_side_bar_types.dart';
-export 'src/components/navigation/index_bar/ant_index_bar.dart';
-export 'src/components/navigation/index_bar/ant_index_bar_types.dart';
-export 'src/components/navigation/capsule_tabs/ant_capsule_tabs.dart';
-export 'src/components/navigation/capsule_tabs/ant_capsule_tabs_types.dart';
-export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
-export 'src/components/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
+// NavBar
+export 'package:antd_flutter_ui/src/navigation/nav_bar/ant_nav_bar.dart';
+// TabBar
+export 'package:antd_flutter_ui/src/navigation/tab_bar/ant_tab_bar.dart';
+export 'package:antd_flutter_ui/src/navigation/tab_bar/ant_tab_bar_types.dart';
+// SideBar
+export 'package:antd_flutter_ui/src/navigation/side_bar/ant_side_bar.dart';
+export 'package:antd_flutter_ui/src/navigation/side_bar/ant_side_bar_types.dart';
+// IndexBar
+export 'package:antd_flutter_ui/src/navigation/index_bar/ant_index_bar.dart';
+export 'package:antd_flutter_ui/src/navigation/index_bar/ant_index_bar_types.dart';
+// CapsuleTabs
+export 'package:antd_flutter_ui/src/navigation/capsule_tabs/ant_capsule_tabs.dart';
+export 'package:antd_flutter_ui/src/navigation/capsule_tabs/ant_capsule_tabs_types.dart';
+// JumboTabs
+export 'package:antd_flutter_ui/src/navigation/jumbo_tabs/ant_jumbo_tabs.dart';
+export 'package:antd_flutter_ui/src/navigation/jumbo_tabs/ant_jumbo_tabs_types.dart';
 
 // L4 组件层 — 通用
 // Button 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
