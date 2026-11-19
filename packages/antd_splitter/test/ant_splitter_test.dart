@@ -6,6 +6,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
     builder: (context, _) => MaterialApp(
@@ -297,9 +298,9 @@ void main() {
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('ant_splitter_collapse_0')),
+      expect(find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
           findsOneWidget,);
-      expect(find.byKey(const ValueKey('ant_splitter_collapse_1')),
+      expect(find.byKey(const ValueKey('ant_splitter_collapse_0_1')),
           findsOneWidget,);
     });
 
@@ -319,7 +320,7 @@ void main() {
       );
 
       final hitBox = tester.getSize(
-        find.byKey(const ValueKey('ant_splitter_collapse_0')),
+        find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
       );
 
       // 触控区域最小 44x44（Material 触控规范）
@@ -330,7 +331,7 @@ void main() {
       final visual = tester.getSize(
         find
             .descendant(
-              of: find.byKey(const ValueKey('ant_splitter_collapse_0')),
+              of: find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
               matching: find.byWidgetPredicate(
                 (w) => w is Container && w.decoration is BoxDecoration,
               ),
@@ -342,7 +343,7 @@ void main() {
 
       // 按钮中心位于分割条拖拽区内，且命中框边缘可点（溢出绘制未遮挡命中）
       final center = tester.getCenter(
-        find.byKey(const ValueKey('ant_splitter_collapse_0')),
+        find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
       );
       final draggerRect = tester.getRect(
         find.byKey(const ValueKey('ant_splitter_dragger_0')),
@@ -352,10 +353,11 @@ void main() {
       // 命中框宽于 20px 拖拽区（允许溢出分割条，保证完整触控区域）
       expect(hitBox.width, greaterThan(draggerRect.width));
 
-      // 分割条以外（面板边缘，分割条中心左侧 40px）点击也能触发折叠：
-      // 命中框挂在外层 Stack 上，命中测试不受分割条 20px 约束
+      // 分割条以外（分割条中心左侧 21px，超出 20px 拖拽区但在 44x44
+      // 命中框内）点击也能触发折叠：命中框挂在外层 Stack 上，命中测试
+      // 不受分割条 20px 约束
       expect(collapseCalled, isFalse);
-      await tester.tapAt(Offset(draggerRect.center.dx - 40, center.dy));
+      await tester.tapAt(Offset(draggerRect.center.dx - 21, center.dy));
       await tester.pumpAndSettle();
       expect(collapseCalled, isTrue);
     });
@@ -380,7 +382,7 @@ void main() {
       );
       expect(_panelWidths(tester), closeToList([390, 390]));
 
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
 
       // 面板 A 折叠为 0
@@ -402,12 +404,12 @@ void main() {
         ),
       );
       // 折叠
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
       expect(_panelWidths(tester)[0], closeTo(0, 1));
 
       // 展开
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
       expect(_panelWidths(tester)[0], closeTo(390, 1));
     });
@@ -426,9 +428,9 @@ void main() {
       );
 
       // 先折叠面板 A，再折叠面板 B
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_1')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_1')));
       await tester.pumpAndSettle();
 
       // 面板 B 折叠时面板 A 自动展开（两面板不可同时保持折叠，防死锁）
@@ -436,8 +438,9 @@ void main() {
       expect(widths[0], greaterThan(0));
       expect(widths[1], closeTo(0, 1));
 
-      // 面板 A 的折叠按钮仍可点击（可再折叠/恢复），不会卡死
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_1')));
+      // A 展开后其按钮恢复可见（B 的按钮隐藏）；点击 A 的按钮折叠 A，
+      // B 自动展开，不会卡死
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
       expect(_panelWidths(tester)[1], greaterThan(0));
     });
@@ -453,7 +456,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
       await tester.pumpAndSettle();
 
       // B 获得释放的空间: 780

@@ -324,11 +324,8 @@ class _AntSplitterState extends State<AntSplitter> {
             index + 1 < widget.children.length ? index + 1 : index - 1;
         final freed = sizes[index];
         sizes[index] = 0;
-        // 折叠空间全部交给相邻面板并自动展开，恢复其折叠前尺寸（不超可用空间）。
-        final restoreTarget =
-            (_sizesBeforeCollapse?[neighbor] ?? _averageSize(sizes))
-                .clamp(0.0, freed);
-        sizes[neighbor] = restoreTarget;
+        // 折叠空间全部交给相邻面板并自动展开：对侧完全撑开到最大。
+        sizes[neighbor] = freed;
         _collapsed[neighbor] = false;
       } else {
         _sizesBeforeCollapse = List<double>.from(sizes);
@@ -486,6 +483,12 @@ class _AntSplitterState extends State<AntSplitter> {
           _sizes = _initSizes(totalLogical);
         }
 
+        // 交叉轴 extent（水平布局取高度、垂直布局取宽度），
+        // 折叠按钮交叉居中用；无界时取 0（贴顶/贴左）。
+        final crossExtent =
+            isHorizontal ? constraints.maxHeight : constraints.maxWidth;
+        final crossCenter =
+            crossExtent.isFinite ? crossExtent / 2 : 0.0;
         final sizes = _sizes!;
         final children = <Widget>[];
         // 折叠按钮命中框（44x44）：必须放在外层 Stack 上才能覆盖分割条以外的
@@ -522,7 +525,7 @@ class _AntSplitterState extends State<AntSplitter> {
                 i,
                 isHorizontal,
                 draggerCenter: draggerCenter,
-                crossCenter: totalRender / 2,
+                crossCenter: crossCenter,
                 containerLength: totalRender,
               ),
             );
@@ -606,9 +609,9 @@ class _AntSplitterState extends State<AntSplitter> {
 
   /// 构建折叠按钮命中框（44x44，位于外层 Stack，覆盖分割条两侧面板边缘）。
   ///
-  /// 表现形式对齐 antd 官网：两个按钮在分割条中部**平行排列于分割条两侧**
-  /// （水平布局：start 在线左、end 在线右，垂直居中；垂直布局：start 在线上、
-  /// end 在线下，水平居中）。命中框中心对齐分割条并向两侧面板延伸——
+  /// 表现形式：按钮组**精确居中于对应分割条**——单按钮时按钮中心 == 分割条
+  /// 中心；双按钮时按钮组（并排）的组中心 == 分割条中心，按钮骑在分割线上。
+  /// 沿轴位置钳制在容器内（相邻面板折叠为 0 后分割线贴边仍可点）。
   /// 命中测试依赖父级 RenderBox 尺寸，故必须挂在外层 Stack 而非分割条内部。
   List<Widget> _buildCollapseHitBoxes(
     AntThemeData theme,
@@ -621,40 +624,27 @@ class _AntSplitterState extends State<AntSplitter> {
     final hit = 44.0.w;
     final boxes = <Widget>[];
 
+    // 按钮组沿轴起点：组宽 = 可折叠按钮数 × hit，组中心对齐分割条中心。
+    final startOffset = widget.children[draggerIndex].collapsible &&
+            widget.children[draggerIndex + 1].collapsible
+        ? draggerCenter - hit
+        : draggerCenter - hit / 2;
+
     Widget buildBox(int panelIndex, bool isStart) {
-      final double? left;
-      final double? right;
-      final double? top;
-      final double? bottom;
-      if (isHorizontal) {
-        // start 紧贴分割线左侧，end 紧贴分割线右侧，垂直居中。
-        // 相邻面板折叠为 0 后分割线贴边，位置钳制在容器内保证可点。
-        left = (isStart
-                ? draggerCenter - hit * 1.5
-                : draggerCenter + hit / 2)
-            .clamp(0.0, containerLength - hit);
-        right = null;
-        top = crossCenter - hit / 2;
-        bottom = null;
-      } else {
-        // start 紧贴分割线上方，end 紧贴分割线下方，水平居中。
-        left = crossCenter - hit / 2;
-        right = null;
-        top = (isStart
-                ? draggerCenter - hit * 1.5
-                : draggerCenter + hit / 2)
-            .clamp(0.0, containerLength - hit);
-        bottom = null;
-      }
+      // 组内沿轴偏移：start 在左（上），end 在右（下）；钳制在容器内。
+      final along = (isStart ? startOffset : startOffset + hit)
+          .clamp(0.0, containerLength - hit);
+      final cross = crossCenter - hit / 2;
       return Positioned(
-        left: left,
-        right: right,
-        top: top,
-        bottom: bottom,
+        left: isHorizontal ? along : cross,
+        top: isHorizontal ? cross : along,
+        width: isHorizontal ? hit : null,
+        height: isHorizontal ? null : hit,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: _buildCollapseButton(
             theme,
+            draggerIndex,
             panelIndex,
             isHorizontal,
             isStart: isStart,
@@ -663,10 +653,19 @@ class _AntSplitterState extends State<AntSplitter> {
       );
     }
 
-    if (widget.children[draggerIndex].collapsible) {
+    // 面板已折叠时隐藏其按钮（避免折叠贴边后两按钮重叠），
+    // 仅保留展开侧按钮：点击它折叠本侧会自动展开对侧。
+    // 但对侧不可折叠时保留折叠侧按钮（否则无任何途径恢复）。
+    final otherCollapsible = widget.children[draggerIndex].collapsible &&
+        widget.children[draggerIndex + 1].collapsible;
+    final showStart = widget.children[draggerIndex].collapsible &&
+        (!_collapsed[draggerIndex] || !otherCollapsible);
+    final showEnd = widget.children[draggerIndex + 1].collapsible &&
+        (!_collapsed[draggerIndex + 1] || !otherCollapsible);
+    if (showStart) {
       boxes.add(buildBox(draggerIndex, true));
     }
-    if (widget.children[draggerIndex + 1].collapsible) {
+    if (showEnd) {
       boxes.add(buildBox(draggerIndex + 1, false));
     }
     return boxes;
@@ -675,6 +674,7 @@ class _AntSplitterState extends State<AntSplitter> {
   /// 构建折叠按钮。
   Widget _buildCollapseButton(
     AntThemeData theme,
+    int draggerIndex,
     int panelIndex,
     bool isHorizontal, {
     required bool isStart,
@@ -707,7 +707,7 @@ class _AntSplitterState extends State<AntSplitter> {
     const hitTarget = 44.0;
 
     return GestureDetector(
-      key: ValueKey('ant_splitter_collapse_$panelIndex'),
+      key: ValueKey('ant_splitter_collapse_${draggerIndex}_$panelIndex'),
       behavior: HitTestBehavior.opaque,
       onTap: () => _toggleCollapse(panelIndex),
       child: SizedBox(
