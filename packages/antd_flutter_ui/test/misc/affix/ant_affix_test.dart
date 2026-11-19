@@ -18,6 +18,23 @@ Widget _wrap(Widget child) {
   );
 }
 
+/// 无 Overlay 祖先的极简包裹（不用 MaterialApp/Navigator），
+/// 用于验证 Affix 找不到 Overlay 时的降级行为不崩溃。
+Widget _wrapNoOverlay(Widget child) {
+  return AntScreenUtilInit(
+    builder: (context, _) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: MediaQuery(
+        data: const MediaQueryData(size: Size(600, 600)),
+        child: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
+        ),
+      ),
+    ),
+  );
+}
+
 /// 可滚动页面：头部 [headHeight]，随后是 AntAffix（高 60），下方为占位内容。
 Widget _scrollPage({
   double headHeight = 200,
@@ -216,6 +233,82 @@ void main() {
       final placeholder = tester.getRect(find.byKey(kAntAffixPlaceholderKey));
       expect(placeholder.height, 60);
       expect(find.byKey(kAntAffixShiftKey), findsOneWidget);
+    });
+
+    testWidgets('无 Overlay 祖先：降级为原位平移，不崩溃（回归）', (tester) async {
+      await tester.pumpWidget(_wrapNoOverlay(_scrollPage(offsetTop: 100)));
+      await tester.pumpAndSettle();
+      await _scrollTo(tester, 300);
+      // 降级模式仍产生钉住层（Transform 平移），不抛 No Overlay 异常
+      expect(find.byKey(kAntAffixShiftKey), findsOneWidget);
+      expect(find.byKey(kAntAffixPlaceholderKey), findsNothing);
+      final rect = tester.getRect(find.byKey(kAntAffixChildKey));
+      expect(rect.top, closeTo(100, 1.0));
+    });
+
+    testWidgets('无 Overlay 祖先：滚回原位解除钉住（回归）', (tester) async {
+      await tester.pumpWidget(_wrapNoOverlay(_scrollPage(offsetTop: 100)));
+      await tester.pumpAndSettle();
+      await _scrollTo(tester, 300);
+      expect(find.byKey(kAntAffixShiftKey), findsOneWidget);
+      await _scrollTo(tester, 0);
+      expect(find.byKey(kAntAffixShiftKey), findsNothing);
+      expect(find.byKey(kAntAffixChildKey), findsOneWidget);
+    });
+
+    testWidgets('钉住触发于滚动监听：Overlay 增删延迟帧末，无 during build 异常（回归）',
+        (tester) async {
+      final errors = <FlutterErrorDetails>[];
+      final original = FlutterError.onError;
+      FlutterError.onError = (details) => errors.add(details);
+      await tester.pumpWidget(_wrap(_scrollPage(offsetTop: 100)));
+      await _scrollTo(tester, 300);
+      await _scrollTo(tester, 0);
+      await tester.pumpAndSettle();
+      FlutterError.onError = original;
+      expect(errors, isEmpty);
+    });
+
+    testWidgets('同线两个 Affix 依次钉住位置错开不重叠；解除后补位（回归）', (tester) async {
+      _controller?.dispose();
+      _controller = ScrollController();
+      await tester.pumpWidget(_wrap(SingleChildScrollView(
+        controller: _controller,
+        child: Column(
+          children: [
+            Container(height: 200, alignment: Alignment.center, child: const Text('头部')),
+            // 文档序在前的 B 先钉：top=50
+            AntAffix(
+              offsetTop: 50,
+              child: Container(key: const ValueKey('pinB'), height: 60, alignment: Alignment.center, child: const Text('钉B')),
+            ),
+            Container(height: 400),
+            // A 后钉：同线堆叠 top = 50 + B高度60 = 110
+            AntAffix(
+              offsetTop: 50,
+              child: Container(key: const ValueKey('pinA'), height: 60, alignment: Alignment.center, child: const Text('钉A')),
+            ),
+            for (var i = 0; i < 30; i++)
+              Container(height: 100, alignment: Alignment.center, child: Text('内容 $i')),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+
+      // 滚 260：B 钉住（top=50），A 未钉
+      await _scrollTo(tester, 260);
+      expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top, closeTo(50, 1.0));
+      expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top, closeTo(400, 1.0)); // 原位 660-260
+
+      // 滚 660：A 也钉住，同线堆叠 top=110，与 B 错开不重叠
+      await _scrollTo(tester, 660);
+      expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top, closeTo(50, 1.0));
+      expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top, closeTo(110, 1.0));
+
+      // 滚回 260：A 解除，B 上移补位回到 top=50
+      await _scrollTo(tester, 260);
+      expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top, closeTo(50, 1.0));
+      expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top, closeTo(400, 1.0)); // 回到原位
     });
   });
 }
