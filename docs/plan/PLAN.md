@@ -181,6 +181,7 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 6. **antd_table**（压轴，从 ui 拆出；pluto_grid 参考）
 
 ### 批次 3：收尾
+0. **组件自举替换（用户指定，验收前必做）**：排查所有组件内部使用的非 antd 组件（Material/Cupertino 原生 widget，如内部按钮用了 Material ElevatedButton/IconButton、开关用了 Material Switch 等），**存在对应 antd 实现的一律替换为 antd 组件**（自举），行为保持不变；无对应 antd 实现的保留原生并登记清单
 1. **R37 全局热键系统**：全部迁移完成后统一落地（弹层类 Esc 关闭优先，ui 层统一基础设施）
 2. select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ 已接；Cascader/AutoComplete/ColorPicker/Mentions 核查）
 2. Calendar 完善（⏱：双 UI 一致性打磨）
