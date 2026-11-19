@@ -247,12 +247,12 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
         sheet.safeArea ? MediaQuery.paddingOf(context).bottom : 0.0;
     final radius =
         BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG));
+    // 面板整体贴底（移入安全区），安全距离作为面板内部的同色留白，
+    // 阴影/圆角完整包住整个面板，不产生任何透明分界
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: radius,
-        // 阴影挂在外层容器（含安全区同色区域），避免内层 Material 阴影
-        // 与底部安全区填充之间出现割裂的阴影分界线
         boxShadow: [
           BoxShadow(
             color: theme.colorShadow.withValues(alpha: 0.5),
@@ -261,7 +261,6 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
           ),
         ],
       ),
-      padding: EdgeInsets.only(bottom: bottomInset),
       child: Material(
         color: theme.colorBgContainer,
         borderRadius: radius,
@@ -314,6 +313,8 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
                 ),
               ),
             ],
+            // 底部安全距离（面板内部同色留白，位于取消按钮之后）
+            if (bottomInset > 0) SizedBox(height: bottomInset),
           ],
         ),
       ),
