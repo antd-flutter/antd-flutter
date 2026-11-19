@@ -1,9 +1,11 @@
+import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete.dart';
 import 'package:antd_flutter_ui/src/data_entry/input/ant_input.dart';
 import 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number.dart';
 import 'package:antd_flutter_ui/src/data_entry/search_bar/ant_search_bar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -15,6 +17,27 @@ Widget _wrap(Widget child) {
       ),
     ),
   );
+}
+
+/// 字形（caret）相对容器左边距 —— 基座标准字形内缩 17.3
+double glyphInset(WidgetTester tester, Finder container) {
+  final cRect = tester.getRect(container.first);
+  final wrapper = tester.renderObject<RenderObject>(
+    find.descendant(of: container, matching: find.byType(EditableText)),
+  );
+  RenderEditable? re;
+  void walk(RenderObject ro) {
+    if (re != null) return;
+    if (ro is RenderEditable) {
+      re = ro;
+      return;
+    }
+    ro.visitChildren(walk);
+  }
+
+  walk(wrapper);
+  final caret = re!.getLocalRectForCaret(const TextPosition(offset: 0));
+  return caret.left + re!.localToGlobal(Offset.zero).dx - cRect.left;
 }
 
 /// 断言容器与内部 EditableText 垂直中心差 ≤ 1.5px（垂直居中语义）
@@ -158,12 +181,12 @@ void main() {
                 .first,
           )
           .left;
-      // 统一左内边距：marginSM(12) + 边框(1)
-      expect(
-        eLeft - cLeft,
-        closeTo(t.marginSM.w + 1, 1.5),
-        reason: '文字左内边距应与 AutoComplete/SearchBar(12) 一致',
-      );
+      // 字形内缩基座标准：marginSM(缩放后) + 5（边框+装饰固有，随缩放）
+      final scaledMargin =
+          AntTheme.of(tester.element(find.byType(AntInput))).marginSM.w;
+      expect(glyphInset(tester, find.byType(AntInput)),
+          closeTo(scaledMargin + 5 * (scaledMargin / 12), 3),
+          reason: '字形左内边距 = marginSM 单点（缩放自适应）');
     });
 
     testWidgets('addon text inset = addon + marginSM', (tester) async {
@@ -176,23 +199,47 @@ void main() {
         ),
       );
       await tester.pump();
-      final addonRight = tester.getRect(find.text('http://')).right;
-      final eLeft = tester
-          .getRect(
-            find
-                .descendant(
-                  of: find.byType(AntInput),
-                  matching: find.byType(EditableText),
-                )
-                .first,
-          )
-          .left;
-      // 分隔线后 marginSM 内边距
-      expect(
-        eLeft - addonRight,
-        closeTo(21, 2),
-        reason: 'addon 分隔线后文字内边距应与前缀标签宽度解耦、统一 marginSM',
+      final divider = tester.getRect(find.text('http://')).right + 1;
+      final scaledMargin2 =
+          AntTheme.of(tester.element(find.byType(AntInput))).marginSM.w;
+      expect(glyphInset(tester, find.byType(AntInput)) - divider,
+          closeTo(scaledMargin2 + 5 * (scaledMargin2 / 12), 3),
+          reason: 'addon 分隔线后字形内缩与 standalone 一致（缩放自适应）');
+    });
+  });
+  group('AntAutoComplete — 边距继承（回归）', () {
+    testWidgets('text inset inherits base marginSM standard', (tester) async {
+      // 参照对比：同一测试内先测 Input 标准字形内缩，再测 AutoComplete，
+      // 两者应一致（±1.5px）——免疫跨用例全局环境漂移
+      await tester.pumpWidget(_wrap(const AntInput(defaultValue: 'wenzi')));
+      await tester.pump();
+      final reference = glyphInset(tester, find.byType(AntInput));
+
+      await tester
+          .pumpWidget(_wrap(const AntAutoComplete(defaultValue: 'wenzi')));
+      await tester.pump();
+      final outer = tester.getRect(find.byType(AntAutoComplete).first);
+      final e = tester.renderObject<RenderObject>(
+        find.descendant(
+          of: find.byType(AntAutoComplete),
+          matching: find.byType(EditableText),
+        ),
       );
+      RenderEditable? re;
+      void walk(RenderObject ro) {
+        if (re != null) return;
+        if (ro is RenderEditable) {
+          re = ro;
+          return;
+        }
+        ro.visitChildren(walk);
+      }
+
+      walk(e);
+      final caret = re!.getLocalRectForCaret(const TextPosition(offset: 0));
+      final glyph = caret.left + re!.localToGlobal(Offset.zero).dx;
+      expect(glyph - outer.left, closeTo(reference, 1.5),
+          reason: 'AutoComplete 字形内缩应与 Input 家族基座标准一致');
     });
   });
 }

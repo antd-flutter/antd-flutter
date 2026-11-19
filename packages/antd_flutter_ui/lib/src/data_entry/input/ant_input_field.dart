@@ -252,9 +252,9 @@ class _AntInputFieldState extends State<AntInputField> {
         contentPadding:
             multiline
                 ? EdgeInsets.symmetric(horizontal: t.marginSM.w, vertical: t.marginSM.w)
-                // 装饰器（dense/outline）对 contentPadding 追加固有 4px 水平偏移，
-                // 单行统一以 -4 抵消：文字水平内边距完全由外层容器单点决定
-                : const EdgeInsets.symmetric(horizontal: -4),
+                // embedded：内容零内边距（装饰器固有 +4 与外层容器 marginSM-4 抵扣
+                // 设计配套，见各外层容器注释）
+                : EdgeInsets.zero,
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,

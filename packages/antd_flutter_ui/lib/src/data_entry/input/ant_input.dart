@@ -268,7 +268,9 @@ class _AntInputState extends State<AntInput> {
           Expanded(
             // 高度锁定/垂直居中由基座统一；水平内边距由外层负责（与 addon 分隔线衔接）
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
+              // embedded 装饰器无固有偏移：marginSM+4 → 字形内缩 17.3 与
+              // standalone（marginSM+4.33 固有）字形对齐
+              padding: EdgeInsets.symmetric(horizontal: t.marginSM.w + 4),
               child: AntInputField(
                 size: widget.size,
                 controller: _controller,

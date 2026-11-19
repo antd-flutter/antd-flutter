@@ -23,6 +23,7 @@ library;
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
+import 'package:antd_flutter_ui/src/data_entry/input/ant_input_field.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -303,41 +304,19 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
           ),
           borderRadius: BorderRadius.circular(t.borderRadius),
         ),
-        padding: EdgeInsets.symmetric(
-            horizontal: (widget.size == AntAutoCompleteSize.small ? 7 : 12).w,),
+        // embedded 装饰器无固有偏移：marginSM+4 → 字形内缩 17.3，与 Input 家族
+        // （standalone marginSM + 4.33 固有偏移）字形对齐，基座单点标准
+        padding: EdgeInsets.symmetric(horizontal: t.marginSM.w + 4),
         child: Row(
           children: [
             Expanded(
-              child: TextField(
+              child: AntInputField(
                 controller: _controller,
                 focusNode: _focusNode,
                 enabled: !widget.disabled,
-                style: TextStyle(
-                    fontSize: fontSize.sp,
-                    color: widget.disabled ? t.colorTextDisabled : t.colorText,),
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  // 单一外层描边语义（antd web AutoComplete）：输入框自身无边框，
-                  // enabled/focused/disabled 边框显式置 none——Material 主题的
-                  // InputDecorationTheme.enabledBorder 优先级高于 border，
-                  // 不显式覆盖会内层再画一圈描边形成双层边框。
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  // 填充/悬停/焦点局部填充显式置透明：Material 桥接主题
-                  // filled:true + fillColor: colorBgContainer（白）会盖掉
-                  // 外层容器的禁用灰底（colorBgContainerDisabled 由外层
-                  // 容器按 enabled/disabled 切换），hoverColor/focusColor
-                  // 防主题渗入产生局部填充高亮。
-                  filled: true,
-                  fillColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  focusColor: Colors.transparent,
-                  hintText: widget.placeholder,
-                  hintStyle: TextStyle(
-                      fontSize: fontSize.sp, color: t.colorTextPlaceholder,),
-                ),
+                placeholder: widget.placeholder,
+                mode: AntInputFieldMode.embedded,
+                height: _height.h,
                 onChanged: _onInputChanged,
               ),
             ),
