@@ -17,6 +17,12 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
+/// 移动端特有弹层组件的桌面端默认宽度上限（逻辑像素）。
+///
+/// 移动端特有弹层（Dialog / ActionSheet / Popup / Toast 等）在桌面端
+/// 不应随超宽视口无限拉伸，统一以移动端默认宽度（375）封顶、弹层对齐居中。
+const double kAntMobileOverlayDefaultMaxWidth = 375.0;
+
 /// 屏级弹层统一基座。
 ///
 /// 由各弹层组件在 OverlayEntry 中构造：

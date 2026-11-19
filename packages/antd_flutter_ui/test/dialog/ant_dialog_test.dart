@@ -1,6 +1,9 @@
 // AntDialog widget 测试
 library;
 
+import 'dart:math' as math;
+
+import 'package:antd_flutter_ui/src/engines/overlay_shell.dart';
 import 'package:antd_flutter_ui/src/feedback/dialog/ant_dialog.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -247,8 +250,17 @@ void main() {
     await tester.pumpAndSettle();
     final screenW =
         tester.view.physicalSize.width / tester.view.devicePixelRatio;
-    expect(tester.getSize(_card).width,
-        closeTo(screenW * kAntDialogDefaultWidthFactor, 1),);
+    // 桌面端测试视口：移动端特有组件宽度按基座封顶（kAntMobileOverlayDefaultMaxWidth）
+    expect(
+      tester.getSize(_card).width,
+      closeTo(
+        math.min(
+          screenW * kAntDialogDefaultWidthFactor,
+          kAntMobileOverlayDefaultMaxWidth,
+        ),
+        1,
+      ),
+    );
   });
 
   testWidgets('自定义 widthFactor 生效', (tester) async {
@@ -258,7 +270,10 @@ void main() {
     await tester.pumpAndSettle();
     final screenW =
         tester.view.physicalSize.width / tester.view.devicePixelRatio;
-    expect(tester.getSize(_card).width, closeTo(screenW * 0.9, 1));
+    expect(
+      tester.getSize(_card).width,
+      closeTo(math.min(screenW * 0.9, kAntMobileOverlayDefaultMaxWidth), 1),
+    );
   });
 
   testWidgets('函数式 alert：点击确认返回 true', (tester) async {

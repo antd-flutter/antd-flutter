@@ -359,8 +359,10 @@ class _DialogOverlayState extends State<_DialogOverlay> {
 
     final card = Container(
       key: kAntDialogCardKey,
-      width: MediaQuery.of(context).size.width * config.widthFactor,
-      padding: EdgeInsets.all(20.w),
+      width: (MediaQuery.of(context).size.width * config.widthFactor).clamp(
+        0.0,
+        kAntMobileOverlayDefaultMaxWidth,
+      ),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
@@ -475,12 +477,15 @@ class _DialogOverlayState extends State<_DialogOverlay> {
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: theme.colorBorder)),
       ),
-      child: Row(children: [
-        for (var i = 0; i < buttons.length; i++) ...[
-          if (i > 0) Container(width: 0.5, height: 44.w, color: theme.colorBorder),
-          Expanded(child: buttons[i]),
+      child: Row(
+        children: [
+          for (var i = 0; i < buttons.length; i++) ...[
+            if (i > 0)
+              Container(width: 0.5, height: 44.w, color: theme.colorBorder),
+            Expanded(child: buttons[i]),
+          ],
         ],
-      ],),
+      ),
     );
   }
 }
@@ -507,19 +512,23 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 44.w,
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-            color: primary ? themeData.colorPrimary : themeData.colorText,
+    // 桌面端手势：按钮区鼠标指针为 click
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          height: 44.w,
+          alignment: Alignment.center,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
+              color: primary ? themeData.colorPrimary : themeData.colorText,
+            ),
           ),
         ),
       ),

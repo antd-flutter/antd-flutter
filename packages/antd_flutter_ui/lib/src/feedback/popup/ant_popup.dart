@@ -18,6 +18,8 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_popup_types.dart';
+import 'dart:math' as math;
+
 import '../../engines/overlay_shell.dart';
 import '../../engines/popup_overlay.dart';
 export 'ant_popup_types.dart';
@@ -279,18 +281,22 @@ class _PopupOverlayState extends State<_PopupOverlay> {
 
   /// 面板尺寸约束。
   BoxConstraints _panelConstraints(Size screen) {
+    // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸（kAntMobileOverlayDefaultMaxWidth）
     switch (widget.position) {
       case AntPopupPosition.bottom:
       case AntPopupPosition.top:
         return BoxConstraints(
-          minWidth: screen.width,
+          maxWidth: math.min(screen.width, kAntMobileOverlayDefaultMaxWidth),
           maxHeight: screen.height * kAntPopupVerticalMaxHeightFactor,
         );
       case AntPopupPosition.left:
       case AntPopupPosition.right:
         return BoxConstraints(
           minHeight: screen.height,
-          maxWidth: screen.width * kAntPopupSideWidthFactor,
+          maxWidth: math.min(
+            screen.width * kAntPopupSideWidthFactor,
+            kAntMobileOverlayDefaultMaxWidth,
+          ),
         );
     }
   }
@@ -344,16 +350,19 @@ class _PopupOverlayState extends State<_PopupOverlay> {
           if (widget.showCloseIcon)
             Align(
               alignment: Alignment.topRight,
-              child: GestureDetector(
-                key: kAntPopupCloseKey,
-                onTap: _handleClose,
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: EdgeInsets.all(12.w),
-                  child: Icon(
-                    Icons.close,
-                    size: 18.w,
-                    color: theme.colorTextSecondary,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  key: kAntPopupCloseKey,
+                  onTap: _handleClose,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.all(12.w),
+                    child: Icon(
+                      Icons.close,
+                      size: 18.w,
+                      color: theme.colorTextSecondary,
+                    ),
                   ),
                 ),
               ),

@@ -204,21 +204,21 @@ class _ToastViewState extends State<_ToastView> {
 
   /// 按 position 解析对齐配置。
   ({Alignment alignment, EdgeInsets padding}) _resolvePosition() {
-    final vertical =
-        MediaQuery.paddingOf(context).top + MediaQuery.paddingOf(context).bottom;
+    final vertical = MediaQuery.paddingOf(context).top +
+        MediaQuery.paddingOf(context).bottom;
     return switch (widget.toast.position) {
       AntToastPosition.top => (
-        alignment: Alignment.topCenter,
-        padding: EdgeInsets.only(top: vertical + 64.w),
-      ),
+          alignment: Alignment.topCenter,
+          padding: EdgeInsets.only(top: vertical + 64.w),
+        ),
       AntToastPosition.bottom => (
-        alignment: Alignment.bottomCenter,
-        padding: EdgeInsets.only(bottom: vertical + 64.w),
-      ),
+          alignment: Alignment.bottomCenter,
+          padding: EdgeInsets.only(bottom: vertical + 64.w),
+        ),
       AntToastPosition.center => (
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(vertical: vertical),
-      ),
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(vertical: vertical),
+        ),
     };
   }
 
@@ -302,7 +302,13 @@ class _ToastViewState extends State<_ToastView> {
     // Material 仅包裹卡片，避免整层拦截点击。
     Widget body = Align(
       alignment: alignment,
-      child: Material(color: Colors.transparent, child: card),
+      child: ConstrainedBox(
+        // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸
+        constraints: const BoxConstraints(
+          maxWidth: kAntMobileOverlayDefaultMaxWidth,
+        ),
+        child: Material(color: Colors.transparent, child: card),
+      ),
     );
     if (padding != EdgeInsets.zero) {
       body = Padding(padding: padding, child: body);
@@ -327,5 +333,6 @@ class _ToastViewState extends State<_ToastView> {
           ],
         ),
       ),
-    );  }
+    );
+  }
 }

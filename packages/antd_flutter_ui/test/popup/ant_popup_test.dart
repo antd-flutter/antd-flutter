@@ -1,6 +1,8 @@
 // AntPopup widget 测试
 library;
 
+
+import 'package:antd_flutter_ui/src/engines/overlay_shell.dart';
 import 'package:antd_flutter_ui/src/feedback/popup/ant_popup.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -123,7 +125,13 @@ void main() {
     final screenH = tester.view.physicalSize.height /
         tester.view.devicePixelRatio;
     expect(topLeft.dy + size.height, closeTo(screenH, 1));
-    expect(topLeft.dx, 0);
+    // 桌面端测试视口：面板宽度按基座封顶（375），水平居中
+    final screenW =
+        tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    expect(
+      topLeft.dx,
+      closeTo((screenW - kAntMobileOverlayDefaultMaxWidth) / 2, 1),
+    );
   });
 
   testWidgets('顶部弹出：面板贴顶', (tester) async {

@@ -353,14 +353,17 @@ class _ModalOverlayState extends State<_ModalOverlay> {
                     : const SizedBox.shrink(),
               ),
               if (config.closable)
-                GestureDetector(
-                  key: kAntModalCloseKey,
-                  onTap: _handleCancel,
-                  behavior: HitTestBehavior.opaque,
-                  child: Icon(
-                    Icons.close,
-                    size: 16.w,
-                    color: theme.colorTextSecondary,
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    key: kAntModalCloseKey,
+                    onTap: _handleCancel,
+                    behavior: HitTestBehavior.opaque,
+                    child: Icon(
+                      Icons.close,
+                      size: 16.w,
+                      color: theme.colorTextSecondary,
+                    ),
                   ),
                 ),
             ],
@@ -394,9 +397,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
     return AntOverlayShell(
       open: _open,
       alignment: config.centered ? Alignment.center : Alignment.topCenter,
-      padding: config.centered
-          ? EdgeInsets.zero
-          : EdgeInsets.only(top: 100.w),
+      padding: config.centered ? EdgeInsets.zero : EdgeInsets.only(top: 100.w),
       maskKey: kAntModalMaskKey,
       onMaskTap: config.maskClosable ? () => _handleCancel() : null,
       maskClosable: true,

@@ -225,7 +225,13 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
       curve: Curves.easeOutCubic,
       onExited: widget.onRemove,
       panelKey: kAntActionSheetPanelKey,
-      child: _buildPanel(),
+      // 桌面端宽度封顶：移动端特有组件不随超宽视口拉伸，居中展示
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: kAntMobileOverlayDefaultMaxWidth,
+        ),
+        child: _buildPanel(),
+      ),
     );
   }
 
@@ -239,7 +245,8 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
       bottom: sheet.safeArea,
       child: Material(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG)),
         elevation: 8,
         shadowColor: theme.colorShadow,
         child: Column(
@@ -268,19 +275,22 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
               Container(
                 color: theme.colorFillQuaternary,
                 padding: EdgeInsets.symmetric(vertical: 4.w),
-                child: GestureDetector(
-                  key: kAntActionSheetCancelKey,
-                  onTap: _handleClose,
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 14.w),
-                    alignment: Alignment.center,
-                    child: Text(
-                      sheet.cancelText!,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: theme.colorText,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    key: kAntActionSheetCancelKey,
+                    onTap: _handleClose,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 14.w),
+                      alignment: Alignment.center,
+                      child: Text(
+                        sheet.cancelText!,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          color: theme.colorText,
+                        ),
                       ),
                     ),
                   ),
@@ -303,44 +313,47 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
               ? theme.colorError
               : theme.colorText;
       children.add(
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: action.disabled ? null : () => _handleAction(action),
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.w),
-            decoration: BoxDecoration(
-              border: i > 0
-                  ? Border(
-                      top: BorderSide(color: theme.colorSplit, width: 0.5),
-                    )
-                  : null,
-            ),
-            child: Column(
-              children: [
-                Text(
-                  action.text,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                  ),
-                ),
-                if (action.description != null) ...[
-                  SizedBox(height: 2.w),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: action.disabled ? null : () => _handleAction(action),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.w),
+              decoration: BoxDecoration(
+                border: i > 0
+                    ? Border(
+                        top: BorderSide(color: theme.colorSplit, width: 0.5),
+                      )
+                    : null,
+              ),
+              child: Column(
+                children: [
                   Text(
-                    action.description!,
+                    action.text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      color: action.disabled
-                          ? theme.colorTextQuaternary
-                          : theme.colorTextTertiary,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
                     ),
                   ),
+                  if (action.description != null) ...[
+                    SizedBox(height: 2.w),
+                    Text(
+                      action.description!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: action.disabled
+                            ? theme.colorTextQuaternary
+                            : theme.colorTextTertiary,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
