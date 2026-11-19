@@ -31,6 +31,12 @@ dependency_overrides:
     path: ../../antd_flutter_ui
   antd_color:
     path: ../../antd_color
+  antd_image_viewer:
+    path: ../../../packages/antd_image_viewer
+  antd_calendar:
+    path: ../../../packages/antd_calendar
+  antd_splitter:
+    path: ../../../packages/antd_splitter
   antd_tokens:
     path: ../../antd_tokens
   antd_theme:
