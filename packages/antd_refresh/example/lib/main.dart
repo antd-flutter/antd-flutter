@@ -421,23 +421,25 @@ class _LocaleDemoState extends State<_LocaleDemo> {
                   selectedColor: theme.colorPrimary,
                   backgroundColor: theme.colorFillSecondary,
                   labelStyle: TextStyle(
-                    color: _locale == locale
-                        ? Colors.white
-                        : theme.colorText,
+                    color: _locale == locale ? Colors.white : theme.colorText,
                   ),
                   onSelected: (_) => setState(() => _locale = locale),
                 ),
             ],
           ),
           const SizedBox(height: 16),
-          _RefreshBox(
-            height: 300,
-            child: AntPullToRefresh(
-              locale: _locale,
-              onRefresh: _fakeRefresh,
-              child: ListView.builder(
-                itemCount: 8,
-                itemBuilder: (_, i) => _ItemTile(i),
+          // 弹性填充：语言 chips 占用高度随窗口变化，RefreshBox 以剩余
+          // 空间为准，避免小窗口溢出布局。
+          Expanded(
+            child: _RefreshBox(
+              height: 300,
+              child: AntPullToRefresh(
+                locale: _locale,
+                onRefresh: _fakeRefresh,
+                child: ListView.builder(
+                  itemCount: 8,
+                  itemBuilder: (_, i) => _ItemTile(i),
+                ),
               ),
             ),
           ),
@@ -557,7 +559,11 @@ class _ScrollViewsDemo extends StatefulWidget {
 class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
   /// 当前演示的滚动视图类型。
   int _kind = 0;
-  static const List<String> _kindNames = ['ListView', 'CustomScrollView', 'NestedScrollView'];
+  static const List<String> _kindNames = [
+    'ListView',
+    'CustomScrollView',
+    'NestedScrollView',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -579,16 +585,19 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
             ],
           ),
           const SizedBox(height: 16),
-          _RefreshBox(
-            child: AntPullToRefresh(
-              key: ValueKey(_kind),
-              onRefresh: _fakeRefresh,
-              child: switch (_kind) {
-                0 => ListView.builder(
+          // 弹性填充：chips 占用高度随窗口变化，RefreshBox 以剩余空间为准，
+          // 避免小窗口溢出布局。
+          Expanded(
+            child: _RefreshBox(
+              child: AntPullToRefresh(
+                key: ValueKey(_kind),
+                onRefresh: _fakeRefresh,
+                child: switch (_kind) {
+                  0 => ListView.builder(
                     itemCount: 12,
                     itemBuilder: (_, i) => _ItemTile(i),
                   ),
-                1 => CustomScrollView(
+                  1 => CustomScrollView(
                     slivers: [
                       const SliverAppBar(
                         title: Text('CustomScrollView'),
@@ -600,7 +609,7 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
                       ),
                     ],
                   ),
-                _ => NestedScrollView(
+                  _ => NestedScrollView(
                     headerSliverBuilder: (_, _) => [
                       const SliverAppBar(
                         title: Text('NestedScrollView'),
@@ -613,7 +622,8 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
                       itemBuilder: (_, i) => _ItemTile(i),
                     ),
                   ),
-              },
+                },
+              ),
             ),
           ),
         ],
@@ -640,9 +650,7 @@ Widget _nestedSection(BuildContext context) {
             Container(
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               height: 260,
               clipBehavior: Clip.antiAlias,
               child: AntPullToRefresh(
@@ -700,8 +708,7 @@ class _ComboDemoState extends State<_ComboDemo> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final double maxH = constraints.maxHeight;
-            final double boxHeight =
-                maxH.isFinite && maxH < 460 ? maxH : 460;
+            final double boxHeight = maxH.isFinite && maxH < 460 ? maxH : 460;
             return SizedBox(
               height: boxHeight,
               child: AntPullToRefresh(
@@ -710,8 +717,7 @@ class _ComboDemoState extends State<_ComboDemo> {
                   loadMore: _loadMore,
                   child: ListView(
                     children: [
-                      for (var i = 0; i < _pageStart + 10; i++)
-                        _ItemTile(i),
+                      for (var i = 0; i < _pageStart + 10; i++) _ItemTile(i),
                     ],
                   ),
                 ),
