@@ -18,6 +18,15 @@ const kPendingVerify = <String>[
   'calendar_picker',
   'floating_panel',
   'floating_bubble',
+  'alert',
+  'error_block',
+  'loading',
+  'mask',
+  'progress',
+  'result',
+  'result_page',
+  'skeleton',
+  'spin',
 ];
 const kMigratedVerified = <String>[
   'image',
