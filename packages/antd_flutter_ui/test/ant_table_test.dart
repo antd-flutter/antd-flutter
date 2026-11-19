@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/table/ant_table.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
