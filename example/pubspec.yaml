@@ -45,6 +45,8 @@ dependency_overrides:
     path: ../packages/antd_picker
   antd_tree:
     path: ../packages/antd_tree
+  antd_carousel:
+    path: ../packages/antd_carousel
 
 dev_dependencies:
   flutter_test:

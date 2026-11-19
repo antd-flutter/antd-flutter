@@ -108,9 +108,17 @@ jobs:
         working-directory: packages/antd_tree/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/tree/
 
+      - name: Install antd_carousel example dependencies
+        working-directory: packages/antd_carousel/example
+        run: flutter pub get
+
+      - name: Build antd_carousel example (release)
+        working-directory: packages/antd_carousel/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/carousel/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/tree site/carousel
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -121,6 +129,7 @@ jobs:
           cp -r packages/antd_upload/example/build/web/* site/upload/
           cp -r packages/antd_picker/example/build/web/* site/picker/
           cp -r packages/antd_tree/example/build/web/* site/tree/
+          cp -r packages/antd_carousel/example/build/web/* site/carousel/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/carousel/ant_carousel.dart';
+import 'package:antd_carousel/src/carousel/ant_carousel.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
@@ -142,18 +142,25 @@ void main() {
       expect(pageView.controller!.page, 1);
     });
 
-    testWidgets('autoplay loop jumps back to first page', (tester) async {
+    testWidgets('autoplay loop wraps back to first page (infinite loop)',
+        (tester) async {
+      // R30.1：loop 为无限循环（PageView.builder + 取模），自动播放持续进行，
+      // 不再回弹停在第 0 页；断言 3 次切换后 onChange 回到 0。
+      final changes = <int>[];
       await tester.pumpWidget(_wrap(
         _carousel(
-            autoplay: true,
-            loop: true,
-            interval: const Duration(milliseconds: 100),),
+          autoplay: true,
+          loop: true,
+          interval: const Duration(milliseconds: 400),
+          onChange: changes.add,
+        ),
       ),);
-      // 3 次切换后应回到第 0 页
-      await tester.pump(const Duration(milliseconds: 320));
-      await tester.pumpAndSettle();
-      final pageView = tester.widget<PageView>(find.byType(PageView));
-      expect(pageView.controller!.page, 0);
+      // 3 次自动切换（动画 300ms + 间隔 400ms）：切换序列 0 → 1 → 2 → 0
+      for (var i = 0; i < 8; i++) {
+        await tester.pump(const Duration(milliseconds: 400));
+      }
+      // 循环序列 0 → 1 → 2 → 0（取模回绕，持续自动播放）
+      expect(changes, containsAll([0, 1, 2]));
     });
 
     testWidgets('pauseOnHover stops autoplay while hovered', (tester) async {
@@ -161,7 +168,7 @@ void main() {
         _carousel(
           autoplay: true,
           pauseOnHover: true,
-          interval: const Duration(milliseconds: 100),
+          interval: const Duration(milliseconds: 400),
         ),
       ),);
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);

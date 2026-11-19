@@ -8,6 +8,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0-beta.1"
+  antd_carousel:
+    dependency: "direct overridden"
+    description:
+      path: "../packages/antd_carousel"
+      relative: true
+    source: path
+    version: "0.1.0-beta.1"
   antd_color:
     dependency: "direct overridden"
     description:

@@ -35,6 +35,7 @@ dependencies:
   antd_upload: ^0.1.0-beta.1
   antd_picker: ^0.1.0-beta.1
   antd_tree: ^0.1.0-beta.1
+  antd_carousel: ^0.1.0-beta.1
   cached_network_image: ^4.0.7
 
   material_ui: any
@@ -68,6 +69,8 @@ dependency_overrides:
     path: packages/antd_picker
   antd_tree:
     path: packages/antd_tree
+  antd_carousel:
+    path: packages/antd_carousel
 
 dev_dependencies:
   analyzer: ^8.0.0

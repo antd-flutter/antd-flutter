@@ -202,8 +202,9 @@ export 'src/components/data_display/table/ant_table_types.dart';
 // AntTree 已迁移至独立包 antd_tree（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
 export 'package:antd_tree/src/tree/ant_tree.dart';
 export 'package:antd_tree/src/tree/ant_tree_types.dart';
-export 'src/components/data_display/carousel/ant_carousel.dart';
-export 'src/components/data_display/carousel/ant_carousel_types.dart';
+// AntCarousel 已迁移至独立包 antd_carousel（P08 批次 2，从主包迁出），此处 re-export 保持符号兼容
+export 'package:antd_carousel/src/carousel/ant_carousel.dart';
+export 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
 export 'src/components/data_display/descriptions/ant_descriptions.dart';
 export 'src/components/data_display/descriptions/ant_descriptions_types.dart';
 export 'src/components/data_display/timeline/ant_timeline.dart';

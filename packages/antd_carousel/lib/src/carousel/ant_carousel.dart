@@ -5,7 +5,7 @@
 /// - [autoplay] — 是否自动切换
 /// - [autoplayInterval] — 自动切换间隔（默认 3 秒）
 /// - [pauseOnHover] — 悬停时暂停自动切换（桌面端）
-/// - [loop] — 是否循环（简化实现：自动播到末页后回首/末页跳转）
+/// - [loop] — 是否循环（无限循环：取模模拟无限页，连续滑动不回弹，R30.1）
 /// - [dots] — 是否显示指示点
 /// - [dotPosition] — 指示点位置（top/bottom/left/right）
 /// - [arrows] — 是否显示切换箭头（hover 加深）
@@ -25,8 +25,8 @@ import 'dart:async';
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:antd_flutter_plus/src/components/data_display/carousel/ant_carousel_types.dart';
-export 'package:antd_flutter_plus/src/components/data_display/carousel/ant_carousel_types.dart';
+import 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
+export 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 // ============================================================
@@ -71,7 +71,7 @@ class AntCarousel extends StatefulWidget {
   /// 悬停时暂停自动切换（桌面端）。
   final bool pauseOnHover;
 
-  /// 是否循环（简化实现：切换到末页后跳回首页，反之亦然）。
+  /// 是否循环（无限循环：PageView.builder + 取模模拟无限页，任意方向连续滑动不回弹）。
   final bool loop;
 
   /// 是否显示指示点。
@@ -110,6 +110,8 @@ class AntCarousel extends StatefulWidget {
 class _AntCarouselState extends State<AntCarousel>
     implements AntCarouselStateApi {
   late PageController _pageController;
+  /// 循环模式的初始原始页偏移（pages.length * 100000 + defaultCurrent）。
+  late int _loopBase;
   Timer? _autoplayTimer;
   bool _hovered = false;
   bool _disposed = false;
@@ -118,12 +120,31 @@ class _AntCarouselState extends State<AntCarousel>
 
   bool get _isControlled => widget.current != null;
 
+  /// 无限循环是否生效（loop 开启且页面数 > 1）。
+  bool get _loopActive => widget.loop && _loopCount > 1;
+
+  int get _loopCount => widget._pages.length;
+
+  /// 当前原始页（循环模式下含大偏移）。
+  int get _rawPage {
+    if (_pageController.hasClients &&
+        _pageController.position.haveDimensions &&
+        _pageController.page != null) {
+      return _pageController.page!.round();
+    }
+    return _loopActive ? _loopBase : _current;
+  }
+
   @override
   void initState() {
     super.initState();
     _current = widget.defaultCurrent;
+    // R30.1 无限循环：以「大偏移基准页 + 取模显示」模拟无限页
+    // （对照吸收 carousel_slider 的实现思路，MIT，自绘落地，不引入三方依赖）。
+    _loopBase =
+        widget._pages.length * 100000 + (widget.defaultCurrent % _loopCount);
     _pageController = PageController(
-      initialPage: _current,
+      initialPage: _loopActive ? _loopBase : _current,
       keepPage: true,
     );
     widget.controller?.attach(this);
@@ -162,7 +183,14 @@ class _AntCarouselState extends State<AntCarousel>
   void _startAutoplay() {
     if (!widget.autoplay || _disposed || _isAutoplaying) return;
     if (widget.pauseOnHover && _hovered) return;
-    _autoplayTimer = Timer.periodic(widget.autoplayInterval, (_) => _next());
+    _autoplayTimer = Timer.periodic(widget.autoplayInterval, (_) {
+      // 动画进行中跳过本次心跳，避免重启 animateToPage 导致永不到达（对齐 carousel_slider 的节流策略）。
+      if (_pageController.hasClients &&
+          _pageController.position.isScrollingNotifier.value) {
+        return;
+      }
+      _next();
+    });
   }
 
   void _stopAutoplay() {
@@ -173,23 +201,33 @@ class _AntCarouselState extends State<AntCarousel>
   void _next() {
     final pages = widget._pages;
     if (pages.isEmpty) return;
+    if (_loopActive) {
+      _moveToRaw(_rawPage + 1);
+      return;
+    }
     if (_current >= pages.length - 1) {
       if (widget.loop) {
-        _goTo(0);
+        _moveToDisplay(0);
       }
       return;
     }
-    _goTo(_current + 1);
+    _moveToDisplay(_current + 1);
   }
 
   void _prev() {
+    final pages = widget._pages;
+    if (pages.isEmpty) return;
+    if (_loopActive) {
+      _moveToRaw(_rawPage - 1);
+      return;
+    }
     if (_current <= 0) {
       if (widget.loop) {
-        _goTo(widget._pages.length - 1);
+        _moveToDisplay(pages.length - 1);
       }
       return;
     }
-    _goTo(_current - 1);
+    _moveToDisplay(_current - 1);
   }
 
   // ---------- 跳转 ----------
@@ -203,38 +241,58 @@ class _AntCarouselState extends State<AntCarousel>
     final pages = widget._pages;
     if (pages.isEmpty) return;
     final clamped = index.clamp(0, pages.length - 1);
-    if (animate) {
-      _pageController.animateToPage(
-        clamped,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _pageController.jumpToPage(clamped);
-    }
+    _moveToDisplay(clamped, animate: animate);
     if (!_isControlled) {
       setState(() => _current = clamped);
     }
     _emitChange(clamped);
   }
 
-  void _syncToControlled(int value, {bool animate = true}) {
-    final clamped = value.clamp(0, widget._pages.length - 1);
+  /// 跳转到显示页 [display]：循环模式换算为最短路径的原始页。
+  void _moveToDisplay(int display, {bool animate = true}) {
+    final n = _loopCount;
+    if (n < 1) return;
+    if (_loopActive) {
+      final raw = _rawPage;
+      final current = raw % n;
+      var delta = display - current;
+      // 取模环上的最短路径（对齐 carousel_slider 循环跳转行为）。
+      if (delta > n ~/ 2) delta -= n;
+      if (delta < -(n ~/ 2)) delta += n;
+      _moveToRaw(raw + delta, animate: animate);
+    } else {
+      _moveToRaw(display, animate: animate);
+    }
+  }
+
+  /// 跳转到原始页 [raw]（动画或瞬时）。
+  void _moveToRaw(int raw, {bool animate = true}) {
+    if (_disposed || !_pageController.hasClients) return;
     if (animate) {
       _pageController.animateToPage(
-        clamped,
+        raw,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      _pageController.jumpToPage(clamped);
+      _pageController.jumpToPage(raw);
     }
+  }
+
+  void _syncToControlled(int value, {bool animate = true}) {
+    final pages = widget._pages;
+    if (pages.isEmpty) return;
+    final clamped = value.clamp(0, pages.length - 1);
+    _moveToDisplay(clamped, animate: animate);
     setState(() => _current = clamped);
   }
 
   // ---------- 交互 ----------
 
-  void _handlePageChanged(int index) {
+  void _handlePageChanged(int rawIndex) {
+    // 循环模式下 PageView 回调为原始页索引，取模还原显示页。
+    final n = _loopCount;
+    final index = (_loopActive && n > 1) ? rawIndex % n : rawIndex;
     if (!_isControlled) {
       setState(() => _current = index);
     }
@@ -257,12 +315,23 @@ class _AntCarouselState extends State<AntCarousel>
     final theme = AntTheme.of(context);
     final pages = widget._pages;
 
-    final pageView = PageView(
-      controller: _pageController,
-      scrollDirection: widget.vertical ? Axis.vertical : Axis.horizontal,
-      onPageChanged: _handlePageChanged,
-      children: pages,
-    );
+    // R30.1：循环模式用 PageView.builder + 取模构建「无限」页，
+    // 向任意方向连续滑动不回弹；非循环保持普通 PageView。
+    final pageView = _loopActive
+        ? PageView.builder(
+            controller: _pageController,
+            scrollDirection:
+                widget.vertical ? Axis.vertical : Axis.horizontal,
+            onPageChanged: _handlePageChanged,
+            itemBuilder: (context, i) => pages[i % pages.length],
+          )
+        : PageView(
+            controller: _pageController,
+            scrollDirection:
+                widget.vertical ? Axis.vertical : Axis.horizontal,
+            onPageChanged: _handlePageChanged,
+            children: pages,
+          );
 
     Widget body = pageView;
 
