@@ -289,7 +289,20 @@ mixin PopupContentRefresher<T extends StatefulWidget> on State<T> {
   set popupContentEntry(OverlayEntry? entry) => _popupEntry = entry;
 
   /// 原地重建弹层内容；弹层未展示时为空操作。
-  void refreshPopupContent() => _popupEntry?.markNeedsBuild();
+  ///
+  /// 刷新统一延迟到帧末执行：调用方常在 build 阶段（didUpdateWidget /
+  /// didChangeDependencies / 父级 setState 触发重建）调用本方法，直接
+  /// `markNeedsBuild()` 会抛「setState() or markNeedsBuild() called during
+  /// build」并级联触发 InheritedElement 断言——与 [PopupOpenScheduler]
+  /// 同一防时序策略。
+  void refreshPopupContent() {
+    final entry = _popupEntry;
+    if (entry == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!entry.mounted) return;
+      entry.markNeedsBuild();
+    });
+  }
 }
 
 /// 统一触发区域（点击 + 悬停 + 移动端 hover 降级）。

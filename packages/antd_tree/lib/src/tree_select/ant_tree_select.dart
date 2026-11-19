@@ -200,6 +200,24 @@ class _AntTreeSelectState extends State<AntTreeSelect>
   }
 
   @override
+  void didUpdateWidget(covariant AntTreeSelect oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // treeDefaultExpandAll + treeData 变化：展开键随新数据重算
+    if (widget.treeDefaultExpandAll && widget.treeData != oldWidget.treeData) {
+      _expandedKeys = _collectAllParentKeys(widget.treeData);
+    }
+    // 弹层打开时数据/值更新：原地重建面板（受控 value 选中态、treeData
+    // 新节点实时反映；不重建会显示陈旧内容）
+    if (_open &&
+        (widget.treeData != oldWidget.treeData ||
+            widget.value != oldWidget.value ||
+            widget.treeDefaultExpandAll != oldWidget.treeDefaultExpandAll ||
+            widget.multiple != oldWidget.multiple)) {
+      _updateOverlay();
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // 主题变化（含暗色切换）：刷新字段；弹层开着时原地重建面板跟随新 token。
