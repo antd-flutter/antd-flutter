@@ -16,8 +16,6 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
-  'carousel',
-  'masonry',
 ];
 const kMigratedVerified = <String>[
   'image',
@@ -37,6 +35,8 @@ const kMigratedVerified = <String>[
   'splitter',
   'tree',
   'tree_select',
+  'carousel',
+  'masonry',
   'upload',
   'button',
   'typography',
