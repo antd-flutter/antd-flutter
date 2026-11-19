@@ -178,6 +178,7 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 3. **antd_masonry** ✅（含 AntSliverMasonry sliver 变体 R33）
 4. **antd_floating** 🔧 进行中
 5. **antd_form**（表单相关独立包评估——0-8 已将 form/transfer 迁 ui，此处从 ui 拆出）
+5b. **antd_transfer**（用户指定追加：从 ui 拆出，标准五件套 + R32.2 AntdTransfer）
 6. **antd_table**（压轴，从 ui 拆出；pluto_grid 参考）
 
 ### 批次 3：收尾
