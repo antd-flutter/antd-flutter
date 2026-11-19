@@ -265,24 +265,29 @@ class _AntInputState extends State<AntInput> {
           if (widget.addonBefore != null)
             _buildAddon(t, widget.addonBefore!, height, fontSize, true),
           Expanded(
-            child: AntInputField(
-              size: widget.size,
-              controller: _controller,
-              focusNode: _focusNode,
-              enabled: !widget.disabled,
-              readOnly: widget.readOnly,
-              obscureText: widget.obscureText,
-              maxLength: widget.maxLength,
-              keyboardType: widget.keyboardType,
-              inputFormatters: widget.inputFormatters,
-              placeholder: widget.placeholder,
-              status: widget.status,
-              mode: AntInputFieldMode.embedded,
-              autofocus: widget.autofocus,
-              onChanged: (_) => widget.onChange?.call(_controller.text),
-              onSubmitted: widget.onPressEnter == null
-                  ? null
-                  : (_) => widget.onPressEnter!(),
+            // 垂直居中：embedded 字段零内边距，由 Center 在 addon 行内垂直居中
+            // （修复 addon stretch 下 editable 顶置导致的文字偏上）
+            child: Center(
+              child: AntInputField(
+                size: widget.size,
+                controller: _controller,
+                focusNode: _focusNode,
+                enabled: !widget.disabled,
+                readOnly: widget.readOnly,
+                obscureText: widget.obscureText,
+                maxLength: widget.maxLength,
+                keyboardType: widget.keyboardType,
+                inputFormatters: widget.inputFormatters,
+                placeholder: widget.placeholder,
+                status: widget.status,
+                mode: AntInputFieldMode.embedded,
+                contentPadding: EdgeInsets.zero,
+                autofocus: widget.autofocus,
+                onChanged: (_) => widget.onChange?.call(_controller.text),
+                onSubmitted: widget.onPressEnter == null
+                    ? null
+                    : (_) => widget.onPressEnter!(),
+              ),
             ),
           ),
           if (widget.addonAfter != null)
