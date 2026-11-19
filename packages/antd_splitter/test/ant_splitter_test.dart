@@ -305,10 +305,12 @@ void main() {
 
     testWidgets('collapse button renders fully with >=44x44 hit area',
         (tester) async {
+      var collapseCalled = false;
       await tester.pumpWidget(
         _wrap(
-          const AntSplitter(
-            children: [
+          AntSplitter(
+            onCollapse: (collapsed, sizes) => collapseCalled = true,
+            children: const [
               AntSplitterPanel(collapsible: true, child: Text('A')),
               AntSplitterPanel(child: Text('B')),
             ],
@@ -345,9 +347,17 @@ void main() {
       final draggerRect = tester.getRect(
         find.byKey(const ValueKey('ant_splitter_dragger_0')),
       );
-      expect(draggerRect.contains(center), isTrue);
+      // 按钮位于分割条两侧（antd 表现）：中心在分割条中心 ±44 内
+      expect((center.dx - draggerRect.center.dx).abs(), lessThanOrEqualTo(44));
       // 命中框宽于 20px 拖拽区（允许溢出分割条，保证完整触控区域）
       expect(hitBox.width, greaterThan(draggerRect.width));
+
+      // 分割条以外（面板边缘，分割条中心左侧 40px）点击也能触发折叠：
+      // 命中框挂在外层 Stack 上，命中测试不受分割条 20px 约束
+      expect(collapseCalled, isFalse);
+      await tester.tapAt(Offset(draggerRect.center.dx - 40, center.dy));
+      await tester.pumpAndSettle();
+      expect(collapseCalled, isTrue);
     });
 
     testWidgets('tap collapse button collapses panel and calls onCollapse',
@@ -400,6 +410,36 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
       await tester.pumpAndSettle();
       expect(_panelWidths(tester)[0], closeTo(390, 1));
+    });
+
+    testWidgets('collapsing the last expanded panel auto-expands neighbor',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntSplitter(
+            children: [
+              AntSplitterPanel(collapsible: true, child: Text('A')),
+              AntSplitterPanel(collapsible: true, child: Text('B')),
+            ],
+          ),
+        ),
+      );
+
+      // 先折叠面板 A，再折叠面板 B
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_1')));
+      await tester.pumpAndSettle();
+
+      // 面板 B 折叠时面板 A 自动展开（两面板不可同时保持折叠，防死锁）
+      final widths = _panelWidths(tester);
+      expect(widths[0], greaterThan(0));
+      expect(widths[1], closeTo(0, 1));
+
+      // 面板 A 的折叠按钮仍可点击（可再折叠/恢复），不会卡死
+      await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_1')));
+      await tester.pumpAndSettle();
+      expect(_panelWidths(tester)[1], greaterThan(0));
     });
 
     testWidgets('collapsed panel space goes to neighbor', (tester) async {

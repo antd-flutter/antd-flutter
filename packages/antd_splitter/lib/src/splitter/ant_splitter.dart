@@ -312,12 +312,33 @@ class _AntSplitterState extends State<AntSplitter> {
       needed = _borrowFromNeighbors(sizes, index, needed, forward: false);
       sizes[index] = target - needed;
     } else {
-      // 折叠：记录尺寸，释放空间给相邻面板
-      _sizesBeforeCollapse = List<double>.from(sizes);
-      final freed = sizes[index];
-      sizes[index] = 0;
-      _giveToNeighbor(sizes, index, freed, forward: true);
-      _giveToNeighbor(sizes, index, freed, forward: false);
+      // 折叠：记录尺寸，释放空间给相邻面板。
+      // 若其余面板已全部折叠（再释放会无处可去，且无法再展开），
+      // 先自动展开相邻面板（对齐 antd：两端不可同时保持折叠）。
+      var othersAllCollapsed = true;
+      for (var i = 0; i < widget.children.length && othersAllCollapsed; i++) {
+        if (i != index && !_collapsed[i]) othersAllCollapsed = false;
+      }
+      if (othersAllCollapsed && widget.children.length > 1) {
+        final neighbor =
+            index + 1 < widget.children.length ? index + 1 : index - 1;
+        final freed = sizes[index];
+        sizes[index] = 0;
+        // 折叠空间全部交给相邻面板并自动展开，恢复其折叠前尺寸（不超可用空间）。
+        final restoreTarget =
+            (_sizesBeforeCollapse?[neighbor] ?? _averageSize(sizes))
+                .clamp(0.0, freed);
+        sizes[neighbor] = restoreTarget;
+        _collapsed[neighbor] = false;
+      } else {
+        _sizesBeforeCollapse = List<double>.from(sizes);
+        final freed = sizes[index];
+        sizes[index] = 0;
+        // 释放空间全部转交给最近的一个未折叠面板（相邻侧优先，完全撑开），
+        // 只转交一次，防止双侧各收一份导致溢出。
+        var remaining = _giveToNeighbor(sizes, index, freed, forward: true);
+        _giveToNeighbor(sizes, index, remaining, forward: false);
+      }
     }
 
     setState(() {
@@ -369,29 +390,30 @@ class _AntSplitterState extends State<AntSplitter> {
   }
 
   /// 将释放的空间分配给相邻面板。
-  void _giveToNeighbor(
+  double _giveToNeighbor(
     List<double> sizes,
     int index,
     double amount, {
     required bool forward,
   }) {
-    if (amount <= 0) return;
+    if (amount <= 0) return 0;
     final n = widget.children.length;
     if (forward) {
       for (var i = index + 1; i < n; i++) {
         if (!_collapsed[i]) {
           sizes[i] += amount;
-          return;
+          return 0;
         }
       }
     } else {
       for (var i = index - 1; i >= 0; i--) {
         if (!_collapsed[i]) {
           sizes[i] += amount;
-          return;
+          return 0;
         }
       }
     }
+    return amount;
   }
 
   // ----------------------------------------------------------
@@ -466,6 +488,12 @@ class _AntSplitterState extends State<AntSplitter> {
 
         final sizes = _sizes!;
         final children = <Widget>[];
+        // 折叠按钮命中框（44x44）：必须放在外层 Stack 上才能覆盖分割条以外的
+        // 面板边缘区域——Clip.none 只允许绘制溢出，命中测试仍受父级 RenderBox
+        // 尺寸约束（paint overflow ≠ hit test overflow），放在 20px 宽的分割条
+        // Stack 内时超出部分点击无效。
+        final collapseHitBoxes = <Widget>[];
+        var axisOffset = 0.0;
 
         for (var i = 0; i < n; i++) {
           final panelSize = (sizes[i] * _scale).clamp(0, totalRender).toDouble();
@@ -482,15 +510,41 @@ class _AntSplitterState extends State<AntSplitter> {
                     child: widget.children[i].child ?? const SizedBox.shrink(),
                   ),
           );
+          axisOffset += panelSize;
 
           if (i < n - 1) {
+            final dragSizeRender = _kSplitBarDraggableSize.w;
+            final draggerCenter = axisOffset + dragSizeRender / 2;
             children.add(_buildDragger(theme, i, isHorizontal));
+            collapseHitBoxes.addAll(
+              _buildCollapseHitBoxes(
+                theme,
+                i,
+                isHorizontal,
+                draggerCenter: draggerCenter,
+                crossCenter: totalRender / 2,
+                containerLength: totalRender,
+              ),
+            );
+            axisOffset += dragSizeRender;
           }
         }
 
-        return isHorizontal
+        final layout = isHorizontal
             ? Row(children: children)
             : Column(children: children);
+
+        if (collapseHitBoxes.isEmpty) return layout;
+
+        // 外层 Stack 尺寸 = 整个 Splitter 区域，命中框 Positioned 在此层，
+        // 分割条外（面板边缘 ±22px）的点击可达。
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(child: layout),
+            ...collapseHitBoxes,
+          ],
+        );
       },
     );
   }
@@ -514,14 +568,6 @@ class _AntSplitterState extends State<AntSplitter> {
     final barSize = _kSplitBarSize.w;
     final dragSize = _kSplitBarDraggableSize.w;
 
-    // 折叠按钮
-    final leftBtn = leftPanel.collapsible
-        ? _buildCollapseButton(theme, draggerIndex, isHorizontal, isStart: true)
-        : null;
-    final rightBtn = rightPanel.collapsible
-        ? _buildCollapseButton(theme, draggerIndex + 1, isHorizontal, isStart: false)
-        : null;
-
     return GestureDetector(
       key: ValueKey('ant_splitter_dragger_$draggerIndex'),
       onPanStart: canResize ? (_) => _handleDragStart(draggerIndex) : null,
@@ -544,9 +590,6 @@ class _AntSplitterState extends State<AntSplitter> {
             alignment: Alignment.center,
             child: Stack(
               alignment: Alignment.center,
-              // 允许折叠按钮溢出分割条绘制：按钮视觉尺寸大于分割条拖拽区
-              // （20px），hardEdge 会把按钮两侧裁掉导致显示不全（R 复验修复）。
-              clipBehavior: Clip.none,
               children: [
                 // 分割线
                 Container(
@@ -554,24 +597,79 @@ class _AntSplitterState extends State<AntSplitter> {
                   height: isHorizontal ? null : barSize,
                   color: theme.colorSplit,
                 ),
-                // 折叠按钮（水平布局上下排列，垂直布局左右排列）
-                if (leftBtn != null)
-                  Positioned(
-                    top: isHorizontal ? 4.w : null,
-                    left: isHorizontal ? null : 4.w,
-                    child: leftBtn,
-                  ),
-                if (rightBtn != null)
-                  Positioned(
-                    bottom: isHorizontal ? 4.w : null,
-                    right: isHorizontal ? null : 4.w,
-                    child: rightBtn,
-                  ),
               ],
             ),
           ),
         ),
     );
+  }
+
+  /// 构建折叠按钮命中框（44x44，位于外层 Stack，覆盖分割条两侧面板边缘）。
+  ///
+  /// 表现形式对齐 antd 官网：两个按钮在分割条中部**平行排列于分割条两侧**
+  /// （水平布局：start 在线左、end 在线右，垂直居中；垂直布局：start 在线上、
+  /// end 在线下，水平居中）。命中框中心对齐分割条并向两侧面板延伸——
+  /// 命中测试依赖父级 RenderBox 尺寸，故必须挂在外层 Stack 而非分割条内部。
+  List<Widget> _buildCollapseHitBoxes(
+    AntThemeData theme,
+    int draggerIndex,
+    bool isHorizontal, {
+    required double draggerCenter,
+    required double crossCenter,
+    required double containerLength,
+  }) {
+    final hit = 44.0.w;
+    final boxes = <Widget>[];
+
+    Widget buildBox(int panelIndex, bool isStart) {
+      final double? left;
+      final double? right;
+      final double? top;
+      final double? bottom;
+      if (isHorizontal) {
+        // start 紧贴分割线左侧，end 紧贴分割线右侧，垂直居中。
+        // 相邻面板折叠为 0 后分割线贴边，位置钳制在容器内保证可点。
+        left = (isStart
+                ? draggerCenter - hit * 1.5
+                : draggerCenter + hit / 2)
+            .clamp(0.0, containerLength - hit);
+        right = null;
+        top = crossCenter - hit / 2;
+        bottom = null;
+      } else {
+        // start 紧贴分割线上方，end 紧贴分割线下方，水平居中。
+        left = crossCenter - hit / 2;
+        right = null;
+        top = (isStart
+                ? draggerCenter - hit * 1.5
+                : draggerCenter + hit / 2)
+            .clamp(0.0, containerLength - hit);
+        bottom = null;
+      }
+      return Positioned(
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: _buildCollapseButton(
+            theme,
+            panelIndex,
+            isHorizontal,
+            isStart: isStart,
+          ),
+        ),
+      );
+    }
+
+    if (widget.children[draggerIndex].collapsible) {
+      boxes.add(buildBox(draggerIndex, true));
+    }
+    if (widget.children[draggerIndex + 1].collapsible) {
+      boxes.add(buildBox(draggerIndex + 1, false));
+    }
+    return boxes;
   }
 
   /// 构建折叠按钮。
