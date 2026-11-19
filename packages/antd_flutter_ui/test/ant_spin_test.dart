@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/feedback/spin/ant_spin.dart';
+import 'package:antd_flutter_ui/src/feedback/spin/ant_spin.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

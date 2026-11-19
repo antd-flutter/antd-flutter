@@ -102,10 +102,28 @@ export 'src/basic/footer/ant_footer.dart';
 export 'src/basic/footer/ant_footer_types.dart';
 
 // ── NoticeBar 通告栏 ────────────────────────────────────────
+export 'src/feedback/alert/ant_alert.dart';
+export 'src/feedback/alert/ant_alert_types.dart';
+export 'src/feedback/error_block/ant_error_block.dart';
+export 'src/feedback/error_block/ant_error_block_types.dart';
+export 'src/feedback/loading/ant_loading.dart';
+export 'src/feedback/loading/ant_loading_types.dart';
+export 'src/feedback/mask/ant_mask.dart';
+export 'src/feedback/mask/ant_mask_types.dart';
 export 'src/feedback/notice_bar/ant_notice_bar.dart';
+export 'src/feedback/notice_bar/ant_notice_bar_types.dart';
+export 'src/feedback/progress/ant_progress.dart';
+export 'src/feedback/progress/ant_progress_types.dart';
+export 'src/feedback/result/ant_result.dart';
+export 'src/feedback/result/ant_result_types.dart';
+export 'src/feedback/result_page/ant_result_page.dart';
+export 'src/feedback/result_page/ant_result_page_types.dart';
+export 'src/feedback/skeleton/ant_skeleton.dart';
+export 'src/feedback/skeleton/ant_skeleton_types.dart';
+export 'src/feedback/spin/ant_spin.dart';
+export 'src/feedback/spin/ant_spin_types.dart';
 export 'src/feedback/watermark/ant_watermark.dart';
 export 'src/feedback/watermark/ant_watermark_types.dart';
-export 'src/feedback/notice_bar/ant_notice_bar_types.dart';
 
 // ── Segmented 分段控制器 ────────────────────────────────────
 export 'src/display/segmented/ant_segmented.dart';

@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/feedback/result_page/ant_result_page.dart';
+import 'package:antd_flutter_ui/src/feedback/result_page/ant_result_page.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

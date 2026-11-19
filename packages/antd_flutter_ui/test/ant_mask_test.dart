@@ -1,7 +1,7 @@
 /// AntMask widget 测试
 library;
 
-import 'package:antd_flutter_plus/src/components/feedback/mask/ant_mask.dart';
+import 'package:antd_flutter_ui/src/feedback/mask/ant_mask.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

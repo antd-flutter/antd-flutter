@@ -248,16 +248,16 @@ export 'package:antd_floating/src/floating_panel/ant_floating_panel_types.dart';
 // ============================================================
 // 反馈 Feedback — 批次A
 // ============================================================
-export 'src/components/feedback/alert/ant_alert.dart';
-export 'src/components/feedback/alert/ant_alert_types.dart';
-export 'src/components/feedback/progress/ant_progress.dart';
-export 'src/components/feedback/progress/ant_progress_types.dart';
-export 'src/components/feedback/skeleton/ant_skeleton.dart';
-export 'src/components/feedback/skeleton/ant_skeleton_types.dart';
-export 'src/components/feedback/spin/ant_spin.dart';
-export 'src/components/feedback/spin/ant_spin_types.dart';
-export 'src/components/feedback/result/ant_result.dart';
-export 'src/components/feedback/result/ant_result_types.dart';
+export 'package:antd_flutter_ui/src/feedback/alert/ant_alert.dart';
+export 'package:antd_flutter_ui/src/feedback/alert/ant_alert_types.dart';
+export 'package:antd_flutter_ui/src/feedback/progress/ant_progress.dart';
+export 'package:antd_flutter_ui/src/feedback/progress/ant_progress_types.dart';
+export 'package:antd_flutter_ui/src/feedback/skeleton/ant_skeleton.dart';
+export 'package:antd_flutter_ui/src/feedback/skeleton/ant_skeleton_types.dart';
+export 'package:antd_flutter_ui/src/feedback/spin/ant_spin.dart';
+export 'package:antd_flutter_ui/src/feedback/spin/ant_spin_types.dart';
+export 'package:antd_flutter_ui/src/feedback/result/ant_result.dart';
+export 'package:antd_flutter_ui/src/feedback/result/ant_result_types.dart';
 export 'src/components/feedback/drawer/ant_drawer.dart';
 export 'src/components/feedback/drawer/ant_drawer_types.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_popconfirm.dart';
@@ -276,8 +276,8 @@ export 'package:antd_flutter_ui/src/feedback/watermark/ant_watermark_types.dart'
 // ============================================================
 export 'src/components/feedback/toast/ant_toast.dart';
 export 'src/components/feedback/toast/ant_toast_types.dart';
-export 'src/components/feedback/mask/ant_mask.dart';
-export 'src/components/feedback/mask/ant_mask_types.dart';
+export 'package:antd_flutter_ui/src/feedback/mask/ant_mask.dart';
+export 'package:antd_flutter_ui/src/feedback/mask/ant_mask_types.dart';
 export 'src/components/feedback/dialog/ant_dialog.dart';
 export 'src/components/feedback/dialog/ant_dialog_types.dart';
 export 'src/components/feedback/popup/ant_popup.dart';
@@ -294,10 +294,10 @@ export 'src/components/feedback/action_sheet/ant_action_sheet_types.dart';
 // SwipeAction 滑动操作已迁移至 antd_swipe_action（P08），此处 re-export 保持符号兼容
 export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action.dart';
 export 'package:antd_swipe_action/src/swipe_action/ant_swipe_action_types.dart';
-export 'src/components/feedback/loading/ant_loading.dart';
-export 'src/components/feedback/loading/ant_loading_types.dart';
-export 'src/components/feedback/error_block/ant_error_block.dart';
-export 'src/components/feedback/result_page/ant_result_page.dart';
+export 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
+export 'package:antd_flutter_ui/src/feedback/loading/ant_loading_types.dart';
+export 'package:antd_flutter_ui/src/feedback/error_block/ant_error_block.dart';
+export 'package:antd_flutter_ui/src/feedback/result_page/ant_result_page.dart';
 
 // ============================================================
 // 其他 Misc — App / ConfigProvider（Phase 8 最后一批）
