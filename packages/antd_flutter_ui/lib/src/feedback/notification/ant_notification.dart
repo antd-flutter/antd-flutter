@@ -279,11 +279,14 @@ class _NotificationStack extends StatelessWidget {
           ],
         );
 
+        final deviceSafe = antDeviceSafePadding();
+
         return Positioned(
-          left: isRight ? null : margin,
-          right: isRight ? margin : null,
-          top: isTop ? margin + antDeviceSafePadding().top : null,
-          bottom: isTop ? null : margin + antDeviceSafePadding().bottom,
+          // 水平方向也避开安全区（横屏刘海侧/圆角屏）
+          left: isRight ? null : margin + deviceSafe.left,
+          right: isRight ? margin + deviceSafe.right : null,
+          top: isTop ? margin + deviceSafe.top : null,
+          bottom: isTop ? null : margin + deviceSafe.bottom,
           child: Material(
             color: Colors.transparent,
             child: stack,
