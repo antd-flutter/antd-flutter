@@ -245,13 +245,15 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
     // 底部安全区留白与面板同色填充（SafeArea 透明留白在深色页面下有割裂感）
     final bottomInset =
         sheet.safeArea ? MediaQuery.paddingOf(context).bottom : 0.0;
+    final radius =
+        BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG));
     return Container(
-      color: theme.colorBgContainer,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(borderRadius: radius),
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Material(
         color: theme.colorBgContainer,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(theme.borderRadiusLG)),
+        borderRadius: radius,
         elevation: 8,
         shadowColor: theme.colorShadow,
         child: Column(
