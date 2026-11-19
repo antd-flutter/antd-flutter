@@ -16,6 +16,22 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
+  // 批次 0-3 录入简单族（15 组件）
+  'checkbox',
+  'radio',
+  'rate',
+  'slider',
+  'switch',
+  'stepper',
+  'input',
+  'input_number',
+  'search_bar',
+  'check_list',
+  'selector',
+  'number_keyboard',
+  'passcode_input',
+  'virtual_input',
+  'image_uploader',
 ];
 const kMigratedVerified = <String>[
   'alert',

@@ -159,3 +159,35 @@ export 'src/display/picker_view/ant_picker_view.dart';
 
 // ── Picker 选择器族（已迁独立包 antd_picker：Picker/DatePicker/TimePicker/Cascader）
 //    AntPickerView（通用滚轮视图）留 ui，见下。
+
+// ── 数据录入·简单族（批次 0-3，自主包 antd_flutter_plus 迁入）──
+export 'src/data_entry/checkbox/ant_checkbox.dart';
+export 'src/data_entry/checkbox/ant_checkbox_types.dart';
+export 'src/data_entry/radio/ant_radio.dart';
+export 'src/data_entry/radio/ant_radio_types.dart';
+export 'src/data_entry/rate/ant_rate.dart';
+export 'src/data_entry/rate/ant_rate_types.dart';
+export 'src/data_entry/slider/ant_slider.dart';
+export 'src/data_entry/slider/ant_slider_types.dart';
+export 'src/data_entry/switch/ant_switch.dart';
+export 'src/data_entry/switch/ant_switch_types.dart';
+export 'src/data_entry/stepper/ant_stepper.dart';
+export 'src/data_entry/stepper/ant_stepper_types.dart';
+export 'src/data_entry/input/ant_input.dart';
+export 'src/data_entry/input/ant_input_types.dart';
+export 'src/data_entry/input_number/ant_input_number.dart';
+export 'src/data_entry/input_number/ant_input_number_types.dart';
+export 'src/data_entry/search_bar/ant_search_bar.dart';
+export 'src/data_entry/search_bar/ant_search_bar_types.dart';
+export 'src/data_entry/check_list/ant_check_list.dart';
+export 'src/data_entry/check_list/ant_check_list_types.dart';
+export 'src/data_entry/selector/ant_selector.dart';
+export 'src/data_entry/selector/ant_selector_types.dart';
+export 'src/data_entry/number_keyboard/ant_number_keyboard.dart';
+export 'src/data_entry/number_keyboard/ant_number_keyboard_types.dart';
+export 'src/data_entry/passcode_input/ant_passcode_input.dart';
+export 'src/data_entry/passcode_input/ant_passcode_input_types.dart';
+export 'src/data_entry/virtual_input/ant_virtual_input.dart';
+export 'src/data_entry/virtual_input/ant_virtual_input_types.dart';
+export 'src/data_entry/image_uploader/ant_image_uploader.dart';
+export 'src/data_entry/image_uploader/ant_image_uploader_types.dart';
