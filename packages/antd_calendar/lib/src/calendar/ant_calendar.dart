@@ -22,12 +22,14 @@
 /// ```
 library;
 
+import 'package:antd_calendar/src/calendar/ant_calendar_controller.dart';
 import 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
 import 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
+export 'package:antd_calendar/src/calendar/ant_calendar_controller.dart';
 export 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
 export 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
 
@@ -67,6 +69,7 @@ class AntCalendar extends StatefulWidget {
     this.eventLoader,
     this.enableYearMonthDropdown = true,
     this.locale,
+    this.controller,
   });
 
   /// 受控选中日期（单选模式）。
@@ -136,11 +139,17 @@ class AntCalendar extends StatefulWidget {
   /// 国际化文案；null 时经 [AntCalendarLocaleProvider] 注入读取，仍未注入回退中文预设。
   final AntCalendarLocale? locale;
 
+  /// 程序化控制器（R35.2 Controller 优先）：经 [AntCalendarController
+  /// .previousMonth]/[AntCalendarController.nextMonth]/
+  /// [AntCalendarController.goToYearMonth] 程序化翻页与跳转。
+  final AntCalendarController? controller;
+
   @override
   State<AntCalendar> createState() => _AntCalendarState();
 }
 
-class _AntCalendarState extends State<AntCalendar> {
+class _AntCalendarState extends State<AntCalendar>
+    implements AntCalendarMonthNavigator {
   DateTime? _internalValue;
   DateTime? _internalRangeStart;
   DateTime? _internalRangeEnd;
@@ -185,6 +194,7 @@ class _AntCalendarState extends State<AntCalendar> {
   @override
   void initState() {
     super.initState();
+    widget.controller?.attach(this);
     final initial = widget.value ??
         (widget.defaultValue) ??
         (widget.defaultSelectedDays.isNotEmpty
@@ -202,6 +212,10 @@ class _AntCalendarState extends State<AntCalendar> {
   @override
   void didUpdateWidget(covariant AntCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller?.detach(this);
+      widget.controller?.attach(this);
+    }
     if (widget.value != null && widget.value != oldWidget.value) {
       final v = widget.value!;
       _focusedDate = _dateOnly(v);
@@ -361,6 +375,20 @@ class _AntCalendarState extends State<AntCalendar> {
       _currentMonth = DateTime(year, month);
       _focusedDate = DateTime(year, month, 1);
     });
+  }
+
+  // AntCalendarMonthNavigator（AntCalendarController 程序化入口）。
+
+  @override
+  void navigateMonths(int delta) => _goToMonth(delta);
+
+  @override
+  void navigateToYearMonth(int year, int month) => _jumpToYearMonth(year, month);
+
+  @override
+  void dispose() {
+    widget.controller?.detach(this);
+    super.dispose();
   }
 
   /// 头部年月快速跳转面板（antd v6 行为，复用 AntPickerView 滚轮）。
