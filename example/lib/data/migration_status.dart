@@ -16,7 +16,6 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
-  'floating_bubble',
   'alert',
   'error_block',
   'loading',
@@ -38,6 +37,7 @@ const kMigratedVerified = <String>[
   'tooltip',
   'tour',
   'floating_panel',
+  'floating_bubble',
   'infinite_scroll',
   'pull_to_refresh',
   'qr_code',
