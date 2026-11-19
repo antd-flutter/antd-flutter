@@ -16,12 +16,14 @@ class _TourPageState extends State<TourPage> {
   final GlobalKey _target5 = GlobalKey();
   final GlobalKey _target6 = GlobalKey();
   final GlobalKey _target7 = GlobalKey();
+  final GlobalKey _target8 = GlobalKey();
 
   bool _basicOpen = false;
   bool _placementOpen = false;
   bool _noMaskOpen = false;
   bool _noArrowOpen = false;
   bool _controlledOpen = false;
+  bool _skipConfirmOpen = false;
   int _controlledCurrent = 0;
 
   @override
@@ -262,10 +264,49 @@ class _TourPageState extends State<TourPage> {
           _Section(
             title: '跳过按钮',
             theme: theme,
-            child: Text(
-              '引导卡片底部始终提供「跳过」按钮，点击触发 onClose 回调关闭引导；'
-              '设置 maskClosable: true 时点击遮罩也可关闭。',
-              style: titleStyle,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '引导卡片底部始终提供「跳过」按钮，点击触发 onClose 回调关闭引导；'
+                  '设置 maskClosable: true 时点击遮罩也可关闭。',
+                  style: titleStyle,
+                ),
+                SizedBox(height: 12.w),
+                Row(
+                  children: [
+                    Container(
+                      key: _target8,
+                      padding: EdgeInsets.all(12.w),
+                      color: theme.colorErrorBg,
+                      child: Text('跳过确认', style: titleStyle),
+                    ),
+                    SizedBox(width: 12.w),
+                    AntButton(
+                      onTap: () => setState(() => _skipConfirmOpen = true),
+                      child: const Text('跳过需确认的引导'),
+                    ),
+                    AntTour(
+                      open: _skipConfirmOpen,
+                      skipConfirm: true,
+                      stepTransitionDuration: const Duration(milliseconds: 400),
+                      steps: [
+                        AntTourStep(
+                          target: _target8,
+                          title: '跳过确认',
+                          description: '点击「跳过」会先弹出确认弹窗；步骤切换带过渡动画',
+                        ),
+                        AntTourStep(
+                          title: '最后一步',
+                          description: '点击「完成」直接结束，不弹确认框',
+                        ),
+                      ],
+                      onClose: () => setState(() => _skipConfirmOpen = false),
+                      onFinish: () => setState(() => _skipConfirmOpen = false),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

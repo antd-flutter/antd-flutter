@@ -69,6 +69,10 @@ export 'src/display/empty/ant_empty_types.dart';
 export 'src/display/page_indicator/ant_page_indicator.dart';
 export 'src/display/page_indicator/ant_page_indicator_types.dart';
 
+// ── Tour 漫游式引导 ────────────────────────────────────────
+export 'src/display/tour/ant_tour.dart';
+export 'src/display/tour/ant_tour_types.dart';
+
 // ── Avatar 头像 ────────────────────────────────────────────
 export 'src/display/avatar/ant_avatar.dart';
 export 'src/display/avatar/ant_avatar_types.dart';

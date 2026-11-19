@@ -71,6 +71,7 @@ const List<NavGroup> navGroups = [
     NavItem('Splitter 分割容器', 'splitter'),
     NavItem('Segmented 分段控制器', 'segmented'),
     NavItem('Statistic 统计数值', 'statistic'),
+    NavItem('Tour 引导弹览', 'tour'),
     NavItem('QRCode 二维码', 'qr_code'),
     NavItem('Watermark 水印', 'watermark'),
     NavItem('CalendarPicker 日历选择器', 'calendar_picker'),

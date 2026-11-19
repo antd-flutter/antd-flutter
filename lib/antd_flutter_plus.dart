@@ -196,8 +196,6 @@ export 'src/components/data_display/table/ant_table.dart';
 export 'src/components/data_display/table/ant_table_types.dart';
 export 'src/components/data_display/tree/ant_tree.dart';
 export 'src/components/data_display/tree/ant_tree_types.dart';
-export 'src/components/data_display/tour/ant_tour.dart';
-export 'src/components/data_display/tour/ant_tour_types.dart';
 export 'src/components/data_display/carousel/ant_carousel.dart';
 export 'src/components/data_display/carousel/ant_carousel_types.dart';
 export 'src/components/data_display/descriptions/ant_descriptions.dart';
@@ -221,6 +219,9 @@ export 'package:antd_flutter_ui/src/basic/footer/ant_footer_types.dart';
 // PageIndicator 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
 export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator.dart';
 export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator_types.dart';
+// Tour 已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
+export 'package:antd_flutter_ui/src/display/tour/ant_tour.dart';
+export 'package:antd_flutter_ui/src/display/tour/ant_tour_types.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
 // InfiniteScroll / PullToRefresh 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
