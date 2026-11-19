@@ -39,6 +39,7 @@ class _AntdSplitterGalleryAppState extends State<AntdSplitterGalleryApp> {
     _Section('双向嵌套', _nestedSection),
     _Section('拖拽限制（min / max / resizable）', _constraintSection),
     _Section('折叠面板', _collapseSection),
+    _Section('三条分割线 + 全部可折叠（4 面板）', _threeBarsCollapseSection),
     _Section('受控模式', _controlledSectionBuilder),
     _Section('懒拖拽 + 回调', _lazySectionBuilder),
     _Section('双击重置', _doubleTapSection),
@@ -168,6 +169,22 @@ Widget _nestedSection(BuildContext context) {
             ],
           ),
         ),
+      ],
+    ),
+  );
+}
+
+/// 三条分割线 + 4 面板全部可折叠：验证多分割条下按钮定位与折叠恢复。
+Widget _threeBarsCollapseSection(BuildContext context) {
+  return SizedBox(
+    height: 220,
+    child: AntSplitter(
+      onCollapse: (collapsed, sizes) {},
+      children: [
+        AntSplitterPanel(defaultSize: 150, collapsible: true, child: _panelContent('面板 1', Colors.blue)),
+        AntSplitterPanel(defaultSize: 150, collapsible: true, child: _panelContent('面板 2', Colors.green)),
+        AntSplitterPanel(defaultSize: 150, collapsible: true, child: _panelContent('面板 3', Colors.teal)),
+        AntSplitterPanel(collapsible: true, child: _panelContent('面板 4', Colors.deepOrange)),
       ],
     ),
   );

@@ -502,8 +502,28 @@ class _AntSplitterState extends State<AntSplitter> {
         final collapseHitBoxes = <Widget>[];
         var axisOffset = 0.0;
 
+        // 渲染域安全归一化：折叠/展开/拖拽多次操作后逻辑尺寸总和可能
+        // 超出可用预算（浮点或状态迁移），溢出部分按比例收缩面板，
+        // 保证 Row/Column 永不溢出。
+        final dragTotalRender = _kSplitBarDraggableSize.w * (n - 1);
+        final renderBudget =
+            (totalRender - dragTotalRender).clamp(0.0, double.infinity);
+        final renderSizes = [
+          for (var i = 0; i < n; i++)
+            (sizes[i] * _scale).clamp(0, totalRender).toDouble(),
+        ];
+        final renderedSum = renderSizes.fold(0.0, (a, b) => a + b);
+        if (renderedSum > renderBudget && renderedSum > 0) {
+          final f = renderBudget / renderedSum;
+          for (var i = 0; i < n; i++) {
+            renderSizes[i] *= f;
+            // 同步修正逻辑尺寸，拖拽/折叠的后续计算不再基于膨胀值。
+            sizes[i] *= f;
+          }
+        }
+
         for (var i = 0; i < n; i++) {
-          final panelSize = (sizes[i] * _scale).clamp(0, totalRender).toDouble();
+          final panelSize = renderSizes[i];
           children.add(
             isHorizontal
                 ? SizedBox(
