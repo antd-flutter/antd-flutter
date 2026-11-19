@@ -395,6 +395,8 @@ class _ModalOverlayState extends State<_ModalOverlay> {
 
     // 弹层基座：遮罩淡入淡出 + 缩放淡入动画 + 退出动画后移除浮层
     return AntOverlayShell(
+      // R37 热键基座：打开状态下按 Esc 关闭（触发动作同遮罩点击）
+      escToClose: true,
       open: _open,
       alignment: config.centered ? Alignment.center : Alignment.topCenter,
       padding: config.centered ? EdgeInsets.zero : EdgeInsets.only(top: 100.w),

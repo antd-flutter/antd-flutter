@@ -216,6 +216,8 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
   Widget build(BuildContext context) {
     // 弹层基座：遮罩淡入淡出 + 底部滑入动画 + 退出动画后移除浮层
     return AntOverlayShell(
+      // R37 热键基座：打开状态下按 Esc 关闭（触发动作同遮罩点击）
+      escToClose: true,
       open: _open,
       alignment: Alignment.bottomCenter,
       slideBegin: const Offset(0, 1),

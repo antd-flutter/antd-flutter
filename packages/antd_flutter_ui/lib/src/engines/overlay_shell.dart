@@ -15,7 +15,11 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:material_ui/material_ui.dart';
+
+import 'hotkeys/hotkey_binding.dart';
+import 'hotkeys/hotkey_registry.dart';
 
 /// 移动端特有弹层组件的桌面端默认宽度上限（逻辑像素）。
 ///
@@ -73,6 +77,7 @@ class AntOverlayShell extends StatefulWidget {
     this.scaleFrom = 0.92,
     this.maskKey,
     this.panelKey,
+    this.escToClose = false,
   });
 
   /// 受控显示状态（false 时播放退出动画，结束后回调 [onExited]）。
@@ -127,6 +132,12 @@ class AntOverlayShell extends StatefulWidget {
   /// 面板定位 Key（供组件测试）。
   final Key? panelKey;
 
+  /// R37 打开状态下按 Esc 关闭（默认关闭——Toast/Message/Notification
+  /// 等轻提示族复用本基座但不应响应 Esc；模态族 Dialog/Modal/Drawer/
+  /// Popup/ActionSheet 打开时传入 true）。触发动作同遮罩点击
+  /// （[onMaskTap]，组件侧的关闭/取消语义）；未传 onMaskTap 时不注册。
+  final bool escToClose;
+
   @override
   State<AntOverlayShell> createState() => _AntOverlayShellState();
 }
@@ -142,15 +153,24 @@ class _AntOverlayShellState extends State<AntOverlayShell>
   late final CurvedAnimation _curve =
       CurvedAnimation(parent: _controller, curve: widget.curve);
 
+  /// R37 Esc 关闭绑定（escToClose && onMaskTap != null && open 时注册）。
+  AntHotkeyBinding? _escBinding;
+
   @override
   void initState() {
     super.initState();
     if (widget.open) _controller.forward();
+    _syncEscBinding();
   }
 
   @override
   void didUpdateWidget(covariant AntOverlayShell oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.escToClose != oldWidget.escToClose ||
+        widget.open != oldWidget.open ||
+        widget.onMaskTap != oldWidget.onMaskTap) {
+      _syncEscBinding();
+    }
     if (widget.open == oldWidget.open) return;
     if (widget.open) {
       _controller.forward();
@@ -161,8 +181,30 @@ class _AntOverlayShellState extends State<AntOverlayShell>
     }
   }
 
+  /// 弹层打开期注册 Esc 关闭（R37 热键基座统一接线，见 [AntOverlayShell.escToClose]）；
+  /// 关闭中/禁用时注销。触发动作同遮罩点击，组件侧自守卫重复关闭。
+  void _syncEscBinding() {
+    final registry = HotkeyRegistry.instance;
+    final old = _escBinding;
+    if (old != null) registry.unregister(old);
+    _escBinding = null;
+    final onTap = widget.onMaskTap;
+    if (!widget.escToClose || !widget.open || onTap == null) return;
+    _escBinding = AntHotkeyBinding(
+      keys: {LogicalKeyboardKey.escape},
+      // 控制键：面板内输入框聚焦时仍可触发（焦点语义默认只跳过字符类热键）。
+      ignoreWithinEditable: false,
+      transient: true,
+      debugLabel: 'AntOverlayShell.escClose',
+      onTrigger: onTap,
+    );
+    registry.register(_escBinding!);
+  }
+
   @override
   void dispose() {
+    final esc = _escBinding;
+    if (esc != null) HotkeyRegistry.instance.unregister(esc);
     _controller.dispose();
     super.dispose();
   }

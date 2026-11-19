@@ -11,9 +11,13 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart'
+    show LogicalKeyboardKey;
 import 'package:material_ui/material_ui.dart';
 
 import 'overlay_shell.dart' show antDeviceSafePadding;
+import 'hotkeys/hotkey_binding.dart';
+import 'hotkeys/hotkey_registry.dart';
 import 'popup_engine.dart';
 
 /// 统一弹层基座。
@@ -47,6 +51,8 @@ class AntPopupOverlay extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 150),
     this.onBubbleHoverEnter,
     this.onBubbleHoverExit,
+    this.escToClose = true,
+    this.hotkeys = const <AntHotkeyBinding>[],
   });
 
   /// 触发元素的 GlobalKey（用于取全局矩形）。
@@ -91,6 +97,15 @@ class AntPopupOverlay extends StatefulWidget {
   /// 鼠标离开气泡回调（联合 hover 判定：与触发元素退出共同决定关闭）。
   final VoidCallback? onBubbleHoverExit;
 
+  /// R37 打开状态下按 Esc 关闭（默认开启；弹层统一热键语义的基座接线，
+  /// 所有经本基座的弹层——Tooltip/Popover/Popconfirm/Dropdown/Select/
+  /// TreeSelect/Cascader/DatePicker/TimePicker 等——自动获得）。
+  final bool escToClose;
+
+  /// R37 弹层打开期间生效的自定义热键绑定（可选透传，挂载期注册、
+  /// 卸载即注销；临时绑定，参与 LIFO 分发）。
+  final List<AntHotkeyBinding> hotkeys;
+
   @override
   State<AntPopupOverlay> createState() => _AntPopupOverlayState();
 }
@@ -113,8 +128,61 @@ class _AntPopupOverlayState extends State<AntPopupOverlay>
   final GlobalKey _bubbleKey = GlobalKey();
   Size? _bubbleSize;
 
+  /// 弹层期热键绑定：Esc 关闭（基座默认绑定）+ 调用方自定义绑定。
+  AntHotkeyBinding? _escBinding;
+  List<AntHotkeyBinding> _customBindings = const <AntHotkeyBinding>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _syncHotkeys();
+  }
+
+  @override
+  void didUpdateWidget(AntPopupOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.escToClose != widget.escToClose ||
+        oldWidget.onDismiss != widget.onDismiss ||
+        !identical(oldWidget.hotkeys, widget.hotkeys)) {
+      _syncHotkeys();
+    }
+  }
+
+  void _syncHotkeys() {
+    final registry = HotkeyRegistry.instance;
+    final esc = _escBinding;
+    if (esc != null) registry.unregister(esc);
+    _escBinding = null;
+    for (final binding in _customBindings) {
+      registry.unregister(binding);
+    }
+    _customBindings = const <AntHotkeyBinding>[];
+    final onDismiss = widget.onDismiss;
+    if (widget.escToClose && onDismiss != null) {
+      _escBinding = AntHotkeyBinding(
+        keys: {LogicalKeyboardKey.escape},
+        // 控制键：气泡内输入框聚焦时仍触发（焦点语义默认只跳过字符类热键）。
+        ignoreWithinEditable: false,
+        transient: true,
+        debugLabel: 'AntPopupOverlay.escClose',
+        onTrigger: onDismiss,
+      );
+      registry.register(_escBinding!);
+    }
+    _customBindings = List.of(widget.hotkeys);
+    for (final binding in _customBindings) {
+      registry.register(binding);
+    }
+  }
+
   @override
   void dispose() {
+    final registry = HotkeyRegistry.instance;
+    final esc = _escBinding;
+    if (esc != null) registry.unregister(esc);
+    for (final binding in _customBindings) {
+      registry.unregister(binding);
+    }
     _controller.dispose();
     super.dispose();
   }
