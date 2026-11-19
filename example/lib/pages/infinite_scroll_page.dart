@@ -14,6 +14,12 @@ class InfiniteScrollPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(
+            title: '程序化加载（Controller）',
+            theme: theme,
+            child: const _ControllerDemo(),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
             title: '基础用法（模拟分页加载）',
             theme: theme,
             child: _BasicDemo(),
@@ -94,6 +100,83 @@ List<String> _mockPage(int page) =>
     List.generate(5, (i) => '第 ${page + 1} 页 - 第 ${i + 1} 条');
 
 /// 基础用法：模拟分页加载 3 页。
+/// 程序化加载演示：AntInfiniteScrollController.callLoadMore / reset。
+class _ControllerDemo extends StatefulWidget {
+  const _ControllerDemo();
+
+  @override
+  State<_ControllerDemo> createState() => _ControllerDemoState();
+}
+
+class _ControllerDemoState extends State<_ControllerDemo> {
+  final AntInfiniteScrollController _controller =
+      AntInfiniteScrollController();
+  final List<String> _items = _mockPage(0);
+  int _page = 1;
+
+  Future<bool> _loadMore() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    _items.addAll(_mockPage(_page));
+    _page++;
+    setState(() {});
+    return _page < 3;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: _controller.callLoadMore,
+              child: const Text('callLoadMore()'),
+            ),
+            SizedBox(width: 12.w),
+            ElevatedButton(
+              onPressed: () {
+                _items.clear();
+                _items.addAll(_mockPage(0));
+                _page = 1;
+                setState(() {});
+                _controller.reset();
+              },
+              child: const Text('reset()'),
+            ),
+          ],
+        ),
+        SizedBox(height: 12.w),
+        AntInfiniteScroll(
+          controller: _controller,
+          loadMore: _loadMore,
+          child: SizedBox(
+            height: 300.w,
+            child: SingleChildScrollView(
+              child: Column(
+                children: _items
+                    .map((item) => Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          margin: EdgeInsets.only(bottom: 8.w),
+                          decoration: BoxDecoration(
+                            color: AntTheme.of(context).colorFillQuaternary,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: AntText(
+                            text: item,
+                            style: TextStyle(fontSize: 14.sp),
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BasicDemo extends StatefulWidget {
   const _BasicDemo();
 
@@ -101,8 +184,7 @@ class _BasicDemo extends StatefulWidget {
   State<_BasicDemo> createState() => _BasicDemoState();
 }
 
-class _BasicDemoState extends State<_BasicDemo> {
-  final List<String> _items = _mockPage(0);
+class _BasicDemoState extends State<_BasicDemo> {  final List<String> _items = _mockPage(0);
   int _page = 1;
 
   Future<bool> _loadMore() async {

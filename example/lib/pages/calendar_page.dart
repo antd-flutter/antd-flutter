@@ -30,6 +30,8 @@ class CalendarPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.w),
+          const _ControllerSection(),
+          SizedBox(height: 16.w),
           const _ControlledSection(),
           SizedBox(height: 16.w),
           _Section(
@@ -114,6 +116,54 @@ class CalendarPage extends StatelessWidget {
 }
 
 /// 受控选中演示。
+/// 程序化月份导航演示：AntCalendarController（R35.2 Controller 优先）。
+class _ControllerSection extends StatefulWidget {
+  const _ControllerSection();
+
+  @override
+  State<_ControllerSection> createState() => _ControllerSectionState();
+}
+
+class _ControllerSectionState extends State<_ControllerSection> {
+  final AntCalendarController _controller = AntCalendarController();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return _Section(
+      title: '程序化翻页（Controller）',
+      theme: theme,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _controller.previousMonth,
+                child: const Text('上一月'),
+              ),
+              SizedBox(width: 12.w),
+              ElevatedButton(
+                onPressed: _controller.nextMonth,
+                child: const Text('下一月'),
+              ),
+              SizedBox(width: 12.w),
+              ElevatedButton(
+                onPressed: () => _controller.goToYearMonth(2027, 1),
+                child: const Text('跳转 2027-01'),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.w),
+          AntCalendar(
+            controller: _controller,
+            defaultValue: DateTime.now(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ControlledSection extends StatefulWidget {
   const _ControlledSection();
 

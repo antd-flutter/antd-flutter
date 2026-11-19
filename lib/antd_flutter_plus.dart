@@ -223,6 +223,7 @@ export 'package:antd_flutter_ui/src/display/page_indicator/ant_page_indicator_ty
 export 'src/components/data_display/floating_bubble/ant_floating_bubble.dart';
 export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.dart';
 // InfiniteScroll / PullToRefresh 已迁移至 antd_refresh（P08），此处 re-export 保持符号兼容
+export 'package:antd_refresh/src/ant_refresh_controller.dart';
 export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll.dart';
 export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll_types.dart';
 export 'src/components/data_display/image_viewer/ant_image_viewer.dart';
