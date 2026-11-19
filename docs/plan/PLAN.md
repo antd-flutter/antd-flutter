@@ -154,6 +154,9 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 
 > **组件去向规则（严格遵守）**：最终归属 ui 的组件先迁入 ui；最终去向为独立包的组件不经过 ui 中转，轮到时直接从主包拆独立包。**批次 0（ui 基础组件迁移）全部完成并验收后，才开始批次 1 起的独立包拆分。**
 
+> **验收流程调整（用户指定）**：子任务完成后**不再逐批等待用户验收**，lead 按队列自动继续推进；**所有验收集中放在发布 1.0.0 前**统一进行（验收状态表照常维护 ⏱ 标记，批次 0 的「验收后才开始」语义调整为「迁移完成后」）
+> **Calendar 全量功能完善（用户指定，提前执行）**：桌面端对齐 antd v6 Calendar 全量功能 + 移动端对齐 antd-mobile Calendar 全量功能——**功能完整实现**，样式不强制完全遵循 antd 对应样式（按我们的 token 体系呈现）；提前至批次 0 收尾后立即执行
+
 ### 批次 0：plus 剩余基础组件迁入 ui（用户指示先行，约 55+ 组件，8 小批串行）
 > 主包 lib/src/components/ 尚有 feedback 17 / data_entry 24 / data_display 6 / navigation 12 / misc+general 5 未迁，全部 ui 归属。每小批：git mv → barrel/re-export → 三件套（nav ⏱ + demo 接线）→ analyze/test/build 全绿再下一批：
 > - 0-1 反馈非弹层族：alert / error_block / loading / mask / progress / result / result_page / skeleton / spin
