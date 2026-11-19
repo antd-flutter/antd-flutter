@@ -182,8 +182,40 @@ void main() {
           child: const Text('固钉按钮'),
         ),
       ),),);
+      await _scrollTo(tester, 300);
       await tester.tap(find.text('固钉按钮'));
       expect(tapped, isTrue);
+    });
+
+    testWidgets('钉住后 child 挂根 Overlay，脱离滚动容器不被裁剪/遮挡（回归）', (tester) async {
+      await tester.pumpWidget(_wrap(_scrollPage(offsetTop: 100)));
+      await _scrollTo(tester, 300);
+      // 钉住的固钉位于 Overlay 顶层
+      final overlay = find.ancestor(
+        of: find.byKey(kAntAffixChildKey),
+        matching: find.byType(Overlay),
+      );
+      expect(overlay, findsOneWidget);
+      // 且不在滚动视口（SingleChildScrollView）内部 → 不被滚动裁剪
+      final insideScroll = find.ancestor(
+        of: find.byKey(kAntAffixChildKey),
+        matching: find.byType(SingleChildScrollView),
+      );
+      expect(insideScroll, findsNothing);
+      // 固定在 offsetTop 处，视口内可见
+      final rect = tester.getRect(find.byKey(kAntAffixChildKey));
+      expect(rect.top, closeTo(100, 1.0));
+      expect(rect.bottom, greaterThan(100));
+    });
+
+    testWidgets('钉住时原布局保留等尺寸占位', (tester) async {
+      await tester.pumpWidget(_wrap(_scrollPage(offsetTop: 100)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(kAntAffixPlaceholderKey), findsNothing);
+      await _scrollTo(tester, 300);
+      final placeholder = tester.getRect(find.byKey(kAntAffixPlaceholderKey));
+      expect(placeholder.height, 60);
+      expect(find.byKey(kAntAffixShiftKey), findsOneWidget);
     });
   });
 }

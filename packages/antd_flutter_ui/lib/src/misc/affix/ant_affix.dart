@@ -27,9 +27,10 @@ import 'package:material_ui/material_ui.dart';
 
 /// 固钉 — 将元素钉在可视区域。
 ///
-/// 对齐 antd React Affix 组件（仅视口触发）。
-/// 通过监听最近可滚动祖先的滚动位置，在元素越过阈值时将其固定在视口边缘，
-/// 返回原位后解除；child 始终保留在原布局流中，占位高度不变，下方内容不跳动。
+/// 对齐 antd React Affix 组件（仅视口触发）：监听最近可滚动祖先的滚动位置，
+/// 元素越过阈值时把 child 移入根 [Overlay] 以 `Positioned` 固定在视口边缘
+/// （脱离滚动容器的裁剪与页头遮挡，antd 的 fixed 定位语义），
+/// 原布局处保留等宽高等大占位，下方内容不跳动；滚回原位后解除。
 class AntAffix extends StatefulWidget {
   const AntAffix({
     super.key,
@@ -56,15 +57,22 @@ class AntAffix extends StatefulWidget {
 }
 
 class _AntAffixState extends State<AntAffix> {
-  /// 当前垂直位移（钉住时把 child 平移到阈值处）。
-  double _shift = 0;
-
   bool _affixed = false;
+
+  OverlayEntry? _overlayEntry;
 
   ScrollPosition? _position;
 
-  /// child 原始位置在当前滚动偏移下应处的视口纵坐标（扣除位移）。
+  /// child 原始位置在当前滚动偏移下应处的视口纵坐标。
   double _originalTop = 0;
+
+  /// 原始位置的全局横坐标与尺寸（钉住层按原位对齐）。
+  double _left = 0;
+  double _width = 0;
+  double _height = 0;
+
+  /// 钉住时固定在视口上的纵坐标（offsetTop 或底部阈值换算）。
+  double _pinnedTop = 0;
 
   /// 上次记录的滚动偏移，用于把滚动增量换算到原始位置。
   double _lastPixels = 0;
@@ -87,17 +95,21 @@ class _AntAffixState extends State<AntAffix> {
 
   @override
   void dispose() {
+    _removeOverlay();
     _position?.removeListener(_onScroll);
     super.dispose();
   }
 
-  /// 以当前布局为准重新测量原始位置基准。
+  /// 以当前布局为准重新测量原始位置与尺寸基准。
   void _measure() {
     if (!mounted) return;
     final box = context.findRenderObject();
     if (box is! RenderBox || !box.hasSize) return;
-    final top = box.localToGlobal(Offset.zero).dy;
-    _originalTop = top - _shift;
+    final origin = box.localToGlobal(Offset.zero);
+    _originalTop = origin.dy;
+    _left = origin.dx;
+    _width = box.size.width;
+    _height = box.size.height;
     _lastPixels = _position?.pixels ?? 0;
   }
 
@@ -110,59 +122,84 @@ class _AntAffixState extends State<AntAffix> {
     _apply();
   }
 
-  /// 依据原始位置计算钉住状态与位移。
+  /// 依据原始位置计算钉住状态；钉住时 child 移入 Overlay 固定在视口边缘。
   void _apply() {
     if (!mounted) return;
-    final childHeight = _childHeight;
-    final viewportHeight = MediaQuery.sizeOf(context).height;
 
-    double? newShift;
     final offsetTop = widget.offsetTop;
     final offsetBottom = widget.offsetBottom;
+    final viewportHeight = MediaQuery.sizeOf(context).height;
 
+    double? pinnedTop;
     if (offsetTop != null && _originalTop < offsetTop) {
       // 越过顶部阈值：固定到视口顶部 offsetTop 处
-      newShift = offsetTop - _originalTop;
-    } else if (offsetBottom != null && childHeight != null) {
+      pinnedTop = offsetTop;
+    } else if (offsetBottom != null) {
       final thresholdBottom = viewportHeight - offsetBottom;
-      final originalBottom = _originalTop + childHeight;
+      final originalBottom = _originalTop + _height;
       if (originalBottom > thresholdBottom) {
         // 越过底部阈值：固定到视口底部 offsetBottom 处
-        newShift = thresholdBottom - originalBottom;
+        pinnedTop = thresholdBottom - _height;
       }
     }
 
-    final newAffixed = newShift != null;
-    if (newShift != _shift || newAffixed != _affixed) {
-      setState(() {
-        _shift = newShift ?? 0;
-        if (newAffixed != _affixed) {
-          _affixed = newAffixed;
-          widget.onChange?.call(_affixed);
-        }
-      });
+    final newAffixed = pinnedTop != null;
+    if (newAffixed == _affixed) {
+      if (newAffixed) _pinnedTop = pinnedTop;
+      return;
     }
+    setState(() {
+      _affixed = newAffixed;
+      if (pinnedTop != null) {
+        _pinnedTop = pinnedTop;
+        _insertOverlay();
+      } else {
+        _removeOverlay();
+      }
+      widget.onChange?.call(_affixed);
+    });
   }
 
-  double? get _childHeight {
-    final box = context.findRenderObject();
-    if (box is! RenderBox || !box.hasSize) return null;
-    return box.size.height;
+  /// 把 child 以 Positioned 形式挂到根 Overlay（脱离滚动裁剪与页头遮挡）。
+  void _insertOverlay() {
+    _removeOverlay();
+    _overlayEntry = OverlayEntry(
+      builder: (_) => Positioned(
+        top: _pinnedTop,
+        left: _left,
+        width: _width,
+        child: KeyedSubtree(
+          key: kAntAffixShiftKey,
+          child: KeyedSubtree(
+            key: kAntAffixChildKey,
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   @override
   Widget build(BuildContext context) {
     AntTheme.of(context); // 主题令牌随主题刷新
-    final child = KeyedSubtree(
-      key: kAntAffixChildKey,
-      child: widget.child,
-    );
 
-    if (_shift == 0) return child;
-    return Transform.translate(
-      key: kAntAffixShiftKey,
-      offset: Offset(0, _shift),
-      child: child,
+    if (!_affixed) {
+      return KeyedSubtree(
+        key: kAntAffixChildKey,
+        child: widget.child,
+      );
+    }
+    // 钉住时原位保留等尺寸占位，下方内容不跳动
+    return SizedBox(
+      key: kAntAffixPlaceholderKey,
+      width: _width,
+      height: _height,
     );
   }
 }
