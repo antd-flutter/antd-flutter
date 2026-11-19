@@ -320,11 +320,10 @@ void main() {
         ),
       ),);
       await tester.pumpAndSettle();
-      // 输入框填充透明（不盖掉容器灰底）
+      // 输入框不自行填充（filled:false 基座契约，杜绝主题白底渗入盖掉容器灰底）
       final decoration =
           tester.widget<TextField>(find.byType(TextField)).decoration!;
-      expect(decoration.filled, true);
-      expect(decoration.fillColor, Colors.transparent);
+      expect(decoration.filled, false);
       // 外层容器为禁用灰底 token
       final t = AntThemeData.light();
       final container = tester.widget<Container>(
