@@ -90,7 +90,10 @@ packages/
 - R35.2 **Controller 优先，减少 key/state 引用（用户指定）**：受控模式的操作入口优先使用 **Controller 类**（如 AntTooltipController.show()/hide()），减少 GlobalKey 与外部 state 引用（除非必要）；已实现组件统一排查改造一轮（Tooltip/Popover/Popconfirm/Dropdown 受控模式首批）
 - R35.3 **独立包 example 运行验证（用户指定）**：每个独立包 example 创建后，必须执行一次 `flutter run -d macos` 真机验证（正常启动、页面渲染、交互无报错），验证通过后退出自身启动的进程再收尾；「不要 flutter run」纪律针对的是用户正在跑的会话，独立包 example 的启动验证不受此限（跑完即退，不占用户会话）
 - R35.4 **独立包 example 多平台 UI 适配（用户指定）**：独立包 example 不只是创建目录——demo UI 必须做多平台适配（AntResponsive 断点：desktop 宽屏布局 / phone 窄屏布局自适应、暗色切换、窗口缩放无溢出），验证覆盖 macOS + 移动端形态
-- R37 **全局热键系统（用户指定）**：全部控件迁移完成后，给所有控件统一加上**热键系统**——**关闭操作最常见，优先落地**（弹层类组件 Esc 关闭：Tooltip/Popover/Popconfirm/Dropdown/Dialog/Drawer/Modal/Toast/Message/Notification/ActionSheet/TreeSelect/Cascader/CalendarPicker 等），其余按控件语义补充常用热键；桌面端优先，落地形态为 ui 层统一热键基础设施（KeyboardEvent 监听 + 组件注册），不各组件自写监听
+- R37 **全局热键系统（用户指定，底层基础设施）**：热键系统是**底层能力**——**任何控件都应该可以挂接热键**，让用户可以基于热键操作控件。落地形态：
+  - ui 层提供通用热键基础设施：`AntHotkeys` 包裹 widget / `HotkeyRegistry` 注册中心（KeyboardEvent 监听 + 热键绑定 → 触发控件动作/回调），开发者可对**任意控件**绑定任意快捷键组合
+  - 组件内建默认绑定示例：弹层类 Esc 关闭（Tooltip/Popover/Popconfirm/Dropdown/Dialog/Drawer/Modal/Toast/Message/Notification/ActionSheet/TreeSelect/Cascader/CalendarPicker 等，关闭操作最常见优先）
+  - 其余控件按语义提供可选热键入口；桌面端优先
 
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
