@@ -78,6 +78,18 @@ class TransferPage extends StatelessWidget {
             title: '受控用法',
             child: _ControlledTransfer(),
           ),
+          SizedBox(height: 16.h),
+          _Section(
+            title: '树形穿梭（TreeTransfer）',
+            child: AntTransfer(
+              dataSource: _treeData,
+              titles: ['待选', '已选'],
+              showSearch: true,
+              defaultExpandAll: true,
+              onChange: (keys, direction, moves) =>
+                  debugPrint('tree onChange: $keys, $direction, $moves'),
+            ),
+          ),
         ],
       ),
     );
@@ -99,6 +111,27 @@ const _disabledData = <AntTransferItem>[
   AntTransferItem(key: 'c', title: '选项C'),
   AntTransferItem(key: 'd', title: '选项D（禁用）', disabled: true),
   AntTransferItem(key: 'e', title: '选项E'),
+];
+
+const _treeData = <AntTransferItem>[
+  AntTransferItem(
+    key: 'p1',
+    title: '组件 1',
+    children: [
+      AntTransferItem(key: 'p1-1', title: '按钮', description: '通用'),
+      AntTransferItem(key: 'p1-2', title: '图标', description: '通用'),
+    ],
+  ),
+  AntTransferItem(
+    key: 'p2',
+    title: '组件 2',
+    children: [
+      AntTransferItem(key: 'p2-1', title: '输入框'),
+      AntTransferItem(key: 'p2-2', title: '选择器'),
+      AntTransferItem(key: 'p2-3', title: '穿梭框（禁用）', disabled: true),
+    ],
+  ),
+  AntTransferItem(key: 'l1', title: '布局'),
 ];
 
 class _ControlledTransfer extends StatefulWidget {

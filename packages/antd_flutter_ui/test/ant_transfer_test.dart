@@ -321,4 +321,204 @@ void main() {
       expect(AntTransferDirection.values, contains(AntTransferDirection.left));
     });
   });
+
+  group('AntTransfer 树形模式（TreeTransfer）', () {
+    // 结构：父级1(c1,c2)、父级2(c3,c4,禁用联动)、独立叶子 D
+    const treeData = <AntTransferItem>[
+      AntTransferItem(
+        key: 'p1',
+        title: '父级1',
+        children: [
+          AntTransferItem(key: 'c1', title: '子节点1'),
+          AntTransferItem(key: 'c2', title: '子节点2'),
+        ],
+      ),
+      AntTransferItem(
+        key: 'p2',
+        title: '父级2（禁用）',
+        disabled: true,
+        children: [
+          AntTransferItem(key: 'c3', title: '子节点3'),
+          AntTransferItem(key: 'c4', title: '子节点4'),
+        ],
+      ),
+      AntTransferItem(key: 'd', title: '独立节点'),
+    ];
+
+    /// 取指定标题所在行的 AntCheckbox（取包含该 Checkbox 的最近 Row）
+    AntCheckbox rowCheckbox(WidgetTester tester, String title) {
+      final rowFinder = find.ancestor(
+        of: find.text(title),
+        matching: find.byType(Row),
+      );
+      for (final candidate in rowFinder.evaluate()) {
+        final boxes = find.descendant(
+          of: find.byWidget(candidate.widget),
+          matching: find.byType(AntCheckbox),
+        );
+        if (boxes.evaluate().length == 1) {
+          return tester.widget<AntCheckbox>(boxes.first);
+        }
+      }
+      fail('row checkbox not found for $title');
+    }
+
+    testWidgets('collapsed by default, expand arrow reveals children',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: treeData),
+      ),);
+      expect(find.text('父级1'), findsOneWidget);
+      expect(find.text('子节点1'), findsNothing);
+      // 点击展开箭头展开子树
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.pumpAndSettle();
+      expect(find.text('子节点1'), findsOneWidget);
+      expect(find.text('子节点2'), findsOneWidget);
+    });
+
+    testWidgets('defaultExpandAll renders children on both panels',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
+      ),);
+      expect(find.text('子节点1'), findsOneWidget);
+      expect(find.text('子节点2'), findsOneWidget);
+    });
+
+    testWidgets('checking parent selects all children', (tester) async {
+      List<String>? selected;
+      await tester.pumpWidget(_wrap(
+        AntTransfer(
+          dataSource: treeData,
+          defaultExpandAll: true,
+          onSelectChange: (source, _) => selected = source,
+        ),
+      ),);
+      await tester.tap(find.text('父级1'));
+      await tester.pumpAndSettle();
+      expect(selected, containsAll(['c1', 'c2']));
+      expect(rowCheckbox(tester, '父级1').checked, isTrue);
+    });
+
+    testWidgets('unchecking parent deselects all children', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
+      ),);
+      await tester.tap(find.text('父级1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('父级1'));
+      await tester.pumpAndSettle();
+      // 全选头计数清零（叶子总数 5：c1/c2/c3/c4/d，含禁用子树的叶子）
+      expect(find.text('0/5'), findsOneWidget);
+    });
+
+    testWidgets('selecting all children checks parent', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
+      ),);
+      await tester.tap(find.text('子节点1'));
+      await tester.pumpAndSettle();
+      expect(rowCheckbox(tester, '父级1').checked, isFalse);
+      expect(rowCheckbox(tester, '父级1').indeterminate, isTrue);
+      await tester.tap(find.text('子节点2'));
+      await tester.pumpAndSettle();
+      expect(rowCheckbox(tester, '父级1').checked, isTrue);
+      expect(rowCheckbox(tester, '父级1').indeterminate, isFalse);
+    });
+
+    testWidgets('partial child selection shows parent indeterminate',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
+      ),);
+      await tester.tap(find.text('子节点1'));
+      await tester.pumpAndSettle();
+      expect(rowCheckbox(tester, '父级1').indeterminate, isTrue);
+      expect(rowCheckbox(tester, '父级1').checked, isFalse);
+    });
+
+    testWidgets('disabled parent disables whole subtree', (tester) async {
+      var selected = <String>[];
+      await tester.pumpWidget(_wrap(
+        AntTransfer(
+          dataSource: treeData,
+          defaultExpandAll: true,
+          onSelectChange: (source, _) => selected = source,
+        ),
+      ),);
+      await tester.tap(find.text('子节点3'));
+      await tester.pumpAndSettle();
+      expect(selected, isEmpty);
+      await tester.tap(find.text('父级2（禁用）'));
+      await tester.pumpAndSettle();
+      expect(selected, isEmpty);
+      expect(rowCheckbox(tester, '子节点3').disabled, isTrue);
+      expect(rowCheckbox(tester, '子节点4').disabled, isTrue);
+    });
+
+    testWidgets('move moves selected subtree with structure', (tester) async {
+      List<String>? moved;
+      List<String>? targets;
+      await tester.pumpWidget(_wrap(
+        AntTransfer(
+          dataSource: treeData,
+          defaultExpandAll: true,
+          onChange: (keys, _, moveKeys) {
+            targets = keys;
+            moved = moveKeys;
+          },
+        ),
+      ),);
+      await tester.tap(find.text('父级1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.pumpAndSettle();
+      // 勾选计数含子级：移动 keys 为子叶 c1/c2
+      expect(moved, containsAll(['c1', 'c2']));
+      expect(moved, isNot(contains('p1')));
+      expect(targets, equals(['c1', 'c2']));
+      // 右侧保持树形展示（父级 + 子级），左侧残留父级空壳（对齐 antd 扁平 dataSource 语义）
+      expect(find.text('父级1'), findsNWidgets(2));
+      expect(find.text('子节点1'), findsOneWidget);
+    });
+
+    testWidgets('tree search keeps matched node and its parent chain',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(
+          dataSource: treeData,
+          defaultExpandAll: true,
+          showSearch: true,
+        ),
+      ),);
+      await tester.enterText(find.byType(TextField).first, '子节点2');
+      await tester.pumpAndSettle();
+      // 以列表区域为准（find.text 也会命中搜索框输入内容）
+      final listFinder = find.byType(ListView);
+      expect(
+        find.descendant(of: listFinder, matching: find.text('父级1')),
+        findsOneWidget,
+      ); // 父链保留（左侧）
+      expect(
+        find.descendant(of: listFinder, matching: find.text('子节点2')),
+        findsOneWidget,
+      ); // 左侧命中节点
+      expect(find.text('子节点1'), findsNothing); // 未命中被过滤
+      expect(find.text('独立节点'), findsNothing);
+    });
+
+    testWidgets('flat data still renders flat list (backward compatible)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const AntTransfer(dataSource: _testData),
+      ),);
+      expect(find.text('选项A'), findsOneWidget);
+      expect(find.text('选项B'), findsOneWidget);
+      expect(rowCheckbox(tester, '选项A').checked, isFalse);
+      await tester.tap(find.text('选项A'));
+      await tester.pumpAndSettle();
+      expect(rowCheckbox(tester, '选项A').checked, isTrue);
+    });
+  });
 }

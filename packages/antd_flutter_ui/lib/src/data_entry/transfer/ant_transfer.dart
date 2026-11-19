@@ -6,12 +6,14 @@
 /// - [dataSource] / [targetKeys] / [selectedKeys]
 /// - [onChange] / [onSelectChange]
 /// - [titles] / [operations] / [disabled] / [showSearch] / [oneWay]
+/// - 树形模式（TreeTransfer）：数据项携带 [AntTransferItem.children] 时
+///   自动按树渲染（对齐 antd TreeTransfer 语义：树模式由数据驱动，无需显式开关），
+///   支持父子勾选联动、半选、禁用子树联动、树形穿梭与搜索过滤
 library;
 
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
-
 
 export 'ant_transfer_types.dart';
 
@@ -33,9 +35,10 @@ class AntTransfer extends StatefulWidget {
     this.oneWay = false,
     this.filterOption,
     this.height,
+    this.defaultExpandAll = false,
   });
 
-  /// 数据源，包含全部数据项
+  /// 数据源，包含全部数据项（含 children 时为树形模式）
   final List<AntTransferItem> dataSource;
 
   /// 受控：右侧面板项的 key 列表
@@ -44,7 +47,7 @@ class AntTransfer extends StatefulWidget {
   /// 非受控：右侧面板项的 key 列表初始值
   final List<String> defaultTargetKeys;
 
-  /// 受控：已选中项的 key 列表
+  /// 受控：已选中项的 key 列表（树模式下仅包含叶子节点 key）
   final List<String>? selectedKeys;
 
   /// 非受控：已选中项的 key 列表初始值
@@ -81,6 +84,9 @@ class AntTransfer extends StatefulWidget {
   /// 列表区域高度
   final double? height;
 
+  /// 树形模式：是否默认展开全部节点，默认 false
+  final bool defaultExpandAll;
+
   @override
   State<AntTransfer> createState() => _AntTransferState();
 }
@@ -89,6 +95,7 @@ class _AntTransferState extends State<AntTransfer> {
   late List<String> _targetKeys;
   late List<String> _sourceSelectedKeys;
   late List<String> _targetSelectedKeys;
+  late Set<String> _expandedKeys;
   String _sourceSearchText = '';
   String _targetSearchText = '';
 
@@ -96,7 +103,8 @@ class _AntTransferState extends State<AntTransfer> {
   void initState() {
     super.initState();
     _targetKeys = List<String>.from(
-        widget.targetKeys ?? widget.defaultTargetKeys,);
+      widget.targetKeys ?? widget.defaultTargetKeys,
+    );
     _sourceSelectedKeys = <String>[];
     _targetSelectedKeys = <String>[];
     // 初始选中状态由 defaultSelectedKeys 分配到对应面板
@@ -107,6 +115,9 @@ class _AntTransferState extends State<AntTransfer> {
         _sourceSelectedKeys.add(key);
       }
     }
+    _expandedKeys = widget.defaultExpandAll
+        ? _collectParentKeys(widget.dataSource).toSet()
+        : <String>{};
   }
 
   @override
@@ -139,58 +150,223 @@ class _AntTransferState extends State<AntTransfer> {
     return true;
   }
 
-  List<String> get _currentTargetKeys =>
-      widget.targetKeys ?? _targetKeys;
+  // ---------------- 树形工具方法 ----------------
 
-  List<String> get _currentSourceSelectedKeys =>
-      widget.selectedKeys == null ? _sourceSelectedKeys : _sourceSelectedKeys;
+  /// 收集树中所有带 children 的节点 key
+  static List<String> _collectParentKeys(List<AntTransferItem> items) {
+    final keys = <String>[];
+    for (final item in items) {
+      if (item.hasChildren) {
+        keys.add(item.key);
+        keys.addAll(_collectParentKeys(item.children!));
+      }
+    }
+    return keys;
+  }
 
-  List<String> get _currentTargetSelectedKeys =>
-      widget.selectedKeys == null ? _targetSelectedKeys : _targetSelectedKeys;
+  /// 按 key 查找节点
+  static AntTransferItem? _findNode(List<AntTransferItem> items, String key) {
+    for (final item in items) {
+      if (item.key == key) return item;
+      if (item.children != null) {
+        final found = _findNode(item.children!, key);
+        if (found != null) return found;
+      }
+    }
+    return null;
+  }
+
+  /// 收集节点下可选（在指定侧且自身/祖先未禁用）的叶子 key
+  List<String> _collectSelectableLeafKeys(
+    AntTransferItem node,
+    bool Function(String key) inSide,
+  ) {
+    final keys = <String>[];
+    void walk(AntTransferItem item, bool ancestorDisabled) {
+      final disabled = ancestorDisabled || item.disabled;
+      if (item.hasChildren) {
+        for (final child in item.children!) {
+          walk(child, disabled);
+        }
+      } else if (inSide(item.key) && !disabled) {
+        keys.add(item.key);
+      }
+    }
+
+    walk(node, false);
+    return keys;
+  }
+
+  List<String> get _currentTargetKeys => widget.targetKeys ?? _targetKeys;
+
+  bool _isInSource(String key) => !_currentTargetKeys.contains(key);
+
+  bool _isInTarget(String key) => _currentTargetKeys.contains(key);
+
+  List<String> get _currentSourceSelectedKeys => _sourceSelectedKeys;
+
+  List<String> get _currentTargetSelectedKeys => _targetSelectedKeys;
 
   List<AntTransferItem> get _sourceItems => widget.dataSource
-      .where((item) => !_currentTargetKeys.contains(item.key))
+      .where((item) => _isInSource(item.key))
       .toList();
 
   List<AntTransferItem> get _targetItems => widget.dataSource
-      .where((item) => _currentTargetKeys.contains(item.key))
+      .where((item) => _isInTarget(item.key))
       .toList();
 
-  List<AntTransferItem> _filterItems(
-      List<AntTransferItem> items, String searchText,) {
-    if (searchText.isEmpty) return items;
+  /// 节点自身是否命中搜索（自定义 filterOption 或默认 title/description 匹配）
+  bool _nodeSelfMatches(AntTransferItem item, String searchText) {
     final filter = widget.filterOption;
     if (filter != null) {
-      return items
-          .where((item) => filter(searchText, item))
-          .toList();
+      return filter(searchText, item);
     }
     final lower = searchText.toLowerCase();
-    return items.where((item) {
-      if (item.title.toLowerCase().contains(lower)) return true;
-      if (item.description != null &&
-          item.description!.toLowerCase().contains(lower)) {
-        return true;
-      }
-      return false;
-    }).toList();
+    if (item.title.toLowerCase().contains(lower)) return true;
+    if (item.description != null &&
+        item.description!.toLowerCase().contains(lower)) {
+      return true;
+    }
+    return false;
   }
 
-  void _toggleSourceItem(String key, bool checked) {
+  /// 构建面板可见行（树剪枝：仅保留本侧节点；搜索时保留命中节点及其父链）
+  List<_TransferRow> _buildRows(
+    List<AntTransferItem> tree,
+    String searchText,
+    bool Function(String key) inSide,
+  ) {
+    return _buildRowsRecursive(tree, 0, false, searchText, inSide);
+  }
+
+  List<_TransferRow> _buildRowsRecursive(
+    List<AntTransferItem> items,
+    int depth,
+    bool ancestorDisabled,
+    String searchText,
+    bool Function(String key) inSide,
+  ) {
+    final rows = <_TransferRow>[];
+    final searching = searchText.isNotEmpty;
+    for (final item in items) {
+      final disabled = ancestorDisabled || item.disabled;
+      final childRows = item.hasChildren
+          ? _buildRowsRecursive(
+              item.children!,
+              depth + 1,
+              disabled,
+              searchText,
+              inSide,
+            )
+          : <_TransferRow>[];
+      final side = inSide(item.key);
+      // 非本侧且无可保留子级 → 剪枝
+      if (!side && childRows.isEmpty) continue;
+      // 搜索过滤：自身命中或子级仍有保留节点（父链展示）
+      if (searching &&
+          !_nodeSelfMatches(item, searchText) &&
+          childRows.isEmpty) {
+        continue;
+      }
+      // 搜索时强制展开命中的父链，便于查看匹配子节点
+      final expanded = searching || _expandedKeys.contains(item.key);
+      rows.add(
+        _TransferRow(
+          item: item,
+          depth: depth,
+          hasChildren: item.hasChildren,
+          expanded: expanded,
+          inSide: side,
+          disabled: disabled,
+          forceExpanded: searching,
+        ),
+      );
+      if (expanded) rows.addAll(childRows);
+    }
+    return rows;
+  }
+
+  /// 统计一侧叶子节点总数（计数含子级）
+  int _countLeaves(List<AntTransferItem> items) {
+    var count = 0;
+    for (final item in items) {
+      if (item.hasChildren) {
+        count += _countLeaves(item.children!);
+      } else {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  List<_TransferRow> get _sourceRows => _buildRows(
+        widget.dataSource,
+        _sourceSearchText,
+        _isInSource,
+      );
+
+  List<_TransferRow> get _targetRows => _buildRows(
+        widget.dataSource,
+        _targetSearchText,
+        _isInTarget,
+      );
+
+  /// 计算父级行的勾选状态（含半选）
+  ({bool checked, bool indeterminate}) _parentCheckState(
+    AntTransferItem node,
+    List<String> selectedKeys,
+    bool Function(String key) inSide,
+  ) {
+    final keys = _collectSelectableLeafKeys(node, inSide);
+    if (keys.isEmpty) return (checked: false, indeterminate: false);
+    final selectedCount = keys.where(selectedKeys.contains).length;
+    return (
+      checked: selectedCount == keys.length,
+      indeterminate: selectedCount > 0 && selectedCount < keys.length,
+    );
+  }
+
+  // ---------------- 勾选逻辑 ----------------
+
+  /// 切换勾选（叶子切换自身；父级联动其全部可选子叶）
+  void _toggleRow({
+    required bool isSource,
+    required String key,
+  }) {
+    final inSide = isSource ? _isInSource : _isInTarget;
+    final current = isSource
+        ? _currentSourceSelectedKeys
+        : _currentTargetSelectedKeys;
+    final node = _findNode(widget.dataSource, key);
+    final hasChildren = node != null && node.hasChildren;
+
+    List<String> keys;
+    bool select;
+    if (hasChildren) {
+      keys = _collectSelectableLeafKeys(node, inSide);
+      select = keys.isNotEmpty && !keys.every(current.contains);
+    } else {
+      keys = [key];
+      select = !current.contains(key);
+    }
+    if (keys.isEmpty) return;
+
+    final newSelected = select
+        ? {...current, ...keys}.toList()
+        : current.where((k) => !keys.contains(k)).toList();
+
     if (widget.selectedKeys != null) {
       widget.onSelectChange?.call(
-        checked
-            ? [..._sourceSelectedKeys, key]
-            : _sourceSelectedKeys.where((k) => k != key).toList(),
-        _targetSelectedKeys,
+        isSource ? newSelected : _targetSelectedKeys,
+        isSource ? _targetSelectedKeys : newSelected,
       );
       return;
     }
     setState(() {
-      if (checked) {
-        _sourceSelectedKeys.add(key);
+      if (isSource) {
+        _sourceSelectedKeys = newSelected;
       } else {
-        _sourceSelectedKeys.remove(key);
+        _targetSelectedKeys = newSelected;
       }
     });
     widget.onSelectChange?.call(
@@ -199,21 +375,31 @@ class _AntTransferState extends State<AntTransfer> {
     );
   }
 
-  void _toggleTargetItem(String key, bool checked) {
+  /// 全选/清空一侧（对可见可选叶子生效）
+  void _toggleAll({
+    required bool isSource,
+    required bool checked,
+  }) {
+    final rows = isSource ? _sourceRows : _targetRows;
+    final keys = rows
+        .where(
+          (r) => r.inSide && !r.hasChildren && !r.disabled,
+        )
+        .map((r) => r.item.key)
+        .toList();
+    final newSelected = checked ? keys : <String>[];
     if (widget.selectedKeys != null) {
       widget.onSelectChange?.call(
-        _sourceSelectedKeys,
-        checked
-            ? [..._targetSelectedKeys, key]
-            : _targetSelectedKeys.where((k) => k != key).toList(),
+        isSource ? newSelected : _targetSelectedKeys,
+        isSource ? _targetSelectedKeys : newSelected,
       );
       return;
     }
     setState(() {
-      if (checked) {
-        _targetSelectedKeys.add(key);
+      if (isSource) {
+        _sourceSelectedKeys = List<String>.from(newSelected);
       } else {
-        _targetSelectedKeys.remove(key);
+        _targetSelectedKeys = List<String>.from(newSelected);
       }
     });
     widget.onSelectChange?.call(
@@ -222,57 +408,15 @@ class _AntTransferState extends State<AntTransfer> {
     );
   }
 
-  void _toggleAllSource(bool checked) {
-    final selectableItems =
-        _filterItems(_sourceItems, _sourceSearchText)
-            .where((item) => !item.disabled)
-            .toList();
-    final keys = selectableItems.map((item) => item.key).toList();
-    if (widget.selectedKeys != null) {
-      widget.onSelectChange?.call(
-        checked ? keys : <String>[],
-        _targetSelectedKeys,
-      );
-      return;
-    }
+  void _toggleExpand(String key) {
     setState(() {
-      if (checked) {
-        _sourceSelectedKeys = keys;
-      } else {
-        _sourceSelectedKeys.clear();
+      if (!_expandedKeys.add(key)) {
+        _expandedKeys.remove(key);
       }
     });
-    widget.onSelectChange?.call(
-      List<String>.from(_sourceSelectedKeys),
-      List<String>.from(_targetSelectedKeys),
-    );
   }
 
-  void _toggleAllTarget(bool checked) {
-    final selectableItems =
-        _filterItems(_targetItems, _targetSearchText)
-            .where((item) => !item.disabled)
-            .toList();
-    final keys = selectableItems.map((item) => item.key).toList();
-    if (widget.selectedKeys != null) {
-      widget.onSelectChange?.call(
-        _sourceSelectedKeys,
-        checked ? keys : <String>[],
-      );
-      return;
-    }
-    setState(() {
-      if (checked) {
-        _targetSelectedKeys = keys;
-      } else {
-        _targetSelectedKeys.clear();
-      }
-    });
-    widget.onSelectChange?.call(
-      List<String>.from(_sourceSelectedKeys),
-      List<String>.from(_targetSelectedKeys),
-    );
-  }
+  // ---------------- 穿梭逻辑 ----------------
 
   void _moveToTarget() {
     final moveKeys = _sourceSelectedKeys
@@ -283,11 +427,11 @@ class _AntTransferState extends State<AntTransfer> {
     if (widget.targetKeys == null) {
       setState(() {
         _targetKeys = newTargetKeys;
-        _sourceSelectedKeys.clear();
+        _sourceSelectedKeys = [];
       });
     } else {
       setState(() {
-        _sourceSelectedKeys.clear();
+        _sourceSelectedKeys = [];
       });
     }
     widget.onChange?.call(
@@ -309,11 +453,11 @@ class _AntTransferState extends State<AntTransfer> {
     if (widget.targetKeys == null) {
       setState(() {
         _targetKeys = newTargetKeys;
-        _targetSelectedKeys.clear();
+        _targetSelectedKeys = [];
       });
     } else {
       setState(() {
-        _targetSelectedKeys.clear();
+        _targetSelectedKeys = [];
       });
     }
     widget.onChange?.call(
@@ -336,8 +480,8 @@ class _AntTransferState extends State<AntTransfer> {
           Expanded(
             child: _TransferPanel(
               title: widget.titles.isNotEmpty ? widget.titles.first : 'Source',
-              items: _filterItems(_sourceItems, _sourceSearchText),
-              totalItems: _sourceItems,
+              rows: _sourceRows,
+              totalCount: _countLeaves(_sourceItems),
               selectedKeys: _currentSourceSelectedKeys,
               searchText: _sourceSearchText,
               showSearch: widget.showSearch,
@@ -347,8 +491,15 @@ class _AntTransferState extends State<AntTransfer> {
               onSearch: widget.showSearch
                   ? (text) => setState(() => _sourceSearchText = text)
                   : null,
-              onToggleItem: _toggleSourceItem,
-              onToggleAll: _toggleAllSource,
+              onToggleItem: (key) => _toggleRow(isSource: true, key: key),
+              onToggleAll: (checked) =>
+                  _toggleAll(isSource: true, checked: checked),
+              onToggleExpand: _toggleExpand,
+              parentCheckState: (node) => _parentCheckState(
+                node,
+                _currentSourceSelectedKeys,
+                _isInSource,
+              ),
             ),
           ),
           Padding(
@@ -388,8 +539,8 @@ class _AntTransferState extends State<AntTransfer> {
           Expanded(
             child: _TransferPanel(
               title: widget.titles.length > 1 ? widget.titles[1] : 'Target',
-              items: _filterItems(_targetItems, _targetSearchText),
-              totalItems: _targetItems,
+              rows: _targetRows,
+              totalCount: _countLeaves(_targetItems),
               selectedKeys: _currentTargetSelectedKeys,
               searchText: _targetSearchText,
               showSearch: widget.showSearch,
@@ -399,8 +550,15 @@ class _AntTransferState extends State<AntTransfer> {
               onSearch: widget.showSearch
                   ? (text) => setState(() => _targetSearchText = text)
                   : null,
-              onToggleItem: _toggleTargetItem,
-              onToggleAll: _toggleAllTarget,
+              onToggleItem: (key) => _toggleRow(isSource: false, key: key),
+              onToggleAll: (checked) =>
+                  _toggleAll(isSource: false, checked: checked),
+              onToggleExpand: _toggleExpand,
+              parentCheckState: (node) => _parentCheckState(
+                node,
+                _currentTargetSelectedKeys,
+                _isInTarget,
+              ),
             ),
           ),
         ],
@@ -409,12 +567,35 @@ class _AntTransferState extends State<AntTransfer> {
   }
 }
 
+/// 面板中的一行（树形模式含层级与展开信息）
+class _TransferRow {
+  const _TransferRow({
+    required this.item,
+    required this.depth,
+    required this.hasChildren,
+    required this.expanded,
+    required this.inSide,
+    required this.forceExpanded,
+    required this.disabled,
+  });
+
+  final AntTransferItem item;
+  final int depth;
+  final bool hasChildren;
+  final bool expanded;
+  final bool inSide;
+  final bool forceExpanded;
+
+  /// 有效禁用（自身或祖先禁用）
+  final bool disabled;
+}
+
 /// 单个穿梭面板
 class _TransferPanel extends StatelessWidget {
   const _TransferPanel({
     required this.title,
-    required this.items,
-    required this.totalItems,
+    required this.rows,
+    required this.totalCount,
     required this.selectedKeys,
     required this.searchText,
     required this.showSearch,
@@ -424,11 +605,13 @@ class _TransferPanel extends StatelessWidget {
     this.onSearch,
     required this.onToggleItem,
     required this.onToggleAll,
+    required this.onToggleExpand,
+    required this.parentCheckState,
   });
 
   final String title;
-  final List<AntTransferItem> items;
-  final List<AntTransferItem> totalItems;
+  final List<_TransferRow> rows;
+  final int totalCount;
   final List<String> selectedKeys;
   final String searchText;
   final bool showSearch;
@@ -436,13 +619,19 @@ class _TransferPanel extends StatelessWidget {
   final double height;
   final AntThemeData theme;
   final ValueChanged<String>? onSearch;
-  final void Function(String key, bool checked) onToggleItem;
+  final void Function(String key) onToggleItem;
   final void Function(bool checked) onToggleAll;
+  final void Function(String key) onToggleExpand;
+  final ({bool checked, bool indeterminate}) Function(AntTransferItem node)
+      parentCheckState;
 
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final allChecked = _isAllChecked(items, selectedKeys);
+    final allChecked = _isAllChecked(rows, selectedKeys);
+    final hasSelectable = rows.any(
+      (r) => r.inSide && !r.hasChildren && !r.disabled,
+    );
     final selectedCount = selectedKeys.length;
 
     return Container(
@@ -466,7 +655,9 @@ class _TransferPanel extends StatelessWidget {
               children: [
                 AntCheckbox(
                   checked: allChecked,
-                  disabled: disabled || items.every((i) => i.disabled),
+                  indeterminate:
+                      !allChecked && selectedCount > 0 && hasSelectable,
+                  disabled: disabled || !hasSelectable,
                   onChange: onToggleAll,
                   child: const SizedBox.shrink(),
                 ),
@@ -482,7 +673,7 @@ class _TransferPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$selectedCount/${totalItems.length}',
+                  '$selectedCount/$totalCount',
                   style: TextStyle(
                     fontSize: t.fontSizeSM.sp,
                     color: t.colorTextSecondary,
@@ -536,7 +727,7 @@ class _TransferPanel extends StatelessWidget {
             ),
           // 列表区域
           Expanded(
-            child: items.isEmpty
+            child: rows.isEmpty
                 ? Center(
                     child: Text(
                       'No data',
@@ -548,17 +739,17 @@ class _TransferPanel extends StatelessWidget {
                   )
                 : ListView.builder(
                     padding: EdgeInsets.zero,
-                    itemCount: items.length,
+                    itemCount: rows.length,
                     itemBuilder: (context, index) {
-                      final item = items[index];
-                      final checked = selectedKeys.contains(item.key);
-                      return _TransferItemTile(
-                        item: item,
-                        checked: checked,
+                      final row = rows[index];
+                      return _TransferRowTile(
+                        row: row,
+                        selectedKeys: selectedKeys,
                         disabled: disabled,
                         theme: t,
-                        onTap: () =>
-                            onToggleItem(item.key, !checked),
+                        onTap: () => onToggleItem(row.item.key),
+                        onToggleExpand: () => onToggleExpand(row.item.key),
+                        parentCheckState: parentCheckState,
                       );
                     },
                   ),
@@ -590,34 +781,52 @@ class _TransferPanel extends StatelessWidget {
   }
 
   bool _isAllChecked(
-      List<AntTransferItem> filteredItems, List<String> selectedKeys,) {
-    final selectable =
-        filteredItems.where((item) => !item.disabled).toList();
-    if (selectable.isEmpty) return false;
-    return selectable.every((item) => selectedKeys.contains(item.key));
+    List<_TransferRow> rows,
+    List<String> selectedKeys,
+  ) {
+    final leafRows = rows
+        .where((r) => r.inSide && !r.hasChildren && !r.disabled)
+        .toList();
+    if (leafRows.isEmpty) return false;
+    return leafRows.every((r) => selectedKeys.contains(r.item.key));
   }
 }
 
-/// 数据项行
-class _TransferItemTile extends StatelessWidget {
-  const _TransferItemTile({
-    required this.item,
-    required this.checked,
+/// 数据项行（扁平与树形共用：树形含缩进、展开箭头与父子联动勾选）
+class _TransferRowTile extends StatelessWidget {
+  const _TransferRowTile({
+    required this.row,
+    required this.selectedKeys,
     required this.disabled,
     required this.theme,
     required this.onTap,
+    required this.onToggleExpand,
+    required this.parentCheckState,
   });
 
-  final AntTransferItem item;
-  final bool checked;
+  final _TransferRow row;
+  final List<String> selectedKeys;
   final bool disabled;
   final AntThemeData theme;
   final VoidCallback onTap;
+  final VoidCallback onToggleExpand;
+  final ({bool checked, bool indeterminate}) Function(AntTransferItem node)
+      parentCheckState;
 
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final isDisabled = disabled || item.disabled;
+    final item = row.item;
+    final isDisabled = disabled || row.disabled;
+    var checked = false;
+    var indeterminate = false;
+    if (row.hasChildren) {
+      final state = parentCheckState(item);
+      checked = state.checked;
+      indeterminate = state.indeterminate;
+    } else {
+      checked = selectedKeys.contains(item.key);
+    }
     return InkWell(
       onTap: isDisabled ? null : onTap,
       child: Padding(
@@ -627,8 +836,29 @@ class _TransferItemTile extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // 展开箭头占位（含层级缩进）
+            SizedBox(
+              width: row.depth * 16.w,
+            ),
+            if (row.hasChildren)
+              GestureDetector(
+                onTap: onToggleExpand,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 4.w),
+                  child: Icon(
+                    row.expanded
+                        ? Icons.keyboard_arrow_down
+                        : Icons.keyboard_arrow_right,
+                    size: 16.r,
+                    color: t.colorTextSecondary,
+                  ),
+                ),
+              )
+            else
+              SizedBox(width: 20.w),
             AntCheckbox(
               checked: checked,
+              indeterminate: indeterminate,
               disabled: isDisabled,
               onChange: isDisabled ? null : (_) => onTap(),
               child: const SizedBox.shrink(),
@@ -639,9 +869,7 @@ class _TransferItemTile extends StatelessWidget {
                 item.title,
                 style: TextStyle(
                   fontSize: t.fontSizeSM.sp,
-                  color: isDisabled
-                      ? t.colorTextDisabled
-                      : t.colorText,
+                  color: isDisabled ? t.colorTextDisabled : t.colorText,
                 ),
               ),
             ),
