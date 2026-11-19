@@ -166,6 +166,9 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 > - 0-8 压轴：form / transfer / table（复杂表单与表格引擎）
 
 ### 批次 1：antd_picker 独立包 ✅ 已完成
+### 批次 2 前插（用户指定，优先级最高）：antd_keyboard 独立包
+键盘族功能增强后功能强大（通用 AntKeyboard 引擎 + 全布局吸收 + 桌面形态），**单独成包**：packages/antd_keyboard/——从 ui 迁出（通用键盘引擎 + AntNumberKeyboard/PasscodeInput/VirtualInput 三组件；引擎随包走不入 ui engines），标准五件套（example R35.4 多平台适配 + R32.2 AntdKeyboard + CI + re-export 链调整 + R33 判定 + R35.3 macos 验证）。**批次 0-3 迁移任务（a23）完成后立即执行（同文件域串行）**，其后才继续批次 2 其余项。
+
 ### 批次 2：独立包直接从主包拆分（逐个串行）
 1. **antd_tree** ✅（Tree/TreeSelect）
 2. **antd_carousel** ✅
