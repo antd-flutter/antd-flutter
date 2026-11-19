@@ -93,6 +93,24 @@ void main() {
       ),),);
       expect(find.byIcon(Icons.remove), findsOneWidget);
     });
+
+    testWidgets('tapping indeterminate converts to checked and clears it',
+        (tester) async {
+      var changed = false;
+      await tester.pumpWidget(_wrap(StatefulBuilder(
+        builder: (context, setState) => AntCheckbox(
+          indeterminate: true,
+          onChange: (v) => setState(() => changed = v),
+          child: const Text('A'),
+        ),
+      ),),);
+      await tester.tap(find.text('A'));
+      await tester.pump();
+      // 半选点击 → 全选（非 false），半选标记清除
+      expect(changed, isTrue);
+      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(Icons.remove), findsNothing);
+    });
   });
 
   group('AntCheckboxGroup', () {

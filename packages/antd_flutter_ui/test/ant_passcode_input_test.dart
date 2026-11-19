@@ -1,6 +1,7 @@
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -114,6 +115,7 @@ void main() {
 
     testWidgets('autofocus shows keyboard initially', (tester) async {
       await tester.pumpWidget(_wrap(const AntPasscodeInput(autofocus: true)));
+      await tester.pump(); // 键盘经 postFrame 插入 root Overlay，需再 pump 一帧
       expect(find.text('1'), findsOneWidget);
     });
 
@@ -213,6 +215,17 @@ void main() {
       expect(changed, '12');
       // 受控模式内部值不变，仍只显示 '1' 的格子
       expect(find.text('2'), findsOneWidget); // 仅键盘上的 2 键
+    });
+  });
+  group('AntPasscodeInput — 桌面端降级（回归）', () {
+    testWidgets('desktop renders hidden field input without custom keyboard',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(_wrap(const AntPasscodeInput(autofocus: true)));
+      await tester.pump();
+      expect(find.byType(EditableText), findsOneWidget);
+      expect(find.byType(AntNumberKeyboard), findsNothing);
     });
   });
 }

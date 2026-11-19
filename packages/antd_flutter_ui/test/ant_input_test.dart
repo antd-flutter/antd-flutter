@@ -288,4 +288,20 @@ void main() {
       expect(find.text('b'), findsOneWidget);
     });
   });
+  group('AntInput — 禁用态 hover（回归）', () {
+    testWidgets('disabled input decoration takes over fill and hover',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const AntInput(
+        disabled: true,
+        placeholder: '禁用',
+      ),),);
+      final decorator =
+          tester.widget<InputDecorator>(find.byType(InputDecorator));
+      final d = decorator.decoration;
+      // 显式填充/悬浮透明：修复全局主题 filled+hoverColor 渗入导致的局部填充
+      expect(d.hoverColor, Colors.transparent);
+      expect(d.focusColor, Colors.transparent);
+      expect(d.enabled, isFalse);
+    });
+  });
 }

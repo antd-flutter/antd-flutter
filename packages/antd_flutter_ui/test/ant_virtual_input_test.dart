@@ -1,6 +1,7 @@
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -45,6 +46,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntVirtualInput(autoFocus: true)),
       );
+      await tester.pump(); // 键盘经 postFrame 插入 root Overlay，需再 pump 一帧
       expect(find.text('1'), findsOneWidget);
     });
   });
@@ -137,6 +139,7 @@ void main() {
         customKey: '.',
         autoFocus: true,
       ),),);
+      await tester.pump(); // 键盘经 postFrame 插入 root Overlay，需再 pump 一帧
       expect(find.text('.'), findsOneWidget);
     });
   });
@@ -160,6 +163,21 @@ void main() {
       await tester.tap(find.text('2'));
       await tester.pump();
       expect(changed, '12');
+    });
+  });
+  group('AntVirtualInput — 桌面端降级（回归）', () {
+    testWidgets('desktop renders editable field without custom keyboard',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(_wrap(const AntVirtualInput(
+        placeholder: '点我',
+        autoFocus: true,
+      ),),);
+      await tester.pump();
+      // 桌面端：系统输入框（EditableText），无自定义键盘
+      expect(find.byType(EditableText), findsOneWidget);
+      expect(find.byType(AntNumberKeyboard), findsNothing);
     });
   });
 }

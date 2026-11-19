@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../engines/input_platform.dart';
+import '../../engines/keyboard_overlay.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
 
 /// 密码格子输入 — 用于验证码/密码场景的格子输入组件。
@@ -81,6 +82,9 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
 
   /// 桌面端系统输入支持（透明 TextField 覆盖格子区域采集输入）
   late final bool _desktop;
+
+  /// 移动端底部弹出键盘控制器
+  final AntKeyboardOverlayController _kb = AntKeyboardOverlayController();
   TextEditingController? _desktopController;
   FocusNode? _desktopFocus;
 
@@ -101,6 +105,19 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
       if (_desktop) {
         WidgetsBinding.instance
             .addPostFrameCallback((_) => _desktopFocus?.requestFocus());
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_active || !mounted) return;
+          _kb.show(
+            context,
+            AntNumberKeyboard(
+              value: _currentValue,
+              onChange: _handleChange,
+              maxLength: widget.length,
+            ),
+            onDismiss: () => setState(() => _active = false),
+          );
+        });
       }
     }
   }
@@ -120,6 +137,7 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
 
   @override
   void dispose() {
+    _kb.hide();
     _desktopFocus?.removeListener(_handleDesktopFocus);
     _desktopFocus?.dispose();
     _desktopController?.removeListener(_handleDesktopInput);
@@ -155,6 +173,20 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
     }
     if (!widget.keyboard) return;
     setState(() => _active = !_active);
+    if (_active) {
+      // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
+      _kb.show(
+        context,
+        AntNumberKeyboard(
+          value: _currentValue,
+          onChange: _handleChange,
+          maxLength: widget.length,
+        ),
+        onDismiss: () => setState(() => _active = false),
+      );
+    } else {
+      _kb.hide();
+    }
   }
 
   @override
@@ -193,7 +225,12 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
           borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Row(children: cells),
+        // 格子均分铺满宽度
+        child: Row(
+          children: [
+            for (var i = 0; i < cells.length; i++) Expanded(child: cells[i]),
+          ],
+        ),
       );
     }
 
@@ -234,14 +271,6 @@ class _AntPasscodeInputState extends State<AntPasscodeInput> {
                 )
               : cellsRow,
         ),
-        if (!_desktop && widget.keyboard && _active) ...[
-          SizedBox(height: t.marginSM.w),
-          AntNumberKeyboard(
-            value: value,
-            onChange: _handleChange,
-            maxLength: widget.length,
-          ),
-        ],
       ],
     );
   }

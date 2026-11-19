@@ -257,4 +257,38 @@ void main() {
       expect(changed, null);
     });
   });
+  group('AntRadio — 取消反选（回归）', () {
+    testWidgets('tapping selected standalone radio deselects', (tester) async {
+      var changed = true;
+      await tester.pumpWidget(_wrap(StatefulBuilder(
+        builder: (context, setState) => AntRadio(
+          defaultChecked: true,
+          onChange: (v) => setState(() => changed = v),
+          child: const Text('A'),
+        ),
+      ),),);
+      expect(changed, isTrue);
+      await tester.tap(find.text('A'));
+      await tester.pump();
+      expect(changed, isFalse);
+    });
+
+    testWidgets('tapping selected radio in group deselects (null)',
+        (tester) async {
+      String? selected = 'a';
+      await tester.pumpWidget(_wrap(StatefulBuilder(
+        builder: (context, setState) => AntRadioGroup<String>(
+          value: selected,
+          onChange: (v) => setState(() => selected = v),
+          options: const [
+            AntRadioOption(value: 'a', label: Text('A')),
+            AntRadioOption(value: 'b', label: Text('B')),
+          ],
+        ),
+      ),),);
+      await tester.tap(find.text('A'));
+      await tester.pump();
+      expect(selected, isNull);
+    });
+  });
 }

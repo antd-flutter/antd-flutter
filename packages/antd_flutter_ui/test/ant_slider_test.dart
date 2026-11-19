@@ -106,4 +106,35 @@ void main() {
       expect(changed! % 10, 0);
     });
   });
+  group('AntSlider — 提示气泡悬浮（回归）', () {
+    testWidgets('tooltip overlay does not affect layout height', (tester) async {
+      double? heightWith;
+      await tester.pumpWidget(_wrap(AntSlider(
+        tooltipVisible: true,
+        defaultValue: 50,
+        onChange: (_) {},
+      ),),);
+      heightWith = tester.getSize(find.byType(AntSlider)).height;
+      await tester.pumpWidget(_wrap(AntSlider(
+        tooltipVisible: false,
+        defaultValue: 50,
+        onChange: (_) {},
+      ),),);
+      final heightWithout = tester.getSize(find.byType(AntSlider)).height;
+      expect(heightWith, heightWithout);
+    });
+
+    testWidgets('bubble stays within track bounds', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSlider(
+        tooltipVisible: true,
+        defaultValue: 100,
+        min: 0,
+        max: 100,
+      ),),);
+      // 值为 max 时气泡应夹持在轨道内（不越出右边界）
+      final bubbleCenter = tester.getCenter(find.text('100'));
+      final sliderRight = tester.getTopRight(find.byType(AntSlider)).dx;
+      expect(bubbleCenter.dx, lessThan(sliderRight));
+    });
+  });
 }

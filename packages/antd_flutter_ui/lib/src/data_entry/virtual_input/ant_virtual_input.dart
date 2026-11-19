@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../engines/input_platform.dart';
+import '../../engines/keyboard_overlay.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
 
 /// 虚拟输入 — 通过内置数字键盘输入的只读输入框。
@@ -93,6 +94,9 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
 
   /// 桌面端系统输入支持
   late final bool _desktop;
+
+  /// 移动端底部弹出键盘控制器
+  final AntKeyboardOverlayController _kb = AntKeyboardOverlayController();
   TextEditingController? _desktopController;
   FocusNode? _desktopFocus;
 
@@ -109,6 +113,9 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
     }
     if (widget.autoFocus) {
       _focused = true;
+      if (!_desktop) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _showKeyboard());
+      }
     }
   }
 
@@ -127,6 +134,7 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
 
   @override
   void dispose() {
+    _kb.hide();
     _desktopFocus?.removeListener(_handleDesktopFocus);
     _desktopFocus?.dispose();
     _desktopController?.dispose();
@@ -170,12 +178,33 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
     if (widget.disabled || _focused) return;
     setState(() => _focused = true);
     widget.onFocus?.call();
+    _showKeyboard();
   }
 
   void _blur() {
     if (!_focused) return;
     setState(() => _focused = false);
+    _kb.hide();
     widget.onBlur?.call();
+  }
+
+  void _showKeyboard() {
+    // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
+    _kb.show(
+      context,
+      AntNumberKeyboard(
+        value: _currentValue,
+        onChange: _handleChange,
+        confirmText: widget.confirmText,
+        onConfirm: () {
+          _handleConfirm();
+          _blur();
+        },
+        randomOrder: widget.randomOrder,
+        customKey: widget.customKey,
+      ),
+      onDismiss: _blur,
+    );
   }
 
   @override
@@ -261,17 +290,6 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
             ),
           ),
         ),
-        if (_focused && !widget.disabled) ...[
-          SizedBox(height: t.marginSM.w),
-          AntNumberKeyboard(
-            value: value,
-            onChange: _handleChange,
-            confirmText: widget.confirmText,
-            onConfirm: widget.onEnterPress != null ? _handleConfirm : null,
-            randomOrder: widget.randomOrder,
-            customKey: widget.customKey,
-          ),
-        ],
       ],
     );
   }
