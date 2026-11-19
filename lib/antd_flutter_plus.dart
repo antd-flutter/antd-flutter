@@ -227,8 +227,9 @@ export 'src/components/data_display/floating_bubble/ant_floating_bubble_types.da
 export 'package:antd_refresh/src/ant_refresh_controller.dart';
 export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll.dart';
 export 'package:antd_refresh/src/infinite_scroll/ant_infinite_scroll_types.dart';
-export 'src/components/data_display/image_viewer/ant_image_viewer.dart';
-export 'src/components/data_display/image_viewer/ant_image_viewer_types.dart';
+// ImageViewer 图片查看器已迁移至 antd_image_viewer（P08），此处 re-export 保持符号兼容
+export 'package:antd_image_viewer/src/image_viewer/ant_image_viewer.dart';
+export 'package:antd_image_viewer/src/image_viewer/ant_image_viewer_types.dart';
 export 'src/components/data_display/floating_panel/ant_floating_panel.dart';
 export 'src/components/data_display/floating_panel/ant_floating_panel_types.dart';
 

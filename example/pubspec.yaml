@@ -35,6 +35,8 @@ dependency_overrides:
     path: ../packages/antd_swipe_action
   antd_splitter:
     path: ../packages/antd_splitter
+  antd_image_viewer:
+    path: ../packages/antd_image_viewer
   antd_calendar:
     path: ../packages/antd_calendar
 

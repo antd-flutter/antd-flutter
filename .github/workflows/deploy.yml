@@ -76,15 +76,24 @@ jobs:
         working-directory: packages/antd_splitter/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/splitter/
 
+      - name: Install antd_image_viewer example dependencies
+        working-directory: packages/antd_image_viewer/example
+        run: flutter pub get
+
+      - name: Build antd_image_viewer example (release)
+        working-directory: packages/antd_image_viewer/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/image_viewer/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
           cp -r packages/antd_refresh/example/build/web/* site/refresh/
           cp -r packages/antd_swipe_action/example/build/web/* site/swipe_action/
           cp -r packages/antd_splitter/example/build/web/* site/splitter/
+          cp -r packages/antd_image_viewer/example/build/web/* site/image_viewer/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

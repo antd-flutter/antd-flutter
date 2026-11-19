@@ -1,4 +1,4 @@
-import 'package:antd_flutter_plus/src/components/data_display/image_viewer/ant_image_viewer.dart';
+import 'package:antd_image_viewer/src/image_viewer/ant_image_viewer.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
