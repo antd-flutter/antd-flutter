@@ -87,17 +87,28 @@ RAW_PNG="$RENDER_DIR/$(basename "$BRAND_CACHE").png"
 
 python3 - "$RAW_PNG" "$MASTER_PNG" <<'PY'
 import sys
-from PIL import Image
+from PIL import Image, ImageChops
 raw, master = sys.argv[1], sys.argv[2]
 img = Image.open(raw).convert("RGBA")
-# 裁掉透明边，等比缩放后居中到 1024 透明方画布
-bbox = img.getbbox()
+# qlmanage 输出为不透明白底（alpha 全 255），getbbox() 无法定位内容；
+# 改用与白底的差异检测内容 bbox，裁掉空白边缘后居中到方形画布
+diff = ImageChops.difference(img.convert("RGB"), Image.new("RGB", img.size, (255, 255, 255)))
+bbox = diff.convert("L").point(lambda x: 255 if x > 10 else 0).getbbox()
 if bbox:
     img = img.crop(bbox)
 side = max(img.size)
 canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
 canvas.paste(img, ((side - img.width) // 2, (side - img.height) // 2))
 canvas = canvas.resize((1024, 1024), Image.LANCZOS)
+# 自检：非白内容 bbox 中心与画布中心偏差 ≤ 2px
+rgb = canvas.convert("RGB")
+d2 = ImageChops.difference(rgb, Image.new("RGB", rgb.size, (255, 255, 255))).convert("L")
+b2 = d2.point(lambda x: 255 if x > 10 else 0).getbbox()
+if b2:
+    ox = abs((b2[0] + b2[2]) / 2 - 512)
+    oy = abs((b2[1] + b2[3]) / 2 - 512)
+    if ox > 2 or oy > 2:
+        sys.exit(f"[错误] 母图内容未居中：偏差 ({ox:.1f}, {oy:.1f})px > 2px")
 canvas.save(master)
 PY
 ok "生成 1024 母图 → $MASTER_PNG"
