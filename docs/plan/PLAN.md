@@ -145,26 +145,34 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 
 ---
 
-## 六、剩余队列（用户澄清后的最终规则）
+## 六、剩余队列（批次制——用户指示：ui 归属基础组件先行迁移，独立包拆分靠后）
 
-> **组件去向规则（严格遵守）**：最终去向为独立包的组件，**不经过 ui 中转**，轮到时直接从主包拆独立包；只有最终归属 ui 的组件才迁入 ui。所有 ui 归属组件迁移完成并验收后，才进入独立包拆分批次。
+> **组件去向规则（严格遵守）**：最终归属 ui 的组件先迁入 ui；最终去向为独立包的组件不经过 ui 中转，轮到时直接从主包拆独立包。**批次 0（ui 基础组件迁移）全部完成并验收后，才开始批次 1 起的独立包拆分。**
 
-### 批次 1：antd_picker 独立包（Picker 族已误迁 ui——从 ui 拆出，机械搬运 + R31 评估）
-packages/antd_flutter_ui/lib/src/data_entry/{picker,date_picker,time_picker,cascader}/ → packages/antd_picker/（标准五件套：example R35.4 多平台适配 + R32.2 图标命名 AntdPicker + CI 静态部署 + ui/plus re-export 链调整 + R33 判定 + R35.3 macos 验证）；AntPickerView 留 ui（通用滚轮视图，此前裁决）；R31 CupertinoPicker 继承评估随任务
+### 批次 0：plus 剩余基础组件迁入 ui（用户指示先行，约 55+ 组件，8 小批串行）
+> 主包 lib/src/components/ 尚有 feedback 17 / data_entry 24 / data_display 6 / navigation 12 / misc+general 5 未迁，全部 ui 归属。每小批：git mv → barrel/re-export → 三件套（nav ⏱ + demo 接线）→ analyze/test/build 全绿再下一批：
+> - 0-1 反馈非弹层族：alert / error_block / loading / mask / progress / result / result_page / skeleton / spin
+> - 0-2 反馈弹层族：dialog / drawer / modal / popup / action_sheet / toast / message / notification（弹层接 popup_engine 基座）
+> - 0-3 录入简单族：checkbox / radio / rate / slider / switch / stepper / input / input_number / search_bar / check_list / selector / number_keyboard / passcode_input / virtual_input / image_uploader
+> - 0-4 select-like 族：select / color_picker / auto_complete / mentions（统一接 popup_engine 底座——已立项估算项在此落地）
+> - 0-5 数据展示残余：collapse / descriptions / list / timeline
+> - 0-6 导航族：tabs / capsule_tabs / tab_bar / steps / jumbo_tabs / side_bar / menu / nav_bar / pagination / anchor / breadcrumb / index_bar（含 AntTabs/AntSteps 无界高度 bug 修复）
+> - 0-7 misc/general：affix / app / config_provider / border_beam / float_button
+> - 0-8 压轴：form / transfer / table（复杂表单与表格引擎）
 
-### 批次 2：独立包直接从主包拆分（不经 ui，逐个串行）
-1. **antd_tree**（Tree/TreeSelect，主包 → 独立包）
-2. **antd_carousel**（Carousel，carousel_slider 参考）
-3. **antd_masonry**（Masonry，staggered_grid_view 参考 + sliver 变体 R33）
-4. **antd_floating**（FloatingPanel/FloatingBubble + R35 Controller 评估）
-5. **antd_form**（Form/AutoComplete/Mentions/Transfer——读代码后确定归属边界，汇报说明）
-6. **antd_table**（pluto_grid 参考——最复杂，压轴）
+### 批次 1：antd_picker 独立包 ✅ 已完成
+### 批次 2：独立包直接从主包拆分（逐个串行）
+1. **antd_tree** ✅（Tree/TreeSelect）
+2. **antd_carousel** ✅
+3. **antd_masonry** ✅（含 AntSliverMasonry sliver 变体 R33）
+4. **antd_floating** 🔧 进行中
+5. **antd_form**（表单相关独立包评估——0-8 已将 form/transfer 迁 ui，此处从 ui 拆出）
+6. **antd_table**（压轴，从 ui 拆出；pluto_grid 参考）
 
-### 批次 3：ui 归属收尾
-1. **AutoComplete/Mentions**：若批次 2 归属 antd_form 则随包走；确认 ui 归属部分迁移/收尾
-2. **AntTabs/AntSteps 无界高度 bug 修复**（P09 记录）
-3. **Calendar 完善**（⏱ 项：双 UI 一致性打磨）
-4. 全量回归 + 伞包 README（全量伞包/单组件包两种接入方式）
+### 批次 3：收尾
+1. select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ 已接；Cascader/AutoComplete/ColorPicker/Mentions 核查）
+2. Calendar 完善（⏱：双 UI 一致性打磨）
+3. 全量回归 + 伞包 antd_flutter_plus README（全量伞包/单组件包两种接入方式）
 
 ### 批次 4：发布 1.0.0
 CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
