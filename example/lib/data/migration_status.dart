@@ -16,9 +16,6 @@ library;
 const kPendingVerify = <String>[
   'calendar',
   'calendar_picker',
-  'popover',
-  'popconfirm',
-  'dropdown',
 ];
 const kMigratedVerified = <String>[
   'image',
@@ -49,6 +46,9 @@ const kMigratedVerified = <String>[
   'watermark',
   'tag',
   'ellipsis',
+  'popover',
+  'popconfirm',
+  'dropdown',
 ];
 
 /// 迁移状态
