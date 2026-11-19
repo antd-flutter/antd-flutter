@@ -187,6 +187,7 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 2. select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ 已接；Cascader/AutoComplete/ColorPicker/Mentions 核查）
 2. Calendar 完善（⏱：双 UI 一致性打磨）
 3. 全量回归 + 伞包 antd_flutter_plus README（全量伞包/单组件包两种接入方式）
+3b. **全部 example 身份脚本终跑 + 全量 gen-docs 重新生成（用户指定）**：所有 example（含根 example/伞包）统一跑 setup_example_identity.sh（icon/BundleID com.antd.<x>/显示名/壳名）+ scripts/gen_docs.sh 全量重跑（API 文档与代码同步终态）——发布前终态固化
 
 ### 批次 4：发布 1.0.0
 CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
