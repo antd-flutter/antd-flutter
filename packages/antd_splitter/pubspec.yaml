@@ -1,9 +1,9 @@
 name: antd_splitter
 description: Ant Design v6 Splitter component for Flutter. Draggable split panels with horizontal/vertical layouts, min/max constraints, collapsible panels, controlled sizes and lazy dragging, aligned with antd React Splitter API.
 version: 0.1.0-beta.1
-homepage: https://antd-flutter.github.io/antd-flutter/
-repository: https://github.com/antd-flutter/antd-flutter
-issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
 
 topics:
   - ui

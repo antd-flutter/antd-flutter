@@ -31,7 +31,7 @@ const List<_BaselineCase> _cases = <_BaselineCase>[
     _BaselineCase('url_H', 'https://example.com', AntQrErrorCorrectLevel.h, 29, 3, 3),
     _BaselineCase(
       'long_M',
-      'https://antd-flutter.github.io/antd-flutter/components/qrcode?utm_source=demo&scenario=baseline-consistency-check-2026',
+      'https://flutter-open.github.io/antd-flutter/components/qrcode?utm_source=demo&scenario=baseline-consistency-check-2026',
       AntQrErrorCorrectLevel.m,
       45,
       7,

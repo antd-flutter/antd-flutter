@@ -1,9 +1,9 @@
 name: antd_transfer
 description: Ant Design (antd-mobile) Transfer component for Flutter. Double-panel transfer with multi-select, controlled mode, search filter, one-way mode and multi-level TreeTransfer (parent-child check linkage, half-checked state, tree shuttle), aligned with antd Transfer / TreeTransfer API.
 version: 0.1.0-beta.1
-homepage: https://antd-flutter.github.io/antd-flutter/
-repository: https://github.com/antd-flutter/antd-flutter
-issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
 
 topics:
   - ui

@@ -1,9 +1,9 @@
 name: antd_floating
 description: Ant Design v6 Floating components for Flutter. Draggable floating panel with anchor snapping (AntFloatingPanel) and draggable floating bubble with menu expansion (AntFloatingBubble), aligned with antd-mobile FloatingPanel/FloatingBubble API.
 version: 0.1.0-beta.1
-homepage: https://antd-flutter.github.io/antd-flutter/
-repository: https://github.com/antd-flutter/antd-flutter
-issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
 
 topics:
   - ui

@@ -96,11 +96,11 @@ AntButton(
 
 ## 文档
 
-- [官网](https://antd-flutter.github.io/antd-flutter/)
-- [图标 Gallery](https://antd-flutter.github.io/antd-flutter/icons/)
-- [GitHub](https://github.com/antd-flutter/antd-flutter)
+- [官网](https://flutter-open.github.io/antd-flutter/)
+- [图标 Gallery](https://flutter-open.github.io/antd-flutter/icons/)
+- [GitHub](https://github.com/flutter-open/antd-flutter)
 - [GitCode](https://gitcode.com/antd-flutter/antd-flutter)
-- [问题反馈](https://github.com/antd-flutter/antd-flutter/issues)
+- [问题反馈](https://github.com/flutter-open/antd-flutter/issues)
 
 ## License
 

@@ -1,9 +1,9 @@
 name: antd_form
 description: Ant Design (antd-mobile) Form component for Flutter. Controlled/uncontrolled forms with validation rules (required/pattern/length/range/custom validator), dynamic form list, submit/reset and form-controller programmatic API, aligned with antd-mobile Form API.
 version: 0.1.0-beta.1
-homepage: https://antd-flutter.github.io/antd-flutter/
-repository: https://github.com/antd-flutter/antd-flutter
-issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
 
 topics:
   - ui

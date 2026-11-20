@@ -11,7 +11,7 @@
 ## 一、现状快照（2026-11-18）
 
 ### 仓库与分支
-- 仓库：github.com/antd-flutter/antd-flutter（单远程 GitHub，SSH；Gitee/GitCode 双推已取消）
+- 仓库：github.com/flutter-open/antd-flutter（单远程 GitHub，SSH；Gitee/GitCode 双推已取消）
 - **当前分支：`task/p08-split`**（P08 进行中，未合并 master）；master 停在 P08 前状态
 - Flutter：fvm 3.50.0 stable；pub.dev 凭证已缓存（曾成功发布子包）
 - 进行中子代理：task-p08-calendar2（antd_calendar 独立包，见「进行中」节）

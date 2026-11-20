@@ -112,7 +112,7 @@ AntCalendar(value: ..., onSelect: ...); // 既有 value/defaultValue/onSelect/
 ## 文档与演示
 
 - [API 文档总览](docs/api-index.md)
-- 在线演示：<https://antd-flutter.github.io/antd-flutter/calendar_picker/>
+- 在线演示：<https://flutter-open.github.io/antd-flutter/calendar_picker/>
 
 ## License
 

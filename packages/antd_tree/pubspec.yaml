@@ -1,9 +1,9 @@
 name: antd_tree
 description: Ant Design v6 Tree & TreeSelect components for Flutter. Tree display with expand/collapse, selection, checkable checkboxes with parent-child linkage, showLine, and TreeSelect dropdown, aligned with antd React Tree API.
 version: 0.1.0-beta.1
-homepage: https://antd-flutter.github.io/antd-flutter/
-repository: https://github.com/antd-flutter/antd-flutter
-issue_tracker: https://github.com/antd-flutter/antd-flutter/issues
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
 
 topics:
   - ui
