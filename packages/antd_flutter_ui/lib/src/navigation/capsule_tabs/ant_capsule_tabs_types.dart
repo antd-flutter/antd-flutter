@@ -10,6 +10,7 @@ class AntCapsuleTabItem {
     this.title,
     this.titleWidget,
     this.disabled = false,
+    this.child,
   });
 
   /// 唯一标识。
@@ -23,4 +24,7 @@ class AntCapsuleTabItem {
 
   /// 是否禁用。
   final bool disabled;
+
+  /// 面板内容（对齐 antd-mobile CapsuleTab children），激活时展示。
+  final Widget? child;
 }
