@@ -228,7 +228,7 @@ flutter run -d chrome    # 或：flutter run -d macos
 antd-flutter/
 ├── lib/
 │   ├── antd_flutter_plus.dart        # 伞包导出
-│   └── src/platform/                 # AntPlatform 与鸿蒙通道桥接
+│   └── （仅 barrel）                  # 统一导出各子包；平台与工具逻辑在 antd_theme / antd_flutter_ui
 ├── packages/                         # 21 个包
 │   ├── antd_color/
 │   ├── antd_tokens/
@@ -239,8 +239,7 @@ antd-flutter/
 │   ├── antd_picker/
 │   ├── antd_table/
 │   └── ...
-├── example/                          # 画廊应用
-├── test/                             # 平台与跨包集成测试
+├── example/                          # 画廊应用（Web 演示）
 ├── pubspec.yaml
 └── README.md
 ```

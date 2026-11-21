@@ -228,7 +228,7 @@ Every package ships an interactive web demo, built from its own `example/` app a
 antd-flutter/
 ├── lib/
 │   ├── antd_flutter_plus.dart        # Umbrella barrel
-│   └── src/platform/                 # AntPlatform and OHOS channel bridge
+│   └── (barrel only)                 # Re-exports packages; logic lives in antd_theme / antd_flutter_ui
 ├── packages/                         # 21 packages
 │   ├── antd_color/
 │   ├── antd_tokens/
@@ -239,8 +239,7 @@ antd-flutter/
 │   ├── antd_picker/
 │   ├── antd_table/
 │   └── ...
-├── example/                          # Gallery application
-├── test/                             # Platform and cross-package integration tests
+├── example/                          # Gallery application (web demo)
 ├── pubspec.yaml
 └── README.md
 ```
