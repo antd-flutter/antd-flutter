@@ -22,24 +22,24 @@ dependencies:
   # L2/L3 子包（发布后自动从 pub.dev 解析）
   antd_color: ^1.0.1
   antd_tokens: ^1.0.1
-  antd_theme: ^1.0.1
+  antd_theme: ^1.0.2
   antd_icons_flutter: ^1.0.3
-  antd_flutter_ui: ^1.0.1
-  antd_qrcode: ^1.0.1
-  antd_refresh: ^1.0.1
-  antd_swipe_action: ^1.0.1
+  antd_flutter_ui: ^1.0.3
+  antd_qrcode: ^1.0.2
+  antd_refresh: ^1.0.2
+  antd_swipe_action: ^1.0.2
   antd_calendar: ^1.0.1
-  antd_splitter: ^1.0.1
-  antd_image_viewer: ^1.0.1
-  antd_upload: ^1.0.1
+  antd_splitter: ^1.0.2
+  antd_image_viewer: ^1.0.2
+  antd_upload: ^1.0.2
   antd_picker: ^1.0.1
   antd_form: ^1.0.1
   antd_tree: ^1.0.1
-  antd_carousel: ^1.0.1
-  antd_masonry: ^1.0.1
-  antd_floating: ^1.0.1
-  antd_keyboard: ^1.0.1
-  antd_table: ^1.0.1
+  antd_carousel: ^1.0.2
+  antd_masonry: ^1.0.2
+  antd_floating: ^1.0.2
+  antd_keyboard: ^1.0.2
+  antd_table: ^1.0.2
   antd_transfer: ^1.0.1
   cached_network_image: ^4.0.7
 
