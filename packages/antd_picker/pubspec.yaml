@@ -37,5 +37,7 @@ dependency_overrides:
   antd_flutter_ui:
     path: ../antd_flutter_ui
 
+  antd_icons_flutter:
+    path: ../antd_icons_flutter
 flutter:
   uses-material-design: true

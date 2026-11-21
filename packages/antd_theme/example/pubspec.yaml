@@ -24,6 +24,8 @@ dependency_overrides:
   antd_tokens:
     path: ../../antd_tokens
 
+  antd_theme:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -23,6 +23,8 @@ dependency_overrides:
   antd_theme:
     path: ../../antd_theme
 
+  antd_qrcode:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

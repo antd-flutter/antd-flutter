@@ -21,6 +21,7 @@ export 'src/ant_material_bridge.dart';
 export 'src/ant_breakpoint.dart';
 export 'src/ant_platform.dart';
 export 'src/ant_responsive.dart';
+export 'src/ant_scale.dart';
 export 'src/ant_screen_util.dart';
 export 'src/enum/ant_breakpoint_type.dart';
 export 'src/enum/ant_responsive_type.dart';

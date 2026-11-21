@@ -24,6 +24,8 @@ dependency_overrides:
   antd_icons_flutter:
     path: ../../antd_icons_flutter
 
+  antd_splitter:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

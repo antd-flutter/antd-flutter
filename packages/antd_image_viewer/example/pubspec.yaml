@@ -47,6 +47,8 @@ dependency_overrides:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  antd_image_viewer:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

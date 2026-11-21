@@ -28,3 +28,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: false
+
+dependency_overrides:
+  antd_color:
+    path: ../antd_color

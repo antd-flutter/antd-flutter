@@ -30,3 +30,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+dependency_overrides:
+  antd_theme:
+    path: ../antd_theme
+  antd_icons_flutter:
+    path: ../antd_icons_flutter

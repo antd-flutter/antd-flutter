@@ -26,6 +26,8 @@ dependency_overrides:
 
   cupertino_icons: ^1.0.8
 
+  antd_calendar:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

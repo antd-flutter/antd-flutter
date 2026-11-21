@@ -22,6 +22,8 @@ dependency_overrides:
   antd_color:
     path: ../../antd_color
 
+  antd_tokens:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter
