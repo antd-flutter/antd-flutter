@@ -95,6 +95,29 @@ void main() {
 
       expect(find.text('9'), findsOneWidget);
     });
+
+    testWidgets('文字角标高度不撑满整行', (tester) async {
+      await tester.pumpWidget(_wrap(const AntSideBar(
+        items: [
+          AntSideBarItem(key: 'a', title: '选项一', badgeText: '9'),
+        ],
+      ),),);
+
+      final badge = find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.decoration is BoxDecoration &&
+            (w.decoration as BoxDecoration).borderRadius ==
+                BorderRadius.circular(100),
+      );
+      expect(badge, findsOneWidget);
+
+      final badgeRect = tester.getRect(badge);
+      final titleRect = tester.getRect(find.text('选项一'));
+      // 角标是 14 高的小胶囊，不应被行高拉满
+      expect(badgeRect.height, lessThanOrEqualTo(titleRect.height));
+      expect(badgeRect.shortestSide, greaterThan(0));
+    });
   });
 
   group('AntSideBar — 交互', () {

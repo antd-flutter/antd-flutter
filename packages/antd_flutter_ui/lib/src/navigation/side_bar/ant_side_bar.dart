@@ -93,6 +93,7 @@ class _AntSideBarState extends State<AntSideBar> {
               colorText: t.colorText,
               colorTextSecondary: t.colorTextSecondary,
               colorTextDisabled: t.colorTextDisabled,
+              colorError: t.colorError,
               colorBgContainer: t.colorBgContainer,
               colorBgLayout: t.colorBgLayout,
               onTap: () => _handleTap(item),
@@ -115,6 +116,7 @@ class _SideBarItem extends StatelessWidget {
     required this.colorText,
     required this.colorTextSecondary,
     required this.colorTextDisabled,
+    required this.colorError,
     required this.colorBgContainer,
     required this.colorBgLayout,
     required this.onTap,
@@ -126,6 +128,7 @@ class _SideBarItem extends StatelessWidget {
   final Color colorText;
   final Color colorTextSecondary;
   final Color colorTextDisabled;
+  final Color colorError;
   final Color colorBgContainer;
   final Color colorBgLayout;
   final VoidCallback onTap;
@@ -179,31 +182,38 @@ class _SideBarItem extends StatelessWidget {
                     ),
             ),
             if (item.badgeDot)
+              // antd Badge 圆点：10×10、danger 色
               Container(
-                width: 8.w,
-                height: 8.w,
-                margin: EdgeInsets.only(left: 4.w),
+                width: 10.w,
+                height: 10.w,
+                margin: EdgeInsets.only(left: 6.w),
                 decoration: BoxDecoration(
-                  color: colorPrimary,
+                  color: colorError,
                   shape: BoxShape.circle,
                 ),
               ),
             if (item.badgeText != null)
+              // antd Badge 文字角标：9px/行高 12、上下 1 左右 4 内边距，
+              // 固定 14 高，不能随行高被拉满；宽度按内容自适应。
               Container(
-                margin: EdgeInsets.only(left: 4.w),
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.w),
-                decoration: BoxDecoration(
-                  color: colorPrimary,
-                  borderRadius: BorderRadius.circular(8.w),
-                ),
+                height: 14.w,
+                margin: EdgeInsets.only(left: 6.w),
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
                 constraints: BoxConstraints(minWidth: 14.w),
-                alignment: Alignment.center,
-                child: Text(
-                  item.badgeText!,
-                  style: TextStyle(
-                    fontSize: 9.sp,
-                    color: Colors.white,
-                    height: 1.2,
+                decoration: BoxDecoration(
+                  color: colorError,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Center(
+                  widthFactor: 1,
+                  child: Text(
+                    item.badgeText!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ),
