@@ -5,20 +5,27 @@
 /// - [min] / [max] / [step] — 范围与步长
 /// - [onChange] / [onChangeEnd] — 变化回调
 /// - [disabled] — 是否禁用
-/// - [marks] — 刻度标记
+/// - [marks] — 刻度标记（任意模型 `List<T>`，配 [markValueOf] / [markLabelOf]）
 /// - [tooltipVisible] — 提示是否常显
 ///
 /// ```dart
-/// AntSlider(
+/// // 最简：刻度直接用数值
+/// AntSlider<double>(
 ///   defaultValue: 30,
-///   min: 0,
-///   max: 100,
+///   marks: const [0.0, 50.0, 100.0],
+///   markLabelOf: (v) => '${v.toInt()}%',
 ///   onChange: (v) => print(v),
-/// )
+/// );
+///
+/// // 自定义模型
+/// AntSlider<Stop>(
+///   marks: stops,
+///   markValueOf: (s) => s.value,
+///   markLabelOf: (s) => s.label,
+/// );
 /// ```
 library;
 
-import 'package:antd_flutter_ui/src/data_entry/slider/ant_slider_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/slider/ant_slider_types.dart';
@@ -31,7 +38,7 @@ import 'package:material_ui/material_ui.dart';
 /// 滑动输入条 — 滑动型输入器，展示当前值和可选范围。
 ///
 /// 对齐 antd React Slider 组件。
-class AntSlider extends StatefulWidget {
+class AntSlider<T> extends StatefulWidget {
   const AntSlider({
     super.key,
     this.value,
@@ -43,6 +50,8 @@ class AntSlider extends StatefulWidget {
     this.onChangeEnd,
     this.disabled = false,
     this.marks = const [],
+    this.markValueOf,
+    this.markLabelOf,
     this.tooltipVisible = false,
     this.autofocus = false,
   });
@@ -71,8 +80,14 @@ class AntSlider extends StatefulWidget {
   /// 是否禁用。
   final bool disabled;
 
-  /// 刻度标记。
-  final List<AntSliderMark> marks;
+  /// 刻度标记（任意模型）。
+  final List<T> marks;
+
+  /// 刻度对应的数值，缺省当 `T` 是 [num] 时直接取 `toDouble()`。
+  final double Function(T mark)? markValueOf;
+
+  /// 刻度文本，缺省 `'$mark'`。
+  final String Function(T mark)? markLabelOf;
 
   /// 提示是否常显（默认仅拖拽时显示）。
   final bool tooltipVisible;
@@ -81,10 +96,10 @@ class AntSlider extends StatefulWidget {
   final bool autofocus;
 
   @override
-  State<AntSlider> createState() => _AntSliderState();
+  State<AntSlider<T>> createState() => _AntSliderState<T>();
 }
 
-class _AntSliderState extends State<AntSlider> {
+class _AntSliderState<T> extends State<AntSlider<T>> {
   double _internalValue = 0;
   bool _dragging = false;
 
@@ -95,6 +110,20 @@ class _AntSliderState extends State<AntSlider> {
     super.initState();
     _internalValue = widget.defaultValue.clamp(widget.min, widget.max);
   }
+
+  /// 刻度数值。
+  double _markValue(T mark) {
+    final fn = widget.markValueOf;
+    if (fn != null) return fn(mark);
+    if (mark is num) return mark.toDouble();
+    throw StateError(
+      'AntSlider: 无法从 $T 提取刻度数值，请提供 markValueOf；'
+      '刻度文本可用 markLabelOf 自定义。',
+    );
+  }
+
+  /// 刻度文本。
+  String _markLabel(T mark) => widget.markLabelOf?.call(mark) ?? '$mark';
 
   double _valueToPercent(double v) {
     final range = widget.max - widget.min;
@@ -128,9 +157,8 @@ class _AntSliderState extends State<AntSlider> {
     final thumbSize = 14.w;
     final activeColor =
         widget.disabled ? theme.colorTextDisabled : theme.colorPrimary;
-    final inactiveColor = widget.disabled
-        ? theme.colorFillSecondary
-        : theme.colorFillSecondary;
+    final inactiveColor =
+        widget.disabled ? theme.colorFillSecondary : theme.colorFillSecondary;
 
     final hasMarks = widget.marks.isNotEmpty;
     final baseHeight = (hasMarks ? 32 : 16).w;
@@ -152,7 +180,8 @@ class _AntSliderState extends State<AntSlider> {
               ? null
               : (details) {
                   _updateValue(
-                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),);
+                    (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),
+                  );
                 },
           onHorizontalDragEnd: widget.disabled
               ? null
@@ -164,7 +193,8 @@ class _AntSliderState extends State<AntSlider> {
               ? null
               : (details) {
                   _updateValue(
-                      (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),);
+                    (details.localPosition.dx / trackWidth).clamp(0.0, 1.0),
+                  );
                   widget.onChangeEnd?.call(_currentValue);
                 },
           child: SizedBox(
@@ -203,8 +233,9 @@ class _AntSliderState extends State<AntSlider> {
                 // 刻度点
                 if (hasMarks)
                   ...widget.marks.map((mark) {
-                    final markPercent = _valueToPercent(mark.value);
-                    final isPassed = _currentValue >= mark.value;
+                    final markValue = _markValue(mark);
+                    final markPercent = _valueToPercent(markValue);
+                    final isPassed = _currentValue >= markValue;
                     return Positioned(
                       left: markPercent * trackWidth - 2.w,
                       top: trackCenter - 2.w,
@@ -320,12 +351,12 @@ class _AntSliderState extends State<AntSlider> {
                   height: 16.w,
                   child: Stack(
                     children: widget.marks.map((mark) {
-                      final markPercent = _valueToPercent(mark.value);
+                      final markPercent = _valueToPercent(_markValue(mark));
                       return Positioned(
                         left: markPercent * trackWidth - 16.w,
                         width: 32.w,
                         child: Text(
-                          mark.label,
+                          _markLabel(mark),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: theme.fontSizeSM.sp,

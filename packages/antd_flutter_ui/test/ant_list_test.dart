@@ -28,7 +28,7 @@ AntList<String> _list({
   bool bordered = false,
   bool split = true,
   AntListSize size = AntListSize.middle,
-  List<String>? dataSource,
+  List<String>? items,
   int? pageSize,
   bool loading = false,
 }) {
@@ -40,9 +40,9 @@ AntList<String> _list({
     size: size,
     pageSize: pageSize,
     loading: loading,
-    dataSource: dataSource ?? const ['条目一', '条目二', '条目三'],
-    itemKey: (item, index) => item,
-    renderItem: (item, index) => AntListItem(content: Text(item)),
+    items: items ?? const ['条目一', '条目二', '条目三'],
+    keyOf: (item) => item,
+    itemBuilder: (context, item, index) => AntListItem(content: Text(item)),
   );
 }
 
@@ -56,49 +56,66 @@ void main() {
     });
 
     testWidgets('renderItem builds custom item widgets', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: AntList<String>(
-          dataSource: const ['a', 'b'],
-          itemKey: (item, _) => item,
-          renderItem: (item, index) =>
-              AntListItem(content: Text('自定义-$item-$index')),
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: AntList<String>(
+              items: const ['a', 'b'],
+              keyOf: (item) => item,
+              itemBuilder: (context, item, index) =>
+                  AntListItem(content: Text('自定义-$item-$index')),
+            ),
+          ),
         ),
-      ),),);
+      );
       expect(find.text('自定义-a-0'), findsOneWidget);
       expect(find.text('自定义-b-1'), findsOneWidget);
     });
 
     testWidgets('header and footer render', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(header: const Text('头部'), footer: const Text('底部')),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(header: const Text('头部'), footer: const Text('底部')),
+          ),
+        ),
+      );
       expect(find.text('头部'), findsOneWidget);
       expect(find.text('底部'), findsOneWidget);
     });
 
     testWidgets('bordered adds outer border', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(bordered: true),
-      ),),);
-      final decorated = tester
-          .widget<DecoratedBox>(
-            find.descendant(
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(bordered: true),
+          ),
+        ),
+      );
+      final decorated = tester.widget<DecoratedBox>(
+        find
+            .descendant(
               of: find.byType(AntList<String>),
               matching: find.byType(DecoratedBox),
-            ).first,
-          );
+            )
+            .first,
+      );
       final decoration = decorated.decoration as BoxDecoration;
       expect(decoration.border, isNotNull);
     });
 
     testWidgets('split false removes dividers', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(split: false),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(split: false),
+          ),
+        ),
+      );
       final containers = tester
           .widgetList<Container>(
             find.descendant(
@@ -115,17 +132,31 @@ void main() {
     });
 
     testWidgets('size large uses larger font than small', (tester) async {
-      await tester.pumpWidget(_wrap(Column(
-        children: [
-          SizedBox(height: 300, child: _list(size: AntListSize.large)),
-          SizedBox(height: 300, child: _list(size: AntListSize.small)),
-        ],
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              SizedBox(height: 300, child: _list(size: AntListSize.large)),
+              SizedBox(height: 300, child: _list(size: AntListSize.small)),
+            ],
+          ),
+        ),
+      );
       final largeText = tester.widget<DefaultTextStyle>(
-        find.ancestor(of: find.text('条目一').first, matching: find.byType(DefaultTextStyle)).first,
+        find
+            .ancestor(
+              of: find.text('条目一').first,
+              matching: find.byType(DefaultTextStyle),
+            )
+            .first,
       );
       final smallText = tester.widget<DefaultTextStyle>(
-        find.ancestor(of: find.text('条目一').last, matching: find.byType(DefaultTextStyle)).first,
+        find
+            .ancestor(
+              of: find.text('条目一').last,
+              matching: find.byType(DefaultTextStyle),
+            )
+            .first,
       );
       expect(
         largeText.style.fontSize,
@@ -135,39 +166,47 @@ void main() {
 
     testWidgets('actions render and are tappable', (tester) async {
       var tapped = false;
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: AntList<String>(
-          dataSource: const ['条目一'],
-          itemKey: (item, _) => item,
-          renderItem: (item, _) => AntListItem(
-            content: Text(item),
-            actions: [
-              AntListAction(
-                child: const Text('操作'),
-                onTap: () => tapped = true,
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: AntList<String>(
+              items: const ['条目一'],
+              keyOf: (item) => item,
+              itemBuilder: (context, item, _) => AntListItem(
+                content: Text(item),
+                actions: [
+                  AntListAction(
+                    child: const Text('操作'),
+                    onTap: () => tapped = true,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),),);
+      );
       expect(find.text('操作'), findsOneWidget);
       await tester.tap(find.text('操作'));
       expect(tapped, isTrue);
     });
 
     testWidgets('extra renders on the right', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: AntList<String>(
-          dataSource: const ['条目一'],
-          itemKey: (item, _) => item,
-          renderItem: (item, _) => AntListItem(
-            content: Text(item),
-            extra: const Text('右侧'),
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: AntList<String>(
+              items: const ['条目一'],
+              keyOf: (item) => item,
+              itemBuilder: (context, item, _) => AntListItem(
+                content: Text(item),
+                extra: const Text('右侧'),
+              ),
+            ),
           ),
         ),
-      ),),);
+      );
       expect(find.text('右侧'), findsOneWidget);
       final row = tester.widget<Row>(
         find.ancestor(of: find.text('条目一'), matching: find.byType(Row)).first,
@@ -176,35 +215,46 @@ void main() {
     });
 
     testWidgets('empty dataSource shows AntEmpty', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(dataSource: const []),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(items: const []),
+          ),
+        ),
+      );
       expect(find.byType(AntEmpty), findsOneWidget);
       expect(find.text('条目一'), findsNothing);
     });
 
     testWidgets('loading shows spinner instead of items', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(loading: true),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(loading: true),
+          ),
+        ),
+      );
       expect(find.byType(AntLoading), findsOneWidget);
       expect(find.text('条目一'), findsNothing);
     });
 
-    testWidgets('long list builds only visible items lazily',
-        (tester) async {
-      final dataSource =
-          List<String>.generate(100, (i) => '长列表条目$i');
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 200,
-        child: AntList<String>(
-          dataSource: dataSource,
-          itemKey: (item, _) => item,
-          renderItem: (item, _) => AntListItem(content: Text(item)),
+    testWidgets('long list builds only visible items lazily', (tester) async {
+      final dataSource = List<String>.generate(100, (i) => '长列表条目$i');
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 200,
+            child: AntList<String>(
+              items: dataSource,
+              keyOf: (item) => item,
+              itemBuilder: (context, item, _) =>
+                  AntListItem(content: Text(item)),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.pumpAndSettle();
       // 100 条只构建可见行
       final built = tester
@@ -221,12 +271,15 @@ void main() {
     });
 
     testWidgets('pageSize paging switches pages', (tester) async {
-      final dataSource =
-          List<String>.generate(5, (i) => '分页条目${i + 1}');
-      await tester.pumpWidget(_wrap(SizedBox(
-        height: 600,
-        child: _list(dataSource: dataSource, pageSize: 2),
-      ),),);
+      final dataSource = List<String>.generate(5, (i) => '分页条目${i + 1}');
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 600,
+            child: _list(items: dataSource, pageSize: 2),
+          ),
+        ),
+      );
       expect(find.text('分页条目1'), findsOneWidget);
       expect(find.text('分页条目2'), findsOneWidget);
       expect(find.text('分页条目3'), findsNothing);

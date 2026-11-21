@@ -19,16 +19,61 @@ Widget _wrap(Widget child) {
   );
 }
 
-List<AntSelectorOption<String>> _options() => const [
-      AntSelectorOption(value: 'a', label: Text('苹果')),
-      AntSelectorOption(value: 'b', label: Text('香蕉')),
-      AntSelectorOption(value: 'c', label: Text('橙子')),
-    ];
+const _options = ['a', 'b', 'c'];
+const _labels = {'a': '苹果', 'b': '香蕉', 'c': '橙子'};
+
+String _labelOf(String value) => _labels[value]!;
+
+const _prices = {'a': '¥5/斤'};
+
+String _priceOf(String value) => _prices[value]!;
+
+/// 自定义模型：水果（名称 / 价格 / 禁用均由模型描述）。
+class _Fruit {
+  const _Fruit(this.id, this.name, this.price, {this.disabled = false});
+
+  final String id;
+  final String name;
+  final String price;
+  final bool disabled;
+}
+
+const _fruits = [
+  _Fruit('apple', '苹果', '¥5/斤'),
+  _Fruit('banana', '香蕉', '¥3/斤'),
+  _Fruit('orange', '橙子', '¥6/斤', disabled: true),
+];
+
+/// 便捷构造：字符串选项 + labelOf。
+AntSelector<String> _selector({
+  List<String>? value,
+  List<String>? defaultValue,
+  bool multiple = false,
+  bool disabled = false,
+  bool readOnly = false,
+  int? columns,
+  List<String> options = _options,
+  bool Function(String item)? disabledOf,
+  ValueChanged<List<String>>? onChange,
+}) {
+  return AntSelector<String>(
+    value: value,
+    defaultValue: defaultValue,
+    multiple: multiple,
+    disabled: disabled,
+    readOnly: readOnly,
+    columns: columns,
+    options: options,
+    labelOf: _labelOf,
+    disabledOf: disabledOf,
+    onChange: onChange,
+  );
+}
 
 void main() {
   group('AntSelector — rendering', () {
     testWidgets('renders all options', (tester) async {
-      await tester.pumpWidget(_wrap(AntSelector<String>(options: _options())));
+      await tester.pumpWidget(_wrap(_selector()));
       await tester.pumpAndSettle();
 
       expect(find.text('苹果'), findsOneWidget);
@@ -40,13 +85,9 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           const AntSelector<String>(
-            options: [
-              AntSelectorOption(
-                value: 'a',
-                label: Text('苹果'),
-                description: Text('¥5/斤'),
-              ),
-            ],
+            options: ['a'],
+            labelOf: _labelOf,
+            descriptionOf: _priceOf,
           ),
         ),
       );
@@ -57,14 +98,7 @@ void main() {
     });
 
     testWidgets('columns layout renders rows', (tester) async {
-      await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(
-            columns: 2,
-            options: _options(),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(_selector(columns: 2)));
       await tester.pumpAndSettle();
 
       // 3 options with 2 columns → 2 Rows
@@ -74,11 +108,7 @@ void main() {
 
   group('AntSelector — single selection', () {
     testWidgets('defaultValue shows checked style', (tester) async {
-      await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(defaultValue: ['b'], options: _options()),
-        ),
-      );
+      await tester.pumpWidget(_wrap(_selector(defaultValue: ['b'])));
       await tester.pumpAndSettle();
 
       // checked item has primary border
@@ -98,12 +128,7 @@ void main() {
     testWidgets('tap selects and fires onChange', (tester) async {
       List<String>? changed;
       await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(
-            options: _options(),
-            onChange: (v) => changed = v,
-          ),
-        ),
+        _wrap(_selector(onChange: (v) => changed = v)),
       );
       await tester.pumpAndSettle();
 
@@ -117,11 +142,7 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
-            defaultValue: ['a'],
-            options: _options(),
-            onChange: (v) => changed = v,
-          ),
+          _selector(defaultValue: ['a'], onChange: (v) => changed = v),
         ),
       );
       await tester.pumpAndSettle();
@@ -136,11 +157,7 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
-            defaultValue: ['a'],
-            options: _options(),
-            onChange: (v) => changed = v,
-          ),
+          _selector(defaultValue: ['a'], onChange: (v) => changed = v),
         ),
       );
       await tester.pumpAndSettle();
@@ -154,15 +171,9 @@ void main() {
 
   group('AntSelector — multiple selection', () {
     testWidgets('select multiple items', (tester) async {
-      List<List<String>> changed = [];
+      final changed = <List<String>>[];
       await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(
-            multiple: true,
-            options: _options(),
-            onChange: (v) => changed.add(v),
-          ),
-        ),
+        _wrap(_selector(multiple: true, onChange: changed.add)),
       );
       await tester.pumpAndSettle();
 
@@ -178,14 +189,13 @@ void main() {
     });
 
     testWidgets('deselect on second tap', (tester) async {
-      List<List<String>> changed = [];
+      final changed = <List<String>>[];
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
+          _selector(
             multiple: true,
             defaultValue: ['a', 'b'],
-            options: _options(),
-            onChange: (v) => changed.add(v),
+            onChange: changed.add,
           ),
         ),
       );
@@ -203,9 +213,7 @@ void main() {
   group('AntSelector — controlled', () {
     testWidgets('value prop controls selection', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(value: ['b', 'c'], multiple: true, options: _options()),
-        ),
+        _wrap(_selector(value: ['b', 'c'], multiple: true)),
       );
       await tester.pumpAndSettle();
 
@@ -216,13 +224,7 @@ void main() {
     testWidgets('internal state not changed when controlled', (tester) async {
       List<String>? changed;
       await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(
-            value: ['a'],
-            options: _options(),
-            onChange: (v) => changed = v,
-          ),
-        ),
+        _wrap(_selector(value: ['a'], onChange: (v) => changed = v)),
       );
       await tester.pumpAndSettle();
 
@@ -237,13 +239,7 @@ void main() {
     testWidgets('disabled selector does not respond', (tester) async {
       List<String>? changed;
       await tester.pumpWidget(
-        _wrap(
-          AntSelector<String>(
-            disabled: true,
-            options: _options(),
-            onChange: (v) => changed = v,
-          ),
-        ),
+        _wrap(_selector(disabled: true, onChange: (v) => changed = v)),
       );
       await tester.pumpAndSettle();
 
@@ -257,11 +253,8 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
-            options: const [
-              AntSelectorOption(value: 'a', label: Text('苹果'), disabled: true),
-              AntSelectorOption(value: 'b', label: Text('香蕉')),
-            ],
+          _selector(
+            disabledOf: (value) => value == 'a',
             onChange: (v) => changed = v,
           ),
         ),
@@ -281,10 +274,9 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntSelector<String>(
+          _selector(
             readOnly: true,
             defaultValue: ['a'],
-            options: _options(),
             onChange: (v) => changed = v,
           ),
         ),
@@ -295,6 +287,44 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(changed, isNull);
+    });
+  });
+
+  group('AntSelector — 自定义模型', () {
+    testWidgets('自定义模型：labelOf/descriptionOf/disabledOf 驱动渲染与选择',
+        (tester) async {
+      final changed = <List<_Fruit>>[];
+      await tester.pumpWidget(
+        _wrap(
+          AntSelector<_Fruit>(
+            options: _fruits,
+            labelOf: (fruit) => fruit.name,
+            descriptionOf: (fruit) => fruit.price,
+            disabledOf: (fruit) => fruit.disabled,
+            onChange: changed.add,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('苹果'), findsOneWidget);
+      expect(find.text('¥5/斤'), findsOneWidget);
+      expect(find.text('橙子'), findsOneWidget);
+
+      // 禁用项不响应
+      await tester.tap(find.text('橙子'));
+      await tester.pumpAndSettle();
+      expect(changed, isEmpty);
+
+      // 选中回调直接给出模型对象
+      await tester.tap(find.text('香蕉'));
+      await tester.pumpAndSettle();
+      expect(changed.single.single.id, 'banana');
+
+      // 再次点击已选项取消选择
+      await tester.tap(find.text('香蕉'));
+      await tester.pumpAndSettle();
+      expect(changed.last, isEmpty);
     });
   });
 }

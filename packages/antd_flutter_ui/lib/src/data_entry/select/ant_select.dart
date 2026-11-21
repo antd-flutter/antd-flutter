@@ -1,22 +1,15 @@
 /// AntSelect — antd React Select 的 Flutter 实现
 ///
-/// API 与 antd React Select 对齐：
-/// - [mode] — 单选 / 多选
-/// - [value] / [defaultValue] — 受控/非受控值
-/// - [options] — 选项列表
-/// - [onChange] — 选中变化回调
-/// - [showSearch] — 是否可搜索
-/// - [allowClear] — 是否允许清除
-/// - [placeholder] / [disabled] / [loading] / [size]
+/// 数据源为 `List<T>`：用户模型直接作为选项，通过 [labelOf] / [labelBuilder]
+/// 渲染文本，通过 [valueExtractor] 提取用于匹配/去重的业务键。
 ///
 /// ```dart
-/// AntSelect<String>(
-///   options: [
-///     AntSelectOption(value: 'a', label: '选项一'),
-///     AntSelectOption(value: 'b', label: '选项二'),
-///   ],
-///   defaultValue: 'a',
-///   onChange: (v) => print(v),
+/// AntSelect<User>(
+///   options: users,
+///   value: selected,
+///   labelOf: (user) => user.name,
+///   valueExtractor: (user) => user.id,
+///   onChange: (user) => setState(() => selected = user),
 /// )
 /// ```
 library;
@@ -39,15 +32,25 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 选择器 — 下拉选择器，支持单选、多选与搜索。
 ///
-/// 对齐 antd React Select 组件。
+/// 对齐 antd React Select 组件。选项是任意类型 [T]，不要求用户构造
+/// [AntSelectOption]；只有字符串选项时可直接 `AntSelect<String>(options: ['北京'])`。
 class AntSelect<T> extends StatefulWidget {
   const AntSelect({
     super.key,
     this.mode = AntSelectMode.single,
     this.value,
     this.defaultValue,
+    this.values,
+    this.defaultValues = const [],
     this.options = const [],
+    this.labelOf,
+    this.labelBuilder,
+    this.itemBuilder,
+    this.valueExtractor,
+    this.disabledOf,
+    this.searchTextOf,
     this.onChange,
+    this.onChangeMultiple,
     this.showSearch = false,
     this.allowClear = false,
     this.placeholder,
@@ -55,22 +58,64 @@ class AntSelect<T> extends StatefulWidget {
     this.loading = false,
     this.size = AntSelectSize.middle,
     this.autofocus = false,
-  });
+  })  : assert(
+          mode == AntSelectMode.single || value == null,
+          'AntSelect 多选模式请用 values 传值（value 仅用于单选）',
+        ),
+        assert(
+          mode == AntSelectMode.multiple || values == null,
+          'AntSelect 单选模式请用 value 传值（values 仅用于多选）',
+        );
 
   /// 选择模式。
   final AntSelectMode mode;
 
-  /// 受控选中值（单选为 `T?`，多选为 `List<T>?`）。
-  final Object? value;
+  /// 受控选中值（单选）。
+  final T? value;
 
-  /// 非受控初始值。
-  final Object? defaultValue;
+  /// 非受控初始值（单选）。
+  final T? defaultValue;
 
-  /// 选项列表。
-  final List<AntSelectOption<T>> options;
+  /// 受控选中值（多选）。
+  final List<T>? values;
 
-  /// 选中变化回调。
-  final ValueChanged<Object?>? onChange;
+  /// 非受控初始值（多选）。
+  final List<T> defaultValues;
+
+  /// 选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项的字符串 label 简写，用于标题文本与 [showSearch] 搜索匹配。
+  ///
+  /// 提供 [labelBuilder] 时仅用于搜索匹配；未提供时作为默认文本。
+  final String Function(T item)? labelOf;
+
+  /// 选项的自定义渲染，用于下拉项、多选标签与单选已选值。
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+
+  /// 整项自定义渲染（保留下拉项内置的选中标记/多选勾选框），优先级高于
+  /// [labelBuilder]。index 为该选项在 [options] 中的下标。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 选中值的身份提取（默认选项自身）。
+  ///
+  /// 受控值 [value]/[values] 可能来自业务侧的任意实例，在选项列表中按此键
+  /// 匹配；多选去重与取消选择也按此键比较。
+  final Object Function(T item)? valueExtractor;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
+
+  /// 搜索匹配文本，缺省为 [labelOf] 的结果（再缺省为 `item.toString()`）。
+  ///
+  /// 自定义模型请显式提供，否则搜索只能匹配模型的 toString。
+  final String Function(T item)? searchTextOf;
+
+  /// 单选选中变化回调（清除时为 null）。
+  final ValueChanged<T?>? onChange;
+
+  /// 多选选中变化回调。
+  final ValueChanged<List<T>>? onChangeMultiple;
 
   /// 是否可搜索。
   final bool showSearch;
@@ -103,26 +148,46 @@ class _AntSelectState<T> extends State<AntSelect<T>>
   final GlobalKey _fieldKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _internalOpen = false;
-  Object? _internalValue;
+  T? _internalValue;
+  List<T> _internalValues = <T>[];
   String _searchText = '';
 
   bool get _isMultiple => widget.mode == AntSelectMode.multiple;
 
   bool get _currentOpen => _internalOpen;
 
-  Object? get _currentValue {
-    if (widget.value != null) return widget.value;
-    return _internalValue;
+  T? get _currentValue => widget.value ?? _internalValue;
+
+  List<T> get _currentValues => widget.values ?? _internalValues;
+
+  /// 选中值身份键（用于受控值匹配、多选去重）。
+  Object? _keyOf(T item) => widget.valueExtractor?.call(item) ?? item;
+
+  bool _isSame(T a, T b) => _keyOf(a) == _keyOf(b);
+
+  /// 选项的字符串 label（搜索/默认文本）。
+  String _labelTextOf(T item) =>
+      widget.labelOf?.call(item) ?? widget.searchTextOf?.call(item) ?? '$item';
+
+  String _searchTextOf(T item) =>
+      widget.searchTextOf?.call(item) ?? _labelTextOf(item);
+
+  /// labelBuilder 优先，回退到字符串 label，命中目标 TextStyle。
+  Widget _renderLabel(BuildContext context, T item, {TextStyle? style}) {
+    final builder = widget.labelBuilder;
+    final label = builder != null
+        ? builder(context, item)
+        : Text(widget.labelOf?.call(item) ?? '$item');
+    return style == null
+        ? label
+        : DefaultTextStyle.merge(style: style, child: label);
   }
 
   @override
   void initState() {
     super.initState();
-    _internalValue = _isMultiple
-        ? (widget.defaultValue is List
-            ? List<T>.from(widget.defaultValue as List)
-            : <T>[])
-        : widget.defaultValue;
+    _internalValue = widget.defaultValue;
+    _internalValues = List<T>.of(widget.defaultValues);
   }
 
   @override
@@ -154,11 +219,16 @@ class _AntSelectState<T> extends State<AntSelect<T>>
         fieldKey: _fieldKey,
         options: widget.options,
         isMultiple: _isMultiple,
-        selectedValue: _currentValue,
+        selectedKeys: _selectedKeys,
         searchText: _searchText,
         showSearch: widget.showSearch,
         loading: widget.loading,
         themeData: theme,
+        labelBuilder: (context, item) => _renderLabel(context, item),
+        searchTextOf: _searchTextOf,
+        keyOf: _keyOf,
+        enabledOf: (item) => !(widget.disabledOf?.call(item) ?? false),
+        itemBuilder: widget.itemBuilder,
         onSearch: (text) {
           if (!mounted) return;
           setState(() => _searchText = text);
@@ -183,16 +253,20 @@ class _AntSelectState<T> extends State<AntSelect<T>>
     _overlayEntry = null;
   }
 
+  Set<Object?> get _selectedKeys => _isMultiple
+      ? _currentValues.map(_keyOf).toSet()
+      : {if (_currentValue != null) _keyOf(_currentValue as T)};
+
   void _handleSelect(T optionValue, bool selected) {
     if (_isMultiple) {
-      final list = List<T>.from(_currentValue as List? ?? <T>[]);
+      final list = List<T>.of(_currentValues);
       if (selected) {
-        if (!list.contains(optionValue)) list.add(optionValue);
+        if (!list.any((e) => _isSame(e, optionValue))) list.add(optionValue);
       } else {
-        list.remove(optionValue);
+        list.removeWhere((e) => _isSame(e, optionValue));
       }
-      _internalValue = list;
-      widget.onChange?.call(list);
+      _internalValues = list;
+      widget.onChangeMultiple?.call(List<T>.of(list));
     } else {
       _internalValue = optionValue;
       widget.onChange?.call(optionValue);
@@ -206,8 +280,8 @@ class _AntSelectState<T> extends State<AntSelect<T>>
 
   void _handleClear() {
     if (_isMultiple) {
-      _internalValue = <T>[];
-      widget.onChange?.call(<T>[]);
+      _internalValues = <T>[];
+      widget.onChangeMultiple?.call(<T>[]);
     } else {
       _internalValue = null;
       widget.onChange?.call(null);
@@ -234,15 +308,18 @@ class _AntSelectState<T> extends State<AntSelect<T>>
 
     final selectedLabels = <Widget>[];
     if (_isMultiple) {
-      final list = _currentValue as List? ?? <T>[];
-      for (final v in list) {
-        final opt = widget.options.firstWhere(
-          (o) => o.value == v,
-          orElse: () => AntSelectOption<T>(value: v, label: '$v'),
-        );
+      for (final v in _currentValues) {
         selectedLabels.add(
           _Tag(
-            label: opt.label,
+            label: _renderLabel(
+              context,
+              v,
+              style: TextStyle(
+                fontSize: theme.fontSizeSM.sp,
+                color:
+                    widget.disabled ? theme.colorTextDisabled : theme.colorText,
+              ),
+            ),
             theme: theme,
             disabled: widget.disabled,
             onClear: widget.allowClear && !widget.disabled
@@ -252,17 +329,13 @@ class _AntSelectState<T> extends State<AntSelect<T>>
         );
       }
     } else {
-      final v = _currentValue as T?;
+      final v = _currentValue;
       if (v != null) {
-        final opt = widget.options.firstWhere(
-          (o) => o.value == v,
-          orElse: () => AntSelectOption<T>(value: v, label: '$v'),
-        );
         selectedLabels.add(
           Flexible(
-            child: Text(
-              opt.label,
-              overflow: TextOverflow.ellipsis,
+            child: _renderLabel(
+              context,
+              v,
               style: TextStyle(
                 fontSize: theme.fontSize.sp,
                 color: theme.colorText,
@@ -273,9 +346,8 @@ class _AntSelectState<T> extends State<AntSelect<T>>
       }
     }
 
-    final hasValue = _isMultiple
-        ? (_currentValue as List?)?.isNotEmpty ?? false
-        : _currentValue != null;
+    final hasValue =
+        _isMultiple ? _currentValues.isNotEmpty : _currentValue != null;
 
     final showClear = widget.allowClear && hasValue && !widget.disabled;
 
@@ -374,7 +446,8 @@ class _Tag extends StatelessWidget {
     this.onClear,
   });
 
-  final String label;
+  /// 已按目标样式渲染的标签内容。
+  final Widget label;
   final AntThemeData theme;
   final bool disabled;
   final VoidCallback? onClear;
@@ -390,13 +463,7 @@ class _Tag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: theme.fontSizeSM.sp,
-              color: disabled ? theme.colorTextDisabled : theme.colorText,
-            ),
-          ),
+          label,
           if (onClear != null) ...[
             SizedBox(width: 2.w),
             GestureDetector(
@@ -423,27 +490,37 @@ class _SelectOverlay<T> extends StatelessWidget {
     required this.fieldKey,
     required this.options,
     required this.isMultiple,
-    required this.selectedValue,
+    required this.selectedKeys,
     required this.searchText,
     required this.showSearch,
     required this.loading,
     required this.themeData,
+    required this.labelBuilder,
+    required this.searchTextOf,
+    required this.keyOf,
+    required this.enabledOf,
     required this.onSearch,
     required this.onSelect,
     required this.onDismiss,
+    this.itemBuilder,
   });
 
   /// 触发元素 GlobalKey（弹层基座定位/镂空遮挡）。
   final GlobalKey fieldKey;
-  final List<AntSelectOption<T>> options;
+  final List<T> options;
   final bool isMultiple;
-  final Object? selectedValue;
+  final Set<Object?> selectedKeys;
   final String searchText;
   final bool showSearch;
   final bool loading;
   final AntThemeData themeData;
+  final Widget Function(BuildContext context, T item) labelBuilder;
+  final String Function(T item) searchTextOf;
+  final Object? Function(T item) keyOf;
+  final bool Function(T item) enabledOf;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
   final ValueChanged<String> onSearch;
-  final void Function(T value, bool selected) onSelect;
+  final void Function(T item, bool selected) onSelect;
   final VoidCallback onDismiss;
 
   @override
@@ -455,7 +532,9 @@ class _SelectOverlay<T> extends StatelessWidget {
         ? options
         : options
             .where(
-              (o) => o.label.toLowerCase().contains(searchText.toLowerCase()),
+              (o) => searchTextOf(o).toLowerCase().contains(
+                    searchText.toLowerCase(),
+                  ),
             )
             .toList();
 
@@ -477,7 +556,7 @@ class _SelectOverlay<T> extends StatelessWidget {
     BuildContext context,
     AntThemeData theme,
     Size mediaSize,
-    List<AntSelectOption<T>> filtered,
+    List<T> filtered,
   ) {
     final fieldBox = fieldKey.currentContext?.findRenderObject() as RenderBox?;
     final fieldWidth =
@@ -562,18 +641,22 @@ class _SelectOverlay<T> extends StatelessWidget {
               child: ListView(
                 shrinkWrap: true,
                 padding: EdgeInsets.symmetric(vertical: 4.w),
-                children: filtered.map((option) {
-                  final selected = _isSelected(option.value);
-                  return _OptionItem<T>(
-                    option: option,
-                    selected: selected,
-                    isMultiple: isMultiple,
-                    theme: theme,
-                    onTap: option.disabled
-                        ? null
-                        : () => onSelect(option.value, !selected),
-                  );
-                }).toList(),
+                children: [
+                  for (var i = 0; i < filtered.length; i++)
+                    _OptionItem<T>(
+                      option: filtered[i],
+                      index: i,
+                      selected: _isSelected(filtered[i]),
+                      isMultiple: isMultiple,
+                      theme: theme,
+                      labelBuilder: labelBuilder,
+                      itemBuilder: itemBuilder,
+                      onTap: enabledOf(filtered[i])
+                          ? () =>
+                              onSelect(filtered[i], !_isSelected(filtered[i]))
+                          : null,
+                    ),
+                ],
               ),
             ),
         ],
@@ -581,12 +664,7 @@ class _SelectOverlay<T> extends StatelessWidget {
     );
   }
 
-  bool _isSelected(T value) {
-    if (isMultiple) {
-      return (selectedValue as List?)?.contains(value) ?? false;
-    }
-    return selectedValue == value;
-  }
+  bool _isSelected(T item) => selectedKeys.contains(keyOf(item));
 }
 
 // ============================================================
@@ -596,26 +674,36 @@ class _SelectOverlay<T> extends StatelessWidget {
 class _OptionItem<T> extends StatelessWidget {
   const _OptionItem({
     required this.option,
+    required this.index,
     required this.selected,
     required this.isMultiple,
     required this.theme,
+    required this.labelBuilder,
     required this.onTap,
+    this.itemBuilder,
   });
 
-  final AntSelectOption<T> option;
+  final T option;
+  final int index;
   final bool selected;
   final bool isMultiple;
   final AntThemeData theme;
+  final Widget Function(BuildContext context, T item) labelBuilder;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final textColor = option.disabled
+    final disabled = onTap == null;
+    final textColor = disabled
         ? t.colorTextDisabled
         : selected
             ? t.colorPrimary
             : t.colorText;
+
+    final label = itemBuilder?.call(context, option, index) ??
+        labelBuilder(context, option);
 
     return InkWell(
       onTap: onTap,
@@ -627,21 +715,23 @@ class _OptionItem<T> extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 8.w),
                 child: Icon(
-                  selected ? AntIcons.checkSquareFilled : AntIcons.borderOutlined,
+                  selected
+                      ? AntIcons.checkSquareFilled
+                      : AntIcons.borderOutlined,
                   size: 16.w,
-                  color: selected && !option.disabled
-                      ? t.colorPrimary
-                      : t.colorBorder,
+                  color: selected && !disabled ? t.colorPrimary : t.colorBorder,
                 ),
               ),
             Expanded(
-              child: Text(
-                option.label,
-                style: TextStyle(
-                  fontSize: t.fontSize.sp,
-                  color: textColor,
-                ),
-              ),
+              child: itemBuilder != null
+                  ? label
+                  : DefaultTextStyle.merge(
+                      style: TextStyle(
+                        fontSize: t.fontSize.sp,
+                        color: textColor,
+                      ),
+                      child: label,
+                    ),
             ),
             if (!isMultiple && selected)
               Icon(

@@ -7,6 +7,57 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _AnchorData {
+  const _AnchorData({
+    required this.key,
+    this.title,
+    this.titleWidget,
+    this.children = const [],
+  });
+
+  final String key;
+  final String? title;
+  final Widget? titleWidget;
+  final List<_AnchorData> children;
+}
+
+Widget _anchor({
+  Key? key,
+  List<_AnchorData> items = const [],
+  AntAnchorDirection direction = AntAnchorDirection.vertical,
+  AntAnchorController? controller,
+  ValueChanged<String>? onClick,
+  ValueChanged<String?>? onChange,
+  ScrollController? scrollController,
+  Map<Object, GlobalKey> targetKeys = const {},
+  double topOffset = 0,
+  bool autoScroll = true,
+  Duration scrollDuration = const Duration(milliseconds: 300),
+}) {
+  return AntAnchor<_AnchorData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) =>
+        item.titleWidget ?? Text(item.title ?? item.key),
+    childrenOf: (item) => item.children,
+    direction: direction,
+    controller: controller,
+    onClick: onClick == null ? null : (item) => onClick(item.key),
+    onChange: onChange == null ? null : (key) => onChange(key as String?),
+    scrollController: scrollController,
+    targetKeys: targetKeys,
+    topOffset: topOffset,
+    autoScroll: autoScroll,
+    scrollDuration: scrollDuration,
+  );
+}
+
+TextStyle? _effectiveStyle(WidgetTester tester, String text) {
+  final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+  return paragraph.text.style;
+}
+
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
     builder: (context, _) => MaterialApp(
@@ -23,17 +74,17 @@ Widget _wrap(Widget child) {
 void main() {
   group('AntAnchor — 渲染', () {
     testWidgets('渲染空列表', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAnchor()));
-      expect(find.byType(AntAnchor), findsOneWidget);
+      await tester.pumpWidget(_wrap(_anchor()));
+      expect(find.byType(AntAnchor<_AnchorData>), findsOneWidget);
     });
 
     testWidgets('渲染垂直锚点项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             items: [
-              AntAnchorItem(key: 'part-1', title: 'Part 1'),
-              AntAnchorItem(key: 'part-2', title: 'Part 2'),
+              const _AnchorData(key: 'part-1', title: 'Part 1'),
+              const _AnchorData(key: 'part-2', title: 'Part 2'),
             ],
           ),
         ),
@@ -45,12 +96,16 @@ void main() {
     testWidgets('渲染嵌套子链接', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             items: [
-              AntAnchorItem(key: 'part-1', title: 'Part 1', children: [
-                AntAnchorItem(key: 'part-1-1', title: 'Sub 1'),
-                AntAnchorItem(key: 'part-1-2', title: 'Sub 2'),
-              ],),
+              const _AnchorData(
+                key: 'part-1',
+                title: 'Part 1',
+                children: [
+                  _AnchorData(key: 'part-1-1', title: 'Sub 1'),
+                  _AnchorData(key: 'part-1-2', title: 'Sub 2'),
+                ],
+              ),
             ],
           ),
         ),
@@ -63,11 +118,11 @@ void main() {
     testWidgets('渲染水平锚点项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             direction: AntAnchorDirection.horizontal,
             items: [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
-              AntAnchorItem(key: 'b', title: '锚点 B'),
+              const _AnchorData(key: 'a', title: '锚点 A'),
+              const _AnchorData(key: 'b', title: '锚点 B'),
             ],
           ),
         ),
@@ -79,9 +134,9 @@ void main() {
     testWidgets('titleWidget 优先于 title', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             items: [
-              AntAnchorItem(
+              const _AnchorData(
                 key: '1',
                 title: '文字标题',
                 titleWidget: Text('自定义标题'),
@@ -97,8 +152,8 @@ void main() {
     testWidgets('无 title 时回退到 key', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
-            items: [AntAnchorItem(key: 'fallback-key')],
+          _anchor(
+            items: [const _AnchorData(key: 'fallback-key')],
           ),
         ),
       );
@@ -111,9 +166,9 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntAnchor(
+          _anchor(
             items: const [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
+              _AnchorData(key: 'a', title: '锚点 A'),
             ],
             onClick: (key) => clickedKey = key,
           ),
@@ -126,10 +181,10 @@ void main() {
     testWidgets('点击非受控模式设置激活项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             items: [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
-              AntAnchorItem(key: 'b', title: '锚点 B'),
+              const _AnchorData(key: 'a', title: '锚点 A'),
+              const _AnchorData(key: 'b', title: '锚点 B'),
             ],
           ),
         ),
@@ -140,19 +195,18 @@ void main() {
       await tester.pumpAndSettle();
 
       // 激活项文字颜色为主题色
-      final text = tester.widget<Text>(find.text('锚点 B'));
       final theme = AntThemeData.light();
-      expect(text.style?.color, theme.colorPrimary);
+      expect(_effectiveStyle(tester, '锚点 B')?.color, theme.colorPrimary);
     });
 
     testWidgets('onChange 激活变化回调', (tester) async {
       String? changedKey;
       await tester.pumpWidget(
         _wrap(
-          AntAnchor(
+          _anchor(
             items: const [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
-              AntAnchorItem(key: 'b', title: '锚点 B'),
+              _AnchorData(key: 'a', title: '锚点 A'),
+              _AnchorData(key: 'b', title: '锚点 B'),
             ],
             onChange: (key) => changedKey = key,
           ),
@@ -171,11 +225,11 @@ void main() {
       final controller = AntAnchorController();
       await tester.pumpWidget(
         _wrap(
-          AntAnchor(
+          _anchor(
             controller: controller,
             items: const [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
-              AntAnchorItem(key: 'b', title: '锚点 B'),
+              _AnchorData(key: 'a', title: '锚点 A'),
+              _AnchorData(key: 'b', title: '锚点 B'),
             ],
           ),
         ),
@@ -185,20 +239,25 @@ void main() {
       await tester.pumpAndSettle();
 
       final theme = AntThemeData.light();
-      final textB = tester.widget<Text>(find.text('锚点 B'));
-      expect(textB.style?.color, theme.colorPrimary);
-      final textA = tester.widget<Text>(find.text('锚点 A'));
-      expect(textA.style?.color, theme.colorTextSecondary);
+      expect(_effectiveStyle(tester, '锚点 B')?.color, theme.colorPrimary);
+      expect(
+        _effectiveStyle(tester, '锚点 A')?.color,
+        theme.colorTextSecondary,
+      );
     });
 
     testWidgets('点击嵌套子链接激活子项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             items: [
-              AntAnchorItem(key: 'part-1', title: 'Part 1', children: [
-                AntAnchorItem(key: 'sub-1', title: 'Sub 1'),
-              ],),
+              const _AnchorData(
+                key: 'part-1',
+                title: 'Part 1',
+                children: [
+                  _AnchorData(key: 'sub-1', title: 'Sub 1'),
+                ],
+              ),
             ],
           ),
         ),
@@ -207,8 +266,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final theme = AntThemeData.light();
-      final text = tester.widget<Text>(find.text('Sub 1'));
-      expect(text.style?.color, theme.colorPrimary);
+      expect(_effectiveStyle(tester, 'Sub 1')?.color, theme.colorPrimary);
     });
   });
 
@@ -216,11 +274,11 @@ void main() {
     testWidgets('水平模式点击激活有底部边框', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntAnchor(
+          _anchor(
             direction: AntAnchorDirection.horizontal,
             items: [
-              AntAnchorItem(key: 'a', title: '锚点 A'),
-              AntAnchorItem(key: 'b', title: '锚点 B'),
+              const _AnchorData(key: 'a', title: '锚点 A'),
+              const _AnchorData(key: 'b', title: '锚点 B'),
             ],
           ),
         ),
@@ -230,18 +288,17 @@ void main() {
 
       // 激活项文字为主题色
       final theme = AntThemeData.light();
-      final text = tester.widget<Text>(find.text('锚点 A'));
-      expect(text.style?.color, theme.colorPrimary);
+      expect(_effectiveStyle(tester, '锚点 A')?.color, theme.colorPrimary);
     });
 
     testWidgets('水平模式点击触发 onClick', (tester) async {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntAnchor(
+          _anchor(
             direction: AntAnchorDirection.horizontal,
             items: const [
-              AntAnchorItem(key: 'x', title: '水平项'),
+              _AnchorData(key: 'x', title: '水平项'),
             ],
             onClick: (key) => clickedKey = key,
           ),
@@ -293,16 +350,16 @@ Widget _linkedHarness({
         children: [
           SizedBox(
             width: 160,
-            child: AntAnchor(
+            child: _anchor(
               controller: anchorController,
               scrollController: scrollController,
               targetKeys: keys,
               topOffset: topOffset,
               scrollDuration: const Duration(milliseconds: 50),
               items: const [
-                AntAnchorItem(key: 'a', title: 'A'),
-                AntAnchorItem(key: 'b', title: 'B'),
-                AntAnchorItem(key: 'c', title: 'C'),
+                _AnchorData(key: 'a', title: 'A'),
+                _AnchorData(key: 'b', title: 'B'),
+                _AnchorData(key: 'c', title: 'C'),
               ],
             ),
           ),
@@ -338,7 +395,11 @@ void _scrollLinkTests() {
     addTearDown(anchor.dispose);
 
     await tester.pumpWidget(
-      _linkedHarness(scrollController: scroll, anchorController: anchor, keys: keys),
+      _linkedHarness(
+        scrollController: scroll,
+        anchorController: anchor,
+        keys: keys,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -357,7 +418,11 @@ void _scrollLinkTests() {
     addTearDown(anchor.dispose);
 
     await tester.pumpWidget(
-      _linkedHarness(scrollController: scroll, anchorController: anchor, keys: keys),
+      _linkedHarness(
+        scrollController: scroll,
+        anchorController: anchor,
+        keys: keys,
+      ),
     );
     await tester.pumpAndSettle();
     expect(anchor.activeKey, 'a');

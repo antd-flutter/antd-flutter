@@ -1,36 +1,31 @@
-/// AntTreeSelect — antd React TreeSelect 的 Flutter 实现
+/// AntTreeSelect — antd React TreeSelect 的 Flutter 泛型实现
 ///
-/// API 与 antd React TreeSelect 对齐：
-/// - [treeData] — 树节点数据
-/// - [value] / [defaultValue] — 受控/非受控值
-/// - [onChange] — 值变化回调
-/// - [placeholder] / [disabled] / [allowClear] / [size]
-/// - [treeDefaultExpandAll] — 默认展开全部节点
-/// - [multiple] — 多选模式
+/// 直接消费用户模型 `T`，通过 [keyOf] / [labelOf] / [titleBuilder] /
+/// [childrenOf] / [disabledOf] 读取数据，不再要求构造 `AntTreeSelectOption`。
+///
+/// ```dart
+/// AntTreeSelect<Category>(
+///   dataSource: categories,
+///   keyOf: (c) => c.id,
+///   labelOf: (c) => c.name,
+///   childrenOf: (c) => c.children,
+///   disabledOf: (c) => c.disabled,
+///   onChange: (value) => print(value),
+/// )
+/// ```
 ///
 /// 下拉弹层承载于 antd_flutter_ui 统一弹层基座 [AntPopupOverlay]：
 /// 方向决策（下方放不下自动翻转上方）、滑动夹回、镂空遮挡（触发元素
 /// 不误关）、fade+scale 出现动画均由基座统一承担；面板内容渲染不变。
-///
-/// ```dart
-/// AntTreeSelect(
-///   treeData: [
-///     AntTreeSelectOption(value: 'zj', label: '浙江', children: [
-///       AntTreeSelectOption(value: 'hz', label: '杭州'),
-///     ]),
-///   ],
-///   onChange: (value) => print(value),
-/// )
-/// ```
 library;
 
 import 'dart:math' as math;
 
-import 'package:antd_flutter_ui/antd_flutter_ui.dart';
-import 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 
@@ -38,13 +33,19 @@ export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 // AntTreeSelect
 // ============================================================
 
-/// 树选择组件。
+/// 树选择组件（泛型数据源）。
 ///
-/// 类似 Select 的下拉，但选项为树形结构。
-class AntTreeSelect extends StatefulWidget {
+/// 类似 Select 的下拉，但选项为树形结构。受控/非受控的“值”都是
+/// [keyOf] 从用户模型提取的 key：单选为单个 key，多选为 `List<Object>`。
+class AntTreeSelect<T> extends StatefulWidget {
   const AntTreeSelect({
     super.key,
-    this.treeData = const [],
+    this.dataSource = const <Never>[],
+    this.keyOf,
+    this.labelOf,
+    this.titleBuilder,
+    this.childrenOf,
+    this.disabledOf,
     this.value,
     this.defaultValue,
     this.onChange,
@@ -59,34 +60,51 @@ class AntTreeSelect extends StatefulWidget {
     this.dropdownHeight,
   });
 
-  /// 树节点数据
-  final List<AntTreeSelectOption> treeData;
+  /// 树节点数据（用户模型）。
+  final List<T> dataSource;
 
-  /// 受控值（单选 String / 多选 `List<String>`）
+  /// 从数据项提取唯一 key；缺省使用 DFS 顺序索引。
+  ///
+  /// 强烈建议显式提供，缺省 key 在数据重排/折叠后可能变化。
+  final AntTreeSelectKeyOf<T>? keyOf;
+
+  /// 触发器展示用的纯文本标签；缺省 `item is String ? item : '$item'`。
+  final AntTreeSelectLabelOf<T>? labelOf;
+
+  /// 下拉行标题构建器；缺省 `Text(labelOf(item))`。
+  final AntTreeSelectTitleBuilder<T>? titleBuilder;
+
+  /// 读取子节点；缺省无子节点（扁平列表）。
+  final AntTreeSelectChildrenOf<T>? childrenOf;
+
+  /// 判断节点是否禁用。
+  final AntTreeSelectDisabledOf<T>? disabledOf;
+
+  /// 受控值（单选 key / 多选 `List<Object>`）。
   final Object? value;
 
-  /// 非受控默认值
+  /// 非受控默认值。
   final Object? defaultValue;
 
-  /// 值变化回调
+  /// 值变化回调（单选 key / 多选 `List<Object>`）。
   final ValueChanged<Object?>? onChange;
 
-  /// 占位文本
+  /// 占位文本。
   final String? placeholder;
 
-  /// 是否禁用
+  /// 是否禁用。
   final bool disabled;
 
-  /// 是否显示清除按钮
+  /// 是否显示清除按钮。
   final bool allowClear;
 
-  /// 默认展开全部节点
+  /// 默认展开全部节点。
   final bool treeDefaultExpandAll;
 
-  /// 多选模式
+  /// 多选模式。
   final bool multiple;
 
-  /// 尺寸
+  /// 尺寸。
   final AntTreeSelectSize size;
 
   /// 触发器自定义高度（逻辑像素），设置后覆盖 [size] 对应高度。
@@ -101,11 +119,11 @@ class AntTreeSelect extends StatefulWidget {
   final double? dropdownHeight;
 
   @override
-  State<AntTreeSelect> createState() => _AntTreeSelectState();
+  State<AntTreeSelect<T>> createState() => _AntTreeSelectState<T>();
 }
 
-class _AntTreeSelectState extends State<AntTreeSelect>
-    with PopupContentRefresher<AntTreeSelect> {
+class _AntTreeSelectState<T> extends State<AntTreeSelect<T>>
+    with PopupContentRefresher<AntTreeSelect<T>> {
   /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
   final GlobalKey _triggerKey = GlobalKey();
   OverlayEntry? _overlayEntry;
@@ -115,20 +133,29 @@ class _AntTreeSelectState extends State<AntTreeSelect>
   /// AntTheme 在页面内时 overlay 条目的 context 不可达该继承链）。
   AntThemeData _themeData = AntThemeData.light();
 
-  /// 已展开的节点值集合
-  Set<String> _expandedKeys = {};
+  /// 已展开的节点 key 集合。
+  Set<Object> _expandedKeys = <Object>{};
 
-  /// 单选内部值
-  String? _internalValue;
+  /// 单选内部值。
+  Object? _internalValue;
 
-  /// 多选内部值
-  List<String> _internalMultiValue = [];
+  /// 多选内部值。
+  List<Object> _internalMultiValue = <Object>[];
 
-  String? get _currentSingleValue =>
-      widget.value is String ? widget.value as String : _internalValue;
+  /// 缺省 key 映射（keyOf 为空时按 DFS 顺序生成稳定 key）。
+  final Map<T, Object> _defaultKeys = Map<T, Object>.identity();
+  List<T>? _defaultKeysSource;
+  int _defaultKeySeed = 0;
 
-  List<String> get _currentMultiValue {
-    if (widget.value is List<String>) return widget.value as List<String>;
+  Object? get _currentSingleValue {
+    final value = widget.value;
+    if (value != null && value is! List) return value;
+    return _internalValue;
+  }
+
+  List<Object> get _currentMultiValue {
+    final value = widget.value;
+    if (value is List) return value.cast<Object>();
     return _internalMultiValue;
   }
 
@@ -143,16 +170,65 @@ class _AntTreeSelectState extends State<AntTreeSelect>
     }
   }
 
+  List<T> _childrenOf(T item) {
+    final childrenOf = widget.childrenOf;
+    if (childrenOf == null) return const <Never>[];
+    return childrenOf(item);
+  }
+
+  bool _disabledOf(T item) => widget.disabledOf?.call(item) ?? false;
+
+  String _labelOf(T item) {
+    final labelOf = widget.labelOf;
+    if (labelOf != null) return labelOf(item);
+    return item is String ? item : '$item';
+  }
+
+  Widget _titleOf(BuildContext context, T item) {
+    final titleBuilder = widget.titleBuilder;
+    if (titleBuilder != null) return titleBuilder(context, item);
+    return Text(
+      _labelOf(item),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Object _keyOf(T item) {
+    final keyOf = widget.keyOf;
+    if (keyOf != null) return keyOf(item);
+    _ensureDefaultKeys();
+    return _defaultKeys[item] ?? -1;
+  }
+
+  void _ensureDefaultKeys() {
+    if (widget.keyOf != null) return;
+    if (identical(_defaultKeysSource, widget.dataSource)) return;
+    _defaultKeysSource = widget.dataSource;
+    _defaultKeys.clear();
+    _defaultKeySeed = 0;
+    void walk(List<T> items) {
+      for (final item in items) {
+        _defaultKeys[item] = _defaultKeySeed++;
+        walk(_childrenOf(item));
+      }
+    }
+
+    walk(widget.dataSource);
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.defaultValue is String) {
-      _internalValue = widget.defaultValue as String;
-    } else if (widget.defaultValue is List<String>) {
-      _internalMultiValue = List.from(widget.defaultValue as List<String>);
+    _ensureDefaultKeys();
+    final defaultValue = widget.defaultValue;
+    if (defaultValue is List) {
+      _internalMultiValue = defaultValue.cast<Object>().toList();
+    } else if (defaultValue != null) {
+      _internalValue = defaultValue;
     }
     if (widget.treeDefaultExpandAll) {
-      _expandedKeys = _collectAllParentKeys(widget.treeData);
+      _expandedKeys = _collectAllParentKeys(widget.dataSource);
     }
   }
 
@@ -163,54 +239,62 @@ class _AntTreeSelectState extends State<AntTreeSelect>
     super.dispose();
   }
 
-  /// 收集所有有子节点的节点值（用于 expandAll）
-  Set<String> _collectAllParentKeys(List<AntTreeSelectOption> nodes) {
-    final keys = <String>{};
+  /// 收集所有有子节点的节点 key（用于 expandAll）。
+  Set<Object> _collectAllParentKeys(List<T> nodes) {
+    final keys = <Object>{};
     for (final node in nodes) {
-      if (!node.isLeaf) {
-        keys.add(node.value);
-        keys.addAll(_collectAllParentKeys(node.children!));
+      final children = _childrenOf(node);
+      if (children.isNotEmpty) {
+        keys.add(_keyOf(node));
+        keys.addAll(_collectAllParentKeys(children));
       }
     }
     return keys;
   }
 
-  /// 遍历树查找节点
-  AntTreeSelectOption? _findNode(String value, [List<AntTreeSelectOption>? nodes]) {
-    final list = nodes ?? widget.treeData;
+  /// 遍历树查找节点。
+  T? _findNode(Object? value, [List<T>? nodes]) {
+    if (value == null) return null;
+    final list = nodes ?? widget.dataSource;
     for (final node in list) {
-      if (node.value == value) return node;
-      if (!node.isLeaf) {
-        final found = _findNode(value, node.children);
-        if (found != null) return found;
-      }
+      if (_keyOf(node) == value) return node;
+      final found = _findNode(value, _childrenOf(node));
+      if (found != null) return found;
     }
     return null;
   }
 
-  /// 获取显示文本
+  /// 获取触发器显示文本。
   String get _displayText {
     if (widget.multiple) {
       final values = _currentMultiValue;
       if (values.isEmpty) return '';
-      return values.map((v) => _findNode(v)?.label ?? v).join('、');
+      return values.map((value) {
+        final node = _findNode(value);
+        return node == null ? '$value' : _labelOf(node);
+      }).join('、');
     }
-    final v = _currentSingleValue;
-    if (v == null) return '';
-    return _findNode(v)?.label ?? v;
+    final value = _currentSingleValue;
+    if (value == null) return '';
+    final node = _findNode(value);
+    return node == null ? '$value' : _labelOf(node);
   }
 
   @override
-  void didUpdateWidget(covariant AntTreeSelect oldWidget) {
+  void didUpdateWidget(covariant AntTreeSelect<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // treeDefaultExpandAll + treeData 变化：展开键随新数据重算
-    if (widget.treeDefaultExpandAll && widget.treeData != oldWidget.treeData) {
-      _expandedKeys = _collectAllParentKeys(widget.treeData);
+    if (!identical(widget.dataSource, oldWidget.dataSource)) {
+      _defaultKeysSource = null;
+      _ensureDefaultKeys();
     }
-    // 弹层打开时数据/值更新：原地重建面板（受控 value 选中态、treeData
-    // 新节点实时反映；不重建会显示陈旧内容）
+    // treeDefaultExpandAll + dataSource 变化：展开键随新数据重算。
+    if (widget.treeDefaultExpandAll &&
+        !identical(widget.dataSource, oldWidget.dataSource)) {
+      _expandedKeys = _collectAllParentKeys(widget.dataSource);
+    }
+    // 弹层打开时数据/值更新：原地重建面板。
     if (_open &&
-        (widget.treeData != oldWidget.treeData ||
+        (!identical(widget.dataSource, oldWidget.dataSource) ||
             widget.value != oldWidget.value ||
             widget.treeDefaultExpandAll != oldWidget.treeDefaultExpandAll ||
             widget.multiple != oldWidget.multiple)) {
@@ -221,10 +305,9 @@ class _AntTreeSelectState extends State<AntTreeSelect>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 主题变化（含暗色切换）：刷新字段；弹层开着时原地重建面板跟随新 token。
-    final t = AntTheme.of(context);
-    if (t != _themeData) {
-      _themeData = t;
+    final theme = AntTheme.of(context);
+    if (theme != _themeData) {
+      _themeData = theme;
       if (_open) _updateOverlay();
     }
   }
@@ -236,14 +319,17 @@ class _AntTreeSelectState extends State<AntTreeSelect>
     if (mounted) setState(() => _open = true);
   }
 
-  /// 构造弹层 OverlayEntry：承载层换为统一弹层基座 [AntPopupOverlay]
-  /// （方向决策/边界翻转/滑动夹回/镂空遮挡/fade+scale 动画），面板内容不变。
   void _insertOverlay() {
     _overlayEntry = OverlayEntry(
-      builder: (context) => _TreeSelectOverlay(
+      builder: (context) => _TreeSelectOverlay<T>(
         triggerKey: _triggerKey,
         themeData: _themeData,
-        treeData: widget.treeData,
+        dataSource: widget.dataSource,
+        keyOf: _keyOf,
+        titleBuilder: (context, item) => _titleOf(context, item),
+        childrenOf: _childrenOf,
+        disabledOf: _disabledOf,
+        labelOf: _labelOf,
         expandedKeys: _expandedKeys,
         selectedValue: widget.multiple ? null : _currentSingleValue,
         selectedMultiValues: widget.multiple ? _currentMultiValue : null,
@@ -265,7 +351,7 @@ class _AntTreeSelectState extends State<AntTreeSelect>
     if (_open && mounted) setState(() => _open = false);
   }
 
-  void _onToggleExpand(String key) {
+  void _onToggleExpand(Object key) {
     setState(() {
       if (_expandedKeys.contains(key)) {
         _expandedKeys.remove(key);
@@ -276,30 +362,28 @@ class _AntTreeSelectState extends State<AntTreeSelect>
     _updateOverlay();
   }
 
-  void _onSelect(AntTreeSelectOption option) {
-    if (option.disabled) return;
+  void _onSelect(T item) {
+    if (_disabledOf(item)) return;
+    final key = _keyOf(item);
     if (widget.multiple) {
-      final values = List<String>.from(_currentMultiValue);
-      if (values.contains(option.value)) {
-        values.remove(option.value);
+      final values = List<Object>.from(_currentMultiValue);
+      if (values.contains(key)) {
+        values.remove(key);
       } else {
-        values.add(option.value);
+        values.add(key);
       }
       setState(() => _internalMultiValue = values);
       widget.onChange?.call(values);
       _updateOverlay();
     } else {
-      setState(() => _internalValue = option.value);
-      widget.onChange?.call(option.value);
+      setState(() => _internalValue = key);
+      widget.onChange?.call(key);
       _removeOverlay();
     }
   }
 
   void _updateOverlay() {
     if (_overlayEntry != null) {
-      // 原地重建（基座 PopupContentRefresher 沉淀的统一更新方式）：
-      // 不移除重挂——避免 fade+scale 动画重放（闪烁）、内部滚动位置丢失、
-      // 基座首帧估算尺寸导致的跳位；Element 复用后勾选/展开状态平滑过渡。
       refreshPopupContent();
     }
   }
@@ -307,18 +391,20 @@ class _AntTreeSelectState extends State<AntTreeSelect>
   void _clear() {
     setState(() {
       if (widget.multiple) {
-        _internalMultiValue = [];
+        _internalMultiValue = <Object>[];
       } else {
         _internalValue = null;
       }
     });
-    widget.onChange?.call(widget.multiple ? <String>[] : null);
+    widget.onChange?.call(widget.multiple ? <Object>[] : null);
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final fontSize = widget.size == AntTreeSelectSize.small ? t.fontSizeSM : t.fontSize;
+    _ensureDefaultKeys();
+    final fontSize =
+        widget.size == AntTreeSelectSize.small ? t.fontSizeSM : t.fontSize;
     final hasValue = widget.multiple
         ? _currentMultiValue.isNotEmpty
         : _currentSingleValue != null;
@@ -336,22 +422,24 @@ class _AntTreeSelectState extends State<AntTreeSelect>
             vertical: (widget.multiple ? 2 : 0).h,
           ),
           decoration: BoxDecoration(
-            color: widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+            color: widget.disabled
+                ? t.colorBgContainerDisabled
+                : t.colorBgContainer,
             border: Border.all(
               color: _open ? t.colorPrimary : t.colorBorder,
               width: _open ? t.controlOutlineWidth : 1,
             ),
             borderRadius: BorderRadius.circular(t.borderRadius),
           ),
-          // 宽度自适应内容（对齐 antd Select 触发器 inline-block 语义）：
-          // 不再被宽松约束撑满整行，由占位/已选文字决定宽度；
-          // 长文字仍走省略号，父级给紧约束（如 Row 内 Expanded）时依旧随父。
+          // 宽度自适应内容（对齐 antd Select 触发器 inline-block 语义）。
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
                 child: Text(
-                  _displayText.isNotEmpty ? _displayText : (widget.placeholder ?? ''),
+                  _displayText.isNotEmpty
+                      ? _displayText
+                      : (widget.placeholder ?? ''),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -368,7 +456,11 @@ class _AntTreeSelectState extends State<AntTreeSelect>
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: Icon(AntIcons.closeCircleFilled, size: 14.sp, color: t.colorTextQuaternary),
+                    child: Icon(
+                      AntIcons.closeCircleFilled,
+                      size: 14.sp,
+                      color: t.colorTextQuaternary,
+                    ),
                   ),
                 )
               else
@@ -392,11 +484,16 @@ class _AntTreeSelectState extends State<AntTreeSelect>
 // _TreeSelectOverlay — 树形下拉面板
 // ============================================================
 
-class _TreeSelectOverlay extends StatelessWidget {
+class _TreeSelectOverlay<T> extends StatelessWidget {
   const _TreeSelectOverlay({
     required this.triggerKey,
     required this.themeData,
-    required this.treeData,
+    required this.dataSource,
+    required this.keyOf,
+    required this.titleBuilder,
+    required this.childrenOf,
+    required this.disabledOf,
+    required this.labelOf,
     required this.expandedKeys,
     required this.selectedValue,
     required this.selectedMultiValues,
@@ -410,13 +507,18 @@ class _TreeSelectOverlay extends StatelessWidget {
   /// 触发元素 GlobalKey（弹层基座定位）。
   final GlobalKey triggerKey;
   final AntThemeData themeData;
-  final List<AntTreeSelectOption> treeData;
-  final Set<String> expandedKeys;
-  final String? selectedValue;
-  final List<String>? selectedMultiValues;
+  final List<T> dataSource;
+  final Object Function(T item) keyOf;
+  final Widget Function(BuildContext context, T item) titleBuilder;
+  final List<T> Function(T item) childrenOf;
+  final bool Function(T item) disabledOf;
+  final String Function(T item) labelOf;
+  final Set<Object> expandedKeys;
+  final Object? selectedValue;
+  final List<Object>? selectedMultiValues;
   final bool multiple;
-  final ValueChanged<AntTreeSelectOption> onSelect;
-  final ValueChanged<String> onToggleExpand;
+  final ValueChanged<T> onSelect;
+  final ValueChanged<Object> onToggleExpand;
   final VoidCallback onDismiss;
 
   /// 面板最大高度配置（透传自 AntTreeSelect.dropdownHeight）。
@@ -424,12 +526,7 @@ class _TreeSelectOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 主题经组件侧捕获（themeData 字段），markNeedsBuild 原地重建时重读最新值；
-    // 不在 overlay context 里读 AntTheme.of——AntTheme 在页面内时不可达（回退 light）。
     final t = themeData;
-
-    // 统一弹层基座：placement 首选下方，视口下方放不下自动翻转到上方
-    // （方向决策/滑动夹回/镂空遮挡由基座承担）；无箭头（antd Select 语义）。
     return AntPopupOverlay(
       targetKey: triggerKey,
       placement: AntPopupPlacement.bottom,
@@ -440,28 +537,23 @@ class _TreeSelectOverlay extends StatelessWidget {
     );
   }
 
-  /// 下拉面板最大高度：显式配置优先；否则 256 与视口可用高度的一半取小，
-  /// 避免小屏超屏；面板内 SingleChildScrollView 负责超出后的内部滚动。
   double _panelMaxHeight(BuildContext context) {
     if (dropdownHeight != null) return dropdownHeight!.h;
     final screenH = MediaQuery.sizeOf(context).height;
     return math.min(256.h, screenH / 2);
   }
 
-  /// 下拉面板（内容渲染逻辑不变；宽度对齐触发元素，不小于 160，
-  /// 基座 Stack 为宽松宽度约束，需定宽以保证面板内 Expanded 正常布局）。
   Widget _buildPanel(BuildContext context, AntThemeData t) {
     final triggerBox =
         triggerKey.currentContext?.findRenderObject() as RenderBox?;
-    final triggerWidth =
-        (triggerBox != null && triggerBox.hasSize) ? triggerBox.size.width : 0.0;
+    final triggerWidth = (triggerBox != null && triggerBox.hasSize)
+        ? triggerBox.size.width
+        : 0.0;
     final panelWidth = triggerWidth > 160.w ? triggerWidth : 160.w;
     return Container(
       key: const Key('ant_tree_select_panel'),
       width: panelWidth,
-      constraints: BoxConstraints(
-        maxHeight: _panelMaxHeight(context),
-      ),
+      constraints: BoxConstraints(maxHeight: _panelMaxHeight(context)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -474,34 +566,43 @@ class _TreeSelectOverlay extends StatelessWidget {
         ],
       ),
       child: SingleChildScrollView(
-        child: _buildNodes(treeData, 0, t),
+        child: _buildNodes(context, dataSource, 0, t),
       ),
     );
   }
 
-  Widget _buildNodes(List<AntTreeSelectOption> nodes, int depth, AntThemeData t) {
+  Widget _buildNodes(
+    BuildContext context,
+    List<T> nodes,
+    int depth,
+    AntThemeData t,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final node in nodes) _buildNode(node, depth, t),
+        for (final node in nodes) _buildNode(context, node, depth, t),
       ],
     );
   }
 
-  Widget _buildNode(AntTreeSelectOption node, int depth, AntThemeData t) {
-    final isExpanded = expandedKeys.contains(node.value);
+  Widget _buildNode(BuildContext context, T node, int depth, AntThemeData t) {
+    final key = keyOf(node);
+    final children = childrenOf(node);
+    final isExpanded = expandedKeys.contains(key);
     final isSelected = multiple
-        ? (selectedMultiValues?.contains(node.value) ?? false)
-        : selectedValue == node.value;
+        ? (selectedMultiValues?.contains(key) ?? false)
+        : selectedValue == key;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         _TreeNodeTile(
-          node: node,
+          title: titleBuilder(context, node),
           depth: depth,
+          isLeaf: children.isEmpty,
           isExpanded: isExpanded,
           isSelected: isSelected,
+          disabled: disabledOf(node),
           multiple: multiple,
           fontSize: t.fontSize,
           colorText: t.colorText,
@@ -510,10 +611,10 @@ class _TreeSelectOverlay extends StatelessWidget {
           colorFillSecondary: t.colorFillSecondary,
           marginSM: t.marginSM,
           onTap: () => onSelect(node),
-          onToggle: node.isLeaf ? null : () => onToggleExpand(node.value),
+          onToggle: children.isEmpty ? null : () => onToggleExpand(key),
         ),
-        if (!node.isLeaf && isExpanded)
-          _buildNodes(node.children!, depth + 1, t),
+        if (children.isNotEmpty && isExpanded)
+          _buildNodes(context, children, depth + 1, t),
       ],
     );
   }
@@ -525,10 +626,12 @@ class _TreeSelectOverlay extends StatelessWidget {
 
 class _TreeNodeTile extends StatefulWidget {
   const _TreeNodeTile({
-    required this.node,
+    required this.title,
     required this.depth,
+    required this.isLeaf,
     required this.isExpanded,
     required this.isSelected,
+    required this.disabled,
     required this.multiple,
     required this.fontSize,
     required this.colorText,
@@ -540,10 +643,12 @@ class _TreeNodeTile extends StatefulWidget {
     this.onToggle,
   });
 
-  final AntTreeSelectOption node;
+  final Widget title;
   final int depth;
+  final bool isLeaf;
   final bool isExpanded;
   final bool isSelected;
+  final bool disabled;
   final bool multiple;
   final double fontSize;
   final Color colorText;
@@ -563,7 +668,7 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
 
   @override
   Widget build(BuildContext context) {
-    final disabled = widget.node.disabled;
+    final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -584,7 +689,7 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
               // 缩进
               SizedBox(width: widget.depth * 20.w),
               // 展开/收起箭头
-              if (widget.node.isLeaf)
+              if (widget.isLeaf)
                 SizedBox(width: 16.w)
               else
                 GestureDetector(
@@ -615,12 +720,9 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
                         : widget.colorTextDisabled,
                   ),
                 ),
-              // 文本
+              // 标题
               Expanded(
-                child: Text(
-                  widget.node.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: DefaultTextStyle.merge(
                   style: TextStyle(
                     fontSize: widget.fontSize.sp,
                     color: disabled
@@ -629,6 +731,9 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
                             ? widget.colorPrimary
                             : widget.colorText,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  child: widget.title,
                 ),
               ),
             ],

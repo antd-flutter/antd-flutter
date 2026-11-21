@@ -4,6 +4,51 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _TabBarData {
+  const _TabBarData({
+    required this.key,
+    this.title,
+    this.icon,
+    this.activeIcon,
+    this.badgeText,
+    this.badgeDot = false,
+  });
+
+  final String key;
+  final String? title;
+  final IconData? icon;
+  final IconData? activeIcon;
+  final String? badgeText;
+  final bool badgeDot;
+}
+
+Widget _tabBar({
+  Key? key,
+  List<_TabBarData> items = const [],
+  Object? activeKey,
+  Object? defaultActiveKey,
+  bool border = true,
+  bool safeArea = false,
+  ValueChanged<_TabBarData>? onChange,
+}) {
+  return AntTabBar<_TabBarData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) => Text(item.title ?? item.key),
+    iconBuilder: (context, item) => item.icon == null ? null : Icon(item.icon),
+    activeIconBuilder: (context, item) =>
+        item.activeIcon == null ? null : Icon(item.activeIcon),
+    badgeTextOf: (item) => item.badgeText,
+    badgeDotOf: (item) => item.badgeDot,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    border: border,
+    safeArea: safeArea,
+    onChange: onChange,
+  );
+}
+
 class TabBarPage extends StatelessWidget {
   const TabBarPage({super.key});
 
@@ -51,7 +96,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -64,11 +112,26 @@ class _BasicDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabBar(
+    return _tabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined, activeIcon: AntIcons.homeOutlined),
-        AntTabBarItem(key: 'find', title: '发现', icon: AntIcons.compassOutlined, activeIcon: AntIcons.compassOutlined),
-        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined, activeIcon: AntIcons.userOutlined),
+        _TabBarData(
+          key: 'home',
+          title: '首页',
+          icon: AntIcons.homeOutlined,
+          activeIcon: AntIcons.homeOutlined,
+        ),
+        _TabBarData(
+          key: 'find',
+          title: '发现',
+          icon: AntIcons.compassOutlined,
+          activeIcon: AntIcons.compassOutlined,
+        ),
+        _TabBarData(
+          key: 'me',
+          title: '我的',
+          icon: AntIcons.userOutlined,
+          activeIcon: AntIcons.userOutlined,
+        ),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -80,11 +143,11 @@ class _TextOnlyDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabBar(
+    return _tabBar(
       items: const [
-        AntTabBarItem(key: 'a', title: '选项一'),
-        AntTabBarItem(key: 'b', title: '选项二'),
-        AntTabBarItem(key: 'c', title: '选项三'),
+        _TabBarData(key: 'a', title: '选项一'),
+        _TabBarData(key: 'b', title: '选项二'),
+        _TabBarData(key: 'c', title: '选项三'),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -96,11 +159,16 @@ class _BadgeDotDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabBar(
+    return _tabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
-        AntTabBarItem(key: 'msg', title: '消息', icon: AntIcons.messageOutlined, badgeDot: true),
-        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
+        _TabBarData(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
+        _TabBarData(
+          key: 'msg',
+          title: '消息',
+          icon: AntIcons.messageOutlined,
+          badgeDot: true,
+        ),
+        _TabBarData(key: 'me', title: '我的', icon: AntIcons.userOutlined),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -112,11 +180,16 @@ class _BadgeTextDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabBar(
+    return _tabBar(
       items: const [
-        AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
-        AntTabBarItem(key: 'cart', title: '购物车', icon: AntIcons.shoppingOutlined, badgeText: '8'),
-        AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
+        _TabBarData(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
+        _TabBarData(
+          key: 'cart',
+          title: '购物车',
+          icon: AntIcons.shoppingOutlined,
+          badgeText: '8',
+        ),
+        _TabBarData(key: 'me', title: '我的', icon: AntIcons.userOutlined),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -128,15 +201,15 @@ class _ActiveIconDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTabBar(
+    return _tabBar(
       items: const [
-        AntTabBarItem(
+        _TabBarData(
           key: 'home',
           title: '首页',
           icon: AntIcons.homeOutlined,
           activeIcon: AntIcons.homeOutlined,
         ),
-        AntTabBarItem(
+        _TabBarData(
           key: 'star',
           title: '收藏',
           icon: AntIcons.starOutlined,
@@ -158,11 +231,11 @@ class _NoBorderDemo extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AntTabBar(
+      child: _tabBar(
         border: false,
         items: const [
-          AntTabBarItem(key: 'a', title: '选项一'),
-          AntTabBarItem(key: 'b', title: '选项二'),
+          _TabBarData(key: 'a', title: '选项一'),
+          _TabBarData(key: 'b', title: '选项二'),
         ],
         onChange: (key) => _showSnackbar(context, '切换到: $key'),
       ),
@@ -186,14 +259,14 @@ class _ControlledDemoState extends State<_ControlledDemo> {
       children: [
         Text('当前激活: $_activeKey'),
         const SizedBox(height: 8),
-        AntTabBar(
+        _tabBar(
           activeKey: _activeKey,
           items: const [
-            AntTabBarItem(key: 'a', title: '选项一'),
-            AntTabBarItem(key: 'b', title: '选项二'),
-            AntTabBarItem(key: 'c', title: '选项三'),
+            _TabBarData(key: 'a', title: '选项一'),
+            _TabBarData(key: 'b', title: '选项二'),
+            _TabBarData(key: 'c', title: '选项三'),
           ],
-          onChange: (key) => setState(() => _activeKey = key),
+          onChange: (item) => setState(() => _activeKey = item.key),
         ),
       ],
     );

@@ -49,7 +49,9 @@ class _CheckboxBox extends StatelessWidget {
             ? (disabled ? t.colorBorder : t.colorPrimary)
             : t.colorBorder;
     final bgColor = disabled
-        ? (checked || indeterminate ? t.colorBorder : t.colorBgContainerDisabled)
+        ? (checked || indeterminate
+            ? t.colorBorder
+            : t.colorBgContainerDisabled)
         : (checked || indeterminate ? t.colorPrimary : t.colorBgContainer);
 
     return Container(
@@ -122,6 +124,7 @@ class AntCheckbox extends StatefulWidget {
 
 class _AntCheckboxState extends State<AntCheckbox> {
   late bool _checked;
+
   /// 半选态（独立使用时内部可消化：点击半选框 → 变为全选并清除半选）
   late bool _indeterminate;
 
@@ -244,11 +247,14 @@ class _GroupData extends InheritedWidget {
 ///
 /// ```dart
 /// AntCheckboxGroup<String>(
-///   options: [
-///     AntCheckboxOption(value: 'a', label: Text('A')),
-///     AntCheckboxOption(value: 'b', label: Text('B')),
-///   ],
+///   options: const ['A', 'B'],
 ///   onChange: (vals) => print(vals),
+/// )
+///
+/// AntCheckboxGroup<Tag>(
+///   options: tags,                        // List<Tag>
+///   labelOf: (tag) => tag.name,
+///   onChange: (tags) => print(tags),
 /// )
 /// ```
 class AntCheckboxGroup<T> extends StatefulWidget {
@@ -257,6 +263,10 @@ class AntCheckboxGroup<T> extends StatefulWidget {
     this.value,
     this.defaultValue = const [],
     this.options = const [],
+    this.labelOf,
+    this.labelBuilder,
+    this.itemBuilder,
+    this.disabledOf,
     this.disabled = false,
     this.onChange,
     this.direction = AntCheckboxGroupDirection.horizontal,
@@ -269,8 +279,20 @@ class AntCheckboxGroup<T> extends StatefulWidget {
   /// 非受控初始选中值集合。
   final List<T> defaultValue;
 
-  /// 选项列表。
-  final List<AntCheckboxOption<T>> options;
+  /// 选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项的字符串 label 简写（未提供 [labelBuilder] 时作为文本渲染）。
+  final String Function(T item)? labelOf;
+
+  /// 选项 label 的自定义渲染。
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+
+  /// 整项自定义渲染（含复选框外观），优先级最高。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
 
   /// 是否整体禁用。
   final bool disabled;
@@ -333,18 +355,40 @@ class _AntCheckboxGroupState<T> extends State<AntCheckboxGroup<T>> {
     );
   }
 
+  Widget _buildLabel(BuildContext context, T item, int index) {
+    final custom = widget.labelBuilder?.call(context, item);
+    if (custom != null) return custom;
+    final text = widget.labelOf?.call(item) ?? '$item';
+    return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis);
+  }
+
   /// 从 options 构建
   Widget _buildFromOptions(AntThemeData t, Set<dynamic> values) {
-    final items = widget.options.map((opt) {
-      final isChecked = values.contains(opt.value);
-      final isDisabled = widget.disabled || opt.disabled;
-      return _GroupCheckboxItem<T>(
-        value: opt.value,
-        checked: isChecked,
-        disabled: isDisabled,
-        child: opt.label,
-      );
-    }).toList();
+    final items = <Widget>[];
+    for (var i = 0; i < widget.options.length; i++) {
+      final item = widget.options[i];
+      final isChecked = values.contains(item);
+      final isDisabled =
+          widget.disabled || (widget.disabledOf?.call(item) ?? false);
+      if (widget.itemBuilder != null) {
+        items.add(
+          GestureDetector(
+            onTap: isDisabled ? null : () => _handleToggle(item),
+            behavior: HitTestBehavior.opaque,
+            child: widget.itemBuilder!(context, item, i),
+          ),
+        );
+      } else {
+        items.add(
+          _GroupCheckboxItem<T>(
+            value: item,
+            checked: isChecked,
+            disabled: isDisabled,
+            child: _buildLabel(context, item, i),
+          ),
+        );
+      }
+    }
 
     if (widget.direction == AntCheckboxGroupDirection.vertical) {
       return Column(

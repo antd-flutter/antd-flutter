@@ -19,6 +19,7 @@ Widget _wrap(Widget child) {
     ),
   );
 }
+
 /// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
 /// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
 Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
@@ -29,7 +30,6 @@ Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
     debugDefaultTargetPlatformOverride = null;
   }
 }
-
 
 void main() {
   group('AntDropdown — 渲染', () {
@@ -170,7 +170,8 @@ void main() {
   group('AntDropdown — 悬停触发', () {
     testWidgets('悬停打开，移出关闭', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-      await _pumpDesktop(tester,
+      await _pumpDesktop(
+        tester,
         _wrap(
           const AntDropdown(
             trigger: AntDropdownTrigger.hover,

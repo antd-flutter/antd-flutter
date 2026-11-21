@@ -24,18 +24,20 @@ import 'ant_anchor_types.dart';
 /// 受控激活状态、点击与变化回调。
 ///
 /// ```dart
-/// AntAnchor(
-///   items: [
-///     AntAnchorItem(key: 'part-1', title: 'Part 1'),
-///     AntAnchorItem(key: 'part-2', title: 'Part 2'),
-///   ],
-///   onClick: (key) => print('clicked: $key'),
+/// AntAnchor<Section>(
+///   items: sections,
+///   keyOf: (section) => section.id,
+///   titleBuilder: (context, section, index) => Text(section.title),
+///   onClick: (section) => print('clicked: ${section.id}'),
 /// )
 /// ```
-class AntAnchor extends StatefulWidget {
+class AntAnchor<T> extends StatefulWidget {
   const AntAnchor({
     super.key,
     this.items = const [],
+    this.keyOf,
+    this.titleBuilder,
+    this.childrenOf,
     this.direction = AntAnchorDirection.vertical,
     this.controller,
     this.onClick,
@@ -48,7 +50,16 @@ class AntAnchor extends StatefulWidget {
   });
 
   /// 锚点链接项列表。
-  final List<AntAnchorItem> items;
+  final List<T> items;
+
+  /// 提取锚点唯一标识，默认使用扁平化后的下标。
+  final Object Function(T item)? keyOf;
+
+  /// 标题构建器，未提供时回退为 `Text('$item')`。
+  final AntAnchorTitleBuilder<T>? titleBuilder;
+
+  /// 子锚点提取器，用于嵌套锚点。
+  final List<T> Function(T item)? childrenOf;
 
   /// 锚点方向。
   final AntAnchorDirection direction;
@@ -57,10 +68,10 @@ class AntAnchor extends StatefulWidget {
   final AntAnchorController? controller;
 
   /// 点击链接回调。
-  final ValueChanged<String>? onClick;
+  final ValueChanged<T>? onClick;
 
   /// 激活项变化回调。
-  final ValueChanged<String?>? onChange;
+  final ValueChanged<Object?>? onChange;
 
   /// 页面内容区的滚动控制器。
   ///
@@ -70,7 +81,7 @@ class AntAnchor extends StatefulWidget {
   /// 锚点 key → 内容区块 [GlobalKey] 的映射。
   ///
   /// 用于定位各区块位置；缺失的 key 只参与高亮切换，不触发滚动。
-  final Map<String, GlobalKey> targetKeys;
+  final Map<Object, GlobalKey> targetKeys;
 
   /// 滚动定位时预留的顶部偏移（例如固定导航栏高度）。
   final double topOffset;
@@ -82,10 +93,10 @@ class AntAnchor extends StatefulWidget {
   final Duration scrollDuration;
 
   @override
-  State<AntAnchor> createState() => _AntAnchorState();
+  State<AntAnchor<T>> createState() => _AntAnchorState<T>();
 }
 
-class _AntAnchorState extends State<AntAnchor> {
+class _AntAnchorState<T> extends State<AntAnchor<T>> {
   AntAnchorController? _internalController;
 
   /// 点击触发的滚动期间忽略滚动监听，避免高亮抖动。
@@ -108,7 +119,7 @@ class _AntAnchorState extends State<AntAnchor> {
   }
 
   @override
-  void didUpdateWidget(covariant AntAnchor oldWidget) {
+  void didUpdateWidget(covariant AntAnchor<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller?.removeListener(_handleControllerChange);
@@ -134,15 +145,24 @@ class _AntAnchorState extends State<AntAnchor> {
     super.dispose();
   }
 
+  Object _keyOf(T item) {
+    final key = widget.keyOf?.call(item);
+    if (key != null) return key;
+    return _flattenItems(widget.items).indexOf(item);
+  }
+
+  List<T> _childrenOf(T item) => widget.childrenOf?.call(item) ?? <T>[];
+
   void _handleControllerChange() {
     if (mounted) setState(() {});
     widget.onChange?.call(_controller.activeKey);
   }
 
-  void _handleClick(AntAnchorItem item) {
-    widget.onClick?.call(item.key);
-    _controller.setActive(item.key);
-    _scrollTo(item.key);
+  void _handleClick(T item) {
+    final key = _keyOf(item);
+    widget.onClick?.call(item);
+    _controller.setActive(key);
+    _scrollTo(key);
   }
 
   // ------------------------------------------------------------
@@ -170,18 +190,18 @@ class _AntAnchorState extends State<AntAnchor> {
     if (widget.targetKeys.isEmpty) return;
 
     final threshold = controller.position.pixels + widget.topOffset + 0.5;
-    String? active;
+    Object? active;
     for (final item in _flattenItems(widget.items)) {
-      final key = widget.targetKeys[item.key];
+      final key = widget.targetKeys[_keyOf(item)];
       if (key == null) continue;
       final offset = _revealOffset(key);
       if (offset == null) continue;
-      if (offset <= threshold) active = item.key;
+      if (offset <= threshold) active = _keyOf(item);
     }
     if (active != null) _controller.setActive(active);
   }
 
-  Future<void> _scrollTo(String key) async {
+  Future<void> _scrollTo(Object key) async {
     if (!widget.autoScroll) return;
     final targetContext = widget.targetKeys[key]?.currentContext;
     if (targetContext == null) return;
@@ -219,19 +239,19 @@ class _AntAnchorState extends State<AntAnchor> {
     }
   }
 
-  List<AntAnchorItem> _flattenItems(List<AntAnchorItem> items) {
-    final result = <AntAnchorItem>[];
+  List<T> _flattenItems(List<T> items) {
+    final result = <T>[];
     for (final item in items) {
       result.add(item);
-      if (item.children.isNotEmpty) {
-        result.addAll(_flattenItems(item.children));
+      final children = _childrenOf(item);
+      if (children.isNotEmpty) {
+        result.addAll(_flattenItems(children));
       }
     }
     return result;
   }
 
-  bool _isActive(AntAnchorItem item) =>
-      _controller.activeKey == item.key;
+  bool _isActive(T item) => _controller.activeKey == _keyOf(item);
 
   @override
   Widget build(BuildContext context) {
@@ -268,14 +288,16 @@ class _AntAnchorState extends State<AntAnchor> {
   List<Widget> _buildVerticalItems(
     BuildContext context,
     AntThemeData theme,
-    List<AntAnchorItem> items,
+    List<T> items,
   ) {
     final children = <Widget>[];
-    for (final item in items) {
-      children.add(_buildVerticalItem(context, theme, item));
-      if (item.children.isNotEmpty) {
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      children.add(_buildVerticalItem(context, theme, item, i));
+      final nested = _childrenOf(item);
+      if (nested.isNotEmpty) {
         children.addAll(
-          _buildVerticalChildren(context, theme, item.children),
+          _buildVerticalChildren(context, theme, nested),
         );
       }
     }
@@ -285,14 +307,14 @@ class _AntAnchorState extends State<AntAnchor> {
   List<Widget> _buildVerticalChildren(
     BuildContext context,
     AntThemeData theme,
-    List<AntAnchorItem> items,
+    List<T> items,
   ) {
     final children = <Widget>[];
-    for (final item in items) {
+    for (var i = 0; i < items.length; i++) {
       children.add(
         Padding(
           padding: const EdgeInsets.only(left: 16),
-          child: _buildVerticalItem(context, theme, item),
+          child: _buildVerticalItem(context, theme, items[i], i),
         ),
       );
     }
@@ -302,7 +324,8 @@ class _AntAnchorState extends State<AntAnchor> {
   Widget _buildVerticalItem(
     BuildContext context,
     AntThemeData theme,
-    AntAnchorItem item,
+    T item,
+    int index,
   ) {
     final active = _isActive(item);
     return GestureDetector(
@@ -321,17 +344,7 @@ class _AntAnchorState extends State<AntAnchor> {
               ),
             ),
           ),
-          child: item.titleWidget ??
-              Text(
-                item.title ?? item.key,
-                style: TextStyle(
-                  fontSize: theme.fontSizeSM,
-                  color: active
-                      ? theme.colorPrimary
-                      : theme.colorTextSecondary,
-                  fontWeight: active ? FontWeight.w500 : FontWeight.normal,
-                ),
-              ),
+          child: _buildTitle(context, theme, item, index, active),
         ),
       ),
     );
@@ -344,8 +357,10 @@ class _AntAnchorState extends State<AntAnchor> {
   Widget _buildHorizontal(BuildContext context) {
     final theme = AntTheme.of(context);
     final items = <Widget>[];
-    for (final item in widget.items) {
-      items.add(_buildHorizontalItem(context, theme, item));
+    for (var i = 0; i < widget.items.length; i++) {
+      items.add(
+        _buildHorizontalItem(context, theme, widget.items[i], i),
+      );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +379,8 @@ class _AntAnchorState extends State<AntAnchor> {
   Widget _buildHorizontalItem(
     BuildContext context,
     AntThemeData theme,
-    AntAnchorItem item,
+    T item,
+    int index,
   ) {
     final active = _isActive(item);
     return GestureDetector(
@@ -382,19 +398,28 @@ class _AntAnchorState extends State<AntAnchor> {
               ),
             ),
           ),
-          child: item.titleWidget ??
-              Text(
-                item.title ?? item.key,
-                style: TextStyle(
-                  fontSize: theme.fontSizeSM,
-                  color: active
-                      ? theme.colorPrimary
-                      : theme.colorTextSecondary,
-                  fontWeight: active ? FontWeight.w500 : FontWeight.normal,
-                ),
-              ),
+          child: _buildTitle(context, theme, item, index, active),
         ),
       ),
+    );
+  }
+
+  Widget _buildTitle(
+    BuildContext context,
+    AntThemeData theme,
+    T item,
+    int index,
+    bool active,
+  ) {
+    final title =
+        widget.titleBuilder?.call(context, item, index) ?? Text('$item');
+    return DefaultTextStyle.merge(
+      style: TextStyle(
+        fontSize: theme.fontSizeSM,
+        color: active ? theme.colorPrimary : theme.colorTextSecondary,
+        fontWeight: active ? FontWeight.w500 : FontWeight.normal,
+      ),
+      child: title,
     );
   }
 }

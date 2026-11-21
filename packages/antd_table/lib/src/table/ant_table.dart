@@ -1,19 +1,24 @@
 /// AntTable — antd React Table 的 Flutter 实现
 ///
+/// 数据模型泛型化（P08）：直接消费使用者模型 `T`，无 `Map` 行、无
+/// `dataIndex` 字符串取数；一切取数走回调。
+///
 /// API 与 antd React Table 对齐（核心 + 高级能力）：
-/// - [AntTable.columns] — 列定义（排序 / 筛选 / 固定 / 渲染 / 省略 / 分组 / 合并）
-/// - [AntTable.dataSource] — 行数据（`Map<String, dynamic>` 列表，支持 `children` 树形数据）
-/// - [AntTable.rowKey] — 行 key 提取函数（默认取 `id`，缺省用下标）
-/// - 排序 — sorter 列点击表头 升序 → 降序 → 取消；支持受控
-///   [AntTableColumn.sortOrder]、初始 [AntTableColumn.defaultSortOrder]、
-///   多列排序 [AntTableColumn.sortPriority]
-/// - 筛选 — filters 列表头弹出多选/单选筛选菜单（确定 / 重置）；支持受控
+/// - [AntTable.columns] — 列定义（排序 / 筛选 / 单元格 / 省略 / 分组 / 合并）
+/// - [AntTable.dataSource] — 行模型列表（`List<T>`，树形数据经
+///   [AntTable.childrenOf] 提供子行）
+/// - [AntTable.rowKey] — 行 key 提取函数（缺省用行下标）
+/// - 排序 — [AntTableColumn.sorter] 比较两个 `T`，点击表头
+///   升序 → 降序 → 取消；支持受控 [AntTableColumn.sortOrder]、初始
+///   [AntTableColumn.defaultSortOrder]、多列排序 [AntTableColumn.sortPriority]
+/// - 筛选 — filters 列表头弹出多选/单选筛选菜单（确定 / 重置）；
+///   [AntTableColumn.onFilter] 基于 `T` 判定；支持受控
 ///   [AntTableColumn.filteredValue] / 初始 [AntTableColumn.defaultFilteredValue]
 /// - 固定列 — fixed left/right 横向滚动吸边（shadow 分隔）
 /// - 固定表头 — scrollY 时表头固定、表体纵向滚动
 /// - 虚拟滚动 — scrollY 且行数 > 50 时 `ListView.builder` 懒加载
 /// - 合并单元格 — [AntTableColumn.onCell]（rowSpan / colSpan）
-/// - 树形数据 — record `children` 缩进 + 展开穿梭，与行选择联动
+/// - 树形数据 — [AntTable.childrenOf] 缩进 + 展开穿梭，与行选择联动
 /// - 行选择 — [AntTableRowSelection]（全选 / 半选 / getCheckboxProps /
 ///   selections 自定义 / 与树数据联动）
 /// - 展开行 — [AntTable.expandedRowRender]
@@ -23,9 +28,16 @@
 /// - size / bordered / loading / empty
 ///
 /// ```dart
-/// AntTable(
-///   columns: [AntTableColumn(title: '姓名', dataIndex: 'name')],
-///   dataSource: [{'name': '张三'}],
+/// AntTable<User>(
+///   rowKey: (user) => user.id,
+///   columns: [
+///     AntTableColumn<User>(
+///       title: '姓名',
+///       cell: (context, user, index) => Text(user.name),
+///       sorter: (a, b) => a.name.compareTo(b.name),
+///     ),
+///   ],
+///   dataSource: users,
 /// )
 /// ```
 library;
@@ -65,7 +77,7 @@ const double _kExpandIconSize = 14;
 // ============================================================
 
 /// 叶子列（columns 展开后的数据列，leafIndex 为全局叶子序号）
-class _LeafColumn {
+class _LeafColumn<T> {
   const _LeafColumn({
     required this.column,
     required this.leafIndex,
@@ -73,7 +85,7 @@ class _LeafColumn {
     this.inheritedFixed,
   });
 
-  final AntTableColumn column;
+  final AntTableColumn<T> column;
   final int leafIndex;
   final int depth;
 
@@ -84,7 +96,7 @@ class _LeafColumn {
 }
 
 /// 表头节点（分组列或叶子列，用于多级表头递归渲染）
-class _HeaderNode {
+class _HeaderNode<T> {
   const _HeaderNode({
     required this.column,
     required this.depth,
@@ -93,17 +105,55 @@ class _HeaderNode {
     this.leaf,
   });
 
-  final AntTableColumn column;
+  final AntTableColumn<T> column;
   final int depth;
-  final List<_HeaderNode> children;
+  final List<_HeaderNode<T>> children;
 
   /// 本节点覆盖的叶子列（含嵌套后代）
-  final List<_LeafColumn> subtreeLeaves;
+  final List<_LeafColumn<T>> subtreeLeaves;
 
   /// 叶子列（分组列为 null）
-  final _LeafColumn? leaf;
+  final _LeafColumn<T>? leaf;
 
   bool get isGroup => children.isNotEmpty;
+}
+
+// ============================================================
+// 行节点（树形数据的内部结构，避免改动用户模型）
+// ============================================================
+
+/// 处理后的行节点（键与子行在每帧构建时解析）。
+class _RowNode<T> {
+  const _RowNode({
+    required this.record,
+    required this.index,
+    required this.depth,
+    required this.key,
+    required this.children,
+  });
+
+  /// 用户行模型。
+  final T record;
+
+  /// 同级行下标（传给 [AntTableCellBuilder]）。
+  final int index;
+
+  /// 树形深度（顶层为 0）。
+  final int depth;
+
+  /// 行 key（[AntTable.rowKey] 结果，缺省为深度优先序号）。
+  final Object key;
+
+  /// 子行（已筛选 / 排序）。
+  final List<_RowNode<T>> children;
+
+  _RowNode<T> withChildren(List<_RowNode<T>> next) => _RowNode<T>(
+        record: record,
+        index: index,
+        depth: depth,
+        key: key,
+        children: next,
+      );
 }
 
 // ============================================================
@@ -112,13 +162,14 @@ class _HeaderNode {
 
 /// 表格 — 展示行列数据。
 ///
-/// 对齐 antd React Table 组件核心 + 高级 API。
-class AntTable extends StatefulWidget {
+/// 对齐 antd React Table 组件核心 + 高级 API，行数据为用户模型 `T`。
+class AntTable<T> extends StatefulWidget {
   const AntTable({
     super.key,
     required this.columns,
     required this.dataSource,
     this.rowKey,
+    this.childrenOf,
     this.scrollX,
     this.scrollY,
     this.pagination = false,
@@ -140,13 +191,18 @@ class AntTable extends StatefulWidget {
   });
 
   /// 列定义。
-  final List<AntTableColumn> columns;
+  final List<AntTableColumn<T>> columns;
 
-  /// 数据源（行记录为 `Map<String, dynamic>`，支持 `children` 树形数据）。
-  final List<Map<String, dynamic>> dataSource;
+  /// 数据源（行模型 `T` 列表）。
+  final List<T> dataSource;
 
-  /// 行 key 提取函数（默认取 `id` 字段，缺省用行下标）。
-  final AntTableRowKeyFn? rowKey;
+  /// 行 key 提取函数（缺省按深度优先行下标，跨帧不稳定，建议显式提供）。
+  final AntTableRowKeyFn<T>? rowKey;
+
+  /// 子行提取函数（返回非空列表即为树形父行）。
+  ///
+  /// 缺省视为无树形数据；[AntTableColumn] 与行选择按父子关系联动。
+  final AntTableChildrenFn<T>? childrenOf;
 
   /// 横向滚动内容宽度（大于可用宽度时出现横向滚动，固定列吸边）。
   final double? scrollX;
@@ -173,11 +229,10 @@ class AntTable extends StatefulWidget {
   final Widget? empty;
 
   /// 行选择配置。
-  final AntTableRowSelection? rowSelection;
+  final AntTableRowSelection<T>? rowSelection;
 
   /// 展开行内容构建（非 null 时行首叶子列出现展开图标）。
-  final Widget? Function(Map<String, dynamic> record, int index)?
-      expandedRowRender;
+  final AntTableExpandedRowBuilder<T>? expandedRowRender;
 
   /// 是否默认展开全部树形行。
   final bool defaultExpandAllRows;
@@ -192,7 +247,7 @@ class AntTable extends StatefulWidget {
   final bool expandRowByClick;
 
   /// 汇总行构建（对齐 antd `summary`）。
-  final AntTableSummaryFn? summary;
+  final AntTableSummaryFn<T>? summary;
 
   /// 排序变化回调（leafIndex 为叶子列序号，order 为 null 表示取消排序）。
   final AntTableSortChangeFn? onSortChange;
@@ -204,10 +259,10 @@ class AntTable extends StatefulWidget {
   final void Function(int page, int pageSize)? onPageChange;
 
   @override
-  State<AntTable> createState() => _AntTableState();
+  State<AntTable<T>> createState() => _AntTableState<T>();
 }
 
-class _AntTableState extends State<AntTable> {
+class _AntTableState<T> extends State<AntTable<T>> {
   /// 各叶子列排序方向（非受控；受控列以 [AntTableColumn.sortOrder] 为准）
   Map<int, AntTableSortOrder> _sortStates = {};
 
@@ -241,6 +296,9 @@ class _AntTableState extends State<AntTable> {
   /// 选择项下拉弹层
   OverlayEntry? _selectionOverlay;
 
+  /// 本帧行森林缓存（筛选 → 排序后的处理结果）
+  List<_RowNode<T>>? _processedCache;
+
   @override
   void initState() {
     super.initState();
@@ -252,7 +310,7 @@ class _AntTableState extends State<AntTable> {
   }
 
   @override
-  void didUpdateWidget(covariant AntTable oldWidget) {
+  void didUpdateWidget(covariant AntTable<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.columns, widget.columns)) {
       _initSortState();
@@ -274,7 +332,7 @@ class _AntTableState extends State<AntTable> {
   void _initExpandState() {
     _expandedKeys = {...?widget.expandedRowKeys};
     if (widget.defaultExpandAllRows) {
-      _expandedKeys.addAll(_allTreeKeys(widget.dataSource));
+      _expandedKeys.addAll(_allTreeKeys(_buildForest(widget.dataSource)));
     }
   }
 
@@ -328,22 +386,22 @@ class _AntTableState extends State<AntTable> {
   // ------------------------------------------------------------
 
   /// 列树（表头节点，叶子列序号全局递增）
-  List<_HeaderNode> get _headerTree {
+  List<_HeaderNode<T>> get _headerTree {
     var counter = 0;
-    _HeaderNode buildNode(
-      AntTableColumn column,
+    _HeaderNode<T> buildNode(
+      AntTableColumn<T> column,
       int depth,
       AntTableFixed? inheritedFixed,
     ) {
       final children = column.children;
       if (children == null || children.isEmpty) {
-        final leaf = _LeafColumn(
+        final leaf = _LeafColumn<T>(
           column: column,
           leafIndex: counter++,
           depth: depth,
           inheritedFixed: inheritedFixed,
         );
-        return _HeaderNode(
+        return _HeaderNode<T>(
           column: column,
           depth: depth,
           children: const [],
@@ -355,7 +413,7 @@ class _AntTableState extends State<AntTable> {
         for (final child in children)
           buildNode(child, depth + 1, column.fixed ?? inheritedFixed),
       ];
-      return _HeaderNode(
+      return _HeaderNode<T>(
         column: column,
         depth: depth,
         children: childNodes,
@@ -369,7 +427,7 @@ class _AntTableState extends State<AntTable> {
   }
 
   /// 叶子列（按 columns 顺序展开 children）
-  List<_LeafColumn> get _leaves => [
+  List<_LeafColumn<T>> get _leaves => [
         for (final node in _headerTree) ...node.subtreeLeaves,
       ];
 
@@ -377,7 +435,7 @@ class _AntTableState extends State<AntTable> {
   int get _headerDepth {
     var depth = 1;
     for (final node in _headerTree) {
-      int walk(_HeaderNode n) {
+      int walk(_HeaderNode<T> n) {
         if (!n.isGroup) return n.depth + 1;
         var maxDepth = n.depth + 1;
         for (final child in n.children) {
@@ -397,41 +455,60 @@ class _AntTableState extends State<AntTable> {
   // 数据处理：筛选 → 排序 → 分页（递归支持树形数据）
   // ------------------------------------------------------------
 
-  Object? _rowKeyOf(Map<String, dynamic> record, int index) =>
-      widget.rowKey?.call(record) ?? record['id'] ?? index;
-
-  List<Map<String, dynamic>>? _childrenOf(Map<String, dynamic> record) {
-    final children = record['children'];
-    if (children is List && children.isNotEmpty) {
-      return children.cast<Map<String, dynamic>>();
+  /// 从数据源构建行森林（key 缺省按深度优先序号分配）。
+  List<_RowNode<T>> _buildForest(List<T> records) {
+    var autoKey = 0;
+    _RowNode<T> build(T record, int index, int depth) {
+      final children = widget.childrenOf?.call(record) ?? <T>[];
+      return _RowNode<T>(
+        record: record,
+        index: index,
+        depth: depth,
+        key: widget.rowKey?.call(record) ?? autoKey++,
+        children: [
+          for (var i = 0; i < children.length; i++)
+            build(children[i], i, depth + 1),
+        ],
+      );
     }
-    return null;
+
+    return [
+      for (var i = 0; i < records.length; i++) build(records[i], i, 0),
+    ];
   }
 
-  _LeafColumn? _leafOf(int leafIndex) =>
+  _LeafColumn<T>? _leafOf(int leafIndex) =>
       leafIndex >= 0 && leafIndex < _leaves.length ? _leaves[leafIndex] : null;
 
   /// 当前生效的排序方向（受控优先）
-  AntTableSortOrder? _effectiveOrder(_LeafColumn leaf) =>
+  AntTableSortOrder? _effectiveOrder(_LeafColumn<T> leaf) =>
       leaf.column.sortOrder ?? _sortStates[leaf.leafIndex];
 
   /// 当前生效的筛选值（受控优先）
-  Set<Object>? _effectiveFilter(_LeafColumn leaf) {
+  Set<Object>? _effectiveFilter(_LeafColumn<T> leaf) {
     final controlled = leaf.column.filteredValue;
     if (controlled != null) return Set<Object>.from(controlled);
     return _filterSelected[leaf.leafIndex];
   }
 
-  /// 应用筛选与排序后的全量行（分页前，children 递归处理）
-  List<Map<String, dynamic>> get _processedRows {
-    var rows = List<Map<String, dynamic>>.from(widget.dataSource);
+  /// 处理后的行森林（筛选 → 排序，分页前；每帧构建时缓存）
+  List<_RowNode<T>> get _processedForest =>
+      _processedCache ??= _computeProcessedForest();
+
+  /// 处理后的顶层行模型（汇总行入参）
+  List<T> get _processedRecords => [
+        for (final node in _processedForest) node.record,
+      ];
+
+  List<_RowNode<T>> _computeProcessedForest() {
+    var forest = _buildForest(widget.dataSource);
 
     // 筛选（保留命中行或含命中后代的父行）
     for (final leaf in _leaves) {
       final selected = _effectiveFilter(leaf);
       final onFilter = leaf.column.onFilter;
       if (onFilter == null || selected == null || selected.isEmpty) continue;
-      rows = _filterRows(rows, selected, onFilter);
+      forest = _filterForest(forest, selected, onFilter);
     }
 
     // 排序（单列 / 多列 sortPriority 链 / 自定义比较器）
@@ -448,7 +525,7 @@ class _AntTableState extends State<AntTable> {
       });
 
     if (sortedLeaves.isNotEmpty) {
-      int compare(Map<String, dynamic> a, Map<String, dynamic> b) {
+      int compare(T a, T b) {
         for (final leaf in sortedLeaves) {
           final result = leaf.column.sorter!(a, b);
           if (result != 0) {
@@ -460,80 +537,55 @@ class _AntTableState extends State<AntTable> {
         return 0;
       }
 
-      rows = _sortRows(List<Map<String, dynamic>>.from(rows), compare);
+      forest = _sortForest(forest, compare);
     }
 
-    return rows;
+    return forest;
   }
 
-  List<Map<String, dynamic>> _filterRows(
-    List<Map<String, dynamic>> rows,
+  List<_RowNode<T>> _filterForest(
+    List<_RowNode<T>> nodes,
     Set<Object> selected,
-    AntTableFilterFn onFilter,
+    AntTableFilterFn<T> onFilter,
+  ) {
+    final kept = <_RowNode<T>>[];
+    for (final node in nodes) {
+      final children = _filterForest(node.children, selected, onFilter);
+      // 父行自身命中，或任一后代命中时保留（不修改用户模型）
+      if (children.isNotEmpty ||
+          selected.any((value) => onFilter(value, node.record))) {
+        kept.add(node.withChildren(children));
+      }
+    }
+    return kept;
+  }
+
+  List<_RowNode<T>> _sortForest(
+    List<_RowNode<T>> nodes,
+    int Function(T a, T b) compare,
   ) {
     return [
-      for (final record in rows)
-        if (_keepFiltered(record, selected, onFilter)) record,
-    ];
-  }
-
-  bool _keepFiltered(
-    Map<String, dynamic> record,
-    Set<Object> selected,
-    AntTableFilterFn onFilter,
-  ) {
-    final children = _childrenOf(record);
-    var childrenKept = const <Map<String, dynamic>>[];
-    if (children != null) {
-      childrenKept = _filterRows(children, selected, onFilter);
-    }
-    if (childrenKept.isNotEmpty) {
-      record['children'] = childrenKept;
-      return true;
-    }
-    return selected.any((v) => onFilter(v, record));
-  }
-
-  List<Map<String, dynamic>> _sortRows(
-    List<Map<String, dynamic>> rows,
-    int Function(Map<String, dynamic>, Map<String, dynamic>) compare,
-  ) {
-    final sorted = [
-      for (final record in rows)
-        Map<String, dynamic>.from(record)
-          ..['children'] = _childrenOf(record) == null
-              ? null
-              : _sortRows(
-                  List<Map<String, dynamic>>.from(
-                    _childrenOf(record)!,
-                  ),
-                  compare,
-                ),
-    ]..sort(compare);
-    return sorted;
+      for (final node in nodes)
+        node.withChildren(_sortForest(node.children, compare)),
+    ]..sort((a, b) => compare(a.record, b.record));
   }
 
   /// 展平后的展示行（树形行按展开态穿插 children）
-  List<_DisplayRow> get _displayRows {
-    final rows = _processedRows;
-    final paged = _pageRows(rows);
-    final result = <_DisplayRow>[];
-    void flatten(List<Map<String, dynamic>> records, int depth) {
-      for (var i = 0; i < records.length; i++) {
-        final record = records[i];
-        result.add(_DisplayRow(record: record, depth: depth, index: i));
-        if (_isExpanded(_rowKeyOf(record, i))) {
-          final children = _childrenOf(record);
-          if (children != null) flatten(children, depth + 1);
-        }
+  List<_RowNode<T>> get _displayRows {
+    final paged = _pageRows(_processedForest);
+    final result = <_RowNode<T>>[];
+    void flatten(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        result.add(node);
+        if (_isExpanded(node.key)) flatten(node.children);
       }
     }
 
-    flatten(paged, 0);
+    flatten(paged);
     return result;
   }
 
-  List<Map<String, dynamic>> _pageRows(List<Map<String, dynamic>> rows) {
+  List<_RowNode<T>> _pageRows(List<_RowNode<T>> rows) {
     if (!widget.pagination || rows.length <= widget.pageSize) return rows;
     final page = _currentPage.clamp(1, _pageCountOf(rows.length));
     final start = (page - 1) * widget.pageSize;
@@ -543,7 +595,7 @@ class _AntTableState extends State<AntTable> {
   int _pageCountOf(int length) =>
       (length / widget.pageSize).ceil().clamp(1, 1 << 31);
 
-  int get _pageCount => _pageCountOf(_processedRows.length);
+  int get _pageCount => _pageCountOf(_processedForest.length);
 
   // ------------------------------------------------------------
   // 展开态（树形 + expandedRowRender）
@@ -567,35 +619,30 @@ class _AntTableState extends State<AntTable> {
     widget.onExpandedRowsChange?.call(next.toList());
   }
 
-  Set<Object> _allTreeKeys(List<Map<String, dynamic>> rows) {
+  Set<Object> _allTreeKeys(List<_RowNode<T>> nodes) {
     final keys = <Object>{};
-    void walk(List<Map<String, dynamic>> records) {
-      for (var i = 0; i < records.length; i++) {
-        final key = _rowKeyOf(records[i], i);
-        if (key != null) keys.add(key);
-        final children = _childrenOf(records[i]);
-        if (children != null) walk(children);
+    void walk(List<_RowNode<T>> rows) {
+      for (final node in rows) {
+        keys.add(node.key);
+        walk(node.children);
       }
     }
 
-    walk(rows);
+    walk(nodes);
     return keys;
   }
 
-  /// 行的后代 key 集合（行选择父子联动用）
-  Set<Object> _descendantKeys(Map<String, dynamic> record) {
+  /// 行节点的后代 key 集合（行选择父子联动用）
+  Set<Object> _descendantKeys(_RowNode<T> node) {
     final keys = <Object>{};
-    void walk(List<Map<String, dynamic>> records, int baseIndex) {
-      for (var i = 0; i < records.length; i++) {
-        final key = _rowKeyOf(records[i], baseIndex + i);
-        if (key != null) keys.add(key);
-        final children = _childrenOf(records[i]);
-        if (children != null) walk(children, baseIndex + i);
+    void walk(List<_RowNode<T>> rows) {
+      for (final child in rows) {
+        keys.add(child.key);
+        walk(child.children);
       }
     }
 
-    final children = _childrenOf(record);
-    if (children != null) walk(children, 0);
+    walk(node.children);
     return keys;
   }
 
@@ -603,55 +650,60 @@ class _AntTableState extends State<AntTable> {
   // 行选择
   // ------------------------------------------------------------
 
-  AntTableRowSelection? get _selection => widget.rowSelection;
+  AntTableRowSelection<T>? get _selection => widget.rowSelection;
 
   Set<Object> get _selectedState => _selection?.selectedRowKeys != null
       ? Set<Object>.from(_selection!.selectedRowKeys!)
       : _selectedKeys;
 
-  bool _isRowDisabled(Map<String, dynamic> record) =>
+  bool _isRowDisabled(T record) =>
       _selection?.getCheckboxProps?.call(record).disabled ?? false;
 
-  /// 行是否选中（父子关联模式：全部后代选中即视为选中）
-  bool _isRowChecked(Map<String, dynamic> record) {
-    final key = _rowKeyOf(record, 0);
-    if (key == null || !_selectedState.contains(key)) {
-      if (_selection?.checkStrictly ?? false) return false;
-      final children = _childrenOf(record);
-      if (children != null) {
-        final descendants = _descendantKeys(record);
-        return descendants.isNotEmpty &&
-            descendants.every(_selectedState.contains);
+  /// key → 行节点（本帧处理后的森林）
+  Map<Object, _RowNode<T>> get _nodeByKey {
+    final map = <Object, _RowNode<T>>{};
+    void walk(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        map[node.key] = node;
+        walk(node.children);
       }
-      return false;
+    }
+
+    walk(_processedForest);
+    return map;
+  }
+
+  /// 行是否选中（父子关联模式：全部后代选中即视为选中）
+  bool _isRowChecked(_RowNode<T> node) {
+    final key = node.key;
+    if (!_selectedState.contains(key)) {
+      if (_selection?.checkStrictly ?? false) return false;
+      final descendants = _descendantKeys(node);
+      return descendants.isNotEmpty &&
+          descendants.every(_selectedState.contains);
     }
     return true;
   }
 
   /// 行是否半选（部分后代选中）
-  bool _isRowIndeterminate(Map<String, dynamic> record) {
+  bool _isRowIndeterminate(_RowNode<T> node) {
     if (_selection?.checkStrictly ?? false) return false;
-    if (_isRowChecked(record)) return false;
-    final children = _childrenOf(record);
-    if (children == null) return false;
-    final descendants = _descendantKeys(record);
+    if (_isRowChecked(node)) return false;
+    final descendants = _descendantKeys(node);
     return descendants.any(_selectedState.contains);
   }
 
   /// 全部可选（未禁用）行 key
   Set<Object> get _selectableKeys {
     final keys = <Object>{};
-    void walk(List<Map<String, dynamic>> records) {
-      for (var i = 0; i < records.length; i++) {
-        final record = records[i];
-        final key = _rowKeyOf(record, i);
-        if (key != null && !_isRowDisabled(record)) keys.add(key);
-        final children = _childrenOf(record);
-        if (children != null) walk(children);
+    void walk(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        if (!_isRowDisabled(node.record)) keys.add(node.key);
+        walk(node.children);
       }
     }
 
-    walk(_processedRows);
+    walk(_processedForest);
     return keys;
   }
 
@@ -660,40 +712,23 @@ class _AntTableState extends State<AntTable> {
     _selection?.onChange?.call(next.toList());
   }
 
-  void _toggleRowSelection(Map<String, dynamic> record) {
-    if (record.isEmpty || _isRowDisabled(record)) return;
-    final key = _rowKeyOf(record, 0);
-    if (key == null) return;
+  void _toggleRowSelection(_RowNode<T> node) {
+    if (_isRowDisabled(node.record)) return;
+    final key = node.key;
     final next = Set<Object>.from(_selectedState);
-    final checked = _isRowChecked(record);
+    final checked = _isRowChecked(node);
     final strictly = _selection?.checkStrictly ?? false;
-    final affected =
-        strictly ? <Object>{key} : {key, ..._descendantKeys(record)};
+    final affected = strictly ? <Object>{key} : {key, ..._descendantKeys(node)};
     if (checked) {
       next.removeAll(affected);
     } else {
+      final nodes = _nodeByKey;
       for (final k in affected) {
-        final target = _findRecord(k);
-        if (target == null || !_isRowDisabled(target)) next.add(k);
+        final target = nodes[k];
+        if (target == null || !_isRowDisabled(target.record)) next.add(k);
       }
     }
     _setSelected(next);
-  }
-
-  Map<String, dynamic>? _findRecord(Object key) {
-    Map<String, dynamic>? find(List<Map<String, dynamic>> records) {
-      for (var i = 0; i < records.length; i++) {
-        if (_rowKeyOf(records[i], i) == key) return records[i];
-        final children = _childrenOf(records[i]);
-        if (children != null) {
-          final found = find(children);
-          if (found != null) return found;
-        }
-      }
-      return null;
-    }
-
-    return find(widget.dataSource);
   }
 
   bool get _allSelected {
@@ -813,7 +848,7 @@ class _AntTableState extends State<AntTable> {
     Overlay.of(context).insert(entry);
   }
 
-  void _applyFilter(int leafIndex, _LeafColumn leaf, Set<Object> selected) {
+  void _applyFilter(int leafIndex, _LeafColumn<T> leaf, Set<Object> selected) {
     final controlled = leaf.column.filteredValue != null;
     if (!controlled) {
       setState(() {
@@ -949,15 +984,18 @@ class _AntTableState extends State<AntTable> {
   /// 表头单行高度（固定高度保证多级表头纵向对齐）
   double get _headerRowHeight => (_cellPaddingV * 2 + _cellFontSize * 1.5).w;
 
-  double _columnWidth(AntTableColumn column) =>
+  double _columnWidth(AntTableColumn<T> column) =>
       (column.width ?? _kDefaultColumnWidth).w;
 
   bool get _hasScrollX => widget.scrollX != null;
 
   /// 是否存在可展开内容（树形数据或 expandedRowRender）
-  bool get _hasExpandable =>
-      widget.expandedRowRender != null ||
-      widget.dataSource.any((r) => _childrenOf(r) != null);
+  bool get _hasExpandable {
+    final childrenOf = widget.childrenOf;
+    return widget.expandedRowRender != null ||
+        (childrenOf != null &&
+            widget.dataSource.any((r) => childrenOf(r).isNotEmpty));
+  }
 
   // ============================================================
   // build
@@ -966,8 +1004,10 @@ class _AntTableState extends State<AntTable> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
+    // 每帧刷新处理结果（筛选 / 排序后的行森林，含用户模型引用）
+    _processedCache = _computeProcessedForest();
     final rows = _displayRows;
-    final summaryCells = widget.summary?.call(_processedRows);
+    final summaryCells = widget.summary?.call(_processedRecords);
 
     final table = Container(
       width: double.infinity,
@@ -986,7 +1026,7 @@ class _AntTableState extends State<AntTable> {
           if (summaryCells != null && summaryCells.isNotEmpty)
             _buildSummary(theme, summaryCells),
           if (widget.pagination &&
-              _processedRows.length > widget.pageSize &&
+              _processedForest.length > widget.pageSize &&
               rows.isNotEmpty)
             _buildPagination(theme),
         ],
@@ -1017,22 +1057,22 @@ class _AntTableState extends State<AntTable> {
   // 分段骨架（固定列拆分：selection? | left | middle(scroll) | right）
   // ------------------------------------------------------------
 
-  List<_LeafColumn> get _leftLeaves => [
+  List<_LeafColumn<T>> get _leftLeaves => [
         for (final leaf in _leaves)
           if (leaf.fixed == AntTableFixed.left) leaf,
       ];
 
-  List<_LeafColumn> get _rightLeaves => [
+  List<_LeafColumn<T>> get _rightLeaves => [
         for (final leaf in _leaves)
           if (leaf.fixed == AntTableFixed.right) leaf,
       ];
 
-  List<_LeafColumn> get _middleLeaves => [
+  List<_LeafColumn<T>> get _middleLeaves => [
         for (final leaf in _leaves)
           if (leaf.fixed == null) leaf,
       ];
 
-  List<_HeaderNode> _topNodesOf(AntTableFixed? fixed) => [
+  List<_HeaderNode<T>> _topNodesOf(AntTableFixed? fixed) => [
         for (final node in _headerTree)
           if (node.subtreeLeaves.first.fixed == fixed) node,
       ];
@@ -1090,7 +1130,7 @@ class _AntTableState extends State<AntTable> {
   /// 表头分段单元格列表（顶层列 → 递归多级表头）
   List<Widget> _headerSegmentCells(
     AntThemeData theme,
-    List<_HeaderNode> nodes,
+    List<_HeaderNode<T>> nodes,
   ) {
     final cells = <Widget>[];
     for (var i = 0; i < nodes.length; i++) {
@@ -1122,7 +1162,7 @@ class _AntTableState extends State<AntTable> {
   /// 表头节点单元格（分组列：标题 + 子列递归；叶子列：标题 + 排序/筛选）
   Widget _buildHeaderNodeCell(
     AntThemeData theme,
-    _HeaderNode node, {
+    _HeaderNode<T> node, {
     bool showDivider = false,
   }) {
     if (!node.isGroup) {
@@ -1166,23 +1206,21 @@ class _AntTableState extends State<AntTable> {
   /// 表体 / 汇总行骨架：selection 列 + 左固定 | 滚动中段 | 右固定
   Widget _buildBodySkeletonRow(
     AntThemeData theme, {
-    required Widget Function(_LeafColumn leaf, int colSpan) cellBuilder,
+    required Widget Function(_LeafColumn<T> leaf, int colSpan) cellBuilder,
     Set<int>? hiddenLeaves,
-    Map<String, dynamic>? record,
-    required bool isSelectionRow,
-    int Function(int leafIndex)? colSpanResolver,
+    Widget? selectionCell,
+    Map<int, int>? colSpans,
   }) {
     final children = <Widget>[
       // 选择列（始终吸左）
-      if (_selection != null && isSelectionRow)
-        _buildSelectionBodyCell(theme, record ?? const {}),
+      if (_selection != null && selectionCell != null) selectionCell,
 
       // 固定在左侧的列
       ..._leafSegmentCells(
         _leftLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
-        colSpanResolver: colSpanResolver,
+        colSpans: colSpans,
       ),
       if (_leftLeaves.isNotEmpty && _hasScrollX)
         _buildShadow(theme, isLeft: true),
@@ -1201,7 +1239,7 @@ class _AntTableState extends State<AntTable> {
                       _middleLeaves,
                       cellBuilder,
                       hiddenLeaves: hiddenLeaves,
-                      colSpanResolver: colSpanResolver,
+                      colSpans: colSpans,
                     ),
                   ),
                 ),
@@ -1212,7 +1250,7 @@ class _AntTableState extends State<AntTable> {
                   _middleLeaves,
                   cellBuilder,
                   hiddenLeaves: hiddenLeaves,
-                  colSpanResolver: colSpanResolver,
+                  colSpans: colSpans,
                 ),
               ),
       ),
@@ -1225,7 +1263,7 @@ class _AntTableState extends State<AntTable> {
         _rightLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
-        colSpanResolver: colSpanResolver,
+        colSpans: colSpans,
       ),
     ];
 
@@ -1237,10 +1275,10 @@ class _AntTableState extends State<AntTable> {
 
   /// 单个分段（一组叶子列）的单元格列表，处理 colSpan 合并消费
   List<Widget> _leafSegmentCells(
-    List<_LeafColumn> leaves,
-    Widget Function(_LeafColumn leaf, int colSpan) cellBuilder, {
+    List<_LeafColumn<T>> leaves,
+    Widget Function(_LeafColumn<T> leaf, int colSpan) cellBuilder, {
     Set<int>? hiddenLeaves,
-    int Function(int leafIndex)? colSpanResolver,
+    Map<int, int>? colSpans,
   }) {
     final cells = <Widget>[];
     final consumed = <int>{};
@@ -1252,17 +1290,7 @@ class _AntTableState extends State<AntTable> {
         continue;
       }
 
-      final colSpan = colSpanResolver?.call(leaf.leafIndex) ??
-          (leaf.column.onCell != null
-              ? (leaf
-                      .column
-                      .onCell!(
-                    _spanRecord ?? const {},
-                    _spanRowIndex,
-                  )
-                      ?.colSpan ??
-                  1)
-              : 1);
+      final colSpan = colSpans?[leaf.leafIndex] ?? 1;
 
       // colSpan 在分段内消费后续叶子列
       var effective = 1;
@@ -1286,33 +1314,26 @@ class _AntTableState extends State<AntTable> {
     return cells;
   }
 
-  /// colSpan 计算上下文（骨架构建期的临时上下文）
-  Map<String, dynamic>? _spanRecord;
-  int _spanRowIndex = 0;
-
   // ------------------------------------------------------------
   // 表体
   // ------------------------------------------------------------
 
-  Widget _buildBody(AntThemeData theme, List<_DisplayRow> rows) {
+  Widget _buildBody(AntThemeData theme, List<_RowNode<T>> rows) {
     final spans = _computeRowSpans(rows);
 
     Widget rowWidget(int index) {
       final row = rows[index];
-      final record = row.record;
-      final key = _rowKeyOf(record, index);
+      final key = row.key;
 
-      _spanRecord = record;
-      _spanRowIndex = index;
       final rowContent = _buildBodySkeletonRow(
         theme,
-        record: record,
-        isSelectionRow: true,
+        selectionCell:
+            _selection != null ? _buildSelectionBodyCell(theme, row) : null,
         hiddenLeaves: spans.hidden[index],
+        colSpans: spans.colSpans[index],
         cellBuilder: (leaf, colSpan) =>
             _buildBodyCell(theme, leaf, row, colSpan),
       );
-      _spanRecord = null;
 
       // 拉伸行高：选择列等无固有高度的单元格随行高垂直居中（antd 为垂直居中）
       Widget content = IntrinsicHeight(child: rowContent);
@@ -1325,7 +1346,7 @@ class _AntTableState extends State<AntTable> {
       }
 
       return Container(
-        key: ValueKey<Object?>('ant_table_row_${_rowKeyOf(record, index)}'),
+        key: ValueKey<Object?>('ant_table_row_$key'),
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: theme.colorSplit)),
         ),
@@ -1335,7 +1356,7 @@ class _AntTableState extends State<AntTable> {
           children: [
             content,
             if (_isExpanded(key) && widget.expandedRowRender != null)
-              _buildExpandedContent(theme, record, index),
+              _buildExpandedContent(theme, row.record, index),
           ],
         ),
       );
@@ -1349,9 +1370,9 @@ class _AntTableState extends State<AntTable> {
           child: ListView.builder(
             itemCount: rows.length,
             findChildIndexCallback: (key) {
-              final recordKey = (key as ValueKey<Object?>).value;
+              final rowKey = (key as ValueKey<Object?>).value;
               for (var i = 0; i < rows.length; i++) {
-                if (_rowKeyOf(rows[i].record, i) == recordKey) return i;
+                if (rows[i].key == rowKey) return i;
               }
               return null;
             },
@@ -1375,10 +1396,10 @@ class _AntTableState extends State<AntTable> {
   /// 展开行内容区
   Widget _buildExpandedContent(
     AntThemeData theme,
-    Map<String, dynamic> record,
+    T record,
     int index,
   ) {
-    final content = widget.expandedRowRender?.call(record, index);
+    final content = widget.expandedRowRender?.call(context, record, index);
     if (content == null) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
@@ -1391,14 +1412,16 @@ class _AntTableState extends State<AntTable> {
     );
   }
 
-  /// 计算合并单元格的隐藏格与 rowSpan 值
-  _RowSpanInfo _computeRowSpans(List<_DisplayRow> rows) {
+  /// 计算合并单元格的隐藏格与 colSpan 值
+  _RowSpanInfo _computeRowSpans(List<_RowNode<T>> rows) {
     final hidden = <int, Set<int>>{};
+    final colSpans = <int, Map<int, int>>{};
     final pending = <int, int>{}; // leafIndex → 剩余隐藏行数
 
     for (var r = 0; r < rows.length; r++) {
       final record = rows[r].record;
       final rowHidden = <int>{};
+      final rowSpans = <int, int>{};
       for (final leaf in _leaves) {
         final onCell = leaf.column.onCell;
         if (onCell == null) continue;
@@ -1411,14 +1434,17 @@ class _AntTableState extends State<AntTable> {
         final span = onCell(record, r);
         if (span == null) continue;
         final rowSpan = span.rowSpan ?? 1;
+        final colSpan = span.colSpan ?? 1;
         if (rowSpan == 0) rowHidden.add(leaf.leafIndex);
         if (rowSpan > 1) {
           pending[leaf.leafIndex] = rowSpan - 1;
         }
+        if (colSpan > 1) rowSpans[leaf.leafIndex] = colSpan;
       }
       if (rowHidden.isNotEmpty) hidden[r] = rowHidden;
+      if (rowSpans.isNotEmpty) colSpans[r] = rowSpans;
     }
-    return _RowSpanInfo(hidden: hidden);
+    return _RowSpanInfo(hidden: hidden, colSpans: colSpans);
   }
 
   // ------------------------------------------------------------
@@ -1427,23 +1453,26 @@ class _AntTableState extends State<AntTable> {
 
   Widget _buildBodyCell(
     AntThemeData theme,
-    _LeafColumn leaf,
-    _DisplayRow row,
+    _LeafColumn<T> leaf,
+    _RowNode<T> row,
     int colSpan,
   ) {
     final column = leaf.column;
-    final record = row.record;
-    final isTreeParent = _childrenOf(record) != null;
+    final isTreeParent = row.children.isNotEmpty;
     final isFirstLeaf = leaf.leafIndex == _leaves.first.leafIndex;
-    final key = _rowKeyOf(record, row.index);
+    final key = row.key;
 
-    final value = column.dataIndex == null ? null : record[column.dataIndex];
-    Widget content = column.render?.call(value, record, row.index) ??
-        _cellText(
-          theme,
-          value?.toString() ?? '',
-          color: theme.colorText,
-        );
+    Widget content = column.cell?.call(context, row.record, row.index) ??
+        const SizedBox.shrink();
+
+    if (column.ellipsis) {
+      content = DefaultTextStyle.merge(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        child: content,
+      );
+    }
 
     // 树形缩进 + 展开图标 / expandedRowRender 展开图标（内联行首叶子列）
     if (isFirstLeaf && _hasExpandable) {
@@ -1512,7 +1541,7 @@ class _AntTableState extends State<AntTable> {
 
   Widget _buildHeaderLeafCell(
     AntThemeData theme,
-    _LeafColumn leaf, {
+    _LeafColumn<T> leaf, {
     bool showDivider = false,
   }) {
     final column = leaf.column;
@@ -1608,7 +1637,7 @@ class _AntTableState extends State<AntTable> {
   }
 
   /// 排序图标（升 / 降两枚，激活态主题色着色）
-  Widget _buildSortIcons(AntThemeData theme, _LeafColumn leaf) {
+  Widget _buildSortIcons(AntThemeData theme, _LeafColumn<T> leaf) {
     final order = _effectiveOrder(leaf);
     final activeColor = theme.colorPrimary;
     final inactiveColor = theme.colorTextQuaternary;
@@ -1633,7 +1662,7 @@ class _AntTableState extends State<AntTable> {
   }
 
   /// 筛选图标（点击弹出筛选菜单）
-  Widget _buildFilterIcon(AntThemeData theme, _LeafColumn leaf) {
+  Widget _buildFilterIcon(AntThemeData theme, _LeafColumn<T> leaf) {
     final link = _filterLinks.putIfAbsent(leaf.leafIndex, () => LayerLink());
     final active = _effectiveFilter(leaf)?.isNotEmpty ?? false;
     return CompositedTransformTarget(
@@ -1702,18 +1731,18 @@ class _AntTableState extends State<AntTable> {
 
   Widget _buildSelectionBodyCell(
     AntThemeData theme,
-    Map<String, dynamic> record,
+    _RowNode<T> row,
   ) {
     return SizedBox(
       key: const ValueKey('ant_table_td_selection'),
       width: _selectionWidth.w,
       child: Center(
         child: _TableCheckbox(
-          key: ValueKey('ant_table_checkbox_row_${_rowKeyOf(record, 0)}'),
+          key: ValueKey('ant_table_checkbox_row_${row.key}'),
           theme: theme,
-          checked: _isRowChecked(record),
-          indeterminate: _isRowIndeterminate(record),
-          onTap: () => _toggleRowSelection(record),
+          checked: _isRowChecked(row),
+          indeterminate: _isRowIndeterminate(row),
+          onTap: () => _toggleRowSelection(row),
         ),
       ),
     );
@@ -1745,7 +1774,6 @@ class _AntTableState extends State<AntTable> {
       child: IntrinsicHeight(
         child: _buildBodySkeletonRow(
           theme,
-          isSelectionRow: false,
           cellBuilder: (leaf, colSpan) {
             final cell = cellByIndex[leaf.leafIndex];
             if (cell == null) return const SizedBox.shrink();
@@ -1760,7 +1788,10 @@ class _AntTableState extends State<AntTable> {
               ),
             );
           },
-          colSpanResolver: (leafIndex) => cellByIndex[leafIndex]?.colSpan ?? 1,
+          colSpans: {
+            for (final entry in cellByIndex.entries)
+              if (entry.value.colSpan > 1) entry.key: entry.value.colSpan,
+          },
         ),
       ),
     );
@@ -1909,23 +1940,14 @@ class _AntTableState extends State<AntTable> {
 // 辅助类型
 // ============================================================
 
-class _DisplayRow {
-  const _DisplayRow({
-    required this.record,
-    required this.depth,
-    required this.index,
-  });
-
-  final Map<String, dynamic> record;
-  final int depth;
-  final int index;
-}
-
 class _RowSpanInfo {
-  const _RowSpanInfo({required this.hidden});
+  const _RowSpanInfo({required this.hidden, required this.colSpans});
 
   /// 行下标 → 被上方 rowSpan 合并覆盖（不渲染）的叶子列下标
   final Map<int, Set<int>> hidden;
+
+  /// 行下标 → {叶子列下标: colSpan}（本行需要跨列合并的单元格）
+  final Map<int, Map<int, int>> colSpans;
 }
 
 // ============================================================

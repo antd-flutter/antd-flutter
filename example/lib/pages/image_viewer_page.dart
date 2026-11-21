@@ -20,23 +20,11 @@ class ImageViewerPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Section(
-            title: '单图预览',
-            theme: theme,
-            child: const _SingleDemo(),
-          ),
+          _Section(title: '单图预览', theme: theme, child: const _SingleDemo()),
           SizedBox(height: 16.w),
-          _Section(
-            title: '多图切换',
-            theme: theme,
-            child: const _MultiDemo(),
-          ),
+          _Section(title: '多图切换', theme: theme, child: const _MultiDemo()),
           SizedBox(height: 16.w),
-          _Section(
-            title: '受控开关',
-            theme: theme,
-            child: const _ControlledDemo(),
-          ),
+          _Section(title: '受控开关', theme: theme, child: const _ControlledDemo()),
           SizedBox(height: 16.w),
           _Section(
             title: '自定义初始页',
@@ -80,8 +68,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -198,8 +186,8 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           onTap: () => setState(() => _open = !_open),
         ),
         SizedBox(height: 8.w),
-        AntText(text: 
-          '当前状态：${_open ? '已打开' : '已关闭'}',
+        AntText(
+          text: '当前状态：${_open ? '已打开' : '已关闭'}',
           style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
         ),
         AntImageViewer(

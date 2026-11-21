@@ -22,56 +22,75 @@ import 'ant_jumbo_tabs_types.dart';
 /// 激活项主标题高亮 + 底部指示条。
 ///
 /// ```dart
-/// AntJumboTabs(
-///   items: [
-///     AntJumboTabItem(key: 'a', title: '全部', description: '所有订单'),
-///     AntJumboTabItem(key: 'b', title: '待付款', description: '等待付款'),
-///   ],
-///   onChange: (key) => print(key),
+/// AntJumboTabs<Category>(
+///   items: categories,
+///   keyOf: (category) => category.id,
+///   titleBuilder: (context, category, index) => Text(category.name),
+///   descriptionBuilder: (context, category, index) => Text(category.desc),
 /// )
 /// ```
-class AntJumboTabs extends StatefulWidget {
+class AntJumboTabs<T> extends StatefulWidget {
   const AntJumboTabs({
     super.key,
     required this.items,
+    this.keyOf,
+    this.titleBuilder,
+    this.descriptionBuilder,
+    this.disabledOf,
     this.activeKey,
     this.defaultActiveKey,
     this.onChange,
   });
 
   /// 选项卡项列表。
-  final List<AntJumboTabItem> items;
+  final List<T> items;
+
+  /// 提取唯一标识，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 主标题构建器，未提供时回退为 `Text('$item')`。
+  final AntJumboTabsTitleBuilder<T>? titleBuilder;
+
+  /// 描述构建器，返回 null 时不展示描述。
+  final AntJumboTabsDescriptionBuilder<T>? descriptionBuilder;
+
+  /// 是否禁用某项。
+  final bool Function(T item)? disabledOf;
 
   /// 受控激活项 key。
-  final String? activeKey;
+  final Object? activeKey;
 
   /// 非受控默认激活项 key。
-  final String? defaultActiveKey;
+  final Object? defaultActiveKey;
 
   /// 切换回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
   @override
-  State<AntJumboTabs> createState() => _AntJumboTabsState();
+  State<AntJumboTabs<T>> createState() => _AntJumboTabsState<T>();
 }
 
-class _AntJumboTabsState extends State<AntJumboTabs> {
-  String? _internalKey;
+class _AntJumboTabsState<T> extends State<AntJumboTabs<T>> {
+  Object? _internalKey;
 
-  String? get _currentKey => widget.activeKey ?? _internalKey;
+  Object? get _currentKey => widget.activeKey ?? _internalKey;
+
+  Object _keyAt(int index) => widget.keyOf?.call(widget.items[index]) ?? index;
 
   @override
   void initState() {
     super.initState();
-    _internalKey = widget.defaultActiveKey ?? widget.items.firstOrNull?.key;
+    _internalKey =
+        widget.defaultActiveKey ?? (widget.items.isEmpty ? null : _keyAt(0));
   }
 
-  void _handleTap(AntJumboTabItem item) {
-    if (item.disabled || item.key == _currentKey) return;
+  void _handleTap(T item, int index) {
+    final disabled = widget.disabledOf?.call(item) ?? false;
+    if (disabled || _keyAt(index) == _currentKey) return;
     if (widget.activeKey == null) {
-      setState(() => _internalKey = item.key);
+      setState(() => _internalKey = _keyAt(index));
     }
-    widget.onChange?.call(item.key);
+    widget.onChange?.call(item);
   }
 
   @override
@@ -92,18 +111,23 @@ class _AntJumboTabsState extends State<AntJumboTabs> {
           ),
           child: Row(
             children: [
-              for (final item in widget.items)
+              for (var i = 0; i < widget.items.length; i++)
                 Expanded(
                   child: _JumboItem(
-                    item: item,
-                    active: item.key == currentKey,
+                    title: widget.titleBuilder
+                            ?.call(context, widget.items[i], i) ??
+                        Text('${widget.items[i]}'),
+                    description: widget.descriptionBuilder
+                        ?.call(context, widget.items[i], i),
+                    active: _keyAt(i) == currentKey,
+                    disabled: widget.disabledOf?.call(widget.items[i]) ?? false,
                     colorPrimary: t.colorPrimary,
                     colorText: t.colorText,
                     colorTextSecondary: t.colorTextSecondary,
                     colorTextDisabled: t.colorTextDisabled,
                     colorTextLightSolid: t.colorTextLightSolid,
                     colorFillContent: t.colorFillContent,
-                    onTap: () => _handleTap(item),
+                    onTap: () => _handleTap(widget.items[i], i),
                   ),
                 ),
             ],
@@ -120,8 +144,10 @@ class _AntJumboTabsState extends State<AntJumboTabs> {
 
 class _JumboItem extends StatelessWidget {
   const _JumboItem({
-    required this.item,
+    required this.title,
+    required this.description,
     required this.active,
+    required this.disabled,
     required this.colorPrimary,
     required this.colorText,
     required this.colorTextSecondary,
@@ -131,8 +157,10 @@ class _JumboItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AntJumboTabItem item;
+  final Widget title;
+  final Widget? description;
   final bool active;
+  final bool disabled;
   final Color colorPrimary;
   final Color colorText;
   final Color colorTextSecondary;
@@ -143,17 +171,16 @@ class _JumboItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleColor = item.disabled
-        ? colorTextDisabled
-        : (active ? colorPrimary : colorText);
-    final descriptionColor = item.disabled
+    final titleColor =
+        disabled ? colorTextDisabled : (active ? colorPrimary : colorText);
+    final descriptionColor = disabled
         ? colorTextDisabled
         : (active ? colorTextLightSolid : colorTextSecondary);
     final descriptionBackground =
-        active && !item.disabled ? colorPrimary : colorFillContent;
+        active && !disabled ? colorPrimary : colorFillContent;
 
     return GestureDetector(
-      onTap: item.disabled ? null : onTap,
+      onTap: disabled ? null : onTap,
       behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -163,28 +190,17 @@ class _JumboItem extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (item.titleWidget != null)
-                  DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 17.sp,
-                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                      color: titleColor,
-                    ),
-                    child: item.titleWidget!,
-                  )
-                else
-                  Text(
-                    item.title ?? '',
-                    style: TextStyle(
-                      fontSize: 17.sp,
-                      // antd-mobile 标题行高 24px
-                      height: 24 / 17,
-                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                      color: titleColor,
-                    ),
+                DefaultTextStyle(
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    // antd-mobile 标题行高 24px
+                    height: 24 / 17,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    color: titleColor,
                   ),
-                if (item.description != null ||
-                    item.descriptionWidget != null) ...[
+                  child: title,
+                ),
+                if (description != null) ...[
                   SizedBox(height: 2.w),
                   // antd-mobile：描述是胶囊标签（底 10px、水平内边距 8px），
                   // 激活时变主色底白字；自定义节点同样套用该胶囊底。
@@ -199,8 +215,7 @@ class _JumboItem extends StatelessWidget {
                         fontSize: 13.sp,
                         color: descriptionColor,
                       ),
-                      child: item.descriptionWidget ??
-                          Text(item.description ?? ''),
+                      child: description!,
                     ),
                   ),
                 ],

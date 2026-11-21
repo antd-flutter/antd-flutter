@@ -10,22 +10,22 @@ class DatePickerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _Section(title: '基础用法', description: '点击弹出日历面板选择日期'),
-            _BasicDemo(),
-            _Section(title: '默认值', description: 'defaultValue 预填日期'),
-            _DefaultValueDemo(),
-            _Section(title: '清除', description: 'allowClear: true'),
-            _ClearDemo(),
-            _Section(title: '尺寸', description: 'size: large / middle / small'),
-            _SizeDemo(),
-            _Section(title: '禁用', description: 'disabled: true'),
-            _DisabledDemo(),
-          ],
-        ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          _Section(title: '基础用法', description: '点击弹出日历面板选择日期'),
+          _BasicDemo(),
+          _Section(title: '默认值', description: 'defaultValue 预填日期'),
+          _DefaultValueDemo(),
+          _Section(title: '清除', description: 'allowClear: true'),
+          _ClearDemo(),
+          _Section(title: '尺寸', description: 'size: large / middle / small'),
+          _SizeDemo(),
+          _Section(title: '禁用', description: 'disabled: true'),
+          _DisabledDemo(),
+        ],
+      ),
     );
   }
 }
@@ -44,11 +44,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorText,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
+              child: Text(
+                description!,
+                style: TextStyle(fontSize: 12, color: theme.colorTextTertiary),
+              ),
             ),
         ],
       ),
@@ -62,7 +72,11 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntFlex(wrap: true, gap: const AntFlexGap.all(24), children: children);
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(24),
+      children: children,
+    );
   }
 }
 
@@ -70,15 +84,17 @@ class _BasicDemo extends StatelessWidget {
   const _BasicDemo();
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      SizedBox(
-        width: 220,
-        child: AntDatePicker(
-          placeholder: '请选择日期',
-          onChange: (d) => debugPrint('date: $d'),
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            placeholder: '请选择日期',
+            onChange: (d) => debugPrint('date: $d'),
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -86,15 +102,17 @@ class _DefaultValueDemo extends StatelessWidget {
   const _DefaultValueDemo();
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      SizedBox(
-        width: 220,
-        child: AntDatePicker(
-          defaultValue: DateTime(2024, 6, 1),
-          onChange: (d) => debugPrint('date: $d'),
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            defaultValue: DateTime(2024, 6, 1),
+            onChange: (d) => debugPrint('date: $d'),
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -102,15 +120,17 @@ class _ClearDemo extends StatelessWidget {
   const _ClearDemo();
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      SizedBox(
-        width: 220,
-        child: AntDatePicker(
-          defaultValue: DateTime(2024, 6, 1),
-          allowClear: true,
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(
+            defaultValue: DateTime(2024, 6, 1),
+            allowClear: true,
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -118,20 +138,31 @@ class _SizeDemo extends StatelessWidget {
   const _SizeDemo();
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      SizedBox(
-        width: 200,
-        child: AntDatePicker(size: AntDatePickerSize.large, placeholder: '大号'),
-      ),
-      SizedBox(
-        width: 200,
-        child: AntDatePicker(size: AntDatePickerSize.middle, placeholder: '中号'),
-      ),
-      SizedBox(
-        width: 200,
-        child: AntDatePicker(size: AntDatePickerSize.small, placeholder: '小号'),
-      ),
-    ]);
+    return _Row(
+      children: [
+        SizedBox(
+          width: 200,
+          child: AntDatePicker(
+            size: AntDatePickerSize.large,
+            placeholder: '大号',
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AntDatePicker(
+            size: AntDatePickerSize.middle,
+            placeholder: '中号',
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: AntDatePicker(
+            size: AntDatePickerSize.small,
+            placeholder: '小号',
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -139,11 +170,13 @@ class _DisabledDemo extends StatelessWidget {
   const _DisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      SizedBox(
-        width: 220,
-        child: AntDatePicker(disabled: true, placeholder: '禁用'),
-      ),
-    ]);
+    return _Row(
+      children: [
+        SizedBox(
+          width: 220,
+          child: AntDatePicker(disabled: true, placeholder: '禁用'),
+        ),
+      ],
+    );
   }
 }

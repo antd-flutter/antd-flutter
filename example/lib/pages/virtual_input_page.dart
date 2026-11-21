@@ -69,10 +69,7 @@ class VirtualInputPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 12.w),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );

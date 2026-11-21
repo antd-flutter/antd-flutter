@@ -1,7 +1,7 @@
 /// AntList — antd React List 的 Flutter 实现
 ///
 /// API 与 antd React List 对齐：
-/// - [dataSource] / [renderItem] — 数据源与条目构建（ListView.builder 懒加载）
+/// - [items] / [itemBuilder] — 数据源与条目构建（ListView.builder 懒加载）
 /// - [header] / [footer] — 头部 / 底部
 /// - [size] — 尺寸（默认 middle）
 /// - [bordered] — 是否有边框
@@ -11,9 +11,9 @@
 /// - 空数据显示 [AntEmpty]
 ///
 /// ```dart
-/// AntList(
-///   dataSource: ['条目一', '条目二'],
-///   renderItem: (item) => AntListItem(content: Text(item)),
+/// AntList<Todo>(
+///   items: todos,
+///   itemBuilder: (context, todo, index) => Text(todo.title),
 /// )
 /// ```
 library;
@@ -119,8 +119,8 @@ class AntListItem extends StatelessWidget {
 class AntList<T> extends StatefulWidget {
   const AntList({
     super.key,
-    required this.dataSource,
-    required this.renderItem,
+    required this.items,
+    required this.itemBuilder,
     this.header,
     this.footer,
     this.size = AntListSize.middle,
@@ -129,14 +129,14 @@ class AntList<T> extends StatefulWidget {
     this.loading = false,
     this.pageSize,
     this.empty,
-    this.itemKey,
+    this.keyOf,
   });
 
   /// 数据源。
-  final List<T> dataSource;
+  final List<T> items;
 
   /// 条目构建函数。
-  final AntListItem Function(T item, int index) renderItem;
+  final AntListItemBuilder<T> itemBuilder;
 
   /// 头部。
   final Widget? header;
@@ -163,7 +163,7 @@ class AntList<T> extends StatefulWidget {
   final Widget? empty;
 
   /// 条目 key 提取函数。
-  final String Function(T item, int index)? itemKey;
+  final Object Function(T item)? keyOf;
 
   @override
   State<AntList<T>> createState() => _AntListState<T>();
@@ -173,15 +173,17 @@ class _AntListState<T> extends State<AntList<T>> {
   int _page = 1;
 
   bool get _hasPaging =>
-      widget.pageSize != null && widget.pageSize! > 0 && widget.dataSource.length > widget.pageSize!;
+      widget.pageSize != null &&
+      widget.pageSize! > 0 &&
+      widget.items.length > widget.pageSize!;
 
-  int get _pageCount => (widget.dataSource.length / widget.pageSize!).ceil();
+  int get _pageCount => (widget.items.length / widget.pageSize!).ceil();
 
   List<T> get _visibleItems {
-    if (!_hasPaging) return widget.dataSource;
+    if (!_hasPaging) return widget.items;
     final start = (_page - 1) * widget.pageSize!;
-    final end = (start + widget.pageSize!).clamp(0, widget.dataSource.length);
-    return widget.dataSource.sublist(start, end);
+    final end = (start + widget.pageSize!).clamp(0, widget.items.length);
+    return widget.items.sublist(start, end);
   }
 
   void _gotoPage(int page) {
@@ -201,7 +203,7 @@ class _AntListState<T> extends State<AntList<T>> {
       );
     }
 
-    if (widget.dataSource.isEmpty) {
+    if (widget.items.isEmpty) {
       return Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: theme.paddingLG),
@@ -218,14 +220,16 @@ class _AntListState<T> extends State<AntList<T>> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.header != null) _buildBlock(theme, widget.header!, bottomBorder: widget.split),
+          if (widget.header != null)
+            _buildBlock(theme, widget.header!, bottomBorder: widget.split),
           Expanded(
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-                final listItem = widget.renderItem(item, index);
-                final key = widget.itemKey?.call(item, index) ?? '${index + (_page - 1) * (widget.pageSize ?? 0)}';
+                final listItem = widget.itemBuilder(context, item, index);
+                final key = widget.keyOf?.call(item) ??
+                    '${index + (_page - 1) * (widget.pageSize ?? 0)}';
                 return Container(
                   key: ValueKey<String>('list_item_$key'),
                   decoration: BoxDecoration(
@@ -241,8 +245,7 @@ class _AntListState<T> extends State<AntList<T>> {
               },
             ),
           ),
-          if (widget.footer != null || _hasPaging)
-            _buildFooter(theme),
+          if (widget.footer != null || _hasPaging) _buildFooter(theme),
         ],
       ),
     );
@@ -321,8 +324,11 @@ class _AntListState<T> extends State<AntList<T>> {
                           vertical: theme.paddingXXS,
                         ),
                         decoration: BoxDecoration(
-                          color: p == _page ? theme.colorPrimary : Colors.transparent,
-                          borderRadius: BorderRadius.circular(theme.borderRadiusSM),
+                          color: p == _page
+                              ? theme.colorPrimary
+                              : Colors.transparent,
+                          borderRadius:
+                              BorderRadius.circular(theme.borderRadiusSM),
                         ),
                         child: Text(
                           '$p',

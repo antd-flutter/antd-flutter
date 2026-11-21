@@ -1,23 +1,33 @@
 /// AntPicker — antd-mobile Picker 底部弹出选择器的 Flutter 实现
 ///
 /// 点击触发器弹出底部面板，内含多列滚轮选择器，支持确认/取消。
+/// 每列直接使用使用者自己的模型 `T`，通过 [AntPickerColumn.labelBuilder]
+/// 渲染、[AntPickerColumn.keyOf] 提供唯一标识。
 ///
 /// ```dart
-/// AntPicker(
-///   columns: [seasons],
-///   onConfirm: (vals) => print(vals),
-///   child: Text('打开选择器'),
+/// AntPicker<Season>(
+///   columns: [
+///     AntPickerColumn<Season>(
+///       dataSource: seasons,
+///       keyOf: (s) => s.id,
+///       labelBuilder: (context, s) => Text(s.name),
+///     ),
+///   ],
+///   onConfirm: (items) => print(items.map((e) => e.name)),
+///   child: const Text('打开选择器'),
 /// )
 /// ```
 library;
 
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
-
 import 'package:material_ui/material_ui.dart';
 
 /// 底部弹出选择器 — 弹出面板中展示多列滚轮。
-class AntPicker extends StatefulWidget {
+///
+/// 列数据为 `List<AntPickerColumn<T>>`，值可以是 `T` 本身，也可以是
+/// `keyOf` 返回的 key（两者都支持）。
+class AntPicker<T> extends StatefulWidget {
   const AntPicker({
     super.key,
     required this.columns,
@@ -38,13 +48,13 @@ class AntPicker extends StatefulWidget {
   });
 
   /// 列数据。
-  final List<AntPickerColumn> columns;
+  final List<AntPickerColumn<T>> columns;
 
-  /// 受控值。
-  final List<AntPickerValue>? value;
+  /// 受控值：元素可以是 `T`，也可以是 `keyOf` 返回的 key。
+  final List<Object>? value;
 
-  /// 非受控初始值。
-  final List<AntPickerValue> defaultValue;
+  /// 非受控初始值：元素可以是 `T`，也可以是 `keyOf` 返回的 key。
+  final List<Object> defaultValue;
 
   /// 面板标题。
   final String? title;
@@ -55,14 +65,14 @@ class AntPicker extends StatefulWidget {
   /// 取消按钮文本。
   final String cancelText;
 
-  /// 确认回调。
-  final ValueChanged<List<AntPickerValue>>? onConfirm;
+  /// 确认回调，返回每列选中的 `T`。
+  final ValueChanged<List<T>>? onConfirm;
 
   /// 取消回调。
   final VoidCallback? onCancel;
 
-  /// 选中变化回调（滚轮滚动时触发）。
-  final ValueChanged<List<AntPickerValue>>? onSelect;
+  /// 选中变化回调（滚轮滚动时触发），返回每列选中的 `T`。
+  final ValueChanged<List<T>>? onSelect;
 
   /// 点击遮罩是否关闭。
   final bool closeOnMaskClick;
@@ -83,20 +93,18 @@ class AntPicker extends StatefulWidget {
   final double pickerHeight;
 
   @override
-  State<AntPicker> createState() => _AntPickerState();
+  State<AntPicker<T>> createState() => _AntPickerState<T>();
 }
 
-class _AntPickerState extends State<AntPicker> {
-  List<AntPickerValue>? _lastConfirmed;
-  List<AntPickerValue> _currentValue = [];
+class _AntPickerState<T> extends State<AntPicker<T>> {
+  late List<int> _lastIndexes;
+  late List<int> _currentIndexes;
 
   @override
   void initState() {
     super.initState();
-    _lastConfirmed = List<AntPickerValue>.from(
-      widget.value ?? widget.defaultValue,
-    );
-    _currentValue = List<AntPickerValue>.from(_lastConfirmed!);
+    _lastIndexes = _indexesFor(widget.value ?? widget.defaultValue);
+    _currentIndexes = List<int>.from(_lastIndexes);
     if (widget.visible == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _open();
@@ -105,22 +113,57 @@ class _AntPickerState extends State<AntPicker> {
   }
 
   @override
-  void didUpdateWidget(covariant AntPicker oldWidget) {
+  void didUpdateWidget(covariant AntPicker<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.visible != oldWidget.visible && widget.visible != null) {
-      if (widget.visible!) {
-        _open();
-      }
+      if (widget.visible!) _open();
     }
-    if (widget.value != null && widget.value != oldWidget.value) {
-      _lastConfirmed = List<AntPickerValue>.from(widget.value!);
-      _currentValue = List<AntPickerValue>.from(_lastConfirmed ?? []);
+    final value = widget.value;
+    if (value != null && !_sameValueList(value, oldWidget.value)) {
+      _lastIndexes = _indexesFor(value);
+      _currentIndexes = List<int>.from(_lastIndexes);
     }
+  }
+
+  List<int> _indexesFor(List<Object> values) {
+    return [
+      for (var i = 0; i < widget.columns.length; i++)
+        _resolveIndex(
+          widget.columns[i],
+          i < values.length ? values[i] : null,
+        ),
+    ];
+  }
+
+  int _resolveIndex(AntPickerColumn<T> column, Object? value) {
+    if (value == null || column.dataSource.isEmpty) return 0;
+    for (var i = 0; i < column.dataSource.length; i++) {
+      final item = column.dataSource[i];
+      final key = column.keyOf?.call(item) ?? i;
+      if (key == value || identical(item, value) || item == value) return i;
+    }
+    return 0;
+  }
+
+  List<T> _itemsAt(List<int> indexes) {
+    final items = <T>[];
+    for (var i = 0; i < widget.columns.length; i++) {
+      final column = widget.columns[i];
+      if (column.dataSource.isEmpty) continue;
+      final raw = i < indexes.length ? indexes[i] : 0;
+      final index = raw < 0
+          ? 0
+          : raw >= column.dataSource.length
+              ? column.dataSource.length - 1
+              : raw;
+      items.add(column.dataSource[index]);
+    }
+    return items;
   }
 
   void _open() {
     final themeData = AntTheme.of(context);
-    _currentValue = List<AntPickerValue>.from(_lastConfirmed ?? []);
+    _currentIndexes = List<int>.from(_lastIndexes);
     showModalBottomSheet<void>(
       context: context,
       isDismissible: widget.closeOnMaskClick,
@@ -132,27 +175,28 @@ class _AntPickerState extends State<AntPicker> {
         ),
       ),
       builder: (sheetContext) {
-        return _PickerSheet(
+        return _PickerSheet<T>(
           themeData: themeData,
           title: widget.title,
           confirmText: widget.confirmText,
           cancelText: widget.cancelText,
           columns: widget.columns,
-          value: _currentValue,
+          initialIndexes: _currentIndexes,
           itemHeight: widget.itemHeight,
           pickerHeight: widget.pickerHeight,
           onCancel: () {
             Navigator.of(sheetContext).pop();
             widget.onCancel?.call();
           },
-          onConfirm: () {
+          onConfirm: (indexes) {
             Navigator.of(sheetContext).pop();
-            _lastConfirmed = List<AntPickerValue>.from(_currentValue);
-            widget.onConfirm?.call(_currentValue);
+            _lastIndexes = List<int>.from(indexes);
+            _currentIndexes = List<int>.from(indexes);
+            widget.onConfirm?.call(_itemsAt(indexes));
           },
-          onSelect: (vals) {
-            _currentValue = vals;
-            widget.onSelect?.call(vals);
+          onSelect: (indexes) {
+            _currentIndexes = List<int>.from(indexes);
+            widget.onSelect?.call(_itemsAt(indexes));
           },
         );
       },
@@ -173,12 +217,20 @@ class _AntPickerState extends State<AntPicker> {
   }
 }
 
+bool _sameValueList(List<Object> a, List<Object>? b) {
+  if (b == null || a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (!identical(a[i], b[i]) && a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 /// 底部面板内容
-class _PickerSheet extends StatefulWidget {
+class _PickerSheet<T> extends StatefulWidget {
   const _PickerSheet({
     required this.themeData,
     required this.columns,
-    required this.value,
+    required this.initialIndexes,
     this.title,
     this.confirmText = '确定',
     this.cancelText = '取消',
@@ -190,29 +242,54 @@ class _PickerSheet extends StatefulWidget {
   });
 
   final AntThemeData themeData;
-  final List<AntPickerColumn> columns;
-  final List<AntPickerValue> value;
+  final List<AntPickerColumn<T>> columns;
+  final List<int> initialIndexes;
   final String? title;
   final String confirmText;
   final String cancelText;
   final double itemHeight;
   final double pickerHeight;
-  final VoidCallback? onConfirm;
+  final ValueChanged<List<int>>? onConfirm;
   final VoidCallback? onCancel;
-  final ValueChanged<List<AntPickerValue>>? onSelect;
+  final ValueChanged<List<int>>? onSelect;
 
   @override
-  State<_PickerSheet> createState() => _PickerSheetState();
+  State<_PickerSheet<T>> createState() => _PickerSheetState<T>();
 }
 
-class _PickerSheetState extends State<_PickerSheet> {
-  late List<AntPickerValue> _innerValue;
+class _PickerSheetState<T> extends State<_PickerSheet<T>> {
+  late List<T> _values;
 
   @override
   void initState() {
     super.initState();
-    _innerValue = List<AntPickerValue>.from(widget.value);
+    _values = [
+      for (var i = 0; i < widget.columns.length; i++)
+        widget.columns[i].dataSource[_clamp(
+          i < widget.initialIndexes.length ? widget.initialIndexes[i] : 0,
+          widget.columns[i].dataSource.length,
+        )],
+    ];
   }
+
+  int _clamp(int index, int length) {
+    if (length <= 0) return 0;
+    if (index < 0) return 0;
+    if (index >= length) return length - 1;
+    return index;
+  }
+
+  int _indexOfItem(AntPickerColumn<T> column, T item) {
+    final index = column.dataSource.indexWhere(
+      (element) => identical(element, item) || element == item,
+    );
+    return index >= 0 ? index : 0;
+  }
+
+  List<int> get _indexes => [
+        for (var i = 0; i < widget.columns.length; i++)
+          _indexOfItem(widget.columns[i], _values[i]),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +334,7 @@ class _PickerSheetState extends State<_PickerSheet> {
               else
                 const Spacer(),
               GestureDetector(
-                onTap: widget.onConfirm,
+                onTap: () => widget.onConfirm?.call(_indexes),
                 child: Text(
                   widget.confirmText,
                   style: TextStyle(
@@ -271,14 +348,14 @@ class _PickerSheetState extends State<_PickerSheet> {
           ),
         ),
         // Body
-        AntPickerView(
+        AntPickerView<T>(
           columns: widget.columns,
-          value: _innerValue,
+          value: _values,
           itemHeight: widget.itemHeight,
           height: widget.pickerHeight,
-          onChange: (vals) {
-            _innerValue = vals;
-            widget.onSelect?.call(vals);
+          onChange: (items) {
+            setState(() => _values = items);
+            widget.onSelect?.call(_indexes);
           },
         ),
         SizedBox(height: MediaQuery.of(context).padding.bottom),

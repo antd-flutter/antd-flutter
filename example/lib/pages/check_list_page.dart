@@ -1,6 +1,22 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+/// 自定义模型：支付方式（带描述的业务数据）。
+class Payment {
+  const Payment(this.id, this.name, this.description, {this.disabled = false});
+
+  final String id;
+  final String name;
+  final String description;
+  final bool disabled;
+}
+
+const _payments = [
+  Payment('wechat', '微信支付', '推荐使用，安全便捷'),
+  Payment('alipay', '支付宝', '余额支付，快捷方便'),
+  Payment('card', '银行卡', '支持各大银行储蓄卡/信用卡', disabled: true),
+];
+
 class CheckListPage extends StatelessWidget {
   const CheckListPage({super.key});
 
@@ -20,11 +36,8 @@ class CheckListPage extends StatelessWidget {
           _Section(
             title: '基础用法',
             child: AntCheckList<String>(
-              items: const [
-                AntCheckListItem(value: 'a', child: Text('苹果')),
-                AntCheckListItem(value: 'b', child: Text('香蕉')),
-                AntCheckListItem(value: 'c', child: Text('橙子')),
-              ],
+              items: const ['a', 'b', 'c'],
+              labelOf: (value) => _fruitNames[value] ?? value,
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
@@ -33,66 +46,45 @@ class CheckListPage extends StatelessWidget {
             title: '多选',
             child: AntCheckList<String>(
               multiple: true,
-              defaultValue: ['a'],
-              items: const [
-                AntCheckListItem(value: 'a', child: Text('足球')),
-                AntCheckListItem(value: 'b', child: Text('篮球')),
-                AntCheckListItem(value: 'c', child: Text('游泳')),
-              ],
+              defaultValue: const ['a'],
+              items: const ['a', 'b', 'c'],
+              labelOf: (value) => _sportNames[value] ?? value,
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
           SizedBox(height: 12.h),
           _Section(
-            title: '带描述',
-            child: AntCheckList<String>(
-              items: const [
-                AntCheckListItem(
-                  value: 'a',
-                  child: Text('微信支付'),
-                  description: Text('推荐使用，安全便捷'),
-                ),
-                AntCheckListItem(
-                  value: 'b',
-                  child: Text('支付宝'),
-                  description: Text('余额支付，快捷方便'),
-                ),
-                AntCheckListItem(
-                  value: 'c',
-                  child: Text('银行卡'),
-                  description: Text('支持各大银行储蓄卡/信用卡'),
-                ),
-              ],
+            title: '带描述（自定义模型）',
+            child: AntCheckList<Payment>(
+              items: _payments,
+              labelOf: (payment) => payment.name,
+              descriptionOf: (payment) => payment.description,
+              disabledOf: (payment) => payment.disabled,
+              onChange: (v) =>
+                  _showSnackbar(context, '选中: ${v.map((p) => p.id)}'),
             ),
           ),
           SizedBox(height: 12.h),
           _Section(
             title: '带前缀',
             child: AntCheckList<String>(
-              items: const [
-                AntCheckListItem(
-                  value: 'a',
-                  child: Text('苹果'),
-                  prefix: Icon(AntIcons.appleOutlined),
-                ),
-                AntCheckListItem(
-                  value: 'b',
-                  child: Text('安卓'),
-                  prefix: Icon(AntIcons.androidOutlined),
-                ),
-              ],
+              items: const ['apple', 'android'],
+              labelOf: (value) => value == 'apple' ? '苹果' : '安卓',
+              prefixBuilder: (context, value) => Icon(
+                value == 'apple'
+                    ? AntIcons.appleOutlined
+                    : AntIcons.androidOutlined,
+              ),
             ),
           ),
           SizedBox(height: 12.h),
           _Section(
             title: '禁用',
             child: AntCheckList<String>(
-              defaultValue: ['a'],
-              items: const [
-                AntCheckListItem(value: 'a', child: Text('可用选项')),
-                AntCheckListItem(value: 'b', child: Text('禁用选项'), disabled: true),
-                AntCheckListItem(value: 'c', child: Text('另一个可用选项')),
-              ],
+              defaultValue: const ['a'],
+              items: const ['a', 'b', 'c'],
+              labelOf: (value) => _optionNames[value] ?? value,
+              disabledOf: (value) => value == 'b',
             ),
           ),
           SizedBox(height: 12.h),
@@ -100,11 +92,19 @@ class CheckListPage extends StatelessWidget {
             title: '只读',
             child: AntCheckList<String>(
               readOnly: true,
-              defaultValue: ['b'],
-              items: const [
-                AntCheckListItem(value: 'a', child: Text('选项一')),
-                AntCheckListItem(value: 'b', child: Text('选项二')),
-              ],
+              defaultValue: const ['b'],
+              items: const ['a', 'b'],
+              labelOf: (value) => _optionNames[value] ?? value,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          _Section(
+            title: '单项只读',
+            child: AntCheckList<String>(
+              defaultValue: const ['a'],
+              items: const ['a', 'b'],
+              labelOf: (value) => _optionNames[value] ?? value,
+              readOnlyOf: (value) => value == 'b',
             ),
           ),
           SizedBox(height: 12.h),
@@ -112,21 +112,58 @@ class CheckListPage extends StatelessWidget {
             title: '隐藏勾选标记',
             child: AntCheckList<String>(
               showCheckMark: false,
-              defaultValue: ['a'],
-              items: const [
-                AntCheckListItem(value: 'a', child: Text('选项一')),
-                AntCheckListItem(value: 'b', child: Text('选项二')),
-              ],
+              defaultValue: const ['a'],
+              items: const ['a', 'b'],
+              labelOf: (value) => _optionNames[value] ?? value,
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
           SizedBox(height: 12.h),
           const _ControlledDemo(),
+          SizedBox(height: 12.h),
+          _Section(
+            title: '整行自定义（itemBuilder）',
+            child: AntCheckList<Payment>(
+              items: _payments,
+              itemBuilder: (context, payment, index) => Row(
+                children: [
+                  Icon(
+                    AntIcons.creditCardOutlined,
+                    size: 18.w,
+                    color: payment.disabled
+                        ? AntTheme.of(context).colorTextDisabled
+                        : AntTheme.of(context).colorPrimary,
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(payment.name),
+                        Text(
+                          payment.description,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AntTheme.of(context).colorTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const AntTag(child: '自定义'),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
+
+const _fruitNames = {'a': '苹果', 'b': '香蕉', 'c': '橙子'};
+const _sportNames = {'a': '足球', 'b': '篮球', 'c': '游泳'};
+const _optionNames = {'a': '选项一', 'b': '选项二', 'c': '选项三'};
 
 class _ControlledDemo extends StatefulWidget {
   const _ControlledDemo();
@@ -159,11 +196,8 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           AntCheckList<String>(
             value: _value,
             multiple: true,
-            items: const [
-              AntCheckListItem(value: 'a', child: Text('选项一')),
-              AntCheckListItem(value: 'b', child: Text('选项二')),
-              AntCheckListItem(value: 'c', child: Text('选项三')),
-            ],
+            items: const ['a', 'b', 'c'],
+            labelOf: (value) => _optionNames[value] ?? value,
             onChange: (v) => setState(() => _value = v),
           ),
         ],

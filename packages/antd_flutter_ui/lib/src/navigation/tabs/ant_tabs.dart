@@ -11,7 +11,8 @@
 /// - [onChange] — 切换回调
 /// - [onEdit] — 新增/删除回调（editableCard）
 ///
-/// 每项（AntTabsItem）支持 key / label / labelWidget / child / icon / disabled / closable。
+/// 每项为任意用户模型 `T`，通过 [keyOf] / [labelBuilder] / [childBuilder] /
+/// [iconBuilder] / [disabledOf] / [closableOf] 取数与渲染。
 library;
 
 import 'package:antd_theme/antd_theme.dart';
@@ -30,19 +31,25 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 /// 四个方向位置、三种尺寸、居中、动画与增删回调。
 ///
 /// ```dart
-/// AntTabs(
-///   items: [
-///     AntTabsItem(key: '1', label: 'Tab 1', child: Text('Content 1')),
-///     AntTabsItem(key: '2', label: 'Tab 2', child: Text('Content 2')),
-///   ],
+/// AntTabs<User>(
+///   items: users,
+///   keyOf: (user) => user.id,
+///   labelBuilder: (context, user, index) => Text(user.name),
+///   childBuilder: (context, user, index) => Text(user.email),
 /// )
 /// ```
-class AntTabs extends StatefulWidget {
+class AntTabs<T> extends StatefulWidget {
   const AntTabs({
     super.key,
     this.activeKey,
     this.defaultActiveKey,
     this.items = const [],
+    this.keyOf,
+    this.labelBuilder,
+    this.childBuilder,
+    this.iconBuilder,
+    this.disabledOf,
+    this.closableOf,
     this.type = AntTabsType.line,
     this.size = AntTabsSize.normal,
     this.tabPosition = AntTabPosition.top,
@@ -55,13 +62,31 @@ class AntTabs extends StatefulWidget {
   });
 
   /// 受控当前激活 key。
-  final String? activeKey;
+  final Object? activeKey;
 
   /// 非受控默认激活 key。
-  final String? defaultActiveKey;
+  final Object? defaultActiveKey;
 
   /// 选项卡项列表。
-  final List<AntTabsItem> items;
+  final List<T> items;
+
+  /// 提取唯一标识，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 标题构建器。未提供时回退为 `Text('$item')`。
+  final AntTabsLabelBuilder<T>? labelBuilder;
+
+  /// 内容构建器。
+  final AntTabsChildBuilder<T>? childBuilder;
+
+  /// 图标构建器。
+  final AntTabsIconBuilder<T>? iconBuilder;
+
+  /// 是否禁用某项。
+  final bool Function(T item)? disabledOf;
+
+  /// 是否可关闭某项。null 时由 [AntTabsType] 决定。
+  final bool? Function(T item)? closableOf;
 
   /// 选项卡类型。
   final AntTabsType type;
@@ -85,17 +110,17 @@ class AntTabs extends StatefulWidget {
   final Widget? addIcon;
 
   /// 切换回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
-  /// 新增/删除回调（editableCard）。
-  final void Function(String key, AntTabsEditAction action)? onEdit;
+  /// 新增/删除回调（editableCard）。[item] 为 null 表示新增。
+  final void Function(T? item, AntTabsEditAction action)? onEdit;
 
   @override
-  State<AntTabs> createState() => _AntTabsState();
+  State<AntTabs<T>> createState() => _AntTabsState<T>();
 }
 
-class _AntTabsState extends State<AntTabs> {
-  late String _internalActiveKey;
+class _AntTabsState<T> extends State<AntTabs<T>> {
+  Object? _internalActiveKey;
 
   /// 标签栏内容（Stack 的非定位子节点）坐标基准。
   final GlobalKey _tabBarContentKey = GlobalKey();
@@ -114,31 +139,40 @@ class _AntTabsState extends State<AntTabs> {
   @override
   void initState() {
     super.initState();
-    _internalActiveKey = widget.defaultActiveKey ??
-        (widget.items.isNotEmpty ? widget.items.first.key : '');
+    _internalActiveKey =
+        widget.defaultActiveKey ?? (widget.items.isNotEmpty ? _keyAt(0) : null);
   }
 
-  String get _currentKey => widget.activeKey ?? _internalActiveKey;
+  Object? get _currentKey => widget.activeKey ?? _internalActiveKey;
 
-  void _handleTabClick(AntTabsItem item) {
-    if (item.disabled) return;
+  Object _keyAt(int index) => widget.keyOf?.call(widget.items[index]) ?? index;
+
+  void _handleTabClick(T item) {
+    if (_isDisabled(item)) return;
     if (widget.activeKey == null) {
-      setState(() => _internalActiveKey = item.key);
+      setState(() => _internalActiveKey = _key(item));
     }
-    widget.onChange?.call(item.key);
+    widget.onChange?.call(item);
   }
 
-  void _handleRemove(AntTabsItem item) {
-    widget.onEdit?.call(item.key, AntTabsEditAction.remove);
+  Object _key(T item) {
+    final index = widget.items.indexOf(item);
+    return widget.keyOf?.call(item) ?? index;
+  }
+
+  bool _isDisabled(T item) => widget.disabledOf?.call(item) ?? false;
+
+  void _handleRemove(T item) {
+    widget.onEdit?.call(item, AntTabsEditAction.remove);
   }
 
   void _handleAdd() {
-    widget.onEdit?.call('', AntTabsEditAction.add);
+    widget.onEdit?.call(null, AntTabsEditAction.add);
   }
 
-  bool _isClosable(AntTabsItem item) {
-    if (item.closable != null) return item.closable!;
-    return widget.type == AntTabsType.editableCard;
+  bool _isClosable(T item) {
+    return widget.closableOf?.call(item) ??
+        widget.type == AntTabsType.editableCard;
   }
 
   /// 双端样式分别对齐：桌面 antd v6、移动 antd-mobile v5。
@@ -215,7 +249,11 @@ class _AntTabsState extends State<AntTabs> {
         _tabBarContentKey.currentContext?.findRenderObject() as RenderBox?;
     if (contentBox == null || !contentBox.hasSize) return;
 
-    final index = widget.items.indexWhere((e) => e.key == _currentKey);
+    final index = widget.items.indexWhere(
+      (item) =>
+          (widget.keyOf?.call(item) ?? widget.items.indexOf(item)) ==
+          _currentKey,
+    );
     if (index < 0 || index >= _tabKeys.length) {
       if (_indicatorRect != null) {
         setState(() => _indicatorRect = null);
@@ -473,38 +511,40 @@ class _AntTabsState extends State<AntTabs> {
   Widget _buildTabItem(
     BuildContext context,
     AntThemeData theme,
-    AntTabsItem item,
+    T item,
     int index,
   ) {
-    final isActive = item.key == _currentKey;
+    final isActive = _keyAt(index) == _currentKey;
+    final disabled = _isDisabled(item);
     final isCard = widget.type == AntTabsType.card ||
         widget.type == AntTabsType.editableCard;
     final isOutlined = widget.type == AntTabsType.outlined;
 
     // 标签内容
+    final iconWidget = widget.iconBuilder?.call(context, item);
+    Widget labelWidget = widget.labelBuilder?.call(context, item, index) ??
+        Text(
+          '$item',
+          style: TextStyle(
+            fontSize: _fontSize,
+            fontWeight: FontWeight.w400,
+            color: disabled
+                ? theme.colorTextDisabled
+                : isActive
+                    ? theme.colorPrimary
+                    : theme.colorText,
+          ),
+        );
+
     final labelWidgets = <Widget>[];
-    if (item.icon != null) {
-      labelWidgets.add(item.icon!);
+    if (iconWidget != null) {
+      labelWidgets.add(iconWidget);
       labelWidgets.add(SizedBox(width: _isHorizontal ? 8 : 0));
     }
-    labelWidgets.add(
-      item.labelWidget ??
-          Text(
-            item.label ?? item.key,
-            style: TextStyle(
-              fontSize: _fontSize,
-              fontWeight: FontWeight.w400,
-              color: item.disabled
-                  ? theme.colorTextDisabled
-                  : isActive
-                      ? (isCard ? theme.colorPrimary : theme.colorPrimary)
-                      : theme.colorText,
-            ),
-          ),
-    );
+    labelWidgets.add(labelWidget);
 
     // 关闭按钮
-    if (_isClosable(item) && widget.onEdit != null && !item.disabled) {
+    if (_isClosable(item) && widget.onEdit != null && !disabled) {
       labelWidgets.add(const SizedBox(width: 6));
       labelWidgets.add(
         GestureDetector(
@@ -533,25 +573,11 @@ class _AntTabsState extends State<AntTabs> {
       tabContent = Row(
         key: _tabLabelKeys[index],
         children: [
-          if (item.icon != null) ...[
-            item.icon!,
+          if (iconWidget != null) ...[
+            iconWidget,
             const SizedBox(width: 8),
           ],
-          Expanded(
-            child: item.labelWidget ??
-                Text(
-                  item.label ?? item.key,
-                  style: TextStyle(
-                    fontSize: _fontSize,
-                    fontWeight: FontWeight.w400,
-                    color: item.disabled
-                        ? theme.colorTextDisabled
-                        : isActive
-                            ? theme.colorPrimary
-                            : theme.colorText,
-                  ),
-                ),
-          ),
+          Expanded(child: labelWidget),
         ],
       );
     }
@@ -622,7 +648,7 @@ class _AntTabsState extends State<AntTabs> {
       tab = GestureDetector(
         onTap: () => _handleTabClick(item),
         child: MouseRegion(
-          cursor: item.disabled
+          cursor: disabled
               ? SystemMouseCursors.forbidden
               : SystemMouseCursors.click,
           child: Container(
@@ -642,7 +668,7 @@ class _AntTabsState extends State<AntTabs> {
       tab = GestureDetector(
         onTap: () => _handleTabClick(item),
         child: MouseRegion(
-          cursor: item.disabled
+          cursor: disabled
               ? SystemMouseCursors.forbidden
               : SystemMouseCursors.click,
           child: Container(
@@ -693,12 +719,19 @@ class _AntTabsState extends State<AntTabs> {
     final isCard = widget.type == AntTabsType.card ||
         widget.type == AntTabsType.editableCard;
 
-    final activeItem =
-        widget.items.where((e) => e.key == _currentKey).firstOrNull;
+    final activeIndex = widget.items.indexWhere(
+      (item) =>
+          (widget.keyOf?.call(item) ?? widget.items.indexOf(item)) ==
+          _currentKey,
+    );
+    final activeItem = activeIndex < 0 ? null : widget.items[activeIndex];
 
     Widget content;
-    if (activeItem?.child != null) {
-      content = activeItem!.child!;
+    final child = activeItem == null
+        ? null
+        : widget.childBuilder?.call(context, activeItem, activeIndex);
+    if (child != null) {
+      content = child;
     } else {
       content = const SizedBox.shrink();
     }

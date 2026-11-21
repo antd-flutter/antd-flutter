@@ -9,12 +9,10 @@
 /// - [reverse] — 是否倒序
 ///
 /// ```dart
-/// AntTimeline(
-///   items: [
-///     AntTimelineItem(content: Text('创建于 2024-01-01'), color: AntTimelineColor.green),
-///     AntTimelineItem(content: Text('进行中'), color: AntTimelineColor.blue),
-///   ],
-///   pending: true,
+/// AntTimeline<Event>(
+///   items: events,
+///   contentBuilder: (context, event, index) => Text(event.text),
+///   colorOf: (event) => event.color,
 /// )
 /// ```
 library;
@@ -33,10 +31,17 @@ import 'package:material_ui/material_ui.dart';
 /// 时间轴 — 垂直展示的时间流信息。
 ///
 /// 对齐 antd React Timeline 组件。
-class AntTimeline extends StatelessWidget {
+class AntTimeline<T> extends StatelessWidget {
   const AntTimeline({
     super.key,
     required this.items,
+    this.labelBuilder,
+    this.contentBuilder,
+    this.dotBuilder,
+    this.colorOf,
+    this.dotColorOf,
+    this.disabledOf,
+    this.onTap,
     this.mode = AntTimelineMode.left,
     this.pending = false,
     this.pendingDot,
@@ -45,7 +50,28 @@ class AntTimeline extends StatelessWidget {
   });
 
   /// 时间轴项列表。
-  final List<AntTimelineItem> items;
+  final List<T> items;
+
+  /// 时间标签构建器。
+  final AntTimelineLabelBuilder<T>? labelBuilder;
+
+  /// 内容构建器。
+  final AntTimelineContentBuilder<T>? contentBuilder;
+
+  /// 自定义节点构建器。
+  final AntTimelineDotBuilder<T>? dotBuilder;
+
+  /// 节点颜色预设提取器。
+  final AntTimelineColor? Function(T item)? colorOf;
+
+  /// 自定义节点颜色提取器（自定义节点为空时生效）。
+  final Color? Function(T item)? dotColorOf;
+
+  /// 是否禁用。
+  final bool Function(T item)? disabledOf;
+
+  /// 点击回调（禁用时不触发）。
+  final ValueChanged<T>? onTap;
 
   /// 模式。
   final AntTimelineMode mode;
@@ -65,7 +91,18 @@ class AntTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    var displayItems = List<AntTimelineItem>.of(items);
+    var displayItems = <_TimelineCell>[
+      for (var i = 0; i < items.length; i++)
+        _TimelineCell(
+          label: labelBuilder?.call(context, items[i], i),
+          content: contentBuilder?.call(context, items[i], i),
+          customDot: dotBuilder?.call(context, items[i]),
+          color: colorOf?.call(items[i]),
+          dotColor: dotColorOf?.call(items[i]),
+          disabled: disabledOf?.call(items[i]) ?? false,
+          onTap: onTap == null ? null : () => onTap!(items[i]),
+        ),
+    ];
 
     if (reverse) {
       displayItems = displayItems.reversed.toList();
@@ -73,7 +110,7 @@ class AntTimeline extends StatelessWidget {
     if (pending) {
       displayItems = [
         ...displayItems,
-        AntTimelineItem(
+        _TimelineCell(
           customDot: pendingDot ??
               AntLoading(
                 size: 14.w,
@@ -90,14 +127,13 @@ class AntTimeline extends StatelessWidget {
       children: [
         for (var i = 0; i < displayItems.length; i++)
           _TimelineRow(
-            item: displayItems[i],
+            cell: displayItems[i],
             index: i,
             isFirst: i == 0,
             isLast: i == displayItems.length - 1,
             alternate:
                 mode == AntTimelineMode.alternate && displayItems.length > 1,
-            flipAlternate:
-                mode == AntTimelineMode.alternate && i.isEven,
+            flipAlternate: mode == AntTimelineMode.alternate && i.isEven,
             rightAligned: mode == AntTimelineMode.right,
             theme: theme,
           ),
@@ -106,10 +142,31 @@ class AntTimeline extends StatelessWidget {
   }
 }
 
+/// 内部归一化后的时间轴单元格。
+class _TimelineCell {
+  const _TimelineCell({
+    this.label,
+    this.content,
+    this.customDot,
+    this.color,
+    this.dotColor,
+    this.disabled = false,
+    this.onTap,
+  });
+
+  final Widget? label;
+  final Widget? content;
+  final Widget? customDot;
+  final AntTimelineColor? color;
+  final Color? dotColor;
+  final bool disabled;
+  final VoidCallback? onTap;
+}
+
 /// 时间轴单行：label 列 + 节点列（含轴线）+ 内容列。
 class _TimelineRow extends StatelessWidget {
   const _TimelineRow({
-    required this.item,
+    required this.cell,
     required this.index,
     required this.isFirst,
     required this.isLast,
@@ -119,7 +176,7 @@ class _TimelineRow extends StatelessWidget {
     required this.theme,
   });
 
-  final AntTimelineItem item;
+  final _TimelineCell cell;
   final int index;
   final bool isFirst;
   final bool isLast;
@@ -128,7 +185,7 @@ class _TimelineRow extends StatelessWidget {
   final bool rightAligned;
   final AntThemeData theme;
 
-  static const double _dotSize = 12;  // antd dotSize，固定不随屏幕缩放
+  static const double _dotSize = 12; // antd dotSize，固定不随屏幕缩放
   static const double _lineWidth = 2;
 
   @override
@@ -136,15 +193,15 @@ class _TimelineRow extends StatelessWidget {
     final dot = _buildDot();
     final content = _buildContent();
     final gap = isLast ? 0.0 : 16.w;
-    final label = item.label != null
-        ? Text(
-            item.label!,
+    final label = cell.label == null
+        ? null
+        : DefaultTextStyle.merge(
             style: TextStyle(
               fontSize: theme.fontSizeSM,
               color: theme.colorTextSecondary,
             ),
-          )
-        : null;
+            child: cell.label!,
+          );
 
     Widget row;
     if (alternate) {
@@ -225,13 +282,13 @@ class _TimelineRow extends StatelessWidget {
       );
     }
 
-    if (item.disabled) {
+    if (cell.disabled) {
       row = Opacity(opacity: 0.45, child: row);
     }
 
-    if (item.onTap != null && !item.disabled) {
+    if (cell.onTap != null && !cell.disabled) {
       row = GestureDetector(
-        onTap: item.onTap,
+        onTap: cell.onTap,
         behavior: HitTestBehavior.opaque,
         child: row,
       );
@@ -264,7 +321,9 @@ class _TimelineRow extends StatelessWidget {
           ),
           Column(
             children: [
-              SizedBox(height: (centerY - _dotSize / 2).clamp(0.0, double.infinity)),
+              SizedBox(
+                height: (centerY - _dotSize / 2).clamp(0.0, double.infinity),
+              ),
               SizedBox(
                 height: _dotSize,
                 child: Center(child: dot),
@@ -277,10 +336,10 @@ class _TimelineRow extends StatelessWidget {
   }
 
   Widget _buildDot() {
-    if (item.customDot != null) {
-      return item.customDot!;
+    if (cell.customDot != null) {
+      return cell.customDot!;
     }
-    final color = item.dotColor ?? _presetColor(theme);
+    final color = cell.dotColor ?? _presetColor(theme);
     return Container(
       key: ValueKey('ant-timeline-dot-$index'),
       width: _dotSize,
@@ -297,10 +356,10 @@ class _TimelineRow extends StatelessWidget {
   }
 
   Color _presetColor(AntThemeData theme) {
-    if (item.disabled) {
+    if (cell.disabled) {
       return theme.colorTextQuaternary;
     }
-    switch (item.color) {
+    switch (cell.color) {
       case AntTimelineColor.blue:
         return theme.colorPrimary;
       case AntTimelineColor.red:
@@ -318,10 +377,10 @@ class _TimelineRow extends StatelessWidget {
     return DefaultTextStyle.merge(
       style: TextStyle(
         fontSize: theme.fontSize,
-        color: item.disabled ? theme.colorTextDisabled : theme.colorText,
+        color: cell.disabled ? theme.colorTextDisabled : theme.colorText,
         height: 1.5,
       ),
-      child: item.content ?? const SizedBox.shrink(),
+      child: cell.content ?? const SizedBox.shrink(),
     );
   }
 }

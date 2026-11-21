@@ -23,10 +23,7 @@ class PageIndicatorPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.w),
-          const _Section(
-            title: '受控切换演示',
-            child: _ControlledDemo(),
-          ),
+          const _Section(title: '受控切换演示', child: _ControlledDemo()),
           SizedBox(height: 16.w),
           const _Section(
             title: '排列方向',
@@ -76,10 +73,7 @@ class PageIndicatorPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.w),
-          const _Section(
-            title: '与 PageView 联动',
-            child: _PageViewDemo(),
-          ),
+          const _Section(title: '与 PageView 联动', child: _PageViewDemo()),
         ],
       ),
     );
@@ -113,20 +107,25 @@ class _ControlledDemoState extends State<_ControlledDemo> {
             AntButton(
               type: AntButtonType.normal,
               size: AntButtonSize.small,
-              onTap: () => setState(() => _current = (_current - 1).clamp(0, 3)),
+              onTap: () =>
+                  setState(() => _current = (_current - 1).clamp(0, 3)),
               child: const Text('上一页'),
             ),
             SizedBox(width: 8.w),
             AntButton(
               type: AntButtonType.normal,
               size: AntButtonSize.small,
-              onTap: () => setState(() => _current = (_current + 1).clamp(0, 3)),
+              onTap: () =>
+                  setState(() => _current = (_current + 1).clamp(0, 3)),
               child: const Text('下一页'),
             ),
             SizedBox(width: 12.w),
             Text(
               'current: $_current',
-              style: TextStyle(fontSize: theme.fontSizeSM.sp, color: theme.colorText),
+              style: TextStyle(
+                fontSize: theme.fontSizeSM.sp,
+                color: theme.colorText,
+              ),
             ),
           ],
         ),
@@ -209,7 +208,10 @@ class _Section extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
-        border: Border.all(color: theme.colorBorderSecondary, width: theme.lineWidth),
+        border: Border.all(
+          color: theme.colorBorderSecondary,
+          width: theme.lineWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

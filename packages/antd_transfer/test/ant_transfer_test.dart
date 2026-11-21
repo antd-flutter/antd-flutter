@@ -1,18 +1,58 @@
 /// AntTransfer widget tests
 library;
 
-import 'package:antd_transfer/antd_transfer.dart';
-import 'package:antd_flutter_ui/antd_flutter_ui.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:material_ui/material_ui.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+// ignore_for_file: deprecated_member_use_from_same_package
 
-const _testData = <AntTransferItem>[
-  AntTransferItem(key: 'a', title: '选项A'),
-  AntTransferItem(key: 'b', title: '选项B'),
-  AntTransferItem(key: 'c', title: '选项C', disabled: true),
-  AntTransferItem(key: 'd', title: '选项D'),
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:antd_transfer/antd_transfer.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
+
+/// 用户自定义模型：组件只通过 keyOf/titleBuilder/childrenOf 等读取数据。
+class _Item {
+  const _Item(
+    this.id,
+    this.name, {
+    this.description,
+    this.disabled = false,
+    this.children = const <_Item>[],
+  });
+
+  final int id;
+  final String name;
+  final String? description;
+  final bool disabled;
+  final List<_Item> children;
+}
+
+const _testData = <_Item>[
+  _Item(1, '选项A', description: '第一个选项'),
+  _Item(2, '选项B', description: '第二个选项'),
+  _Item(3, '选项C', description: '第三个选项', disabled: true),
+  _Item(4, '选项D', description: '第四个选项'),
+];
+
+const treeData = <_Item>[
+  _Item(
+    1,
+    '父级1',
+    children: [
+      _Item(11, '子节点1'),
+      _Item(12, '子节点2'),
+    ],
+  ),
+  _Item(
+    2,
+    '父级2（禁用）',
+    disabled: true,
+    children: [
+      _Item(21, '子节点3'),
+      _Item(22, '子节点4'),
+    ],
+  ),
+  _Item(3, '独立节点'),
 ];
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -26,12 +66,69 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
       ),
     );
 
+AntTransfer<_Item> _transfer({
+  List<_Item> dataSource = _testData,
+  List<Object>? targetKeys,
+  List<Object> defaultTargetKeys = const <Object>[],
+  List<Object>? selectedKeys,
+  List<Object> defaultSelectedKeys = const <Object>[],
+  AntTransferOnChange? onChange,
+  AntTransferOnSelectChange? onSelectChange,
+  List<String> titles = const ['Source', 'Target'],
+  List<String> operations = const ['', ''],
+  bool disabled = false,
+  bool showSearch = false,
+  bool oneWay = false,
+  bool Function(String input, _Item item)? filterOption,
+  bool defaultExpandAll = false,
+  Widget Function(BuildContext context, _Item item)? titleBuilder,
+}) {
+  return AntTransfer<_Item>(
+    dataSource: dataSource,
+    keyOf: (item) => item.id,
+    titleBuilder: titleBuilder ?? (context, item) => Text(item.name),
+    descriptionOf: (item) => item.description,
+    childrenOf: (item) => item.children,
+    disabledOf: (item) => item.disabled,
+    searchTextOf: (item) => '${item.name} ${item.description ?? ''}',
+    targetKeys: targetKeys,
+    defaultTargetKeys: defaultTargetKeys,
+    selectedKeys: selectedKeys,
+    defaultSelectedKeys: defaultSelectedKeys,
+    onChange: onChange,
+    onSelectChange: onSelectChange,
+    titles: titles,
+    operations: operations,
+    disabled: disabled,
+    showSearch: showSearch,
+    oneWay: oneWay,
+    filterOption: filterOption,
+    defaultExpandAll: defaultExpandAll,
+  );
+}
+
+/// 取指定标题所在行的 AntCheckbox（取包含该 Checkbox 的最近 Row）。
+AntCheckbox rowCheckbox(WidgetTester tester, String title) {
+  final rowFinder = find.ancestor(
+    of: find.text(title),
+    matching: find.byType(Row),
+  );
+  for (final candidate in rowFinder.evaluate()) {
+    final boxes = find.descendant(
+      of: find.byWidget(candidate.widget),
+      matching: find.byType(AntCheckbox),
+    );
+    if (boxes.evaluate().length == 1) {
+      return tester.widget<AntCheckbox>(boxes.first);
+    }
+  }
+  fail('row checkbox not found for $title');
+}
+
 void main() {
   group('AntTransfer', () {
     testWidgets('renders all source items in left panel', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
+      await tester.pumpWidget(_wrap(_transfer()));
       expect(find.text('选项A'), findsOneWidget);
       expect(find.text('选项B'), findsOneWidget);
       expect(find.text('选项C'), findsOneWidget);
@@ -39,87 +136,76 @@ void main() {
     });
 
     testWidgets('renders default titles', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
+      await tester.pumpWidget(_wrap(_transfer()));
       expect(find.text('Source'), findsOneWidget);
       expect(find.text('Target'), findsOneWidget);
     });
 
     testWidgets('renders custom titles', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          titles: ['左栏', '右栏'],
-        ),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(titles: const ['左栏', '右栏'])),
+      );
       expect(find.text('左栏'), findsOneWidget);
       expect(find.text('右栏'), findsOneWidget);
     });
 
     testWidgets('defaultTargetKeys moves items to right', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          defaultTargetKeys: ['b'],
-        ),
-      ),);
-      // 左栏应有 3 项（a, c, d），右栏应有 1 项（b）
-      // 标题栏计数：0/3 和 0/1
+      await tester.pumpWidget(
+        _wrap(_transfer(defaultTargetKeys: const <Object>[2])),
+      );
+      // 左栏 3 项（a, c, d），右栏 1 项（b）
       expect(find.text('0/3'), findsOneWidget);
       expect(find.text('0/1'), findsOneWidget);
     });
 
     testWidgets('selecting item updates count', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
-      // 点击选项A 的复选框
+      await tester.pumpWidget(_wrap(_transfer()));
       await tester.tap(find.text('选项A'));
       await tester.pumpAndSettle();
       expect(find.text('1/4'), findsOneWidget);
     });
 
-    testWidgets('moving selected items to right calls onChange', (tester) async {
-      List<String>? resultKeys;
+    testWidgets('moving selected items to right calls onChange',
+        (tester) async {
+      List<Object>? resultKeys;
       AntTransferDirection? direction;
-      List<String>? moveKeys;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: _testData,
-          onChange: (keys, dir, moves) {
-            resultKeys = keys;
-            direction = dir;
-            moveKeys = moves;
-          },
+      List<Object>? moveKeys;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            onChange: (keys, dir, moves) {
+              resultKeys = keys;
+              direction = dir;
+              moveKeys = moves;
+            },
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.text('选项A'));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
-      expect(resultKeys, ['a']);
+      expect(resultKeys, <Object>[1]);
       expect(direction, AntTransferDirection.right);
-      expect(moveKeys, ['a']);
+      expect(moveKeys, <Object>[1]);
     });
 
     testWidgets('moving items back to left calls onChange', (tester) async {
-      List<String>? resultKeys;
+      List<Object>? resultKeys;
       AntTransferDirection? direction;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: _testData,
-          defaultTargetKeys: ['b'],
-          onChange: (keys, dir, moves) {
-            resultKeys = keys;
-            direction = dir;
-          },
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            defaultTargetKeys: const <Object>[2],
+            onChange: (keys, dir, moves) {
+              resultKeys = keys;
+              direction = dir;
+            },
+          ),
         ),
-      ),);
-      // 右栏选中 b
+      );
       await tester.tap(find.text('选项B'));
       await tester.pumpAndSettle();
-      // 移回左栏
       await tester.tap(find.byIcon(AntIcons.doubleLeftOutlined));
       await tester.pumpAndSettle();
       expect(resultKeys, isEmpty);
@@ -127,21 +213,15 @@ void main() {
     });
 
     testWidgets('disabled item cannot be selected', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
-      // 选项C 是禁用的
+      await tester.pumpWidget(_wrap(_transfer()));
       await tester.tap(find.text('选项C'));
       await tester.pumpAndSettle();
-      // 计数不应变化
       expect(find.text('0/4'), findsOneWidget);
     });
 
-    testWidgets('select all checkbox selects all non-disabled items', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
-      // 点击左栏全选（第一个 AntCheckbox）
+    testWidgets('select all checkbox selects all non-disabled items',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_transfer()));
       final checkboxes = find.byType(AntCheckbox);
       await tester.tap(checkboxes.first);
       await tester.pumpAndSettle();
@@ -150,158 +230,129 @@ void main() {
     });
 
     testWidgets('select all then move moves all non-disabled', (tester) async {
-      List<String>? resultKeys;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: _testData,
-          onChange: (keys, dir, moves) {
-            resultKeys = keys;
-          },
-        ),
-      ),);
+      List<Object>? resultKeys;
+      await tester.pumpWidget(
+        _wrap(_transfer(onChange: (keys, dir, moves) => resultKeys = keys)),
+      );
       final checkboxes = find.byType(AntCheckbox);
       await tester.tap(checkboxes.first);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
-      expect(resultKeys, ['a', 'b', 'd']);
+      expect(resultKeys, <Object>[1, 2, 4]);
     });
 
     testWidgets('oneWay mode hides left arrow button', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          oneWay: true,
-          defaultTargetKeys: ['b'],
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            oneWay: true,
+            defaultTargetKeys: const <Object>[2],
+          ),
         ),
-      ),);
+      );
       expect(find.byIcon(AntIcons.doubleRightOutlined), findsOneWidget);
       expect(find.byIcon(AntIcons.doubleLeftOutlined), findsNothing);
     });
 
     testWidgets('showSearch renders search fields', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          showSearch: true,
-        ),
-      ),);
+      await tester.pumpWidget(_wrap(_transfer(showSearch: true)));
       expect(find.byType(TextField), findsNWidgets(2));
     });
 
     testWidgets('search filters items', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          showSearch: true,
-        ),
-      ),);
-      // 左栏搜索框是第一个 TextField
+      await tester.pumpWidget(_wrap(_transfer(showSearch: true)));
       await tester.enterText(find.byType(TextField).first, 'A');
       await tester.pumpAndSettle();
-      // 只有选项A 匹配
       expect(find.text('选项A'), findsOneWidget);
       expect(find.text('选项B'), findsNothing);
     });
 
     testWidgets('custom filterOption works', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: _testData,
-          showSearch: true,
-          filterOption: (input, item) => item.key.contains(input),
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            showSearch: true,
+            filterOption: (input, item) => item.id.toString().contains(input),
+          ),
         ),
-      ),);
-      await tester.enterText(find.byType(TextField).first, 'd');
+      );
+      await tester.enterText(find.byType(TextField).first, '4');
       await tester.pumpAndSettle();
       expect(find.text('选项D'), findsOneWidget);
       expect(find.text('选项A'), findsNothing);
     });
 
     testWidgets('disabled transfer does not respond to taps', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          disabled: true,
-        ),
-      ),);
+      await tester.pumpWidget(_wrap(_transfer(disabled: true)));
       await tester.tap(find.text('选项A'));
       await tester.pumpAndSettle();
-      // 计数不变
       expect(find.text('0/4'), findsOneWidget);
     });
 
     testWidgets('controlled targetKeys updates display', (tester) async {
       late StateSetter setStateOuter;
-      List<String> targetKeys = [];
-      await tester.pumpWidget(_wrap(
-        StatefulBuilder(
-          builder: (context, setState) {
-            setStateOuter = setState;
-            return AntTransfer(
-              dataSource: _testData,
-              targetKeys: targetKeys,
-            );
-          },
+      List<Object> targetKeys = <Object>[];
+      await tester.pumpWidget(
+        _wrap(
+          StatefulBuilder(
+            builder: (context, setState) {
+              setStateOuter = setState;
+              return _transfer(targetKeys: targetKeys);
+            },
+          ),
         ),
-      ),);
+      );
       expect(find.text('0/4'), findsOneWidget);
-      setStateOuter(() => targetKeys = ['a', 'b']);
+      setStateOuter(() => targetKeys = <Object>[1, 2]);
       await tester.pumpAndSettle();
-      // 左栏 2 项（c, d），右栏 2 项（a, b），两栏计数均为 0/2
       expect(find.text('0/2'), findsNWidgets(2));
     });
 
     testWidgets('onSelectChange fires on item select', (tester) async {
-      List<String>? sourceSelected;
-      List<String>? targetSelected;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: _testData,
-          onSelectChange: (source, target) {
-            sourceSelected = source;
-            targetSelected = target;
-          },
+      List<Object>? sourceSelected;
+      List<Object>? targetSelected;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            onSelectChange: (source, target) {
+              sourceSelected = source;
+              targetSelected = target;
+            },
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.text('选项A'));
       await tester.pumpAndSettle();
-      expect(sourceSelected, ['a']);
+      expect(sourceSelected, <Object>[1]);
       expect(targetSelected, isEmpty);
     });
 
     testWidgets('empty dataSource renders No data', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: []),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(dataSource: const <_Item>[])),
+      );
       expect(find.text('No data'), findsNWidgets(2));
     });
 
     testWidgets('operations with labels use text buttons', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: _testData,
-          operations: ['右移', '左移'],
-        ),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(operations: const ['右移', '左移'])),
+      );
       expect(find.text('右移'), findsOneWidget);
       expect(find.text('左移'), findsOneWidget);
       expect(find.byIcon(AntIcons.doubleRightOutlined), findsNothing);
     });
 
     testWidgets('move button disabled when nothing selected', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
-      final button = find.byIcon(AntIcons.doubleRightOutlined);
-      await tester.tap(button);
+      await tester.pumpWidget(_wrap(_transfer()));
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
-      // 没有选中项，不应触发移动，计数不变
       expect(find.text('0/4'), findsOneWidget);
     });
   });
 
-  group('AntTransferItem', () {
+  group('AntTransferItem（兼容模型）', () {
     test('supports equality', () {
       const a = AntTransferItem(key: 'k1', title: 't1');
       const b = AntTransferItem(key: 'k1', title: 't1');
@@ -325,54 +376,11 @@ void main() {
   });
 
   group('AntTransfer 树形模式（TreeTransfer）', () {
-    // 结构：父级1(c1,c2)、父级2(c3,c4,禁用联动)、独立叶子 D
-    const treeData = <AntTransferItem>[
-      AntTransferItem(
-        key: 'p1',
-        title: '父级1',
-        children: [
-          AntTransferItem(key: 'c1', title: '子节点1'),
-          AntTransferItem(key: 'c2', title: '子节点2'),
-        ],
-      ),
-      AntTransferItem(
-        key: 'p2',
-        title: '父级2（禁用）',
-        disabled: true,
-        children: [
-          AntTransferItem(key: 'c3', title: '子节点3'),
-          AntTransferItem(key: 'c4', title: '子节点4'),
-        ],
-      ),
-      AntTransferItem(key: 'd', title: '独立节点'),
-    ];
-
-    /// 取指定标题所在行的 AntCheckbox（取包含该 Checkbox 的最近 Row）
-    AntCheckbox rowCheckbox(WidgetTester tester, String title) {
-      final rowFinder = find.ancestor(
-        of: find.text(title),
-        matching: find.byType(Row),
-      );
-      for (final candidate in rowFinder.evaluate()) {
-        final boxes = find.descendant(
-          of: find.byWidget(candidate.widget),
-          matching: find.byType(AntCheckbox),
-        );
-        if (boxes.evaluate().length == 1) {
-          return tester.widget<AntCheckbox>(boxes.first);
-        }
-      }
-      fail('row checkbox not found for $title');
-    }
-
     testWidgets('collapsed by default, expand arrow reveals children',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: treeData),
-      ),);
+      await tester.pumpWidget(_wrap(_transfer(dataSource: treeData)));
       expect(find.text('父级1'), findsOneWidget);
       expect(find.text('子节点1'), findsNothing);
-      // 点击展开箭头展开子树
       await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
       expect(find.text('子节点1'), findsOneWidget);
@@ -381,44 +389,46 @@ void main() {
 
     testWidgets('defaultExpandAll renders children on both panels',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(dataSource: treeData, defaultExpandAll: true)),
+      );
       expect(find.text('子节点1'), findsOneWidget);
       expect(find.text('子节点2'), findsOneWidget);
     });
 
     testWidgets('checking parent selects all children', (tester) async {
-      List<String>? selected;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: treeData,
-          defaultExpandAll: true,
-          onSelectChange: (source, _) => selected = source,
+      List<Object>? selected;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            dataSource: treeData,
+            defaultExpandAll: true,
+            onSelectChange: (source, _) => selected = source,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.text('父级1'));
       await tester.pumpAndSettle();
-      expect(selected, containsAll(['c1', 'c2']));
+      expect(selected, containsAll(<Object>[11, 12]));
       expect(rowCheckbox(tester, '父级1').checked, isTrue);
     });
 
     testWidgets('unchecking parent deselects all children', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(dataSource: treeData, defaultExpandAll: true)),
+      );
       await tester.tap(find.text('父级1'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('父级1'));
       await tester.pumpAndSettle();
-      // 全选头计数清零（叶子总数 5：c1/c2/c3/c4/d，含禁用子树的叶子）
+      // 叶子总数 5：c1/c2/c3/c4/d
       expect(find.text('0/5'), findsOneWidget);
     });
 
     testWidgets('selecting all children checks parent', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(dataSource: treeData, defaultExpandAll: true)),
+      );
       await tester.tap(find.text('子节点1'));
       await tester.pumpAndSettle();
       expect(rowCheckbox(tester, '父级1').checked, isFalse);
@@ -431,9 +441,9 @@ void main() {
 
     testWidgets('partial child selection shows parent indeterminate',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: treeData, defaultExpandAll: true),
-      ),);
+      await tester.pumpWidget(
+        _wrap(_transfer(dataSource: treeData, defaultExpandAll: true)),
+      );
       await tester.tap(find.text('子节点1'));
       await tester.pumpAndSettle();
       expect(rowCheckbox(tester, '父级1').indeterminate, isTrue);
@@ -441,14 +451,16 @@ void main() {
     });
 
     testWidgets('disabled parent disables whole subtree', (tester) async {
-      var selected = <String>[];
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: treeData,
-          defaultExpandAll: true,
-          onSelectChange: (source, _) => selected = source,
+      var selected = <Object>[];
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            dataSource: treeData,
+            defaultExpandAll: true,
+            onSelectChange: (source, _) => selected = source,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.text('子节点3'));
       await tester.pumpAndSettle();
       expect(selected, isEmpty);
@@ -460,61 +472,59 @@ void main() {
     });
 
     testWidgets('move moves selected subtree with structure', (tester) async {
-      List<String>? moved;
-      List<String>? targets;
-      await tester.pumpWidget(_wrap(
-        AntTransfer(
-          dataSource: treeData,
-          defaultExpandAll: true,
-          onChange: (keys, _, moveKeys) {
-            targets = keys;
-            moved = moveKeys;
-          },
+      List<Object>? moved;
+      List<Object>? targets;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            dataSource: treeData,
+            defaultExpandAll: true,
+            onChange: (keys, _, moveKeys) {
+              targets = keys;
+              moved = moveKeys;
+            },
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.text('父级1'));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
-      // 勾选计数含子级：移动 keys 为子叶 c1/c2
-      expect(moved, containsAll(['c1', 'c2']));
-      expect(moved, isNot(contains('p1')));
-      expect(targets, equals(['c1', 'c2']));
-      // 右侧保持树形展示（父级 + 子级），左侧残留父级空壳（对齐 antd 扁平 dataSource 语义）
+      expect(moved, containsAll(<Object>[11, 12]));
+      expect(moved, isNot(contains(1)));
+      expect(targets, equals(<Object>[11, 12]));
       expect(find.text('父级1'), findsNWidgets(2));
       expect(find.text('子节点1'), findsOneWidget);
     });
 
     testWidgets('tree search keeps matched node and its parent chain',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(
-          dataSource: treeData,
-          defaultExpandAll: true,
-          showSearch: true,
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            dataSource: treeData,
+            defaultExpandAll: true,
+            showSearch: true,
+          ),
         ),
-      ),);
+      );
       await tester.enterText(find.byType(TextField).first, '子节点2');
       await tester.pumpAndSettle();
-      // 以列表区域为准（find.text 也会命中搜索框输入内容）
       final listFinder = find.byType(ListView);
       expect(
         find.descendant(of: listFinder, matching: find.text('父级1')),
         findsOneWidget,
-      ); // 父链保留（左侧）
+      );
       expect(
         find.descendant(of: listFinder, matching: find.text('子节点2')),
         findsOneWidget,
-      ); // 左侧命中节点
-      expect(find.text('子节点1'), findsNothing); // 未命中被过滤
+      );
+      expect(find.text('子节点1'), findsNothing);
       expect(find.text('独立节点'), findsNothing);
     });
 
-    testWidgets('flat data still renders flat list (backward compatible)',
-        (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTransfer(dataSource: _testData),
-      ),);
+    testWidgets('flat data still renders flat list', (tester) async {
+      await tester.pumpWidget(_wrap(_transfer()));
       expect(find.text('选项A'), findsOneWidget);
       expect(find.text('选项B'), findsOneWidget);
       expect(rowCheckbox(tester, '选项A').checked, isFalse);
@@ -524,16 +534,61 @@ void main() {
     });
   });
 
+  group('AntTransfer — 自定义模型', () {
+    testWidgets('自定义模型：keyOf + titleBuilder 驱动扁平穿梭', (tester) async {
+      List<Object>? targets;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            titleBuilder: (context, item) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(AntIcons.fileOutlined, size: 12),
+                Text(item.name),
+              ],
+            ),
+            onChange: (keys, _, __) => targets = keys,
+          ),
+        ),
+      );
+      expect(find.byIcon(AntIcons.fileOutlined), findsNWidgets(4));
+      await tester.tap(find.text('选项B'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
+      await tester.pumpAndSettle();
+      expect(targets, <Object>[2]);
+    });
+
+    testWidgets('自定义模型：childrenOf + disabledOf 驱动树形穿梭', (tester) async {
+      List<Object>? targets;
+      await tester.pumpWidget(
+        _wrap(
+          _transfer(
+            dataSource: treeData,
+            defaultExpandAll: true,
+            onChange: (keys, _, __) => targets = keys,
+          ),
+        ),
+      );
+      expect(rowCheckbox(tester, '子节点3').disabled, isTrue);
+      await tester.tap(find.text('父级1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
+      await tester.pumpAndSettle();
+      expect(targets, <Object>[11, 12]);
+    });
+  });
+
   group('AntTransfer — 对齐', () {
     testWidgets('flat list: row checkbox aligns with header select-all', (
       tester,
     ) async {
       await tester.pumpWidget(
         _wrap(
-          const AntTransfer(
-            dataSource: [
-              AntTransferItem(key: 'a', title: 'Item A'),
-              AntTransferItem(key: 'b', title: 'Item B'),
+          _transfer(
+            dataSource: const <_Item>[
+              _Item(1, 'Item A'),
+              _Item(2, 'Item B'),
             ],
           ),
         ),
@@ -547,13 +602,9 @@ void main() {
     testWidgets('tree list: child row keeps arrow indentation', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntTransfer(
-            dataSource: [
-              AntTransferItem(
-                key: 'p1',
-                title: '父级1',
-                children: [AntTransferItem(key: 'c1', title: '子节点1')],
-              ),
+          _transfer(
+            dataSource: const <_Item>[
+              _Item(1, '父级1', children: [_Item(11, '子节点1')]),
             ],
             defaultExpandAll: true,
           ),

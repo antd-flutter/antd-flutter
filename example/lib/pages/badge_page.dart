@@ -17,14 +17,15 @@ class BadgePage extends StatelessWidget {
             theme: theme,
             child: Row(
               children: [
-                AntBadge(
-                  count: 5,
-                  child: AntButton(child: const Text('消息')),
-                ),
+                AntBadge(count: 5, child: AntButton(child: const Text('消息'))),
                 SizedBox(width: 32.w),
                 AntBadge(
                   dot: true,
-                  child: Icon(AntIcons.notificationOutlined, size: 24.w, color: theme.colorText),
+                  child: Icon(
+                    AntIcons.notificationOutlined,
+                    size: 24.w,
+                    color: theme.colorText,
+                  ),
                 ),
               ],
             ),
@@ -88,9 +89,17 @@ class BadgePage extends StatelessWidget {
               children: [
                 AntBadge(count: 5, color: Colors.blue, child: const Text('蓝色')),
                 SizedBox(width: 32.w),
-                AntBadge(count: 5, color: Colors.green, child: const Text('绿色')),
+                AntBadge(
+                  count: 5,
+                  color: Colors.green,
+                  child: const Text('绿色'),
+                ),
                 SizedBox(width: 32.w),
-                AntBadge(dot: true, color: Colors.purple, child: const Text('紫色')),
+                AntBadge(
+                  dot: true,
+                  color: Colors.purple,
+                  child: const Text('紫色'),
+                ),
               ],
             ),
           ),
@@ -103,13 +112,21 @@ class BadgePage extends StatelessWidget {
                 AntBadge(
                   count: 5,
                   offset: [10, -5],
-                  child: Icon(AntIcons.notificationOutlined, size: 24.w, color: theme.colorText),
+                  child: Icon(
+                    AntIcons.notificationOutlined,
+                    size: 24.w,
+                    color: theme.colorText,
+                  ),
                 ),
                 SizedBox(width: 32.w),
                 AntBadge(
                   count: 5,
                   offset: [-10, 10],
-                  child: Icon(AntIcons.mailOutlined, size: 24.w, color: theme.colorText),
+                  child: Icon(
+                    AntIcons.mailOutlined,
+                    size: 24.w,
+                    color: theme.colorText,
+                  ),
                 ),
               ],
             ),
@@ -121,7 +138,11 @@ class BadgePage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

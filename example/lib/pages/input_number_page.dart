@@ -22,7 +22,10 @@ class InputNumberPage extends StatelessWidget {
           _LimitDemo(),
           _Section(title: '步长与精度', description: 'step / precision'),
           _StepDemo(),
-          _Section(title: '步进按钮模式', description: 'controls: upDown / up / down / none'),
+          _Section(
+            title: '步进按钮模式',
+            description: 'controls: upDown / up / down / none',
+          ),
           _ControlsDemo(),
           _Section(title: '前置和后置标签', description: 'addonBefore / addonAfter'),
           _AddonDemo(),
@@ -51,11 +54,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -70,7 +83,11 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntFlex(wrap: true, gap: const AntFlexGap.all(12), children: children);
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(12),
+      children: children,
+    );
   }
 }
 
@@ -86,11 +103,13 @@ class _SizeDemo extends StatelessWidget {
   const _SizeDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(size: AntInputSize.large, defaultValue: 1),
-      AntInputNumber(size: AntInputSize.middle, defaultValue: 1),
-      AntInputNumber(size: AntInputSize.small, defaultValue: 1),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(size: AntInputSize.large, defaultValue: 1),
+        AntInputNumber(size: AntInputSize.middle, defaultValue: 1),
+        AntInputNumber(size: AntInputSize.small, defaultValue: 1),
+      ],
+    );
   }
 }
 
@@ -98,10 +117,12 @@ class _LimitDemo extends StatelessWidget {
   const _LimitDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(min: 0, max: 10, defaultValue: 3),
-      AntInputNumber(min: -10, max: 10, defaultValue: 0, step: 2),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(min: 0, max: 10, defaultValue: 3),
+        AntInputNumber(min: -10, max: 10, defaultValue: 0, step: 2),
+      ],
+    );
   }
 }
 
@@ -109,11 +130,13 @@ class _StepDemo extends StatelessWidget {
   const _StepDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(step: 0.1, defaultValue: 1.0),
-      AntInputNumber(step: 10, defaultValue: 100),
-      AntInputNumber(precision: 2, step: 0.01, defaultValue: 3.14),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(step: 0.1, defaultValue: 1.0),
+        AntInputNumber(step: 10, defaultValue: 100),
+        AntInputNumber(precision: 2, step: 0.01, defaultValue: 3.14),
+      ],
+    );
   }
 }
 
@@ -121,12 +144,17 @@ class _ControlsDemo extends StatelessWidget {
   const _ControlsDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(controls: AntInputNumberControls.upDown, defaultValue: 1),
-      AntInputNumber(controls: AntInputNumberControls.up, defaultValue: 1),
-      AntInputNumber(controls: AntInputNumberControls.down, defaultValue: 1),
-      AntInputNumber(controls: AntInputNumberControls.none, defaultValue: 1),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(
+          controls: AntInputNumberControls.upDown,
+          defaultValue: 1,
+        ),
+        AntInputNumber(controls: AntInputNumberControls.up, defaultValue: 1),
+        AntInputNumber(controls: AntInputNumberControls.down, defaultValue: 1),
+        AntInputNumber(controls: AntInputNumberControls.none, defaultValue: 1),
+      ],
+    );
   }
 }
 
@@ -134,11 +162,17 @@ class _AddonDemo extends StatelessWidget {
   const _AddonDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(addonBefore: AntText(text: '+'), defaultValue: 100),
-      AntInputNumber(addonAfter: AntText(text: '元'), defaultValue: 100),
-      AntInputNumber(addonBefore: AntText(text: '价格'), addonAfter: AntText(text: '¥'), defaultValue: 50),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(addonBefore: AntText(text: '+'), defaultValue: 100),
+        AntInputNumber(addonAfter: AntText(text: '元'), defaultValue: 100),
+        AntInputNumber(
+          addonBefore: AntText(text: '价格'),
+          addonAfter: AntText(text: '¥'),
+          defaultValue: 50,
+        ),
+      ],
+    );
   }
 }
 
@@ -146,10 +180,12 @@ class _StatusDemo extends StatelessWidget {
   const _StatusDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(status: AntInputStatus.error, defaultValue: 1),
-      AntInputNumber(status: AntInputStatus.warning, defaultValue: 1),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(status: AntInputStatus.error, defaultValue: 1),
+        AntInputNumber(status: AntInputStatus.warning, defaultValue: 1),
+      ],
+    );
   }
 }
 
@@ -157,9 +193,15 @@ class _DisabledDemo extends StatelessWidget {
   const _DisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntInputNumber(disabled: true, defaultValue: 1),
-      AntInputNumber(disabled: true, controls: AntInputNumberControls.none, defaultValue: 5),
-    ]);
+    return const _Row(
+      children: [
+        AntInputNumber(disabled: true, defaultValue: 1),
+        AntInputNumber(
+          disabled: true,
+          controls: AntInputNumberControls.none,
+          defaultValue: 5,
+        ),
+      ],
+    );
   }
 }

@@ -12,11 +12,7 @@ class FooterPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Section(
-            title: '基础用法（默认文案）',
-            theme: theme,
-            child: const AntFooter(),
-          ),
+          _Section(title: '基础用法（默认文案）', theme: theme, child: const AntFooter()),
           SizedBox(height: 16.w),
           _Section(
             title: '自定义文案',
@@ -27,9 +23,7 @@ class FooterPage extends StatelessWidget {
           _Section(
             title: '点击回调（返回顶部）',
             theme: theme,
-            child: AntFooter(
-              onClick: () => _showMsg(context, '点击返回顶部'),
-            ),
+            child: AntFooter(onClick: () => _showMsg(context, '点击返回顶部')),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -41,8 +35,8 @@ class FooterPage extends StatelessWidget {
                 children: [
                   AntdIcon(AntIcons.verticalAlignTopOutlined, size: 14.w),
                   SizedBox(width: 4.w),
-                  AntText(text: 
-                    '回到顶部',
+                  AntText(
+                    text: '回到顶部',
                     style: TextStyle(
                       fontSize: theme.fontSizeSM,
                       color: theme.colorTextQuaternary,
@@ -58,14 +52,17 @@ class FooterPage extends StatelessWidget {
   }
 
   void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: AntText(text: msg)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: AntText(text: msg)));
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -84,8 +81,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,

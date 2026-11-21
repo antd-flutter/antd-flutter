@@ -94,71 +94,68 @@ class _ActionSheetPageState extends State<ActionSheetPage> {
 
   /// 各场景面板。
   List<Widget> get _sheets => [
-        AntActionSheet(
-          visible: _activeSheet == 'basic',
-          actions: [
-            ActionSheetAction(text: '复制', onClick: (_) => _log('点击了：复制')),
-            ActionSheetAction(text: '修改', onClick: (_) => _log('点击了：修改')),
-          ],
-          onClose: () => setState(() => _activeSheet = null),
+    AntActionSheet(
+      visible: _activeSheet == 'basic',
+      actions: [
+        ActionSheetAction(text: '复制', onClick: (_) => _log('点击了：复制')),
+        ActionSheetAction(text: '修改', onClick: (_) => _log('点击了：修改')),
+      ],
+      onClose: () => setState(() => _activeSheet = null),
+    ),
+    AntActionSheet(
+      visible: _activeSheet == 'danger',
+      actions: [
+        const ActionSheetAction(text: '操作一'),
+        ActionSheetAction(
+          text: '删除',
+          danger: true,
+          onClick: (_) => _log('点击了危险操作：删除'),
         ),
-        AntActionSheet(
-          visible: _activeSheet == 'danger',
-          actions: [
-            const ActionSheetAction(text: '操作一'),
-            ActionSheetAction(
-              text: '删除',
-              danger: true,
-              onClick: (_) => _log('点击了危险操作：删除'),
-            ),
-          ],
-          cancelText: '取消',
-          onClose: () => setState(() => _activeSheet = null),
+      ],
+      cancelText: '取消',
+      onClose: () => setState(() => _activeSheet = null),
+    ),
+    AntActionSheet(
+      visible: _activeSheet == 'disabled',
+      actions: [
+        ActionSheetAction(text: '可用操作', onClick: (_) => _log('点击了：可用操作')),
+        const ActionSheetAction(
+          text: '禁用操作',
+          disabled: true,
+          description: '该选项当前不可用',
         ),
-        AntActionSheet(
-          visible: _activeSheet == 'disabled',
-          actions: [
-            ActionSheetAction(
-              text: '可用操作',
-              onClick: (_) => _log('点击了：可用操作'),
-            ),
-            const ActionSheetAction(
-              text: '禁用操作',
-              disabled: true,
-              description: '该选项当前不可用',
-            ),
-          ],
-          onClose: () => setState(() => _activeSheet = null),
+      ],
+      onClose: () => setState(() => _activeSheet = null),
+    ),
+    AntActionSheet(
+      visible: _activeSheet == 'cancel',
+      actions: [
+        ActionSheetAction(text: '操作一', onClick: (_) => _log('点击了：操作一')),
+        ActionSheetAction(text: '操作二', onClick: (_) => _log('点击了：操作二')),
+      ],
+      cancelText: '取消',
+      closeOnAction: true,
+      onClose: () => setState(() => _activeSheet = null),
+    ),
+    AntActionSheet(
+      visible: _activeSheet == 'extra',
+      extraDescription: '请选择要执行的操作，操作不可撤销',
+      actions: [
+        ActionSheetAction(
+          text: '发布',
+          description: '将内容发布到线上',
+          onClick: (_) => _log('点击了：发布'),
         ),
-        AntActionSheet(
-          visible: _activeSheet == 'cancel',
-          actions: [
-            ActionSheetAction(text: '操作一', onClick: (_) => _log('点击了：操作一')),
-            ActionSheetAction(text: '操作二', onClick: (_) => _log('点击了：操作二')),
-          ],
-          cancelText: '取消',
-          closeOnAction: true,
-          onClose: () => setState(() => _activeSheet = null),
+        ActionSheetAction(
+          text: '保存草稿',
+          description: '内容将保存到草稿箱',
+          onClick: (_) => _log('点击了：保存草稿'),
         ),
-        AntActionSheet(
-          visible: _activeSheet == 'extra',
-          extraDescription: '请选择要执行的操作，操作不可撤销',
-          actions: [
-            ActionSheetAction(
-              text: '发布',
-              description: '将内容发布到线上',
-              onClick: (_) => _log('点击了：发布'),
-            ),
-            ActionSheetAction(
-              text: '保存草稿',
-              description: '内容将保存到草稿箱',
-              onClick: (_) => _log('点击了：保存草稿'),
-            ),
-          ],
-          cancelText: '取消',
-          onClose: () => setState(() => _activeSheet = null),
-        ),
-      ];
+      ],
+      cancelText: '取消',
+      onClose: () => setState(() => _activeSheet = null),
+    ),
+  ];
 }
 
 class _DemoButton extends StatelessWidget {
@@ -183,10 +180,7 @@ class _DemoButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: theme.colorPrimary,
-          ),
+          style: TextStyle(fontSize: 14.sp, color: theme.colorPrimary),
         ),
       ),
     );
@@ -194,7 +188,11 @@ class _DemoButton extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

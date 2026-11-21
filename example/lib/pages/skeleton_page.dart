@@ -73,7 +73,11 @@ class _SkeletonPageState extends State<SkeletonPage> {
                   paragraph: const AntSkeletonParagraph(rows: 2),
                   child: Row(
                     children: [
-                      AntdIcon(AntIcons.userOutlined, size: 40.w, color: theme.colorPrimary),
+                      AntdIcon(
+                        AntIcons.userOutlined,
+                        size: 40.w,
+                        color: theme.colorPrimary,
+                      ),
                       SizedBox(width: 16.w),
                       Expanded(
                         child: Text(
@@ -103,7 +107,11 @@ class _SkeletonPageState extends State<SkeletonPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

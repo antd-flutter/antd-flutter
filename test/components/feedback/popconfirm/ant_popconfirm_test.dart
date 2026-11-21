@@ -111,7 +111,8 @@ void main() {
 
   testWidgets('点击确认触发 onConfirm 并自动关闭', (tester) async {
     var confirmed = false;
-    await tester.pumpWidget(_host(title: 'A', onConfirm: () => confirmed = true));
+    await tester
+        .pumpWidget(_host(title: 'A', onConfirm: () => confirmed = true));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(kAntPopconfirmOkButtonKey));
@@ -122,7 +123,8 @@ void main() {
 
   testWidgets('点击取消触发 onCancel 并自动关闭', (tester) async {
     var cancelled = false;
-    await tester.pumpWidget(_host(title: 'A', onCancel: () => cancelled = true));
+    await tester
+        .pumpWidget(_host(title: 'A', onCancel: () => cancelled = true));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(kAntPopconfirmCancelButtonKey));
@@ -178,7 +180,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.pumpWidget(
-      _host(title: 'B', icon: const Icon(Icons.delete, key: Key('custom-icon'))),
+      _host(
+          title: 'B', icon: const Icon(Icons.delete, key: Key('custom-icon'))),
     );
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
@@ -226,12 +229,14 @@ void main() {
     await tester.pumpWidget(_host(title: 'A'));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    final containers = tester.widgetList<Container>(
-      find.descendant(
-        of: find.byKey(kAntPopconfirmBubbleKey),
-        matching: find.byType(Container),
-      ),
-    ).toList();
+    final containers = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byKey(kAntPopconfirmBubbleKey),
+            matching: find.byType(Container),
+          ),
+        )
+        .toList();
     // 气泡根 Container 为最外层（宽度受限且带装饰）
     final container = containers.firstWhere((c) => c.decoration != null);
     final decoration = container.decoration! as BoxDecoration;

@@ -75,10 +75,7 @@ class WatermarkPage extends StatelessWidget {
                     ),
                     title: Text(
                       '文档条目 ${index + 1}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: theme.colorText,
-                      ),
+                      style: TextStyle(fontSize: 14.sp, color: theme.colorText),
                     ),
                     subtitle: Text(
                       '2026-11-16 更新',

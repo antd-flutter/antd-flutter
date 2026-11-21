@@ -2,12 +2,16 @@
 ///
 /// API 与 antd-mobile React ImageUploader 对齐：
 /// - [AntImageUploader] — 图片上传（value/maxCount/columns/preview/deletable）
-/// - [AntImageUploadItem] — 图片项（url/status）
+/// - 数据源为任意模型 `List<T>`，用 [urlOf] / [statusOf] / [itemBuilder] 取数与渲染
 ///
 /// ```dart
-/// AntImageUploader(
+/// AntImageUploader<MyImage>(
 ///   maxCount: 3,
-///   onPickImage: () async => [AntImageUploadItem(url: 'https://example.com/a.png')],
+///   urlOf: (img) => img.thumbUrl,
+///   statusOf: (img) => img.uploading
+///       ? AntImageUploadStatus.uploading
+///       : AntImageUploadStatus.done,
+///   onPickImage: () async => [MyImage(...)],
 ///   onChange: (items) => print(items.length),
 /// )
 /// ```
@@ -26,7 +30,7 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 ///
 /// 对齐 antd-mobile React ImageUploader。通过 [onPickImage] 回调
 /// 获取待上传图片，组件负责网格展示、预览与删除。
-class AntImageUploader extends StatefulWidget {
+class AntImageUploader<T> extends StatefulWidget {
   const AntImageUploader({
     super.key,
     this.value,
@@ -34,6 +38,10 @@ class AntImageUploader extends StatefulWidget {
     this.onChange,
     this.onPickImage,
     this.onDelete,
+    this.urlOf,
+    this.statusOf,
+    this.itemBuilder,
+    this.previewBuilder,
     this.onCountExceed,
     this.maxCount = 0,
     this.columns = 4,
@@ -45,19 +53,33 @@ class AntImageUploader extends StatefulWidget {
   });
 
   /// 受控图片列表。
-  final List<AntImageUploadItem>? value;
+  final List<T>? value;
 
   /// 非受控初始列表。
-  final List<AntImageUploadItem> defaultValue;
+  final List<T> defaultValue;
 
   /// 列表变化回调。
-  final ValueChanged<List<AntImageUploadItem>>? onChange;
+  final ValueChanged<List<T>>? onChange;
 
   /// 选图回调（返回新增图片列表）。
-  final Future<List<AntImageUploadItem>> Function()? onPickImage;
+  final Future<List<T>> Function()? onPickImage;
 
   /// 删除回调（返回 false 阻止删除）。
-  final bool Function(AntImageUploadItem)? onDelete;
+  final bool Function(T item)? onDelete;
+
+  /// 图片地址，缺省：`T` 是 [String] 时直接使用，
+  /// 是 [AntImageUploadItem] 时取 `url`，否则抛 [StateError]。
+  final String Function(T item)? urlOf;
+
+  /// 上传状态，缺省：`T` 是 [AntImageUploadItem] 时取 `status`，否则视为完成。
+  final AntImageUploadStatus Function(T item)? statusOf;
+
+  /// 自定义图片格子内容（默认 `Image.network`）。
+  /// 外层点击预览与右上角删除按钮仍由组件提供。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 自定义全屏预览内容，缺省用 `Image.network(url)` 全屏展示。
+  final Widget Function(BuildContext context, T item)? previewBuilder;
 
   /// 超出最大数量回调。
   final ValueChanged<int>? onCountExceed;
@@ -84,14 +106,32 @@ class AntImageUploader extends StatefulWidget {
   final IconData uploadIcon;
 
   @override
-  State<AntImageUploader> createState() => _AntImageUploaderState();
+  State<AntImageUploader<T>> createState() => _AntImageUploaderState<T>();
 }
 
-class _AntImageUploaderState extends State<AntImageUploader> {
-  late List<AntImageUploadItem> _internalValue;
+class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
+  late List<T> _internalValue;
 
-  List<AntImageUploadItem> get _currentValue =>
-      widget.value ?? _internalValue;
+  List<T> get _currentValue => widget.value ?? _internalValue;
+
+  /// 图片地址。
+  String _urlOf(T item) {
+    final fn = widget.urlOf;
+    if (fn != null) return fn(item);
+    if (item is String) return item;
+    if (item is AntImageUploadItem) return item.url;
+    throw StateError(
+      'AntImageUploader: 无法从 $T 提取图片地址，请提供 urlOf。',
+    );
+  }
+
+  /// 上传状态。
+  AntImageUploadStatus _statusOf(T item) {
+    final fn = widget.statusOf;
+    if (fn != null) return fn(item);
+    if (item is AntImageUploadItem) return item.status;
+    return AntImageUploadStatus.done;
+  }
 
   @override
   void initState() {
@@ -100,14 +140,14 @@ class _AntImageUploaderState extends State<AntImageUploader> {
   }
 
   @override
-  void didUpdateWidget(covariant AntImageUploader oldWidget) {
+  void didUpdateWidget(covariant AntImageUploader<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != oldWidget.value) {
       _internalValue = List.from(widget.value!);
     }
   }
 
-  void _emitChange(List<AntImageUploadItem> next) {
+  void _emitChange(List<T> next) {
     if (widget.value != null) {
       widget.onChange?.call(next);
     } else {
@@ -138,8 +178,7 @@ class _AntImageUploaderState extends State<AntImageUploader> {
   void _handleDelete(int index) {
     final item = _currentValue[index];
     if (widget.onDelete != null && !widget.onDelete!(item)) return;
-    final next = List<AntImageUploadItem>.from(_currentValue)
-      ..removeAt(index);
+    final next = List<T>.from(_currentValue)..removeAt(index);
     _emitChange(next);
   }
 
@@ -148,10 +187,9 @@ class _AntImageUploaderState extends State<AntImageUploader> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => _ImagePreviewPage(
-          url: item.url,
-          fit: widget.imageFit,
-        ),
+        builder: (_) => widget.previewBuilder != null
+            ? widget.previewBuilder!(context, item)
+            : _ImagePreviewPage(url: _urlOf(item), fit: widget.imageFit),
       ),
     );
   }
@@ -166,9 +204,8 @@ class _AntImageUploaderState extends State<AntImageUploader> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final gap = t.marginXS.w;
-        final cellSize =
-            (constraints.maxWidth - gap * (widget.columns - 1)) /
-                widget.columns;
+        final cellSize = (constraints.maxWidth - gap * (widget.columns - 1)) /
+            widget.columns;
 
         final children = <Widget>[];
         for (var i = 0; i < _currentValue.length; i++) {
@@ -201,28 +238,32 @@ class _AntImageUploaderState extends State<AntImageUploader> {
 
   Widget _buildImageCell(AntThemeData t, int index) {
     final item = _currentValue[index];
+    final status = _statusOf(item);
     return GestureDetector(
       onTap: widget.preview ? () => _showPreview(index) : null,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
-            child: Image.network(
-              item.url,
-              fit: widget.imageFit,
-              errorBuilder: (_, __, ___) => Container(
-                color: t.colorFillSecondary,
-                alignment: Alignment.center,
-                child: Icon(
-                  AntIcons.pictureOutlined,
-                  size: 24.w,
-                  color: t.colorTextQuaternary,
+          if (widget.itemBuilder != null)
+            widget.itemBuilder!(context, item, index)
+          else
+            ClipRRect(
+              borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
+              child: Image.network(
+                _urlOf(item),
+                fit: widget.imageFit,
+                errorBuilder: (_, __, ___) => Container(
+                  color: t.colorFillSecondary,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    AntIcons.pictureOutlined,
+                    size: 24.w,
+                    color: t.colorTextQuaternary,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (item.status == AntImageUploadStatus.uploading)
+          if (status == AntImageUploadStatus.uploading)
             ClipRRect(
               borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
               child: Container(
@@ -234,7 +275,7 @@ class _AntImageUploaderState extends State<AntImageUploader> {
                 ),
               ),
             ),
-          if (item.status == AntImageUploadStatus.failed)
+          if (status == AntImageUploadStatus.failed)
             ClipRRect(
               borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
               child: Container(

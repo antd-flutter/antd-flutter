@@ -22,7 +22,9 @@ enum AntSelectSize {
   small,
 }
 
-/// 选择器选项
+/// 选择器选项（旧模型，自 1.x 起推荐直接用 `AntSelect<T>(options: List<T>)`
+/// 配合 `labelOf` / `valueExtractor`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf；本类将在 2.0 移除')
 class AntSelectOption<T> {
   const AntSelectOption({
     required this.value,

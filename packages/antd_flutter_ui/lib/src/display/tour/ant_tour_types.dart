@@ -56,43 +56,37 @@ enum AntTourPlacement {
 }
 
 // ============================================================
-// AntTourStep — 引导步骤
+// 构建器
 // ============================================================
 
-/// 漫游式引导的单个步骤。
-///
-/// 对齐 antd React Tour 的 TourStep：[target] 为空时卡片全屏居中，
-/// [title] / [description] 为卡片文字内容，
-/// [placement] / [mask] / [arrow] 可覆盖 [AntTour] 的同名配置。
-class AntTourStep {
-  const AntTourStep({
-    this.target,
-    this.title,
-    this.description,
-    this.cover,
-    this.placement,
-    this.mask,
-    this.arrow,
-  });
+/// 步骤目标元素提取器（用于挖孔定位，返回 null 时卡片居中）。
+typedef AntTourTargetOf<T> = GlobalKey? Function(T step);
 
-  /// 引导卡片指向的目标元素（为空时卡片全屏居中）。
-  final GlobalKey? target;
+/// 步骤标题构建器（返回 null 时不展示标题）。
+typedef AntTourTitleBuilder<T> = Widget? Function(
+  BuildContext context,
+  T step,
+  int index,
+);
 
-  /// 步骤标题。
-  final String? title;
+/// 步骤描述构建器（返回 null 时不展示描述）。
+typedef AntTourDescriptionBuilder<T> = Widget? Function(
+  BuildContext context,
+  T step,
+  int index,
+);
 
-  /// 步骤描述内容。
-  final String? description;
+/// 步骤封面构建器（返回 null 时不展示封面）。
+typedef AntTourCoverBuilder<T> = Widget? Function(
+  BuildContext context,
+  T step,
+);
 
-  /// 步骤顶部展示的封面（图片或自定义 Widget）。
-  final Widget? cover;
+/// 步骤位置提取器（覆盖 Tour 级 placement）。
+typedef AntTourPlacementOf<T> = AntTourPlacement? Function(T step);
 
-  /// 引导卡片位置（覆盖 Tour 级配置）。
-  final AntTourPlacement? placement;
+/// 步骤是否显示遮罩提取器（覆盖 Tour 级 mask）。
+typedef AntTourMaskOf<T> = bool? Function(T step);
 
-  /// 是否显示遮罩（覆盖 Tour 级配置）。
-  final bool? mask;
-
-  /// 是否显示箭头（覆盖 Tour 级配置）。
-  final bool? arrow;
-}
+/// 步骤是否显示箭头提取器（覆盖 Tour 级 arrow）。
+typedef AntTourArrowOf<T> = bool? Function(T step);

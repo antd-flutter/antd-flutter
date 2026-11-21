@@ -119,12 +119,14 @@ class _PopoverPageState extends State<PopoverPage> {
               children: [
                 AntButton(
                   child: Text(_controlledOpen ? '关闭气泡' : '打开气泡'),
-                  onTap: () => setState(() => _controlledOpen = !_controlledOpen),
+                  onTap: () =>
+                      setState(() => _controlledOpen = !_controlledOpen),
                 ),
                 SizedBox(width: 12.w),
                 AntPopover(
                   open: _controlledOpen,
-                  onOpenChange: (open) => setState(() => _controlledOpen = open),
+                  onOpenChange: (open) =>
+                      setState(() => _controlledOpen = open),
                   title: const Text('受控气泡'),
                   content: const Text('由外部状态控制显示与隐藏'),
                   child: const Text('受控触发元素'),

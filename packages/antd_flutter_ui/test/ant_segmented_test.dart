@@ -1,4 +1,4 @@
-import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_flutter_ui/src/display/segmented/ant_segmented.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +24,22 @@ Alignment _sliderAlignment(WidgetTester tester) {
   return resolved;
 }
 
+/// 自定义模型：导航视图（文本/图标/禁用均由模型提供）。
+class _ViewMode {
+  const _ViewMode(this.id, this.label, this.icon, {this.disabled = false});
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final bool disabled;
+}
+
+const _viewModes = [
+  _ViewMode('list', '列表', AntIcons.unorderedListOutlined),
+  _ViewMode('map', '地图', AntIcons.environmentOutlined),
+  _ViewMode('chart', '图表', AntIcons.barChartOutlined, disabled: true),
+];
+
 void main() {
   group('AntSegmented', () {
     testWidgets('renders all option labels', (tester) async {
@@ -45,10 +61,12 @@ void main() {
     testWidgets('tap option fires onChange with value', (tester) async {
       final values = <String>[];
       await tester.pumpWidget(
-        _wrap(AntSegmented(
-          options: const ['日', '周', '月'],
-          onChange: values.add,
-        ),),
+        _wrap(
+          AntSegmented(
+            options: const ['日', '周', '月'],
+            onChange: values.add,
+          ),
+        ),
       );
       await tester.tap(find.text('月'));
       await tester.pumpAndSettle();
@@ -67,17 +85,21 @@ void main() {
     testWidgets('controlled value follows external value', (tester) async {
       var selected = '日';
       late StateSetter setState;
-      await tester.pumpWidget(_wrap(StatefulBuilder(
-        builder: (context, s) {
-          setState = s;
-          return AntSegmented(
-            options: const ['日', '周', '月'],
-            value: selected,
-            block: true,
-            onChange: (v) => setState(() => selected = v),
-          );
-        },
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          StatefulBuilder(
+            builder: (context, s) {
+              setState = s;
+              return AntSegmented(
+                options: const ['日', '周', '月'],
+                value: selected,
+                block: true,
+                onChange: (v) => setState(() => selected = v),
+              );
+            },
+          ),
+        ),
+      );
       await tester.tap(find.text('周'));
       await tester.pumpAndSettle();
       expect(_sliderAlignment(tester).x, closeTo(0, 0.01));
@@ -85,11 +107,13 @@ void main() {
 
     testWidgets('defaultValue selects given option', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月'],
-          defaultValue: '月',
-          block: true,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月'],
+            defaultValue: '月',
+            block: true,
+          ),
+        ),
       );
       expect(_sliderAlignment(tester).x, greaterThan(0.5));
     });
@@ -97,13 +121,13 @@ void main() {
     testWidgets('disabled item does not respond to tap', (tester) async {
       final values = <String>[];
       await tester.pumpWidget(
-        _wrap(AntSegmented(
-          options: const [
-            AntSegmentedItem(label: 'A'),
-            AntSegmentedItem(label: 'B', disabled: true),
-          ],
-          onChange: values.add,
-        ),),
+        _wrap(
+          AntSegmented(
+            options: const ['A', 'B'],
+            disabledOf: (value) => value == 'B',
+            onChange: values.add,
+          ),
+        ),
       );
       await tester.tap(find.text('B'));
       await tester.pumpAndSettle();
@@ -113,11 +137,13 @@ void main() {
     testWidgets('global disabled blocks all taps', (tester) async {
       final values = <String>[];
       await tester.pumpWidget(
-        _wrap(AntSegmented(
-          options: const ['A', 'B'],
-          disabled: true,
-          onChange: values.add,
-        ),),
+        _wrap(
+          AntSegmented(
+            options: const ['A', 'B'],
+            disabled: true,
+            onChange: values.add,
+          ),
+        ),
       );
       await tester.tap(find.text('B'));
       await tester.pumpAndSettle();
@@ -128,23 +154,27 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntSegmented(options: ['A', 'B'], block: true)),
       );
-      final width = tester.getSize(find.byType(AntSegmented)).width;
+      final width = tester.getSize(find.byType(AntSegmented<String>)).width;
       // 居中场景下占满可用宽度
       expect(width, greaterThan(200));
     });
 
     testWidgets('size large renders taller than small', (tester) async {
-      await tester.pumpWidget(_wrap(const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AntSegmented(options: ['A', 'B'], size: AntSegmentedSize.large),
-          AntSegmented(options: ['A', 'B'], size: AntSegmentedSize.small),
-        ],
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AntSegmented(options: ['A', 'B'], size: AntSegmentedSize.large),
+              AntSegmented(options: ['A', 'B'], size: AntSegmentedSize.small),
+            ],
+          ),
+        ),
+      );
       final largeHeight =
-          tester.getSize(find.byType(AntSegmented).at(0)).height;
+          tester.getSize(find.byType(AntSegmented<String>).at(0)).height;
       final smallHeight =
-          tester.getSize(find.byType(AntSegmented).at(1)).height;
+          tester.getSize(find.byType(AntSegmented<String>).at(1)).height;
       expect(largeHeight, greaterThan(smallHeight));
       expect(largeHeight, greaterThan(36));
       expect(smallHeight, lessThan(30));
@@ -154,17 +184,20 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntSegmented(options: ['A', 'B'])),
       );
-      final height = tester.getSize(find.byType(AntSegmented)).height;
+      final height = tester.getSize(find.byType(AntSegmented<String>)).height;
       expect(height, greaterThan(28));
       expect(height, lessThan(38));
     });
 
     testWidgets('icon item renders icon and label', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(options: [
-          AntSegmentedItem(label: '列表', icon: Icon(AntIcons.unorderedListOutlined)),
-          AntSegmentedItem(label: '地图', icon: Icon(AntIcons.environmentOutlined)),
-        ],),),
+        _wrap(
+          AntSegmented<_ViewMode>(
+            options: _viewModes,
+            labelOf: (mode) => mode.label,
+            iconBuilder: (context, mode) => Icon(mode.icon),
+          ),
+        ),
       );
       expect(find.byIcon(AntIcons.unorderedListOutlined), findsOneWidget);
       expect(find.byIcon(AntIcons.environmentOutlined), findsOneWidget);
@@ -174,13 +207,15 @@ void main() {
     testWidgets('icon-only item uses value on change', (tester) async {
       final values = <String>[];
       await tester.pumpWidget(
-        _wrap(AntSegmented(
-          options: [
-            const AntSegmentedItem(value: 'list', icon: Icon(AntIcons.unorderedListOutlined)),
-            const AntSegmentedItem(value: 'map', icon: Icon(AntIcons.environmentOutlined)),
-          ],
-          onChange: values.add,
-        ),),
+        _wrap(
+          AntSegmented<_ViewMode>(
+            options: _viewModes,
+            // 空字符串 label → icon-only
+            labelOf: (mode) => '',
+            iconBuilder: (context, mode) => Icon(mode.icon),
+            onChange: (mode) => values.add(mode.id),
+          ),
+        ),
       );
       await tester.tap(find.byIcon(AntIcons.environmentOutlined));
       await tester.pumpAndSettle();
@@ -189,10 +224,12 @@ void main() {
 
     testWidgets('round shape renders pill track', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['A', 'B'],
-          shape: AntSegmentedShape.round,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['A', 'B'],
+            shape: AntSegmentedShape.round,
+          ),
+        ),
       );
       final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration! as BoxDecoration;
@@ -217,15 +254,31 @@ void main() {
       expect(deco?.color, isNotNull);
     });
 
-    testWidgets('string and item options can be mixed', (tester) async {
+    testWidgets('自定义模型：labelOf/iconBuilder/disabledOf 驱动渲染与选择', (tester) async {
+      final changed = <String>[];
       await tester.pumpWidget(
-        _wrap(const AntSegmented(options: [
-          '原始',
-          AntSegmentedItem(label: '自定义', value: 'custom'),
-        ],),),
+        _wrap(
+          AntSegmented<_ViewMode>(
+            options: _viewModes,
+            labelOf: (mode) => mode.label,
+            iconBuilder: (context, mode) => Icon(mode.icon),
+            disabledOf: (mode) => mode.disabled,
+            onChange: (mode) => changed.add(mode.id),
+          ),
+        ),
       );
-      expect(find.text('原始'), findsOneWidget);
-      expect(find.text('自定义'), findsOneWidget);
+      expect(find.text('列表'), findsOneWidget);
+      expect(find.text('地图'), findsOneWidget);
+      expect(find.text('图表'), findsOneWidget);
+
+      await tester.tap(find.text('地图'));
+      await tester.pumpAndSettle();
+      expect(changed, ['map']);
+
+      // disabledOf 命中的项不响应点击
+      await tester.tap(find.text('图表'));
+      await tester.pumpAndSettle();
+      expect(changed, ['map']);
     });
 
     testWidgets('inline selected background fills inner track height',
@@ -234,7 +287,8 @@ void main() {
         _wrap(const AntSegmented(options: ['A', 'B'])),
       );
       await tester.pumpAndSettle();
-      final trackHeight = tester.getSize(find.byType(AntSegmented)).height;
+      final trackHeight =
+          tester.getSize(find.byType(AntSegmented<String>)).height;
       // 选中项背景（含背景色的 AnimatedContainer）应撑满轨道内高
       // （32 - 2*2 = 28），而不是只有文字行高（"挤"问题修复断言）。
       final boxes = tester
@@ -252,13 +306,15 @@ void main() {
     testWidgets('options stack vertically (track taller than wide)',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月'],
-          direction: AntSegmentedDirection.vertical,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月'],
+            direction: AntSegmentedDirection.vertical,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
-      final size = tester.getSize(find.byType(AntSegmented));
+      final size = tester.getSize(find.byType(AntSegmented<String>));
       expect(size.height, greaterThan(size.width));
       // 三项垂直排布高度显著大于水平同款
       expect(size.height, greaterThan(80));
@@ -267,25 +323,28 @@ void main() {
     testWidgets('tap option fires onChange in vertical mode', (tester) async {
       final values = <String>[];
       await tester.pumpWidget(
-        _wrap(AntSegmented(
-          options: const ['日', '周', '月'],
-          direction: AntSegmentedDirection.vertical,
-          onChange: values.add,
-        ),),
+        _wrap(
+          AntSegmented(
+            options: const ['日', '周', '月'],
+            direction: AntSegmentedDirection.vertical,
+            onChange: values.add,
+          ),
+        ),
       );
       await tester.tap(find.text('月'));
       await tester.pumpAndSettle();
       expect(values, ['月']);
     });
 
-    testWidgets('vertical block slider animates along y axis',
-        (tester) async {
+    testWidgets('vertical block slider animates along y axis', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月'],
-          block: true,
-          direction: AntSegmentedDirection.vertical,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月'],
+            block: true,
+            direction: AntSegmentedDirection.vertical,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
       // 首项选中：滑块贴近顶部
@@ -306,17 +365,20 @@ void main() {
         _wrap(const AntSegmented(options: ['日'], block: true)),
       );
       await tester.pumpAndSettle();
-      final refHeight = tester.getSize(find.byType(AntSegmented)).height;
+      final refHeight =
+          tester.getSize(find.byType(AntSegmented<String>)).height;
 
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月', '年'],
-          block: true,
-          direction: AntSegmentedDirection.vertical,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月', '年'],
+            block: true,
+            direction: AntSegmentedDirection.vertical,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
-      final size = tester.getSize(find.byType(AntSegmented));
+      final size = tester.getSize(find.byType(AntSegmented<String>));
       // 四项垂直高度应约为单项水平轨道高的 4 倍
       expect(size.height, greaterThan(refHeight * 3));
       expect(size.height, lessThan(refHeight * 5));
@@ -329,20 +391,22 @@ void main() {
       // 不同父容器宽度（松约束）下轨道宽一致 → hug 内容，不强制撑满
       Future<double> pumpHugWidth(double parentMaxWidth) async {
         await tester.pumpWidget(
-          _wrap(SizedBox(
-            width: parentMaxWidth,
-            child: const Align(
-              alignment: Alignment.topLeft,
-              child: AntSegmented(
-                options: ['日', '周', '月', '年'],
-                block: true,
-                direction: AntSegmentedDirection.vertical,
+          _wrap(
+            SizedBox(
+              width: parentMaxWidth,
+              child: const Align(
+                alignment: Alignment.topLeft,
+                child: AntSegmented(
+                  options: ['日', '周', '月', '年'],
+                  block: true,
+                  direction: AntSegmentedDirection.vertical,
+                ),
               ),
             ),
-          ),),
+          ),
         );
         await tester.pumpAndSettle();
-        return tester.getSize(find.byType(AntSegmented)).width;
+        return tester.getSize(find.byType(AntSegmented<String>)).width;
       }
 
       final hug300 = await pumpHugWidth(300);
@@ -358,19 +422,21 @@ void main() {
     testWidgets('vertical block respects external SizedBox width',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const SizedBox(
-          width: 160,
-          child: AntSegmented(
-            options: ['日', '周', '月', '年'],
-            block: true,
-            direction: AntSegmentedDirection.vertical,
+        _wrap(
+          const SizedBox(
+            width: 160,
+            child: AntSegmented(
+              options: ['日', '周', '月', '年'],
+              block: true,
+              direction: AntSegmentedDirection.vertical,
+            ),
           ),
-        ),),
+        ),
       );
       await tester.pumpAndSettle();
       // 用户设置宽度生效：轨道宽 = 160（有界约束遵父级）
       expect(
-        tester.getRect(find.byType(AntSegmented)).width,
+        tester.getRect(find.byType(AntSegmented<String>)).width,
         closeTo(160, 0.5),
       );
       expect(tester.takeException(), isNull);
@@ -379,21 +445,24 @@ void main() {
     testWidgets('vertical block slider occupies selected item slot',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月', '年'],
-          block: true,
-          direction: AntSegmentedDirection.vertical,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月', '年'],
+            block: true,
+            direction: AntSegmentedDirection.vertical,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
-      final track = tester.getRect(find.byType(AntSegmented));
+      final track = tester.getRect(find.byType(AntSegmented<String>));
       const itemCount = 4;
       // 滑块（FractionallySizedBox）高度 ≈ 轨道内容高 / 项数
       final slider = tester.getRect(
-          find.ancestor(
-              of: find.byType(AnimatedContainer).first,
-              matching: find.byType(FractionallySizedBox),),
-          );
+        find.ancestor(
+          of: find.byType(AnimatedContainer).first,
+          matching: find.byType(FractionallySizedBox),
+        ),
+      );
       final inner = track.height - 4;
       expect(slider.height, closeTo(inner / itemCount, 8));
       // 首项选中：滑块贴顶
@@ -402,20 +471,24 @@ void main() {
       await tester.tap(find.text('年'));
       await tester.pumpAndSettle();
       final sliderBottom = tester.getRect(
-          find.ancestor(
-              of: find.byType(AnimatedContainer).first,
-              matching: find.byType(FractionallySizedBox),),);
+        find.ancestor(
+          of: find.byType(AnimatedContainer).first,
+          matching: find.byType(FractionallySizedBox),
+        ),
+      );
       // 末项选中：滑块贴底
       expect((track.bottom - sliderBottom.bottom).abs(), lessThan(6));
     });
 
     testWidgets('horizontal default keeps slider on x axis', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSegmented(
-          options: ['日', '周', '月'],
-          direction: AntSegmentedDirection.horizontal,
-          block: true,
-        ),),
+        _wrap(
+          const AntSegmented(
+            options: ['日', '周', '月'],
+            direction: AntSegmentedDirection.horizontal,
+            block: true,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
       expect(_sliderAlignment(tester).y, closeTo(0, 0.01));
@@ -444,7 +517,8 @@ void main() {
         block: true,
       );
 
-      testWidgets('160-wide container renders without overflow', (tester) async {
+      testWidgets('160-wide container renders without overflow',
+          (tester) async {
         final errors = await pumpSegmented(
           tester,
           const SizedBox(width: 160, child: verticalBlock),
@@ -453,7 +527,7 @@ void main() {
         expect(errors, isEmpty);
         expect(tester.takeException(), isNull);
 
-        final track = tester.getRect(find.byType(AntSegmented));
+        final track = tester.getRect(find.byType(AntSegmented<String>));
         expect(track.width, closeTo(160, 0.5));
         // 白色滑块必须被轨道包住，不塌陷为 0
         final slider = tester.getRect(
@@ -473,16 +547,19 @@ void main() {
         }
       });
 
-      testWidgets('unbounded-width parent (Row child) hugs content, '
+      testWidgets(
+          'unbounded-width parent (Row child) hugs content, '
           'no collapse no overflow', (tester) async {
         final errors = await pumpSegmented(
           tester,
-          const Column(children: [Row(children: [verticalBlock])]),
+          const Column(children: [
+            Row(children: [verticalBlock]),
+          ],),
         );
         expect(errors, isEmpty);
         expect(tester.takeException(), isNull);
 
-        final size = tester.getSize(find.byType(AntSegmented));
+        final size = tester.getSize(find.byType(AntSegmented<String>));
         // 不塌陷为 0（约等于最宽项内容 + 轨道 padding），也不溢出
         expect(size.width, greaterThan(20));
         expect(size.height, greaterThan(120));
@@ -516,16 +593,18 @@ void main() {
       testWidgets('track fills 400-wide and 800-wide containers',
           (tester) async {
         await pumpBlockInWidth(tester, 400);
-        expect(tester.getRect(find.byType(AntSegmented)).width, closeTo(400, 1));
+        expect(tester.getRect(find.byType(AntSegmented<String>)).width,
+            closeTo(400, 1),);
 
         await pumpBlockInWidth(tester, 800);
-        expect(tester.getRect(find.byType(AntSegmented)).width, closeTo(800, 1));
+        expect(tester.getRect(find.byType(AntSegmented<String>)).width,
+            closeTo(800, 1),);
       });
 
       testWidgets('slider x position scales proportionally with width',
           (tester) async {
         await pumpBlockInWidth(tester, 400);
-        final track400 = tester.getRect(find.byType(AntSegmented));
+        final track400 = tester.getRect(find.byType(AntSegmented<String>));
         // 3 项、首项选中：滑块中心相对轨道 x = 400 * 1/6
         expect(
           sliderRect(tester).center.dx - track400.left,
@@ -533,7 +612,7 @@ void main() {
         );
 
         await pumpBlockInWidth(tester, 800);
-        final track800 = tester.getRect(find.byType(AntSegmented));
+        final track800 = tester.getRect(find.byType(AntSegmented<String>));
         expect(
           sliderRect(tester).center.dx - track800.left,
           closeTo(800 / 6, 2.5),

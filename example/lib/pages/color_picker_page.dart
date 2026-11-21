@@ -28,25 +28,18 @@ class ColorPickerPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          _Section(title: '受控模式', child: _ControlledDemo()),
           SizedBox(height: 16.h),
           _Section(
-            title: '预设颜色',
-            child: AntColorPicker(
+            title: '预设颜色（自定义模型）',
+            child: AntColorPicker<_Palette>(
               defaultValue: '#1677ff',
               presets: const [
-                AntColorPreset(
-                  label: '推荐颜色',
-                  colors: ['#1677ff', '#52c41a', '#faad14', '#f5222d'],
-                ),
-                AntColorPreset(
-                  label: '中性色',
-                  colors: ['#000000', '#666666', '#999999', '#cccccc'],
-                ),
+                _Palette('推荐颜色', ['#1677ff', '#52c41a', '#faad14', '#f5222d']),
+                _Palette('中性色', ['#000000', '#666666', '#999999', '#cccccc']),
               ],
+              presetLabelOf: (palette) => palette.name,
+              presetColorsOf: (palette) => palette.colors,
               showText: true,
               onChange: (color) => debugPrint('onChange: $color'),
             ),
@@ -190,11 +183,25 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: theme.fontSizeLG, fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: theme.fontSizeLG,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           SizedBox(height: 12.h),
           child,
         ],
       ),
     );
   }
+}
+
+/// 自定义模型：色板分组（业务里常带 id/主题等字段）。
+class _Palette {
+  const _Palette(this.name, this.colors);
+
+  final String name;
+  final List<String> colors;
 }

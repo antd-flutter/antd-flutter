@@ -1,7 +1,45 @@
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _CapsuleData {
+  const _CapsuleData({
+    required this.key,
+    this.title,
+    this.titleWidget,
+    this.disabled = false,
+    this.child,
+  });
+
+  final String key;
+  final String? title;
+  final Widget? titleWidget;
+  final bool disabled;
+  final Widget? child;
+}
+
+Widget _capsuleTabs({
+  Key? key,
+  required List<_CapsuleData> items,
+  Object? activeKey,
+  Object? defaultActiveKey,
+  ValueChanged<_CapsuleData>? onChange,
+}) {
+  return AntCapsuleTabs<_CapsuleData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) =>
+        item.titleWidget ?? Text(item.title ?? item.key),
+    childBuilder: (context, item, index) => item.child,
+    disabledOf: (item) => item.disabled,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    onChange: onChange,
+  );
+}
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -18,7 +56,7 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
 List<BoxDecoration> _capsuleDecorations(WidgetTester tester) => tester
     .widgetList<Container>(
       find.descendant(
-        of: find.byType(AntCapsuleTabs),
+        of: find.byType(AntCapsuleTabs<_CapsuleData>),
         matching: find.byType(Container),
       ),
     )
@@ -27,15 +65,20 @@ List<BoxDecoration> _capsuleDecorations(WidgetTester tester) => tester
     .where((d) => d.borderRadius == BorderRadius.circular(20))
     .toList();
 
+TextStyle? _effectiveStyle(WidgetTester tester, String text) {
+  final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+  return paragraph.text.style;
+}
+
 void main() {
   group('AntCapsuleTabs — 渲染', () {
     testWidgets('渲染所有项标题', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             items: [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二'),
+              const _CapsuleData(key: 'a', title: '选项一'),
+              const _CapsuleData(key: 'b', title: '选项二'),
             ],
           ),
         ),
@@ -48,9 +91,9 @@ void main() {
     testWidgets('渲染 titleWidget', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             items: [
-              AntCapsuleTabItem(key: 'a', titleWidget: Text('自定义')),
+              const _CapsuleData(key: 'a', titleWidget: Text('自定义')),
             ],
           ),
         ),
@@ -62,21 +105,21 @@ void main() {
     testWidgets('默认激活第一项：主色胶囊 + 白字 + 15 号字', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             items: [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二'),
+              const _CapsuleData(key: 'a', title: '选项一'),
+              const _CapsuleData(key: 'b', title: '选项二'),
             ],
           ),
         ),
       );
 
       final theme = AntThemeData.light();
-      final textA = tester.widget<Text>(find.text('选项一'));
-      final textB = tester.widget<Text>(find.text('选项二'));
-      expect(textA.style?.color, theme.colorTextLightSolid);
-      expect(textA.style?.fontSize, 15);
-      expect(textB.style?.color, theme.colorText);
+      final textA = _effectiveStyle(tester, '选项一')!;
+      final textB = _effectiveStyle(tester, '选项二')!;
+      expect(textA.color, theme.colorTextLightSolid);
+      expect(textA.fontSize, 15);
+      expect(textB.color, theme.colorText);
 
       final decos = _capsuleDecorations(tester);
       expect(decos, hasLength(2));
@@ -87,27 +130,29 @@ void main() {
     testWidgets('defaultActiveKey 指定激活项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             defaultActiveKey: 'b',
             items: [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二'),
+              const _CapsuleData(key: 'a', title: '选项一'),
+              const _CapsuleData(key: 'b', title: '选项二'),
             ],
           ),
         ),
       );
 
-      final textB = tester.widget<Text>(find.text('选项二'));
-      expect(textB.style?.color, AntThemeData.light().colorTextLightSolid);
+      expect(
+        _effectiveStyle(tester, '选项二')?.color,
+        AntThemeData.light().colorTextLightSolid,
+      );
     });
 
     testWidgets('激活项展示 child 内容（padding 12）', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             items: [
-              AntCapsuleTabItem(key: 'a', title: '选项一', child: Text('内容一')),
-              AntCapsuleTabItem(key: 'b', title: '选项二', child: Text('内容二')),
+              const _CapsuleData(key: 'a', title: '选项一', child: Text('内容一')),
+              const _CapsuleData(key: 'b', title: '选项二', child: Text('内容二')),
             ],
           ),
         ),
@@ -130,11 +175,11 @@ void main() {
     testWidgets('胶囊标签均分宽度', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCapsuleTabs(
+          _capsuleTabs(
             items: [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二'),
-              AntCapsuleTabItem(key: 'c', title: '选项三'),
+              const _CapsuleData(key: 'a', title: '选项一'),
+              const _CapsuleData(key: 'b', title: '选项二'),
+              const _CapsuleData(key: 'c', title: '选项三'),
             ],
           ),
         ),
@@ -148,27 +193,35 @@ void main() {
 
   group('AntCapsuleTabs — 溢出的横向滚动', () {
     const manyItems = [
-      AntCapsuleTabItem(key: 'a', title: '选项一'),
-      AntCapsuleTabItem(key: 'b', title: '选项二'),
-      AntCapsuleTabItem(key: 'c', title: '选项三'),
-      AntCapsuleTabItem(key: 'd', title: '选项四'),
+      _CapsuleData(key: 'a', title: '选项一'),
+      _CapsuleData(key: 'b', title: '选项二'),
+      _CapsuleData(key: 'c', title: '选项三'),
+      _CapsuleData(key: 'd', title: '选项四'),
     ];
 
     testWidgets('宽度不足时保持文字宽度并可横向滚动', (tester) async {
-      await tester.pumpWidget(_wrap(const SizedBox(
-        width: 200,
-        child: AntCapsuleTabs(items: manyItems),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 200,
+            child: _capsuleTabs(items: manyItems),
+          ),
+        ),
+      );
 
       final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
       expect(scrollable.position.maxScrollExtent, greaterThan(0));
     });
 
     testWidgets('溢出时右侧渐隐遮罩显示，滚到末尾后切到左侧', (tester) async {
-      await tester.pumpWidget(_wrap(const SizedBox(
-        width: 200,
-        child: AntCapsuleTabs(items: manyItems),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 200,
+            child: _capsuleTabs(items: manyItems),
+          ),
+        ),
+      );
       await tester.pump();
 
       List<double> masks() => tester
@@ -179,7 +232,10 @@ void main() {
       // 初始：左侧无遮罩，右侧有
       expect(masks(), [0.0, 1.0]);
 
-      await tester.drag(find.byType(AntCapsuleTabs), const Offset(-400, 0));
+      await tester.drag(
+        find.byType(AntCapsuleTabs<_CapsuleData>),
+        const Offset(-400, 0),
+      );
       await tester.pumpAndSettle();
 
       // 末尾：左侧有遮罩，右侧无
@@ -193,12 +249,12 @@ void main() {
       await tester.pumpWidget(
         StatefulBuilder(
           builder: (context, setState) => _wrap(
-            AntCapsuleTabs(
+            _capsuleTabs(
               items: const [
-                AntCapsuleTabItem(key: 'a', title: '选项一'),
-                AntCapsuleTabItem(key: 'b', title: '选项二'),
+                _CapsuleData(key: 'a', title: '选项一'),
+                _CapsuleData(key: 'b', title: '选项二'),
               ],
-              onChange: (key) => setState(() => changed = key),
+              onChange: (key) => setState(() => changed = key.key),
             ),
           ),
         ),
@@ -215,13 +271,13 @@ void main() {
       await tester.pumpWidget(
         StatefulBuilder(
           builder: (context, setState) => _wrap(
-            AntCapsuleTabs(
+            _capsuleTabs(
               activeKey: activeKey,
               items: const [
-                AntCapsuleTabItem(key: 'a', title: '选项一'),
-                AntCapsuleTabItem(key: 'b', title: '选项二'),
+                _CapsuleData(key: 'a', title: '选项一'),
+                _CapsuleData(key: 'b', title: '选项二'),
               ],
-              onChange: (key) => setState(() => activeKey = key),
+              onChange: (key) => setState(() => activeKey = key.key),
             ),
           ),
         ),
@@ -237,10 +293,10 @@ void main() {
       var callCount = 0;
       await tester.pumpWidget(
         _wrap(
-          AntCapsuleTabs(
+          _capsuleTabs(
             items: const [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二'),
+              _CapsuleData(key: 'a', title: '选项一'),
+              _CapsuleData(key: 'b', title: '选项二'),
             ],
             onChange: (_) => callCount++,
           ),
@@ -257,10 +313,10 @@ void main() {
       var callCount = 0;
       await tester.pumpWidget(
         _wrap(
-          AntCapsuleTabs(
+          _capsuleTabs(
             items: const [
-              AntCapsuleTabItem(key: 'a', title: '选项一'),
-              AntCapsuleTabItem(key: 'b', title: '选项二', disabled: true),
+              _CapsuleData(key: 'a', title: '选项一'),
+              _CapsuleData(key: 'b', title: '选项二', disabled: true),
             ],
             onChange: (_) => callCount++,
           ),

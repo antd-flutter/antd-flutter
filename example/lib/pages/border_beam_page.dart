@@ -16,10 +16,7 @@ class BorderBeamPage extends StatelessWidget {
             title: '基础用法',
             theme: theme,
             child: const AntBorderBeam(
-              child: SizedBox(
-                width: double.infinity,
-                child: Text('默认流光边框卡片'),
-              ),
+              child: SizedBox(width: double.infinity, child: Text('默认流光边框卡片')),
             ),
           ),
           _Section(
@@ -56,10 +53,7 @@ class BorderBeamPage extends StatelessWidget {
                   child: _body('慢速（10s 周期）'),
                 ),
                 SizedBox(height: 16.w),
-                AntBorderBeam(
-                  reverse: true,
-                  child: _body('反向流动'),
-                ),
+                AntBorderBeam(reverse: true, child: _body('反向流动')),
               ],
             ),
           ),
@@ -79,10 +73,7 @@ class BorderBeamPage extends StatelessWidget {
                   child: _body('粗边框（6px）'),
                 ),
                 SizedBox(height: 16.w),
-                AntBorderBeam(
-                  initialOffset: 0.5,
-                  child: _body('初始相位 0.5'),
-                ),
+                AntBorderBeam(initialOffset: 0.5, child: _body('初始相位 0.5')),
               ],
             ),
           ),
@@ -99,7 +90,11 @@ class BorderBeamPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(AntIcons.safetyCertificateFilled, size: 20.w, color: theme.colorSuccess),
+                      Icon(
+                        AntIcons.safetyCertificateFilled,
+                        size: 20.w,
+                        color: theme.colorSuccess,
+                      ),
                       SizedBox(width: 8.w),
                       Text(
                         '认证信息',
@@ -120,8 +115,11 @@ class BorderBeamPage extends StatelessWidget {
                   SizedBox(height: 12.w),
                   Row(
                     children: [
-                      Icon(AntIcons.checkCircleOutlined,
-                          size: 16.w, color: theme.colorSuccess),
+                      Icon(
+                        AntIcons.checkCircleOutlined,
+                        size: 16.w,
+                        color: theme.colorSuccess,
+                      ),
                       SizedBox(width: 4.w),
                       const Text('实时校验通过'),
                     ],

@@ -8,7 +8,8 @@
 /// - [size] — 尺寸（normal / small）
 /// - [onChange] — 点击切换步骤回调
 ///
-/// 每项（AntStepsItem）支持 title / description / icon / status / disabled。
+/// 每项为任意用户模型 `T`，通过 [titleBuilder] / [descriptionBuilder] /
+/// [iconBuilder] / [statusOf] / [disabledOf] 渲染。
 library;
 
 import 'package:antd_theme/antd_theme.dart';
@@ -27,20 +28,24 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 /// 自定义图标和点击切换。
 ///
 /// ```dart
-/// AntSteps(
+/// AntSteps<Step>(
 ///   current: 1,
-///   items: [
-///     AntStepsItem(title: 'Finished', description: 'Step 1 done'),
-///     AntStepsItem(title: 'In Progress', description: 'Step 2 running'),
-///     AntStepsItem(title: 'Waiting', description: 'Step 3 pending'),
-///   ],
+///   items: steps,
+///   titleBuilder: (context, step, index) => Text(step.title),
+///   descriptionBuilder: (context, step, index) => Text(step.description),
+///   statusOf: (step) => step.status,
 /// )
 /// ```
-class AntSteps extends StatelessWidget {
+class AntSteps<T> extends StatelessWidget {
   const AntSteps({
     super.key,
     this.current = 0,
     this.items = const [],
+    this.titleBuilder,
+    this.descriptionBuilder,
+    this.iconBuilder,
+    this.statusOf,
+    this.disabledOf,
     this.direction = AntStepsDirection.horizontal,
     this.status = AntStepsStatus.process,
     this.size = AntStepsSize.normal,
@@ -51,7 +56,22 @@ class AntSteps extends StatelessWidget {
   final int current;
 
   /// 步骤项列表。
-  final List<AntStepsItem> items;
+  final List<T> items;
+
+  /// 标题构建器，未提供时回退为 `Text('$item')`。
+  final AntStepsTitleBuilder<T>? titleBuilder;
+
+  /// 描述构建器，返回 null 时不展示描述。
+  final AntStepsDescriptionBuilder<T>? descriptionBuilder;
+
+  /// 自定义图标构建器，优先于自动生成的圆圈内容。
+  final AntStepsIconBuilder<T>? iconBuilder;
+
+  /// 自定义状态，覆盖自动计算的状态。
+  final AntStepsStatus? Function(T item)? statusOf;
+
+  /// 是否禁用点击。
+  final bool Function(T item)? disabledOf;
 
   /// 排列方向。horizontal 为水平排列，vertical 为垂直排列。
   final AntStepsDirection direction;
@@ -63,7 +83,7 @@ class AntSteps extends StatelessWidget {
   final AntStepsSize size;
 
   /// 点击切换步骤回调。设置后步骤可点击切换。
-  final ValueChanged<int>? onChange;
+  final ValueChanged<T>? onChange;
 
   double get _circleSize => size == AntStepsSize.small ? 24 : 32;
 
@@ -71,12 +91,14 @@ class AntSteps extends StatelessWidget {
 
   /// 计算指定索引步骤的状态。
   AntStepsStatus _resolveStatus(int index) {
-    final item = items[index];
-    if (item.status != null) return item.status!;
+    final resolved = statusOf?.call(items[index]);
+    if (resolved != null) return resolved;
     if (index < current) return AntStepsStatus.finish;
     if (index == current) return status;
     return AntStepsStatus.wait;
   }
+
+  bool _isDisabled(int index) => disabledOf?.call(items[index]) ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -139,10 +161,10 @@ class AntSteps extends StatelessWidget {
     bool isLast,
   ) {
     final theme = AntTheme.of(context);
-    final item = items[index];
     final stepStatus = _resolveStatus(index);
     final canClick =
-        onChange != null && item.disabled != true && index != current;
+        onChange != null && !_isDisabled(index) && index != current;
+    final description = _buildDescription(context, theme, index, stepStatus);
 
     // 图标行固定为圆点高度：所有步骤的圆点与连线都落在同一水平线上，
     // 否则末项没有接线、行高不同会导致圆点错位、线接不上。
@@ -155,8 +177,9 @@ class AntSteps extends StatelessWidget {
           const SizedBox(width: 8),
           Flexible(
             child: _buildTitle(
+              context,
               theme,
-              item,
+              index,
               stepStatus,
               singleLine: true,
             ),
@@ -175,10 +198,10 @@ class AntSteps extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         iconRow,
-        if (item.description != null)
+        if (description != null)
           Padding(
             padding: EdgeInsets.only(left: _circleSize + 8, top: 4),
-            child: _buildDescription(theme, item, stepStatus),
+            child: description,
           ),
       ],
     );
@@ -213,10 +236,10 @@ class AntSteps extends StatelessWidget {
     bool isLast,
   ) {
     final theme = AntTheme.of(context);
-    final item = items[index];
     final stepStatus = _resolveStatus(index);
     final canClick =
-        onChange != null && item.disabled != true && index != current;
+        onChange != null && !_isDisabled(index) && index != current;
+    final description = _buildDescription(context, theme, index, stepStatus);
 
     final circleColumn = <Widget>[
       _buildCircle(context, theme, index, stepStatus, canClick),
@@ -249,10 +272,10 @@ class AntSteps extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTitle(theme, item, stepStatus),
-                if (item.description != null) ...[
+                _buildTitle(context, theme, index, stepStatus),
+                if (description != null) ...[
                   const SizedBox(height: 4),
-                  _buildDescription(theme, item, stepStatus),
+                  description,
                 ],
               ],
             ),
@@ -293,13 +316,13 @@ class AntSteps extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: _buildCircleContent(theme, index, stepStatus),
+        child: _buildCircleContent(context, theme, index, stepStatus),
       ),
     );
 
     if (canClick) {
       return GestureDetector(
-        onTap: () => onChange!(index),
+        onTap: () => onChange!(items[index]),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: circle,
@@ -310,16 +333,17 @@ class AntSteps extends StatelessWidget {
   }
 
   Widget _buildCircleContent(
+    BuildContext context,
     AntThemeData theme,
     int index,
     AntStepsStatus stepStatus,
   ) {
-    final item = items[index];
-    if (item.icon != null) {
+    final icon = iconBuilder?.call(context, items[index], index);
+    if (icon != null) {
       return SizedBox(
         width: _circleSize,
         height: _circleSize,
-        child: Center(child: item.icon!),
+        child: Center(child: icon),
       );
     }
 
@@ -355,16 +379,15 @@ class AntSteps extends StatelessWidget {
   }
 
   Widget _buildTitle(
+    BuildContext context,
     AntThemeData theme,
-    AntStepsItem item,
+    int index,
     AntStepsStatus stepStatus, {
     bool singleLine = false,
   }) {
-    if (item.title == null) return const SizedBox.shrink();
-    return Text(
-      item.title!,
-      maxLines: singleLine ? 1 : null,
-      overflow: singleLine ? TextOverflow.ellipsis : null,
+    final title = titleBuilder?.call(context, items[index], index) ??
+        Text('${items[index]}');
+    return DefaultTextStyle.merge(
       style: TextStyle(
         fontSize: theme.fontSize,
         fontWeight: stepStatus == AntStepsStatus.process
@@ -377,22 +400,28 @@ class AntSteps extends StatelessWidget {
           AntStepsStatus.wait => theme.colorTextTertiary,
         },
       ),
+      maxLines: singleLine ? 1 : null,
+      overflow: singleLine ? TextOverflow.ellipsis : null,
+      child: title,
     );
   }
 
-  Widget _buildDescription(
+  Widget? _buildDescription(
+    BuildContext context,
     AntThemeData theme,
-    AntStepsItem item,
+    int index,
     AntStepsStatus stepStatus,
   ) {
-    return Text(
-      item.description!,
+    final description = descriptionBuilder?.call(context, items[index], index);
+    if (description == null) return null;
+    return DefaultTextStyle.merge(
       style: TextStyle(
         fontSize: theme.fontSizeSM,
         color: stepStatus == AntStepsStatus.wait
             ? theme.colorTextQuaternary
             : theme.colorTextSecondary,
       ),
+      child: description,
     );
   }
 

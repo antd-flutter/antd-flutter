@@ -16,18 +16,13 @@ class CalendarPage extends StatelessWidget {
           _Section(
             title: '卡片模式（默认）',
             theme: theme,
-            child: AntCalendar(
-              defaultValue: DateTime.now(),
-            ),
+            child: AntCalendar(defaultValue: DateTime.now()),
           ),
           SizedBox(height: 16.w),
           _Section(
             title: '全屏模式',
             theme: theme,
-            child: AntCalendar(
-              defaultValue: DateTime.now(),
-              fullscreen: true,
-            ),
+            child: AntCalendar(defaultValue: DateTime.now(), fullscreen: true),
           ),
           SizedBox(height: 16.w),
           const _ControllerSection(),
@@ -73,8 +68,9 @@ class CalendarPage extends StatelessWidget {
             theme: theme,
             child: AntCalendar(
               defaultValue: DateTime.now(),
-              disabledDate: (date) =>
-                  date.isBefore(DateTime.now().subtract(const Duration(days: 1))),
+              disabledDate: (date) => date.isBefore(
+                DateTime.now().subtract(const Duration(days: 1)),
+              ),
             ),
           ),
           SizedBox(height: 16.w),
@@ -83,30 +79,33 @@ class CalendarPage extends StatelessWidget {
             theme: theme,
             child: AntCalendar(
               defaultValue: DateTime.now(),
-              dateCell: (date,
-                  {required isCurrentMonth,
-                  required isToday,
-                  required isSelected}) {
-                if (!isCurrentMonth) return null;
-                // 每月 15 日展示自定义徽标内容。
-                if (date.day == 15) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('${date.day}'),
-                      Container(
-                        width: 6.r,
-                        height: 6.r,
-                        decoration: BoxDecoration(
-                          color: theme.colorSuccess,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  );
-                }
-                return null;
-              },
+              dateCell:
+                  (
+                    date, {
+                    required isCurrentMonth,
+                    required isToday,
+                    required isSelected,
+                  }) {
+                    if (!isCurrentMonth) return null;
+                    // 每月 15 日展示自定义徽标内容。
+                    if (date.day == 15) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('${date.day}'),
+                          Container(
+                            width: 6.r,
+                            height: 6.r,
+                            decoration: BoxDecoration(
+                              color: theme.colorSuccess,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return null;
+                  },
             ),
           ),
         ],
@@ -154,10 +153,7 @@ class _ControllerSectionState extends State<_ControllerSection> {
             ],
           ),
           SizedBox(height: 12.w),
-          AntCalendar(
-            controller: _controller,
-            defaultValue: DateTime.now(),
-          ),
+          AntCalendar(controller: _controller, defaultValue: DateTime.now()),
         ],
       ),
     );
@@ -199,10 +195,7 @@ class _ControlledSectionState extends State<_ControlledSection> {
           SizedBox(height: 8.w),
           Text(
             '当前选中：${_value.year}-${_value.month.toString().padLeft(2, '0')}-${_value.day.toString().padLeft(2, '0')}',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: theme.colorPrimary,
-            ),
+            style: TextStyle(fontSize: 14.sp, color: theme.colorPrimary),
           ),
           SizedBox(height: 12.w),
           AntCalendar(
@@ -216,7 +209,11 @@ class _ControlledSectionState extends State<_ControlledSection> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

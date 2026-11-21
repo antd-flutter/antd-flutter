@@ -1,21 +1,23 @@
 /// AntSelector — antd-mobile Selector 选择组的 Flutter 实现
 ///
-/// API 与 antd-mobile React Selector 对齐：
-/// - [AntSelector] — 标签/网格风格的单选/多选组件
-/// - [AntSelectorOption] — 选项（value/label/description/disabled）
+/// API 与 antd-mobile React Selector 对齐：直接传 `List<T>` 选项，
+/// 用 [labelOf] / [labelBuilder] / [descriptionOf] 渲染内容，选中值回调为 `List<T>`。
 ///
 /// ```dart
 /// AntSelector<String>(
-///   options: [
-///     AntSelectorOption(value: 'a', label: Text('选项一')),
-///     AntSelectorOption(value: 'b', label: Text('选项二')),
-///   ],
+///   options: const ['选项一', '选项二'],
 ///   onChange: (vals) => print(vals),
+/// )
+///
+/// AntSelector<Tag>(
+///   options: tags,                                  // List<Tag>
+///   labelOf: (tag) => tag.name,
+///   descriptionOf: (tag) => tag.count.toString(),
+///   onChange: (tags) => print(tags),
 /// )
 /// ```
 library;
 
-import 'package:antd_flutter_ui/src/data_entry/selector/ant_selector_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/selector/ant_selector_types.dart';
@@ -30,6 +32,12 @@ class AntSelector<T> extends StatefulWidget {
     this.value,
     this.defaultValue,
     required this.options,
+    this.labelOf,
+    this.labelBuilder,
+    this.descriptionOf,
+    this.descriptionBuilder,
+    this.itemBuilder,
+    this.disabledOf,
     this.multiple = false,
     this.onChange,
     this.disabled = false,
@@ -43,8 +51,26 @@ class AntSelector<T> extends StatefulWidget {
   /// 非受控初始选中值列表。
   final List<T>? defaultValue;
 
-  /// 选项列表。
-  final List<AntSelectorOption<T>> options;
+  /// 选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项的字符串 label 简写（未提供 [labelBuilder] 时作为文本渲染）。
+  final String Function(T item)? labelOf;
+
+  /// 选项 label 的自定义渲染。
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+
+  /// 选项描述的字符串简写。
+  final String Function(T item)? descriptionOf;
+
+  /// 选项描述的自定义渲染。
+  final Widget Function(BuildContext context, T item)? descriptionBuilder;
+
+  /// 整项内容自定义渲染（替换内置 label + description 布局）。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
 
   /// 是否支持多选。
   final bool multiple;
@@ -93,25 +119,26 @@ class _AntSelectorState<T> extends State<AntSelector<T>> {
     return true;
   }
 
-  void _handleTap(AntSelectorOption<T> opt) {
-    final isDisabled = widget.disabled || opt.disabled;
-    final isReadOnly = widget.readOnly;
-    if (isDisabled || isReadOnly) return;
+  bool _isDisabled(T item) =>
+      widget.disabled || (widget.disabledOf?.call(item) ?? false);
+
+  void _handleTap(T item) {
+    if (_isDisabled(item) || widget.readOnly) return;
 
     final next = List<T>.from(_selected);
     if (widget.multiple) {
-      if (next.contains(opt.value)) {
-        next.remove(opt.value);
+      if (next.contains(item)) {
+        next.remove(item);
       } else {
-        next.add(opt.value);
+        next.add(item);
       }
     } else {
-      if (next.contains(opt.value)) {
+      if (next.contains(item)) {
         next.clear();
       } else {
         next
           ..clear()
-          ..add(opt.value);
+          ..add(item);
       }
     }
 
@@ -120,6 +147,10 @@ class _AntSelectorState<T> extends State<AntSelector<T>> {
     }
     widget.onChange?.call(next);
   }
+
+  String _labelTextOf(T item) => widget.labelOf?.call(item) ?? '$item';
+
+  String? _descriptionTextOf(T item) => widget.descriptionOf?.call(item);
 
   @override
   Widget build(BuildContext context) {
@@ -134,13 +165,19 @@ class _AntSelectorState<T> extends State<AntSelector<T>> {
       spacing: 8.w,
       runSpacing: 8.w,
       children: [
-        for (final opt in widget.options)
+        for (var i = 0; i < widget.options.length; i++)
           _SelectorItem<T>(
-            option: opt,
-            checked: current.contains(opt.value),
-            disabled: widget.disabled || opt.disabled,
+            item: widget.options[i],
+            index: i,
+            labelText: _labelTextOf(widget.options[i]),
+            labelBuilder: widget.labelBuilder,
+            descriptionText: _descriptionTextOf(widget.options[i]),
+            descriptionBuilder: widget.descriptionBuilder,
+            itemBuilder: widget.itemBuilder,
+            checked: _containsItem(current, widget.options[i]),
+            disabled: _isDisabled(widget.options[i]),
             readOnly: widget.readOnly,
-            onTap: () => _handleTap(opt),
+            onTap: () => _handleTap(widget.options[i]),
             fixedWidth: true,
           ),
       ],
@@ -153,16 +190,22 @@ class _AntSelectorState<T> extends State<AntSelector<T>> {
     for (var i = 0; i < widget.options.length; i += cols) {
       final rowChildren = <Widget>[];
       for (var j = i; j < i + cols && j < widget.options.length; j++) {
-        final opt = widget.options[j];
+        final item = widget.options[j];
         if (j > i) rowChildren.add(SizedBox(width: 8.w));
         rowChildren.add(
           Expanded(
             child: _SelectorItem<T>(
-              option: opt,
-              checked: current.contains(opt.value),
-              disabled: widget.disabled || opt.disabled,
+              item: item,
+              index: j,
+              labelText: _labelTextOf(item),
+              labelBuilder: widget.labelBuilder,
+              descriptionText: _descriptionTextOf(item),
+              descriptionBuilder: widget.descriptionBuilder,
+              itemBuilder: widget.itemBuilder,
+              checked: _containsItem(current, item),
+              disabled: _isDisabled(item),
               readOnly: widget.readOnly,
-              onTap: () => _handleTap(opt),
+              onTap: () => _handleTap(item),
             ),
           ),
         );
@@ -180,23 +223,37 @@ class _AntSelectorState<T> extends State<AntSelector<T>> {
     }
     return Column(children: rows);
   }
+
+  bool _containsItem(List<T> values, T item) => values.contains(item);
 }
 
 class _SelectorItem<T> extends StatelessWidget {
   const _SelectorItem({
-    required this.option,
+    required this.item,
+    required this.index,
+    required this.labelText,
     required this.checked,
     required this.disabled,
     required this.readOnly,
     required this.onTap,
+    this.labelBuilder,
+    this.descriptionText,
+    this.descriptionBuilder,
+    this.itemBuilder,
     this.fixedWidth = false,
   });
 
-  final AntSelectorOption<T> option;
+  final T item;
+  final int index;
+  final String labelText;
   final bool checked;
   final bool disabled;
   final bool readOnly;
   final VoidCallback onTap;
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+  final String? descriptionText;
+  final Widget Function(BuildContext context, T item)? descriptionBuilder;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
   final bool fixedWidth;
 
   @override
@@ -204,40 +261,52 @@ class _SelectorItem<T> extends StatelessWidget {
     final t = AntTheme.of(context);
     final canTap = !disabled && !readOnly;
 
-    Widget content = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DefaultTextStyle(
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: t.fontSize.sp,
-              color: disabled
-                  ? t.colorTextDisabled
-                  : checked
-                      ? t.colorPrimary
-                      : t.colorText,
-              fontWeight: checked ? FontWeight.w500 : FontWeight.w400,
-            ),
-            child: option.label,
-          ),
-          if (option.description != null) ...[
-            SizedBox(height: 2.w),
-            DefaultTextStyle(
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: t.fontSizeSM.sp,
-                color: disabled
-                    ? t.colorTextQuaternary
-                    : t.colorTextSecondary,
+    Widget content = itemBuilder?.call(context, item, index) ??
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DefaultTextStyle(
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: t.fontSize.sp,
+                  color: disabled
+                      ? t.colorTextDisabled
+                      : checked
+                          ? t.colorPrimary
+                          : t.colorText,
+                  fontWeight: checked ? FontWeight.w500 : FontWeight.w400,
+                ),
+                child: labelBuilder?.call(context, item) ??
+                    Text(
+                      labelText,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
               ),
-              child: option.description!,
-            ),
-          ],
-        ],
-      ),
-    );
+              if (descriptionBuilder != null || descriptionText != null) ...[
+                SizedBox(height: 2.w),
+                DefaultTextStyle(
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: t.fontSizeSM.sp,
+                    color:
+                        disabled ? t.colorTextQuaternary : t.colorTextSecondary,
+                  ),
+                  child: descriptionBuilder?.call(context, item) ??
+                      Text(
+                        descriptionText!,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                ),
+              ],
+            ],
+          ),
+        );
 
     Widget card = GestureDetector(
       onTap: canTap ? onTap : null,

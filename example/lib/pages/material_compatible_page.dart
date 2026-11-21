@@ -32,8 +32,10 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                   onChange: (v) => setState(() => _dark = v),
                 ),
                 SizedBox(width: 12.w),
-                Text('Theme.of 主色：'
-                    '${Theme.of(context).colorScheme.primary}'),
+                Text(
+                  'Theme.of 主色：'
+                  '${Theme.of(context).colorScheme.primary}',
+                ),
               ],
             ),
           ),
@@ -94,12 +96,10 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                               padding: EdgeInsets.all(12.w),
                               child: ListTile(
                                 title: const Text('antd 风格卡片'),
-                                subtitle:
-                                    const Text('原生 Card / ListTile 自动继承'),
+                                subtitle: const Text('原生 Card / ListTile 自动继承'),
                                 trailing: Switch(
                                   value: _dark,
-                                  onChanged: (v) =>
-                                      setState(() => _dark = v),
+                                  onChanged: (v) => setState(() => _dark = v),
                                 ),
                               ),
                             ),

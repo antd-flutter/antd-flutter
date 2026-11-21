@@ -26,10 +26,7 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
           _Section(
             title: '基础用法（三锚点）',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(20),
-            ),
+            child: _buildPanel(theme, _buildList(20)),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -43,10 +40,14 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(AntIcons.expandAltOutlined, size: 16.w, color: theme.colorTextQuaternary),
+                    Icon(
+                      AntIcons.expandAltOutlined,
+                      size: 16.w,
+                      color: theme.colorTextQuaternary,
+                    ),
                     SizedBox(width: 4.w),
-                    AntText(text: 
-                      '拖动调整高度',
+                    AntText(
+                      text: '拖动调整高度',
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: theme.colorTextQuaternary,
@@ -61,21 +62,13 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
           _Section(
             title: '两锚点',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(20),
-              anchors: const [0.4, 1],
-            ),
+            child: _buildPanel(theme, _buildList(20), anchors: const [0.4, 1]),
           ),
           SizedBox(height: 16.w),
           _Section(
             title: '内容滚动列表',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(50),
-              contentHeight: 400,
-            ),
+            child: _buildPanel(theme, _buildList(50), contentHeight: 400),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -83,12 +76,9 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
             theme: theme,
             child: Column(
               children: [
-                AntText(text: 
-                  '当前高度比例：${(_heightPercent * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: theme.colorText,
-                  ),
+                AntText(
+                  text: '当前高度比例：${(_heightPercent * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(fontSize: 14.sp, color: theme.colorText),
                 ),
                 SizedBox(height: 8.w),
                 _buildPanel(
@@ -145,7 +135,11 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -164,8 +158,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,

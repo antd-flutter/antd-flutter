@@ -72,10 +72,7 @@ class ResultPage extends StatelessWidget {
               extra: Wrap(
                 spacing: 8.w,
                 children: [
-                  AntButton(
-                    child: const Text('返回首页'),
-                    onTap: () {},
-                  ),
+                  AntButton(child: const Text('返回首页'), onTap: () {}),
                   AntButton(
                     type: AntButtonType.primary,
                     child: const Text('重新登录'),
@@ -92,7 +89,11 @@ class ResultPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

@@ -1,5 +1,7 @@
 /// antd_picker example — 弹层选择器族演示画廊（Picker / DatePicker / TimePicker / Cascader）。
 ///
+/// - 数据源全部使用用户自定义模型（[_Season] / [_Fruit] / [_Region]），
+///   通过 `keyOf` / `childrenOf` / `labelBuilder` 驱动，不构造组件库模型。
 /// - 主题经 antd_theme（P03 桥接）注入：`AntThemeData.light/dark().toThemeData()`
 /// - R35.4 多平台适配：AntResponsiveInit + AntResponsive.breakpointOf 断点布局
 ///   （desktop 宽屏双栏 / phone 窄屏单栏），窗口缩放无溢出
@@ -8,10 +10,10 @@
 ///   TimePicker 时分秒；Cascader 级联 / CascaderView 内嵌
 library;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdPickerGalleryApp());
@@ -73,14 +75,14 @@ class _AntdPickerGalleryAppState extends State<AntdPickerGalleryApp> {
                   actions: [
                     IconButton(
                       onPressed: () => setState(() => _isDark = !_isDark),
-                      icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
+                      icon: Icon(
+                        _isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined,
+                      ),
                     ),
                   ],
                   bottom: TabBar(
                     isScrollable: true,
-                    tabs: [
-                      for (final t in _sectionTitles) Tab(text: t),
-                    ],
+                    tabs: [for (final t in _sectionTitles) Tab(text: t)],
                   ),
                 ),
                 // R35.4：desktop 宽屏双栏、phone 窄屏单栏，缩放窗口不溢出。
@@ -98,11 +100,16 @@ class _AntdPickerGalleryAppState extends State<AntdPickerGalleryApp> {
     );
   }
 
-  Widget _sectionBody(BuildContext pageContext, AntLayoutData layout, int index) {
+  Widget _sectionBody(
+    BuildContext pageContext,
+    AntLayoutData layout,
+    int index,
+  ) {
     final cards = index == _sectionTitles.length - 1
         ? const _ControlledSection().cards
         : _sectionCards[index];
-    final isWide = layout.width >= 768 ||
+    final isWide =
+        layout.width >= 768 ||
         layout.breakpoint == AntBreakpoint.lg ||
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
@@ -149,9 +156,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       children: [
         Padding(
           padding: EdgeInsets.only(bottom: 12.w),
-          child: Text(title,
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+          ),
         ),
         child,
       ],
@@ -180,34 +188,75 @@ Widget _resultText(BuildContext context, String label, String value) {
   );
 }
 
+// ── 用户自定义模型 ──────────────────────────────────────────
+/// 通用选项模型（季节 / 水果共用，演示多列可共享同一泛型）
+class _NamedOption {
+  const _NamedOption(this.id, this.name);
+
+  final String id;
+  final String name;
+}
+
+/// 地区（树形）
+class Region {
+  const Region(
+    this.code,
+    this.name, [
+    this.children = const [],
+    this.disabled = false,
+  ]);
+
+  final String code;
+  final String name;
+  final List<Region> children;
+  final bool disabled;
+}
+
+const _seasons = <_NamedOption>[
+  _NamedOption('spring', '春'),
+  _NamedOption('summer', '夏'),
+  _NamedOption('autumn', '秋'),
+  _NamedOption('winter', '冬'),
+];
+
+const _fruits = <_NamedOption>[
+  _NamedOption('apple', '苹果'),
+  _NamedOption('banana', '香蕉'),
+  _NamedOption('orange', '橙子'),
+  _NamedOption('grape', '葡萄'),
+];
+
+const _regions = <Region>[
+  Region('zj', '浙江', [
+    Region('hz', '杭州', [Region('xh', '西湖区'), Region('yh', '余杭区')]),
+    Region('nb', '宁波', [Region('yz', '鄞州区')]),
+  ]),
+  Region('js', '江苏', [
+    Region('nj', '南京', [Region('xw', '玄武区')]),
+  ]),
+];
+
+AntPickerColumn<_NamedOption> _optionColumn(List<_NamedOption> dataSource) =>
+    AntPickerColumn<_NamedOption>(
+      dataSource: dataSource,
+      keyOf: (option) => option.id,
+      labelBuilder: (context, option) => Text(option.name),
+    );
+
 // ── Picker 滚轮选择 ─────────────────────────────────────────
-const _seasons = <AntPickerColumnItem>[
-  AntPickerColumnItem(label: '春', value: 'spring'),
-  AntPickerColumnItem(label: '夏', value: 'summer'),
-  AntPickerColumnItem(label: '秋', value: 'autumn'),
-  AntPickerColumnItem(label: '冬', value: 'winter'),
-];
-
-const _fruits = <AntPickerColumnItem>[
-  AntPickerColumnItem(label: '苹果', value: 'apple'),
-  AntPickerColumnItem(label: '香蕉', value: 'banana'),
-  AntPickerColumnItem(label: '橙子', value: 'orange'),
-  AntPickerColumnItem(label: '葡萄', value: 'grape'),
-];
-
 final List<_DemoCard> _pickerCards = [
   (
-    '单列选择',
-    AntPicker(
-      columns: const [_seasons],
+    '单列选择（自定义模型）',
+    AntPicker<_NamedOption>(
+      columns: [_optionColumn(_seasons)],
       title: '请选择季节',
       child: const _TriggerBox(text: '打开单列选择器'),
     ),
   ),
   (
     '多列选择（列间独立滚动）',
-    AntPicker(
-      columns: const [_seasons, _fruits],
+    AntPicker<_NamedOption>(
+      columns: [_optionColumn(_seasons), _optionColumn(_fruits)],
       title: '选择季节与水果',
       child: const _TriggerBox(text: '打开多列选择器'),
     ),
@@ -233,9 +282,14 @@ final List<_DemoCard> _datePickerCards = [
       onChange: (d) => debugPrint('date: $d'),
     ),
   ),
+  ('允许清除', const AntDatePicker(allowClear: true, placeholder: '选择日期')),
   (
-    '允许清除',
-    const AntDatePicker(allowClear: true, placeholder: '选择日期'),
+    '自定义展示（labelBuilder）',
+    AntDatePicker(
+      defaultValue: DateTime(2026, 1, 1),
+      labelBuilder: (context, date) =>
+          Text('${date.year} 年 ${date.month} 月 ${date.day} 日'),
+    ),
   ),
 ];
 
@@ -248,50 +302,52 @@ final List<_DemoCard> _timePickerCards = [
       onChange: (t) => debugPrint('time: $t'),
     ),
   ),
+  ('步进（小时步进 2）', const AntTimePicker(hourStep: 2, placeholder: '选择时间')),
   (
-    '步进（小时步进 2）',
-    const AntTimePicker(hourStep: 2, placeholder: '选择时间'),
+    '自定义展示（labelBuilder）',
+    AntTimePicker(
+      defaultValue: const TimeOfDay(hour: 9, minute: 30),
+      labelBuilder: (context, time) => Text('${time.hour} 时 ${time.minute} 分'),
+    ),
   ),
 ];
 
 // ── Cascader 级联 ───────────────────────────────────────────
-const _regionOptions = <AntCascaderOption>[
-  AntCascaderOption(value: 'zj', label: '浙江', children: [
-    AntCascaderOption(value: 'hz', label: '杭州', children: [
-      AntCascaderOption(value: 'xh', label: '西湖区'),
-      AntCascaderOption(value: 'yh', label: '余杭区'),
-    ]),
-    AntCascaderOption(value: 'nb', label: '宁波', children: [
-      AntCascaderOption(value: 'yz', label: '鄞州区'),
-    ]),
-  ]),
-  AntCascaderOption(value: 'js', label: '江苏', children: [
-    AntCascaderOption(value: 'nj', label: '南京', children: [
-      AntCascaderOption(value: 'xw', label: '玄武区'),
-    ]),
-  ]),
-];
-
-const List<_DemoCard> _cascaderCards = [
+final List<_DemoCard> _cascaderCards = [
   (
     '弹层级联选择（选中即变更）',
-    AntCascader(
-      options: _regionOptions,
+    AntCascader<Region>(
+      dataSource: _regions,
+      keyOf: (region) => region.code,
+      childrenOf: (region) => region.children,
+      disabledOf: (region) => region.disabled,
+      labelBuilder: (context, region) => Text(region.name),
       placeholder: '请选择地区',
       changeOnSelect: true,
     ),
   ),
   (
     '禁用态',
-    AntCascader(options: _regionOptions, disabled: true),
+    AntCascader<Region>(
+      dataSource: _regions,
+      keyOf: (region) => region.code,
+      childrenOf: (region) => region.children,
+      labelBuilder: (context, region) => Text(region.name),
+      disabled: true,
+    ),
   ),
 ];
 
 // ── CascaderView 内嵌 ───────────────────────────────────────
-const List<_DemoCard> _cascaderViewCards = [
+final List<_DemoCard> _cascaderViewCards = [
   (
     '内嵌级联视图（不弹层）',
-    AntCascaderView(options: _regionOptions),
+    AntCascaderView<Region>(
+      dataSource: _regions,
+      keyOf: (region) => region.code,
+      childrenOf: (region) => region.children,
+      labelBuilder: (context, region) => Text(region.name),
+    ),
   ),
 ];
 
@@ -300,15 +356,9 @@ class _ControlledSection {
   const _ControlledSection();
 
   List<_DemoCard> get cards => [
-        (
-          'AntPicker 受控（value + 重置）',
-          _ControlledPickerCard(),
-        ),
-        (
-          'Cascader / DatePicker 受控',
-          _ControlledFieldCard(),
-        ),
-      ];
+    ('AntPicker 受控（value + 重置）', _ControlledPickerCard()),
+    ('Cascader / DatePicker 受控', _ControlledFieldCard()),
+  ];
 }
 
 class _ControlledPickerCard extends StatefulWidget {
@@ -319,23 +369,26 @@ class _ControlledPickerCard extends StatefulWidget {
 }
 
 class _ControlledPickerCardState extends State<_ControlledPickerCard> {
-  List<AntPickerValue> _pickerValue = <AntPickerValue>['spring'];
+  List<_NamedOption> _pickerValue = <_NamedOption>[_seasons.first];
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntPicker(
-          columns: [_seasons],
+        AntPicker<_NamedOption>(
+          columns: [_optionColumn(_seasons)],
           value: _pickerValue,
-          onConfirm: (vals) => setState(() => _pickerValue = vals),
-          child: _triggerBox(context, '当前：${_pickerValue.join(', ')}'),
+          onConfirm: (options) => setState(() => _pickerValue = options),
+          child: _triggerBox(
+            context,
+            '当前：${_pickerValue.map((option) => option.name).join('、')}',
+          ),
         ),
         SizedBox(height: 8.w),
         OutlinedButton(
           onPressed: () =>
-              setState(() => _pickerValue = <AntPickerValue>['spring']),
+              setState(() => _pickerValue = <_NamedOption>[_seasons.first]),
           child: const Text('重置为「春」'),
         ),
       ],
@@ -351,7 +404,7 @@ class _ControlledFieldCard extends StatefulWidget {
 }
 
 class _ControlledFieldCardState extends State<_ControlledFieldCard> {
-  List<String> _cascaderValue = <String>[];
+  List<Region> _cascaderValue = <Region>[];
   DateTime? _dateValue;
 
   @override
@@ -359,13 +412,20 @@ class _ControlledFieldCardState extends State<_ControlledFieldCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntCascader(
-          options: _regionOptions,
+        AntCascader<Region>(
+          dataSource: _regions,
+          keyOf: (region) => region.code,
+          childrenOf: (region) => region.children,
+          labelBuilder: (context, region) => Text(region.name),
           value: _cascaderValue.isEmpty ? null : _cascaderValue,
-          onChange: (v) => setState(() => _cascaderValue = v),
+          onChange: (regions) => setState(() => _cascaderValue = regions),
         ),
         SizedBox(height: 8.w),
-        _resultText(context, '级联值', _cascaderValue.join(' / ')),
+        _resultText(
+          context,
+          '级联值',
+          _cascaderValue.map((region) => region.name).join(' / '),
+        ),
         SizedBox(height: 12.w),
         AntDatePicker(
           value: _dateValue,
@@ -373,8 +433,7 @@ class _ControlledFieldCardState extends State<_ControlledFieldCard> {
           onChange: (d) => setState(() => _dateValue = d),
         ),
         SizedBox(height: 8.w),
-        _resultText(
-            context, '日期值', _dateValue?.toIso8601String() ?? ''),
+        _resultText(context, '日期值', _dateValue?.toIso8601String() ?? ''),
         SizedBox(height: 8.w),
         OutlinedButton(
           onPressed: () => setState(() => _dateValue = null),

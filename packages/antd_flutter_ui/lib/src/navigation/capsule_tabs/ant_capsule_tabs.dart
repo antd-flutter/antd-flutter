@@ -29,41 +29,56 @@ import 'ant_capsule_tabs_types.dart';
 /// 激活项主色胶囊 + 白字，超出宽度可横向滚动。
 ///
 /// ```dart
-/// AntCapsuleTabs(
-///   items: [
-///     AntCapsuleTabItem(key: 'a', title: '选项一'),
-///     AntCapsuleTabItem(key: 'b', title: '选项二'),
-///   ],
-///   onChange: (key) => print(key),
+/// AntCapsuleTabs<Tag>(
+///   items: tags,
+///   keyOf: (tag) => tag.id,
+///   titleBuilder: (context, tag, index) => Text(tag.name),
+///   childBuilder: (context, tag, index) => Text(tag.description),
 /// )
 /// ```
-class AntCapsuleTabs extends StatefulWidget {
+class AntCapsuleTabs<T> extends StatefulWidget {
   const AntCapsuleTabs({
     super.key,
     required this.items,
+    this.keyOf,
+    this.titleBuilder,
+    this.childBuilder,
+    this.disabledOf,
     this.activeKey,
     this.defaultActiveKey,
     this.onChange,
   });
 
   /// 选项卡项列表。
-  final List<AntCapsuleTabItem> items;
+  final List<T> items;
+
+  /// 提取唯一标识，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 标题构建器，未提供时回退为 `Text('$item')`。
+  final AntCapsuleTabsTitleBuilder<T>? titleBuilder;
+
+  /// 面板内容构建器。
+  final AntCapsuleTabsChildBuilder<T>? childBuilder;
+
+  /// 是否禁用某项。
+  final bool Function(T item)? disabledOf;
 
   /// 受控激活项 key。
-  final String? activeKey;
+  final Object? activeKey;
 
   /// 非受控默认激活项 key。
-  final String? defaultActiveKey;
+  final Object? defaultActiveKey;
 
   /// 切换回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
   @override
-  State<AntCapsuleTabs> createState() => _AntCapsuleTabsState();
+  State<AntCapsuleTabs<T>> createState() => _AntCapsuleTabsState<T>();
 }
 
-class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
-  String? _internalKey;
+class _AntCapsuleTabsState<T> extends State<AntCapsuleTabs<T>> {
+  Object? _internalKey;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -74,18 +89,27 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
   bool _showLeftMask = false;
   bool _showRightMask = false;
 
-  String? get _currentKey => widget.activeKey ?? _internalKey;
+  Object? get _currentKey => widget.activeKey ?? _internalKey;
+
+  Object _keyAt(int index) => widget.keyOf?.call(widget.items[index]) ?? index;
+
+  int get _currentIndex => widget.items.indexWhere(
+        (item) =>
+            (widget.keyOf?.call(item) ?? widget.items.indexOf(item)) ==
+            _currentKey,
+      );
 
   @override
   void initState() {
     super.initState();
-    _internalKey = widget.defaultActiveKey ?? widget.items.firstOrNull?.key;
+    _internalKey =
+        widget.defaultActiveKey ?? (widget.items.isEmpty ? null : _keyAt(0));
     _syncTabKeys();
     _scrollController.addListener(_updateMasks);
   }
 
   @override
-  void didUpdateWidget(covariant AntCapsuleTabs oldWidget) {
+  void didUpdateWidget(covariant AntCapsuleTabs<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncTabKeys();
     if (oldWidget.activeKey != widget.activeKey ||
@@ -131,12 +155,15 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
     );
   }
 
-  void _handleTap(AntCapsuleTabItem item) {
-    if (item.disabled || item.key == _currentKey) return;
-    if (widget.activeKey == null) {
-      setState(() => _internalKey = item.key);
+  void _handleTap(T item, int index) {
+    if ((widget.disabledOf?.call(item) ?? false) ||
+        _keyAt(index) == _currentKey) {
+      return;
     }
-    widget.onChange?.call(item.key);
+    if (widget.activeKey == null) {
+      setState(() => _internalKey = _keyAt(index));
+    }
+    widget.onChange?.call(item);
     _scrollToActive();
   }
 
@@ -144,7 +171,7 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
   void _scrollToActive() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final index = widget.items.indexWhere((e) => e.key == _currentKey);
+      final index = _currentIndex;
       if (index < 0 || index >= _tabKeys.length) return;
       final ctx = _tabKeys[index].currentContext;
       if (ctx == null) return;
@@ -161,8 +188,11 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final currentKey = _currentKey;
-    final activeItem =
-        widget.items.where((e) => e.key == currentKey).firstOrNull;
+    final activeIndex = _currentIndex;
+    final activeItem = activeIndex < 0 ? null : widget.items[activeIndex];
+    final activeChild = activeItem == null
+        ? null
+        : widget.childBuilder?.call(context, activeItem, activeIndex);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -231,10 +261,10 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
             ],
           ),
         ),
-        if (activeItem?.child != null)
+        if (activeChild != null)
           Padding(
             padding: const EdgeInsets.all(12),
-            child: activeItem!.child,
+            child: activeChild,
           ),
       ],
     );
@@ -244,12 +274,15 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
   /// 能放下时均分整行宽度，放不下时保持内容宽度并横向滚动（不截断文字）。
   double _tabWidth(
     BuildContext context,
-    AntCapsuleTabItem item,
+    T item,
     TextStyle baseStyle,
     double share,
   ) {
-    final title = item.title;
-    if (item.titleWidget != null || title == null) return share;
+    final built =
+        widget.titleBuilder?.call(context, item, widget.items.indexOf(item));
+    final title =
+        built is Text ? (built.data ?? '') : (built == null ? '$item' : null);
+    if (title == null) return share;
     final painter = TextPainter(
       text: TextSpan(text: title, style: baseStyle),
       textDirection: Directionality.of(context),
@@ -261,7 +294,7 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
     return intrinsic > share ? intrinsic : share;
   }
 
-  Widget _buildTabList(AntThemeData t, String? currentKey) {
+  Widget _buildTabList(AntThemeData t, Object? currentKey) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
@@ -290,13 +323,20 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: _CapsuleItem(
-                      item: widget.items[i],
-                      active: widget.items[i].key == currentKey,
+                      title: widget.titleBuilder?.call(
+                            context,
+                            widget.items[i],
+                            i,
+                          ) ??
+                          Text('${widget.items[i]}'),
+                      disabled:
+                          widget.disabledOf?.call(widget.items[i]) ?? false,
+                      active: _keyAt(i) == currentKey,
                       primary: t.colorPrimary,
                       fill: t.colorFillContent,
                       textColor: t.colorText,
                       lightSolid: t.colorTextLightSolid,
-                      onTap: () => _handleTap(widget.items[i]),
+                      onTap: () => _handleTap(widget.items[i], i),
                     ),
                   ),
                 ),
@@ -314,7 +354,8 @@ class _AntCapsuleTabsState extends State<AntCapsuleTabs> {
 
 class _CapsuleItem extends StatelessWidget {
   const _CapsuleItem({
-    required this.item,
+    required this.title,
+    required this.disabled,
     required this.active,
     required this.primary,
     required this.fill,
@@ -323,7 +364,8 @@ class _CapsuleItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AntCapsuleTabItem item;
+  final Widget title;
+  final bool disabled;
   final bool active;
   final Color primary;
   final Color fill;
@@ -336,9 +378,9 @@ class _CapsuleItem extends StatelessWidget {
     final color = active ? lightSolid : textColor;
 
     return Opacity(
-      opacity: item.disabled ? 0.5 : 1,
+      opacity: disabled ? 0.5 : 1,
       child: GestureDetector(
-        onTap: item.disabled ? null : onTap,
+        onTap: disabled ? null : onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -347,17 +389,10 @@ class _CapsuleItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           alignment: Alignment.center,
-          child: item.titleWidget != null
-              ? DefaultTextStyle(
-                  style: TextStyle(fontSize: 15, color: color),
-                  child: item.titleWidget!,
-                )
-              : Text(
-                  item.title ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 15, color: color),
-                ),
+          child: DefaultTextStyle(
+            style: TextStyle(fontSize: 15, color: color),
+            child: title,
+          ),
         ),
       ),
     );

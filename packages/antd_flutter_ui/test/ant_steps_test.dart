@@ -7,6 +7,49 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
+class _StepData {
+  const _StepData({
+    this.title,
+    this.description,
+    this.icon,
+    this.status,
+    this.disabled = false,
+  });
+
+  final String? title;
+  final String? description;
+  final Widget? icon;
+  final AntStepsStatus? status;
+  final bool disabled;
+}
+
+Widget _steps({
+  Key? key,
+  int current = 0,
+  List<_StepData> items = const [],
+  AntStepsDirection direction = AntStepsDirection.horizontal,
+  AntStepsStatus status = AntStepsStatus.process,
+  AntStepsSize size = AntStepsSize.normal,
+  ValueChanged<int>? onChange,
+}) {
+  return AntSteps<_StepData>(
+    key: key,
+    current: current,
+    items: items,
+    titleBuilder: (context, item, index) =>
+        item.title == null ? const SizedBox.shrink() : Text(item.title!),
+    descriptionBuilder: (context, item, index) =>
+        item.description == null ? null : Text(item.description!),
+    iconBuilder: (context, item, index) => item.icon,
+    statusOf: (item) => item.status,
+    disabledOf: (item) => item.disabled,
+    direction: direction,
+    status: status,
+    size: size,
+    onChange: onChange == null ? null : (item) => onChange(items.indexOf(item)),
+  );
+}
+
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
     builder: (context, _) => MaterialApp(
@@ -20,17 +63,17 @@ Widget _wrap(Widget child) {
   );
 }
 
-List<AntStepsItem> _sampleItems() => const [
-      AntStepsItem(title: 'Finished'),
-      AntStepsItem(title: 'In Progress'),
-      AntStepsItem(title: 'Waiting'),
+List<_StepData> _sampleItems() => const [
+      _StepData(title: 'Finished'),
+      _StepData(title: 'In Progress'),
+      _StepData(title: 'Waiting'),
     ];
 
 void main() {
   group('AntSteps — 基础渲染', () {
     testWidgets('renders all step titles', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(current: 1, items: _sampleItems())),
+        _wrap(_steps(current: 1, items: _sampleItems())),
       );
       expect(find.text('Finished'), findsOneWidget);
       expect(find.text('In Progress'), findsOneWidget);
@@ -38,10 +81,10 @@ void main() {
     });
 
     testWidgets('empty items renders SizedBox.shrink', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSteps()));
+      await tester.pumpWidget(_wrap(_steps()));
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byType(SizedBox),
         ),
         findsOneWidget,
@@ -50,27 +93,31 @@ void main() {
 
     testWidgets('renders description', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSteps(
-          current: 0,
-          items: [
-            AntStepsItem(title: 'Step 1', description: 'Description 1'),
-            AntStepsItem(title: 'Step 2'),
-          ],
-        ),),
+        _wrap(
+          _steps(
+            current: 0,
+            items: [
+              const _StepData(title: 'Step 1', description: 'Description 1'),
+              const _StepData(title: 'Step 2'),
+            ],
+          ),
+        ),
       );
       expect(find.text('Description 1'), findsOneWidget);
     });
 
     testWidgets('horizontal layout uses Row', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          direction: AntStepsDirection.horizontal,
-          items: _sampleItems(),
-        ),),
+        _wrap(
+          _steps(
+            direction: AntStepsDirection.horizontal,
+            items: _sampleItems(),
+          ),
+        ),
       );
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byType(Row),
         ),
         findsWidgets,
@@ -79,13 +126,15 @@ void main() {
 
     testWidgets('vertical layout uses Column', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          direction: AntStepsDirection.vertical,
-          items: _sampleItems(),
-        ),),
+        _wrap(
+          _steps(
+            direction: AntStepsDirection.vertical,
+            items: _sampleItems(),
+          ),
+        ),
       );
       // 垂直布局顶层是 Column
-      final stepsFinder = find.byType(AntSteps);
+      final stepsFinder = find.byType(AntSteps<_StepData>);
       final columns = find.descendant(
         of: stepsFinder,
         matching: find.byType(Column),
@@ -97,12 +146,12 @@ void main() {
   group('AntSteps — 状态', () {
     testWidgets('finish status shows check icon', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(current: 1, items: _sampleItems())),
+        _wrap(_steps(current: 1, items: _sampleItems())),
       );
       // index 0 是 finish 状态
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byIcon(AntIcons.checkOutlined),
         ),
         findsOneWidget,
@@ -117,7 +166,7 @@ void main() {
           Builder(
             builder: (context) {
               capturedTheme = AntTheme.of(context);
-              return AntSteps(current: 0, items: _sampleItems());
+              return _steps(current: 0, items: _sampleItems());
             },
           ),
         ),
@@ -126,7 +175,7 @@ void main() {
       // process 状态圆圈背景为 colorPrimary
       final containers = tester.widgetList<Container>(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byType(Container),
         ),
       );
@@ -145,7 +194,7 @@ void main() {
     testWidgets('wait status shows index number with tertiary color',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(current: 0, items: _sampleItems())),
+        _wrap(_steps(current: 0, items: _sampleItems())),
       );
       // wait 步骤显示数字 '2' 和 '3'
       expect(find.text('2'), findsOneWidget);
@@ -154,15 +203,17 @@ void main() {
 
     testWidgets('error status shows close icon', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          current: 1,
-          status: AntStepsStatus.error,
-          items: _sampleItems(),
-        ),),
+        _wrap(
+          _steps(
+            current: 1,
+            status: AntStepsStatus.error,
+            items: _sampleItems(),
+          ),
+        ),
       );
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsOneWidget,
@@ -171,21 +222,23 @@ void main() {
 
     testWidgets('item.status overrides computed status', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSteps(
-          current: 0,
-          items: [
-            AntStepsItem(
-              title: 'Step 1',
-              status: AntStepsStatus.error,
-            ),
-            AntStepsItem(title: 'Step 2'),
-          ],
-        ),),
+        _wrap(
+          _steps(
+            current: 0,
+            items: [
+              const _StepData(
+                title: 'Step 1',
+                status: AntStepsStatus.error,
+              ),
+              const _StepData(title: 'Step 2'),
+            ],
+          ),
+        ),
       );
       // 即使 index < current 应该是 finish，但 item.status 指定 error
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsOneWidget,
@@ -197,11 +250,13 @@ void main() {
     testWidgets('onChange triggered on clickable step', (tester) async {
       var tappedIndex = -1;
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          current: 0,
-          items: _sampleItems(),
-          onChange: (i) => tappedIndex = i,
-        ),),
+        _wrap(
+          _steps(
+            current: 0,
+            items: _sampleItems(),
+            onChange: (i) => tappedIndex = i,
+          ),
+        ),
       );
       // 点击第 2 步（index 1）
       await tester.tap(find.text('2'));
@@ -211,11 +266,13 @@ void main() {
     testWidgets('current step is not clickable', (tester) async {
       var tappedIndex = -1;
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          current: 1,
-          items: _sampleItems(),
-          onChange: (i) => tappedIndex = i,
-        ),),
+        _wrap(
+          _steps(
+            current: 1,
+            items: _sampleItems(),
+            onChange: (i) => tappedIndex = i,
+          ),
+        ),
       );
       // 点击当前步骤（显示数字 '2'）不应触发
       await tester.tap(find.text('2'));
@@ -225,15 +282,17 @@ void main() {
     testWidgets('disabled step is not clickable', (tester) async {
       var tappedIndex = -1;
       await tester.pumpWidget(
-        _wrap(AntSteps(
-          current: 0,
-          items: const [
-            AntStepsItem(title: 'Step 1'),
-            AntStepsItem(title: 'Step 2', disabled: true),
-            AntStepsItem(title: 'Step 3'),
-          ],
-          onChange: (i) => tappedIndex = i,
-        ),),
+        _wrap(
+          _steps(
+            current: 0,
+            items: const [
+              _StepData(title: 'Step 1'),
+              _StepData(title: 'Step 2', disabled: true),
+              _StepData(title: 'Step 3'),
+            ],
+            onChange: (i) => tappedIndex = i,
+          ),
+        ),
       );
       // 点击 disabled 步骤（数字 '2'）不应触发
       await tester.tap(find.text('2'));
@@ -242,11 +301,11 @@ void main() {
 
     testWidgets('no GestureDetector without onChange', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntSteps(current: 0, items: _sampleItems())),
+        _wrap(_steps(current: 0, items: _sampleItems())),
       );
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byType(GestureDetector),
         ),
         findsNothing,
@@ -258,12 +317,12 @@ void main() {
     testWidgets('small size has smaller circle', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntSteps(
+          _steps(
             size: AntStepsSize.small,
             items: [
-              AntStepsItem(title: 'Step 1'),
-              AntStepsItem(title: 'Step 2'),
-              AntStepsItem(title: 'Step 3'),
+              const _StepData(title: 'Step 1'),
+              const _StepData(title: 'Step 2'),
+              const _StepData(title: 'Step 3'),
             ],
           ),
         ),
@@ -272,7 +331,7 @@ void main() {
       // small 圆圈 24x24
       final circleContainers = tester.widgetList<Container>(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byType(Container),
         ),
       );
@@ -288,23 +347,24 @@ void main() {
       }
     });
 
-    testWidgets('custom icon replaces default circle content',
-        (tester) async {
+    testWidgets('custom icon replaces default circle content', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntSteps(
-          current: 0,
-          items: [
-            AntStepsItem(
-              title: 'Step 1',
-              icon: Icon(AntIcons.starFilled, size: 16),
-            ),
-            AntStepsItem(title: 'Step 2'),
-          ],
-        ),),
+        _wrap(
+          _steps(
+            current: 0,
+            items: [
+              const _StepData(
+                title: 'Step 1',
+                icon: Icon(AntIcons.starFilled, size: 16),
+              ),
+              const _StepData(title: 'Step 2'),
+            ],
+          ),
+        ),
       );
       expect(
         find.descendant(
-          of: find.byType(AntSteps),
+          of: find.byType(AntSteps<_StepData>),
           matching: find.byIcon(AntIcons.starFilled),
         ),
         findsOneWidget,
@@ -316,14 +376,18 @@ void main() {
   group('AntSteps — 无界容器回归（P09 bug 修复）', () {
     testWidgets('horizontal steps in SingleChildScrollView does not crash',
         (tester) async {
-      await tester.pumpWidget(_wrap(SingleChildScrollView(
-        child: Column(
-          children: [
-            AntSteps(items: _sampleItems()),
-            const Text('after'),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                _steps(items: _sampleItems()),
+                const Text('after'),
+              ],
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Finished'), findsOneWidget);
@@ -332,17 +396,21 @@ void main() {
 
     testWidgets('vertical steps in SingleChildScrollView does not crash',
         (tester) async {
-      await tester.pumpWidget(_wrap(SingleChildScrollView(
-        child: Column(
-          children: [
-            AntSteps(
-              direction: AntStepsDirection.vertical,
-              items: _sampleItems(),
+      await tester.pumpWidget(
+        _wrap(
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                _steps(
+                  direction: AntStepsDirection.vertical,
+                  items: _sampleItems(),
+                ),
+                const Text('after'),
+              ],
             ),
-            const Text('after'),
-          ],
+          ),
         ),
-      ),),);
+      );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('In Progress'), findsOneWidget);
@@ -356,17 +424,21 @@ void main() {
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(_wrap(const Padding(
-        padding: EdgeInsets.all(16),
-        child: AntSteps(
-          current: 1,
-          items: [
-            AntStepsItem(title: '第一步'),
-            AntStepsItem(title: '第二步'),
-            AntStepsItem(title: '第三步'),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _steps(
+              current: 1,
+              items: const [
+                _StepData(title: '第一步'),
+                _StepData(title: '第二步'),
+                _StepData(title: '第三步'),
+              ],
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.pumpAndSettle();
 
       final circles = [
@@ -391,18 +463,22 @@ void main() {
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(_wrap(const SizedBox(
-        height: 400,
-        child: AntSteps(
-          current: 1,
-          direction: AntStepsDirection.vertical,
-          items: [
-            AntStepsItem(title: '第一步', description: '第一步描述'),
-            AntStepsItem(title: '第二步', description: '第二步描述'),
-            AntStepsItem(title: '第三步', description: '第三步描述'),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            height: 400,
+            child: _steps(
+              current: 1,
+              direction: AntStepsDirection.vertical,
+              items: const [
+                _StepData(title: '第一步', description: '第一步描述'),
+                _StepData(title: '第二步', description: '第二步描述'),
+                _StepData(title: '第三步', description: '第三步描述'),
+              ],
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.pumpAndSettle();
 
       final circles = [

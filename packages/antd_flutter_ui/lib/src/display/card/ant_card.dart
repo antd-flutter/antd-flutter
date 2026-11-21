@@ -32,14 +32,17 @@ import 'package:material_ui/material_ui.dart';
 /// 卡片 — 通用卡片容器。
 ///
 /// 对齐 antd React Card 组件。
-class AntCard extends StatefulWidget {
+class AntCard<T> extends StatefulWidget {
   const AntCard({
     super.key,
     this.title,
     this.extra,
     required this.child,
     this.cover,
+    this.coverHeight,
     this.actions,
+    this.actionBuilder,
+    this.onActionTap,
     this.bordered = true,
     this.hoverable = false,
     this.size = AntCardSize.standard,
@@ -56,11 +59,20 @@ class AntCard extends StatefulWidget {
   /// 卡片内容。
   final Widget child;
 
-  /// 封面图。
-  final AntCardCover? cover;
+  /// 封面内容（通常为图片）。
+  final Widget? cover;
 
-  /// 底部操作列表。
-  final List<AntCardAction>? actions;
+  /// 封面高度。
+  final double? coverHeight;
+
+  /// 底部操作列表（任意用户模型）。
+  final List<T>? actions;
+
+  /// 操作项构建器；未提供时回退为 `Text('$action')`。
+  final AntCardActionBuilder<T>? actionBuilder;
+
+  /// 操作项点击回调。
+  final ValueChanged<T>? onActionTap;
 
   /// 是否有边框。
   final bool bordered;
@@ -78,10 +90,10 @@ class AntCard extends StatefulWidget {
   final VoidCallback? onTap;
 
   @override
-  State<AntCard> createState() => _AntCardState();
+  State<AntCard<T>> createState() => _AntCardState<T>();
 }
 
-class _AntCardState extends State<AntCard> {
+class _AntCardState<T> extends State<AntCard<T>> {
   bool _hovering = false;
 
   @override
@@ -91,9 +103,7 @@ class _AntCardState extends State<AntCard> {
     final headerPadding = isSmall
         ? EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w)
         : EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w);
-    final bodyPadding = isSmall
-        ? EdgeInsets.all(12.w)
-        : EdgeInsets.all(24.w);
+    final bodyPadding = isSmall ? EdgeInsets.all(12.w) : EdgeInsets.all(24.w);
 
     final hasHeader = widget.title != null || widget.extra != null;
 
@@ -125,9 +135,9 @@ class _AntCardState extends State<AntCard> {
                 top: Radius.circular(theme.borderRadiusLG),
               ),
               child: SizedBox(
-                height: widget.cover!.height,
+                height: widget.coverHeight,
                 width: double.infinity,
-                child: widget.cover!.child,
+                child: widget.cover!,
               ),
             ),
           // 标题栏
@@ -179,12 +189,14 @@ class _AntCardState extends State<AntCard> {
               child: Row(
                 children: [
                   for (var i = 0; i < widget.actions!.length; i++) ...[
-                    if (i > 0)
-                      SizedBox(width: 8.w),
+                    if (i > 0) SizedBox(width: 8.w),
                     Expanded(
                       child: InkWell(
-                        onTap: widget.actions![i].onTap,
-                        borderRadius: BorderRadius.circular(theme.borderRadiusSM),
+                        onTap: widget.onActionTap == null
+                            ? null
+                            : () => widget.onActionTap!(widget.actions![i]),
+                        borderRadius:
+                            BorderRadius.circular(theme.borderRadiusSM),
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.w),
                           child: DefaultTextStyle.merge(
@@ -193,7 +205,12 @@ class _AntCardState extends State<AntCard> {
                               color: theme.colorTextSecondary,
                             ),
                             textAlign: TextAlign.center,
-                            child: widget.actions![i].child,
+                            child: widget.actionBuilder?.call(
+                                  context,
+                                  widget.actions![i],
+                                  i,
+                                ) ??
+                                Text('${widget.actions![i]}'),
                           ),
                         ),
                       ),

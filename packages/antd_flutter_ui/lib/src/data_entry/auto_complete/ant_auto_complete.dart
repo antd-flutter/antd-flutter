@@ -1,21 +1,21 @@
 /// AntAutoComplete — antd React AutoComplete 的 Flutter 实现
 ///
 /// API 与 antd React AutoComplete 对齐：
-/// - [options] — 补全选项列表
-/// - [value] / [defaultValue] — 受控/非受控值
+/// - [options] — 补全选项列表（任意模型 `List<T>`）
+/// - [value] / [defaultValue] — 受控/非受控文本值
 /// - [onChange] — 输入值变化回调
-/// - [onSelect] — 选中选项回调
+/// - [onSelect] — 选中选项回调（回传模型 `T`）
+/// - [labelOf] / [valueOf] — 选项展示文案 / 回填文本
 /// - [filterOption] — 是否根据输入过滤选项
 /// - [allowClear] — 清除按钮
 /// - [placeholder] / [disabled] / [size]
 ///
 /// ```dart
-/// AntAutoComplete(
-///   options: [
-///     AntAutoCompleteOption(value: 'apple'),
-///     AntAutoCompleteOption(value: 'banana'),
-///   ],
-///   onChange: (v) => print(v),
+/// AntAutoComplete<User>(
+///   options: users,
+///   labelOf: (u) => u.name,
+///   valueOf: (u) => u.email,
+///   onSelect: (u) => print(u.id),
 /// )
 /// ```
 library;
@@ -39,10 +39,14 @@ export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_t
 /// 自动补全输入组件。
 ///
 /// 输入时展示匹配的选项下拉，选中后回填输入框。
-class AntAutoComplete extends StatefulWidget {
+class AntAutoComplete<T> extends StatefulWidget {
   const AntAutoComplete({
     super.key,
     this.options = const [],
+    this.labelOf,
+    this.valueOf,
+    this.disabledOf,
+    this.itemBuilder,
     this.value,
     this.defaultValue,
     this.onChange,
@@ -55,8 +59,20 @@ class AntAutoComplete extends StatefulWidget {
     this.autofocus = false,
   });
 
-  /// 补全选项列表
-  final List<AntAutoCompleteOption> options;
+  /// 补全选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项展示文案（下拉行文本 + 过滤匹配文本），缺省 `'$item'`。
+  final String Function(T item)? labelOf;
+
+  /// 选中后回填到输入框的文本，缺省与 [labelOf] 一致。
+  final String Function(T item)? valueOf;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
+
+  /// 整行下拉项自定义渲染（仍由组件负责点击与禁用态）。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
 
   /// 受控值
   final String? value;
@@ -67,8 +83,8 @@ class AntAutoComplete extends StatefulWidget {
   /// 输入值变化回调
   final ValueChanged<String>? onChange;
 
-  /// 选中选项回调
-  final ValueChanged<AntAutoCompleteOption>? onSelect;
+  /// 选中选项回调（回传模型对象）。
+  final ValueChanged<T>? onSelect;
 
   /// 占位文本
   final String? placeholder;
@@ -89,11 +105,11 @@ class AntAutoComplete extends StatefulWidget {
   final bool autofocus;
 
   @override
-  State<AntAutoComplete> createState() => _AntAutoCompleteState();
+  State<AntAutoComplete<T>> createState() => _AntAutoCompleteState<T>();
 }
 
-class _AntAutoCompleteState extends State<AntAutoComplete>
-    with PopupContentRefresher<AntAutoComplete> {
+class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
+    with PopupContentRefresher<AntAutoComplete<T>> {
   /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用；
   /// 镂空遮挡不遮触发输入框，弹层打开时输入框可继续输入）。
   final GlobalKey _triggerKey = GlobalKey();
@@ -147,7 +163,7 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
   }
 
   @override
-  void didUpdateWidget(covariant AntAutoComplete oldWidget) {
+  void didUpdateWidget(covariant AntAutoComplete<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value && widget.value != _controller.text) {
       _controller.text = widget.value ?? '';
@@ -212,13 +228,22 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
     return KeyEventResult.ignored;
   }
 
-  List<AntAutoCompleteOption> get _filteredOptions {
+  /// 选项展示文案。
+  String _labelOf(T item) => widget.labelOf?.call(item) ?? '$item';
+
+  /// 选项回填文本。
+  String _valueOf(T item) => widget.valueOf?.call(item) ?? _labelOf(item);
+
+  /// 选项是否禁用。
+  bool _disabledOf(T item) => widget.disabledOf?.call(item) ?? false;
+
+  List<T> get _filteredOptions {
     if (!widget.filterOption || _currentValue.isEmpty) {
       return widget.options;
     }
     final query = _currentValue.toLowerCase();
     return widget.options
-        .where((o) => o.displayLabel.toLowerCase().contains(query))
+        .where((o) => _labelOf(o).toLowerCase().contains(query))
         .toList();
   }
 
@@ -229,11 +254,14 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
     _highlightedIndex = null;
     _themeData = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
-      builder: (context) => _AutoCompleteOverlay(
+      builder: (context) => _AutoCompleteOverlay<T>(
         triggerKey: _triggerKey,
         themeData: _themeData,
         options: _filteredOptions,
         highlightedIndex: _highlightedIndex,
+        labelOf: _labelOf,
+        disabledOf: _disabledOf,
+        itemBuilder: widget.itemBuilder,
         onSelect: _selectOption,
         onDismiss: _dismiss,
       ),
@@ -265,16 +293,16 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
     }
   }
 
-  void _selectOption(AntAutoCompleteOption option) {
-    if (option.disabled) return;
+  void _selectOption(T option) {
+    if (_disabledOf(option)) return;
+    final text = _valueOf(option);
     setState(() {
-      _internalValue = option.value;
+      _internalValue = text;
       _highlightedIndex = null;
     });
-    _controller.text = option.value;
-    _controller.selection =
-        TextSelection.collapsed(offset: option.value.length);
-    widget.onChange?.call(option.value);
+    _controller.text = text;
+    _controller.selection = TextSelection.collapsed(offset: text.length);
+    widget.onChange?.call(text);
     widget.onSelect?.call(option);
     _removeOverlay();
     _focusNode.unfocus();
@@ -383,22 +411,28 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
 // _AutoCompleteOverlay
 // ============================================================
 
-class _AutoCompleteOverlay extends StatelessWidget {
+class _AutoCompleteOverlay<T> extends StatelessWidget {
   const _AutoCompleteOverlay({
     required this.triggerKey,
     required this.themeData,
     required this.options,
     required this.highlightedIndex,
+    required this.labelOf,
+    required this.disabledOf,
     required this.onSelect,
     required this.onDismiss,
+    this.itemBuilder,
   });
 
   /// 触发元素 GlobalKey（弹层基座定位/镂空遮挡）。
   final GlobalKey triggerKey;
   final AntThemeData themeData;
-  final List<AntAutoCompleteOption> options;
+  final List<T> options;
   final int? highlightedIndex;
-  final ValueChanged<AntAutoCompleteOption> onSelect;
+  final String Function(T item) labelOf;
+  final bool Function(T item) disabledOf;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+  final ValueChanged<T> onSelect;
   final VoidCallback onDismiss;
 
   @override
@@ -470,23 +504,27 @@ class _AutoCompleteOverlay extends StatelessWidget {
         itemBuilder: (context, index) {
           final option = options[index];
           final isHighlighted = index == highlightedIndex;
+          final disabled = disabledOf(option);
           return InkWell(
-            onTap: option.disabled ? null : () => onSelect(option),
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-              color: option.disabled
-                  ? t.colorFillSecondary.withValues(alpha: 0.3)
-                  : isHighlighted
-                      ? t.colorFillSecondary
-                      : null,
-              child: Text(
-                option.displayLabel,
-                style: TextStyle(
-                  fontSize: t.fontSize,
-                  color: option.disabled ? t.colorTextDisabled : t.colorText,
-                ),
-              ),
-            ),
+            onTap: disabled ? null : () => onSelect(option),
+            child: itemBuilder != null
+                ? itemBuilder!(context, option, index)
+                : Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                    color: disabled
+                        ? t.colorFillSecondary.withValues(alpha: 0.3)
+                        : isHighlighted
+                            ? t.colorFillSecondary
+                            : null,
+                    child: Text(
+                      labelOf(option),
+                      style: TextStyle(
+                        fontSize: t.fontSize,
+                        color: disabled ? t.colorTextDisabled : t.colorText,
+                      ),
+                    ),
+                  ),
           );
         },
       ),

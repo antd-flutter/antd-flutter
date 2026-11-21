@@ -3,55 +3,63 @@
 /// 级联选择视图，以 Tab + 列表的形式逐级选择关联数据。
 ///
 /// API 与 antd-mobile CascaderView 对齐：
-/// - [options] — 级联选项树（复用 [AntCascaderOption]）
-/// - [value] / [defaultValue] — 受控/非受控值（路径数组）
-/// - [onChange] — 值变化回调，附带已选选项数组
+/// - [dataSource] — 级联选项树（直接使用使用者自己的模型 `T`）
+/// - [keyOf] — 从模型取唯一标识
+/// - [childrenOf] — 从模型取子节点（返回 null/空表示叶子）
+/// - [labelBuilder] — 选项自定义渲染（缺省 `Text('$item')`）
+/// - [disabledOf] — 选项禁用判断
+/// - [value] / [defaultValue] — 受控/非受控值（元素可为 `T` 或 key）
+/// - [onChange] — 值变化回调，附带逐层已选模型（未选层级为 null）
 /// - [placeholder] — 未选择层级的占位文本
 /// - [onTabsChange] — 切换层级 Tab 回调
 /// - [activeIcon] — 自定义选中图标
 /// - [height] — 内容区高度
 ///
 /// ```dart
-/// AntCascaderView(
-///   options: [
-///     AntCascaderOption(value: 'zj', label: '浙江', children: [
-///       AntCascaderOption(value: 'hz', label: '杭州'),
-///     ]),
-///   ],
+/// AntCascaderView<Region>(
+///   dataSource: regions,
+///   keyOf: (r) => r.code,
+///   childrenOf: (r) => r.children,
+///   labelBuilder: (context, r) => Text(r.name),
 ///   onChange: (value, items) => print(value),
 /// )
 /// ```
 library;
 
-import 'ant_cascader_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+
+import 'ant_cascader_types.dart';
 
 export 'ant_cascader_types.dart';
 
 /// 级联层级数据
-class _CascaderLevel {
+class _CascaderLevel<T> {
   const _CascaderLevel({
     this.selected,
     required this.options,
   });
 
   /// 当前层级已选选项（可能为 null）
-  final AntCascaderOption? selected;
+  final T? selected;
 
   /// 当前层级可选列表
-  final List<AntCascaderOption> options;
+  final List<T> options;
 }
 
 /// 级联选择视图。
 ///
 /// 以 Tab + 选项列表的形式逐级选择关联层级数据，
 /// 选择某项后自动展开下一层级。
-class AntCascaderView extends StatefulWidget {
+class AntCascaderView<T> extends StatefulWidget {
   const AntCascaderView({
     super.key,
-    this.options = const [],
+    required this.keyOf,
+    this.dataSource = const [],
+    this.childrenOf,
+    this.labelBuilder,
+    this.disabledOf,
     this.value,
     this.defaultValue = const [],
     this.onChange,
@@ -61,122 +69,118 @@ class AntCascaderView extends StatefulWidget {
     this.height,
   });
 
-  /// 级联选项树
-  final List<AntCascaderOption> options;
+  /// 级联选项树。
+  final List<T> dataSource;
 
-  /// 受控值（路径数组，如 ['zj', 'hz']）
-  final List<String>? value;
+  /// 从模型取唯一标识。
+  final AntCascaderKeyOf<T> keyOf;
 
-  /// 非受控默认值
-  final List<String> defaultValue;
+  /// 从模型取子节点；为空表示所有选项都是叶子。
+  final AntCascaderChildrenOf<T>? childrenOf;
 
-  /// 值变化回调，附带已选选项数组（未选层级为 null）
-  final void Function(List<String> value, List<AntCascaderOption?> items)?
-      onChange;
+  /// 选项自定义渲染；为空时回退为 `Text('$item')`。
+  final AntCascaderLabelBuilder<T>? labelBuilder;
 
-  /// 未选择层级的占位文本
+  /// 选项禁用判断。
+  final AntCascaderDisabledOf<T>? disabledOf;
+
+  /// 受控值（路径数组，元素可为 `T` 或 key）。
+  final List<Object>? value;
+
+  /// 非受控默认值（路径数组，元素可为 `T` 或 key）。
+  final List<Object> defaultValue;
+
+  /// 值变化回调，附带逐层已选模型（未选层级为 null）。
+  final AntCascaderViewOnChange<T>? onChange;
+
+  /// 未选择层级的占位文本。
   final String placeholder;
 
-  /// 切换层级 Tab 回调
+  /// 切换层级 Tab 回调。
   final ValueChanged<int>? onTabsChange;
 
-  /// 自定义选中图标
+  /// 自定义选中图标。
   final Widget? activeIcon;
 
-  /// 内容区高度
+  /// 内容区高度。
   final double? height;
 
   @override
-  State<AntCascaderView> createState() => _AntCascaderViewState();
+  State<AntCascaderView<T>> createState() => _AntCascaderViewState<T>();
 }
 
-class _AntCascaderViewState extends State<AntCascaderView> {
-  late List<String> _internalValue;
+class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
+  late List<Object> _internalValue;
   int _tabActiveIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _internalValue = List<String>.from(widget.defaultValue);
+    _internalValue = List<Object>.from(widget.defaultValue);
     _tabActiveIndex = _computeLevels(_currentValue).length - 1;
   }
 
   @override
-  void didUpdateWidget(covariant AntCascaderView oldWidget) {
+  void didUpdateWidget(covariant AntCascaderView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
+    if (widget.value != null &&
+        !_sameValueList(widget.value!, oldWidget.value)) {
       // 受控值变化时，同步内部状态并跳到最后一级
-      final controlled = widget.value ?? _internalValue;
-      if (!_listEquals(controlled, _internalValue)) {
-        _internalValue = List<String>.from(controlled);
-        _tabActiveIndex = _computeLevels(_internalValue).length - 1;
-      }
+      _internalValue = List<Object>.from(widget.value!);
+      _tabActiveIndex = _computeLevels(_internalValue).length - 1;
     }
   }
 
-  List<String> get _currentValue =>
-      widget.value ?? _internalValue;
+  List<Object> get _currentValue => widget.value ?? _internalValue;
+
+  bool _matches(T item, Object value) =>
+      widget.keyOf(item) == value || identical(item, value) || item == value;
+
+  bool _isDisabled(T item) => widget.disabledOf?.call(item) ?? false;
 
   /// 根据值路径计算层级列表
-  List<_CascaderLevel> _computeLevels(List<String> value) {
-    final ret = <_CascaderLevel>[];
-    var currentOptions = widget.options;
+  List<_CascaderLevel<T>> _computeLevels(List<Object> value) {
+    final ret = <_CascaderLevel<T>>[];
+    var currentOptions = widget.dataSource;
     var reachedEnd = false;
 
     for (final v in value) {
-      AntCascaderOption? target;
+      T? target;
       for (final option in currentOptions) {
-        if (option.value == v) {
+        if (_matches(option, v)) {
           target = option;
           break;
         }
       }
       ret.add(_CascaderLevel(selected: target, options: currentOptions));
-      if (target == null ||
-          target.children == null ||
-          target.children!.isEmpty) {
+      if (target == null) {
         reachedEnd = true;
         break;
       }
-      currentOptions = target.children!;
+      final children = widget.childrenOf?.call(target);
+      if (children == null || children.isEmpty) {
+        reachedEnd = true;
+        break;
+      }
+      currentOptions = children;
     }
     if (!reachedEnd) {
       ret.add(_CascaderLevel(selected: null, options: currentOptions));
     }
     if (ret.isEmpty) {
-      ret.add(_CascaderLevel(selected: null, options: widget.options));
+      ret.add(_CascaderLevel(selected: null, options: widget.dataSource));
     }
     return ret;
   }
 
-  /// 根据值路径获取已选选项数组
-  List<AntCascaderOption?> _getItems(List<String> value) {
-    final items = <AntCascaderOption?>[];
-    var currentOptions = widget.options;
-    for (final v in value) {
-      AntCascaderOption? target;
-      for (final option in currentOptions) {
-        if (option.value == v) {
-          target = option;
-          break;
-        }
-      }
-      items.add(target);
-      if (target == null ||
-          target.children == null ||
-          target.children!.isEmpty) {
-        break;
-      }
-      currentOptions = target.children!;
-    }
-    return items;
-  }
+  void _onItemSelect(T item, int depth) {
+    final next = <Object>[
+      ..._currentValue.take(depth),
+      widget.keyOf(item),
+    ];
 
-  void _onItemSelect(String selectValue, int depth) {
-    final next = List<String>.from(_currentValue.take(depth));
-    next.add(selectValue);
-
-    final newTabIndex = _computeLevels(next).length - 1;
+    final levels = _computeLevels(next);
+    final newTabIndex = levels.length - 1;
     final tabChanged = newTabIndex != _tabActiveIndex;
     setState(() {
       if (widget.value == null) {
@@ -184,7 +188,8 @@ class _AntCascaderViewState extends State<AntCascaderView> {
       }
       _tabActiveIndex = newTabIndex;
     });
-    widget.onChange?.call(next, _getItems(next));
+    final items = <T?>[for (final level in levels) level.selected];
+    widget.onChange?.call(items.whereType<T>().toList(), items);
     if (tabChanged) {
       widget.onTabsChange?.call(newTabIndex);
     }
@@ -219,7 +224,7 @@ class _AntCascaderViewState extends State<AntCascaderView> {
     );
   }
 
-  Widget _buildTabBar(AntThemeData t, List<_CascaderLevel> levels) {
+  Widget _buildTabBar(AntThemeData t, List<_CascaderLevel<T>> levels) {
     return SizedBox(
       height: 44.h,
       child: ListView.builder(
@@ -229,7 +234,7 @@ class _AntCascaderViewState extends State<AntCascaderView> {
         itemBuilder: (context, index) {
           final level = levels[index];
           final active = index == _tabActiveIndex;
-          final title = level.selected?.label ?? widget.placeholder;
+          final selected = level.selected;
           return GestureDetector(
             onTap: () => _onTabTap(index),
             behavior: HitTestBehavior.opaque,
@@ -244,13 +249,18 @@ class _AntCascaderViewState extends State<AntCascaderView> {
                   ),
                 ),
               ),
-              child: Text(
-                title,
+              child: DefaultTextStyle.merge(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: active ? t.colorPrimary : t.colorTextSecondary,
                   fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                 ),
+                child: selected == null
+                    ? Text(widget.placeholder)
+                    : widget.labelBuilder?.call(context, selected) ??
+                        Text('$selected'),
               ),
             ),
           );
@@ -259,7 +269,7 @@ class _AntCascaderViewState extends State<AntCascaderView> {
     );
   }
 
-  Widget _buildContent(AntThemeData t, List<_CascaderLevel> levels) {
+  Widget _buildContent(AntThemeData t, List<_CascaderLevel<T>> levels) {
     final level = levels[_tabActiveIndex];
     return SizedBox(
       height: widget.height ?? 300.h,
@@ -272,8 +282,8 @@ class _AntCascaderViewState extends State<AntCascaderView> {
           itemBuilder: (context, index) {
             final option = level.options[index];
             final selected = _currentValue.length > _tabActiveIndex &&
-                _currentValue[_tabActiveIndex] == option.value;
-            return _buildOptionItem(t, option, selected);
+                _matches(option, _currentValue[_tabActiveIndex]);
+            return _buildOptionItem(context, t, option, selected);
           },
         ),
       ),
@@ -281,26 +291,31 @@ class _AntCascaderViewState extends State<AntCascaderView> {
   }
 
   Widget _buildOptionItem(
+    BuildContext context,
     AntThemeData t,
-    AntCascaderOption option,
+    T option,
     bool selected,
   ) {
+    final disabled = _isDisabled(option);
     return GestureDetector(
-      onTap: option.disabled ? null : () => _onItemSelect(option.value, _tabActiveIndex),
+      onTap: disabled ? null : () => _onItemSelect(option, _tabActiveIndex),
       behavior: HitTestBehavior.opaque,
       child: Opacity(
-        opacity: option.disabled ? 0.4 : 1.0,
+        opacity: disabled ? 0.4 : 1.0,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  option.label,
+                child: DefaultTextStyle.merge(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15.sp,
                     color: selected ? t.colorPrimary : t.colorText,
                   ),
+                  child: widget.labelBuilder?.call(context, option) ??
+                      Text('$option'),
                 ),
               ),
               if (selected) ...[
@@ -320,10 +335,10 @@ class _AntCascaderViewState extends State<AntCascaderView> {
   }
 }
 
-bool _listEquals(List<String> a, List<String> b) {
-  if (a.length != b.length) return false;
+bool _sameValueList(List<Object> a, List<Object>? b) {
+  if (b == null || a.length != b.length) return false;
   for (var i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
+    if (!identical(a[i], b[i]) && a[i] != b[i]) return false;
   }
   return true;
 }

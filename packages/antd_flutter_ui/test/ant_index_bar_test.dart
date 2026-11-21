@@ -4,14 +4,56 @@ library;
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _IndexData {
+  const _IndexData({
+    required this.index,
+    this.title,
+    this.brief,
+    this.child,
+  }) : briefWidget = null;
+
+  final String index;
+  final String? title;
+  final String? brief;
+  final Widget? briefWidget;
+  final Widget? child;
+}
+
+Widget _indexBar({
+  Key? key,
+  required List<_IndexData> items,
+  AntIndexBarController? controller,
+  ValueChanged<Object>? onChange,
+  bool sticky = true,
+}) {
+  return AntIndexBar<_IndexData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.index,
+    titleBuilder: (context, item, index) => Text(item.title ?? item.index),
+    briefBuilder: (context, item) =>
+        item.briefWidget ?? Text(item.brief ?? item.index),
+    childBuilder: (context, item) => item.child ?? const SizedBox.shrink(),
+    controller: controller,
+    sticky: sticky,
+    onChange: onChange,
+  );
+}
+
+TextStyle? _effectiveStyle(WidgetTester tester, String text) {
+  final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+  return paragraph.text.style;
+}
 
 const _panelHeight = 300.0;
 const _headerHeight = 35.0;
 
-List<AntIndexBarItem> _items() => [
+List<_IndexData> _items() => [
       for (final letter in ['A', 'B', 'C', 'D', 'E'])
-        AntIndexBarItem(
+        _IndexData(
           index: letter,
           title: '$letter 组',
           brief: letter,
@@ -39,7 +81,7 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
 void main() {
   group('AntIndexBar — 渲染', () {
     testWidgets('渲染分组标题与索引字母', (tester) async {
-      await tester.pumpWidget(_wrap(AntIndexBar(items: _items())));
+      await tester.pumpWidget(_wrap(_indexBar(items: _items())));
 
       expect(find.text('A 组'), findsOneWidget);
       expect(find.text('B 组'), findsOneWidget);
@@ -50,10 +92,10 @@ void main() {
     testWidgets('brief 决定索引字母，默认取 index 首字符', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntIndexBar(
+          _indexBar(
             items: [
-              AntIndexBarItem(index: 'A', title: 'A 组', brief: '阿'),
-              AntIndexBarItem(index: 'B', title: 'B 组'),
+              const _IndexData(index: 'A', title: 'A 组', brief: '阿'),
+              const _IndexData(index: 'B', title: 'B 组'),
             ],
           ),
         ),
@@ -65,24 +107,24 @@ void main() {
 
     testWidgets('首项默认高亮为圆形主色底', (tester) async {
       final theme = AntThemeData.light();
-      await tester.pumpWidget(_wrap(AntIndexBar(items: _items())));
+      await tester.pumpWidget(_wrap(_indexBar(items: _items())));
 
-      final letter = tester.widget<Text>(find.text('A'));
-      expect(letter.style?.color, theme.colorTextLightSolid);
+      expect(_effectiveStyle(tester, 'A')?.color, theme.colorTextLightSolid);
 
       final circle = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('A'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('A'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = circle.decoration! as BoxDecoration;
       expect(decoration.color, theme.colorPrimary);
       expect(decoration.shape, BoxShape.circle);
 
       // 非激活项为常规文字色、无底色。
-      final other = tester.widget<Text>(find.text('B'));
-      expect(other.style?.color, theme.colorTextTertiary);
+      expect(_effectiveStyle(tester, 'B')?.color, theme.colorTextTertiary);
     });
   });
 
@@ -90,7 +132,12 @@ void main() {
     testWidgets('点击索引字母滚动到对应分组', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(
-        _wrap(AntIndexBar(items: _items(), onChange: changes.add)),
+        _wrap(
+          _indexBar(
+            items: _items(),
+            onChange: (key) => changes.add(key as String),
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -99,7 +146,7 @@ void main() {
 
       expect(changes.last, 'C');
       expect(
-        tester.widget<Text>(find.text('C')).style?.color,
+        _effectiveStyle(tester, 'C')?.color,
         AntThemeData.light().colorTextLightSolid,
       );
 
@@ -107,17 +154,28 @@ void main() {
         find.byType(Scrollable).first,
       );
       // C 组顶 = 2 * (300 + 35)。
-      expect(scrollable.position.pixels, closeTo(2 * (_panelHeight + _headerHeight), 1));
+      expect(
+        scrollable.position.pixels,
+        closeTo(2 * (_panelHeight + _headerHeight), 1),
+      );
     });
 
     testWidgets('滚动内容时自动切换索引并回调', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(
-        _wrap(AntIndexBar(items: _items(), onChange: changes.add)),
+        _wrap(
+          _indexBar(
+            items: _items(),
+            onChange: (key) => changes.add(key as String),
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -400));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -400),
+      );
       await tester.pumpAndSettle();
 
       expect(changes, isNotEmpty);
@@ -125,11 +183,12 @@ void main() {
     });
 
     testWidgets('交互时显示气泡，松手后消失', (tester) async {
-      await tester.pumpWidget(_wrap(AntIndexBar(items: _items())));
+      await tester.pumpWidget(_wrap(_indexBar(items: _items())));
       await tester.pumpAndSettle();
       expect(find.text('B'), findsOneWidget);
 
-      final gesture = await tester.startGesture(tester.getCenter(find.text('B')));
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.text('B')));
       await tester.pump();
 
       // 气泡与索引字母各一个 B。
@@ -143,7 +202,12 @@ void main() {
     testWidgets('拖动索引条连续切换索引', (tester) async {
       final changes = <String>[];
       await tester.pumpWidget(
-        _wrap(AntIndexBar(items: _items(), onChange: changes.add)),
+        _wrap(
+          _indexBar(
+            items: _items(),
+            onChange: (key) => changes.add(key as String),
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -164,13 +228,16 @@ void main() {
 
   group('AntIndexBar — 吸顶', () {
     testWidgets('分组标题滚出后吸顶显示', (tester) async {
-      await tester.pumpWidget(_wrap(AntIndexBar(items: _items())));
+      await tester.pumpWidget(_wrap(_indexBar(items: _items())));
       await tester.pumpAndSettle();
 
       // 顶部时只有流式标题。
       expect(find.text('A 组'), findsOneWidget);
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -100));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -100),
+      );
       await tester.pumpAndSettle();
 
       // 流式标题滚出，吸顶标题补充一份。
@@ -179,11 +246,14 @@ void main() {
 
     testWidgets('sticky=false 时不显示吸顶标题', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntIndexBar(items: _items(), sticky: false)),
+        _wrap(_indexBar(items: _items(), sticky: false)),
       );
       await tester.pumpAndSettle();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -100));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -100),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('A 组'), findsOneWidget);
@@ -196,10 +266,10 @@ void main() {
       final changes = <String>[];
       await tester.pumpWidget(
         _wrap(
-          AntIndexBar(
+          _indexBar(
             items: _items(),
             controller: controller,
-            onChange: changes.add,
+            onChange: (key) => changes.add(key as String),
           ),
         ),
       );

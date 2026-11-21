@@ -16,7 +16,10 @@ class GridPage extends StatelessWidget {
         children: const [
           _Section(title: '基本用法', description: '24 栅格系统，span 表示占位格数'),
           _BasicDemo(),
-          _Section(title: '栅格比例', description: 'span 12+12 / 8+8+8 / 6+6+6+6 / 4×6'),
+          _Section(
+            title: '栅格比例',
+            description: 'span 12+12 / 8+8+8 / 6+6+6+6 / 4×6',
+          ),
           _RatioDemo(),
           _Section(title: '栅格间距', description: 'gutter 设置列间距，通过列内边距实现'),
           _GutterDemo(),
@@ -24,7 +27,11 @@ class GridPage extends StatelessWidget {
           _OffsetDemo(),
           _Section(title: '垂直对齐', description: 'align: top / middle / bottom'),
           _AlignDemo(),
-          _Section(title: '水平分布', description: 'justify: start / center / end / spaceAround / spaceBetween'),
+          _Section(
+            title: '水平分布',
+            description:
+                'justify: start / center / end / spaceAround / spaceBetween',
+          ),
           _JustifyDemo(),
           _Section(title: '换行', description: 'wrap: true，总 span 超过 24 时自动换行'),
           _WrapDemo(),
@@ -52,15 +59,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -87,12 +100,10 @@ class _Cell extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: c.withValues(alpha: 0.35)),
       ),
-      child: AntText(text: label,
-          style: TextStyle(
-            color: c,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          )),
+      child: AntText(
+        text: label,
+        style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.w500),
+      ),
     );
   }
 }
@@ -160,7 +171,10 @@ class _RatioDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -184,7 +198,10 @@ class _GutterDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AntText(text: 'gutter: 16', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(
+          text: 'gutter: 16',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -203,7 +220,10 @@ class _GutterDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const AntText(text: 'gutter: 24', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(
+          text: 'gutter: 24',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -270,7 +290,10 @@ class _AlignDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -284,7 +307,10 @@ class _AlignDemo extends StatelessWidget {
             align: align,
             children: const [
               AntCol(span: 8, child: _Cell('40', height: 40)),
-              AntCol(span: 8, child: _Cell('60', height: 60, color: Color(0xFF52C41A))),
+              AntCol(
+                span: 8,
+                child: _Cell('60', height: 60, color: Color(0xFF52C41A)),
+              ),
               AntCol(span: 8, child: _Cell('40', height: 40)),
             ],
           ),
@@ -319,7 +345,10 @@ class _JustifyDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -414,8 +443,14 @@ class _ComboDemo extends StatelessWidget {
             child: AntRow(
               gutter: 8,
               children: [
-                AntCol(span: 12, child: _Cell('内 12', color: Color(0xFF722ED1))),
-                AntCol(span: 12, child: _Cell('内 12', color: Color(0xFF722ED1))),
+                AntCol(
+                  span: 12,
+                  child: _Cell('内 12', color: Color(0xFF722ED1)),
+                ),
+                AntCol(
+                  span: 12,
+                  child: _Cell('内 12', color: Color(0xFF722ED1)),
+                ),
               ],
             ),
           ),

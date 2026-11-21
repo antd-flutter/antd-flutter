@@ -18,19 +18,32 @@ class TypographyPage extends StatelessWidget {
           _TitleDemo(),
           _Section(title: '文本与段落', description: 'AntText / AntParagraph'),
           _TextParagraphDemo(),
-          _Section(title: '文本类型', description: 'type: secondary / success / warning / danger'),
+          _Section(
+            title: '文本类型',
+            description: 'type: secondary / success / warning / danger',
+          ),
           _TypeDemo(),
           _Section(title: '禁用', description: 'disabled: true'),
           _DisabledDemo(),
-          _Section(title: '修饰', description: 'strong / italic / underline / delete / code / mark / keyboard'),
+          _Section(
+            title: '修饰',
+            description:
+                'strong / italic / underline / delete / code / mark / keyboard',
+          ),
           _DecorationDemo(),
-          _Section(title: '链接 Link', description: 'AntLink — colorLink + 下划线 + hover 变色'),
+          _Section(
+            title: '链接 Link',
+            description: 'AntLink — colorLink + 下划线 + hover 变色',
+          ),
           _LinkDemo(),
           _Section(title: '可复制', description: 'copyable: true — 点击复制图标写入剪贴板'),
           _CopyableDemo(),
           _Section(title: '可编辑', description: 'editable: true — 点击编辑图标进入行内编辑'),
           _EditableDemo(),
-          _Section(title: '省略', description: 'ellipsis: rows / expandable / tooltip'),
+          _Section(
+            title: '省略',
+            description: 'ellipsis: rows / expandable / tooltip',
+          ),
           _EllipsisDemo(),
           _Section(title: '组合示例', description: '标题 + 段落 + 链接的典型文章布局'),
           _CompositionDemo(),
@@ -58,7 +71,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -95,7 +111,8 @@ class _TextParagraphDemo extends StatelessWidget {
         AntText(text: 'Ant Design (text)'),
         SizedBox(height: 8),
         AntParagraph(
-          text: 'Ant Design 是一个致力于提升用户和设计师体验的设计体系。'
+          text:
+              'Ant Design 是一个致力于提升用户和设计师体验的设计体系。'
               '通过统一的规范，降低用户与系统之间的沟通成本，'
               '提供高效、愉悦的使用体验。',
         ),
@@ -114,7 +131,10 @@ class _TypeDemo extends StatelessWidget {
       children: [
         AntText(text: 'Ant Design (default)'),
         SizedBox(height: 4),
-        AntText(text: 'Ant Design (secondary)', type: AntTypographyType.secondary),
+        AntText(
+          text: 'Ant Design (secondary)',
+          type: AntTypographyType.secondary,
+        ),
         SizedBox(height: 4),
         AntText(text: 'Ant Design (success)', type: AntTypographyType.success),
         SizedBox(height: 4),
@@ -206,10 +226,7 @@ class _CopyableDemo extends StatelessWidget {
       children: [
         AntText(text: '可复制的文本', copyable: true),
         SizedBox(height: 8),
-        AntParagraph(
-          text: '可复制的段落。点击右侧图标可将全文复制到剪贴板。',
-          copyable: true,
-        ),
+        AntParagraph(text: '可复制的段落。点击右侧图标可将全文复制到剪贴板。', copyable: true),
         SizedBox(height: 8),
         AntText(
           text: '自定义复制文本',
@@ -231,7 +248,8 @@ class _EditableDemo extends StatelessWidget {
         AntText(text: '可编辑的文本', editable: true),
         SizedBox(height: 8),
         AntParagraph(
-          text: '可编辑的段落。点击编辑图标进入行内编辑，'
+          text:
+              '可编辑的段落。点击编辑图标进入行内编辑，'
               'Enter 确认或点击确认图标提交，点击取消图标放弃修改。',
           editable: true,
         ),
@@ -254,7 +272,8 @@ class _EllipsisDemo extends StatelessWidget {
         ),
         SizedBox(height: 12),
         AntParagraph(
-          text: '可展开的段落省略：Ant Design 通过统一的规范，降低用户与系统之间的沟通成本，'
+          text:
+              '可展开的段落省略：Ant Design 通过统一的规范，降低用户与系统之间的沟通成本，'
               '提供高效、愉悦的使用体验。在真实的产品设计中，排版系统需要兼顾信息密度与阅读舒适度，'
               '省略与展开是处理长文本的常见手段。antd 的 Typography 组件提供了灵活的省略配置，'
               '支持多行省略、自定义展开按钮和 tooltip 提示。',
@@ -286,11 +305,13 @@ class _CompositionDemo extends StatelessWidget {
         children: [
           AntTitle('设计体系的价值观', level: AntTitleLevel.h2),
           AntParagraph(
-            text: '自然、确定性、意义感、生长性。好的设计体系应当如同自然界的生态系统，'
+            text:
+                '自然、确定性、意义感、生长性。好的设计体系应当如同自然界的生态系统，'
                 '各个组件之间和谐共生、有机协作。',
           ),
           AntParagraph(
-            text: 'Ant Design 提供了完整的设计资源与工程实现，'
+            text:
+                'Ant Design 提供了完整的设计资源与工程实现，'
                 '帮助产品团队快速构建高质量的界面。',
           ),
           AntLink(text: '了解更多 →', href: 'https://ant.design'),

@@ -20,6 +20,62 @@ Widget _wrap(Widget child) {
   );
 }
 
+class _TourData {
+  const _TourData({
+    this.target,
+    this.title,
+    this.description,
+    this.placement,
+  });
+
+  final GlobalKey? target;
+  final String? title;
+  final String? description;
+  final AntTourPlacement? placement;
+}
+
+Widget _tour({
+  Key? key,
+  required List<_TourData> steps,
+  bool open = false,
+  int? current,
+  AntTourPlacement placement = AntTourPlacement.bottomCenter,
+  bool mask = true,
+  bool arrow = true,
+  bool maskClosable = false,
+  bool skipConfirm = false,
+  String? skipConfirmTitle,
+  Duration stepTransitionDuration = const Duration(milliseconds: 300),
+  bool adaptivePosition = true,
+  ValueChanged<int>? onStepChange,
+  VoidCallback? onFinish,
+  VoidCallback? onClose,
+}) {
+  return AntTour<_TourData>(
+    key: key,
+    steps: steps,
+    targetOf: (step) => step.target,
+    titleBuilder: (context, step, index) =>
+        step.title == null ? null : Text(step.title!),
+    descriptionBuilder: (context, step, index) =>
+        step.description == null ? null : Text(step.description!),
+    placementOf: (step) => step.placement,
+    open: open,
+    current: current,
+    placement: placement,
+    mask: mask,
+    arrow: arrow,
+    maskClosable: maskClosable,
+    skipConfirm: skipConfirm,
+    skipConfirmTitle: skipConfirmTitle,
+    stepTransitionDuration: stepTransitionDuration,
+    adaptivePosition: adaptivePosition,
+    onStepChange: onStepChange,
+    onFinish: onFinish,
+    onClose: onClose,
+  );
+}
+
 /// 带两个引导目标的宿主布局。
 Widget _host({
   required Widget tour,
@@ -57,15 +113,15 @@ void main() {
       _host(
         target1Key: t1,
         target2Key: t2,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           steps: [
-            AntTourStep(
+            _TourData(
               target: t1,
               title: '第一步标题',
               description: '第一步描述',
             ),
-            AntTourStep(target: t2, title: '第二步标题', description: '第二步描述'),
+            _TourData(target: t2, title: '第二步标题', description: '第二步描述'),
           ],
         ),
       ),
@@ -82,9 +138,9 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           open: false,
-          steps: [AntTourStep(target: t1, title: '未打开', description: '内容')],
+          steps: [_TourData(target: t1, title: '未打开', description: '内容')],
         ),
       ),
     );
@@ -98,10 +154,10 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           steps: [
-            AntTourStep(
+            _TourData(
               target: t1,
               title: '定位步骤',
               description: '卡片在目标下方',
@@ -123,10 +179,10 @@ void main() {
   testWidgets('无 target 全屏居中', (tester) async {
     await tester.pumpWidget(
       _wrap(
-        const AntTour(
+        _tour(
           open: true,
           steps: [
-            AntTourStep(title: '居中步骤', description: '没有目标元素'),
+            const _TourData(title: '居中步骤', description: '没有目标元素'),
           ],
         ),
       ),
@@ -150,10 +206,10 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           steps: [
-            AntTourStep(target: t1, title: '引导标题', description: '引导描述内容'),
+            _TourData(target: t1, title: '引导标题', description: '引导描述内容'),
           ],
         ),
       ),
@@ -170,12 +226,12 @@ void main() {
       _host(
         target1Key: t1,
         target2Key: t2,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           steps: [
-            AntTourStep(target: t1, title: 'A', description: 'a'),
-            AntTourStep(target: t2, title: 'B', description: 'b'),
-            const AntTourStep(title: 'C', description: 'c'),
+            _TourData(target: t1, title: 'A', description: 'a'),
+            _TourData(target: t2, title: 'B', description: 'b'),
+            const _TourData(title: 'C', description: 'c'),
           ],
         ),
       ),
@@ -192,12 +248,12 @@ void main() {
       _host(
         target1Key: t1,
         target2Key: t2,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           onStepChange: changed.add,
           steps: [
-            AntTourStep(target: t1, title: 'A', description: 'a'),
-            AntTourStep(target: t2, title: 'B', description: 'b'),
+            _TourData(target: t1, title: 'A', description: 'a'),
+            _TourData(target: t2, title: 'B', description: 'b'),
           ],
         ),
       ),
@@ -217,11 +273,11 @@ void main() {
       _host(
         target1Key: t1,
         target2Key: t2,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           steps: [
-            AntTourStep(target: t1, title: 'A', description: 'a'),
-            AntTourStep(target: t2, title: 'B', description: 'b'),
+            _TourData(target: t1, title: 'A', description: 'a'),
+            _TourData(target: t2, title: 'B', description: 'b'),
           ],
         ),
       ),
@@ -244,10 +300,10 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           onFinish: () => finished = true,
-          steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+          steps: [_TourData(target: t1, title: 'A', description: 'a')],
         ),
       ),
     );
@@ -266,10 +322,10 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           open: true,
           onClose: () => closed = true,
-          steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+          steps: [_TourData(target: t1, title: 'A', description: 'a')],
         ),
       ),
     );
@@ -287,12 +343,12 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           key: const Key('tour-mask-closable'),
           open: true,
           maskClosable: true,
           onClose: () => closed = true,
-          steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+          steps: [_TourData(target: t1, title: 'A', description: 'a')],
         ),
       ),
     );
@@ -306,10 +362,10 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           key: const Key('tour-mask-fixed'),
           open: true,
-          steps: [AntTourStep(target: t1, title: 'B', description: 'b')],
+          steps: [_TourData(target: t1, title: 'B', description: 'b')],
         ),
       ),
     );
@@ -324,11 +380,11 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           key: const Key('tour-mask-off'),
           open: true,
           mask: false,
-          steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+          steps: [_TourData(target: t1, title: 'A', description: 'a')],
         ),
       ),
     );
@@ -342,11 +398,11 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           key: const Key('tour-arrow-off'),
           open: true,
           arrow: false,
-          steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+          steps: [_TourData(target: t1, title: 'A', description: 'a')],
         ),
       ),
     );
@@ -356,11 +412,11 @@ void main() {
     await tester.pumpWidget(
       _host(
         target1Key: t1,
-        tour: AntTour(
+        tour: _tour(
           key: const Key('tour-arrow-on'),
           open: true,
           arrow: true,
-          steps: [AntTourStep(target: t1, title: 'A2', description: 'a2')],
+          steps: [_TourData(target: t1, title: 'A2', description: 'a2')],
         ),
       ),
     );
@@ -384,10 +440,10 @@ void main() {
               color: Colors.blue,
             ),
             const SizedBox(height: 20),
-            AntTour(
+            _tour(
               open: true,
               steps: [
-                AntTourStep(
+                _TourData(
                   target: t1,
                   title: '上',
                   description: '方向验证',
@@ -422,10 +478,10 @@ void main() {
                 color: Colors.blue,
               ),
             ),
-            AntTour(
+            _tour(
               open: true,
               steps: [
-                AntTourStep(
+                _TourData(
                   target: t1,
                   title: '右',
                   description: '方向验证',
@@ -446,18 +502,17 @@ void main() {
     expect(arrowRect2.right, lessThan(cardRect2.left + 12));
   });
 
-  testWidgets('R30.1 探针：挖孔上半部 → 卡片翻到下方 + 箭头贴卡片顶边',
-      (tester) async {
+  testWidgets('R30.1 探针：挖孔上半部 → 卡片翻到下方 + 箭头贴卡片顶边', (tester) async {
     final t1 = GlobalKey();
     await tester.pumpWidget(
       _wrap(
         _host(
           target1Key: t1,
-          tour: AntTour(
+          tour: _tour(
             open: true,
             adaptivePosition: false,
             steps: [
-              AntTourStep(
+              _TourData(
                 target: t1,
                 title: '上',
                 description: '挖孔在上半部',
@@ -482,8 +537,7 @@ void main() {
     );
   });
 
-  testWidgets('R30.1 探针：挖孔下半部 + topCenter → 自适应翻到上方 + 箭头贴底边',
-      (tester) async {
+  testWidgets('R30.1 探针：挖孔下半部 + topCenter → 自适应翻到上方 + 箭头贴底边', (tester) async {
     final t1 = GlobalKey();
     await tester.pumpWidget(
       _wrap(
@@ -499,10 +553,10 @@ void main() {
                 color: Colors.blue,
               ),
             ),
-            AntTour(
+            _tour(
               open: true,
               steps: [
-                AntTourStep(
+                _TourData(
                   target: t1,
                   title: '下',
                   description: '挖孔在下半部',
@@ -523,8 +577,7 @@ void main() {
     expect(arrowRect.top, greaterThan(cardRect.bottom - 12));
   });
 
-  testWidgets('R30.1 探针：挖孔右缘 + rightCenter → 自适应翻到左侧 + 箭头贴右边缘',
-      (tester) async {
+  testWidgets('R30.1 探针：挖孔右缘 + rightCenter → 自适应翻到左侧 + 箭头贴右边缘', (tester) async {
     final t1 = GlobalKey();
     await tester.pumpWidget(
       _wrap(
@@ -540,10 +593,10 @@ void main() {
                 color: Colors.blue,
               ),
             ),
-            AntTour(
+            _tour(
               open: true,
               steps: [
-                AntTourStep(
+                _TourData(
                   target: t1,
                   title: '右缘',
                   description: '右侧放不下',
@@ -578,12 +631,12 @@ void main() {
             return _host(
               target1Key: t1,
               target2Key: t2,
-              tour: AntTour(
+              tour: _tour(
                 open: true,
                 current: current,
                 steps: [
-                  AntTourStep(target: t1, title: 'A', description: 'a'),
-                  AntTourStep(target: t2, title: 'B', description: 'b'),
+                  _TourData(target: t1, title: 'A', description: 'a'),
+                  _TourData(target: t2, title: 'B', description: 'b'),
                 ],
               ),
             );
@@ -617,9 +670,9 @@ void main() {
             setState = s;
             return _host(
               target1Key: t1,
-              tour: AntTour(
+              tour: _tour(
                 open: open,
-                steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+                steps: [_TourData(target: t1, title: 'A', description: 'a')],
               ),
             );
           },
@@ -641,10 +694,10 @@ void main() {
       _wrap(
         _host(
           target1Key: t1,
-          tour: AntTour(
+          tour: _tour(
             open: true,
             skipConfirm: true,
-            steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+            steps: [_TourData(target: t1, title: 'A', description: 'a')],
             onClose: () => closed = true,
           ),
         ),
@@ -672,17 +725,16 @@ void main() {
     expect(closed, isTrue);
   });
 
-  testWidgets('R30.1 skipConfirm=false：跳过直接关闭（默认行为兼容）',
-      (tester) async {
+  testWidgets('R30.1 skipConfirm=false：跳过直接关闭（默认行为兼容）', (tester) async {
     final t1 = GlobalKey();
     bool closed = false;
     await tester.pumpWidget(
       _wrap(
         _host(
           target1Key: t1,
-          tour: AntTour(
+          tour: _tour(
             open: true,
-            steps: [AntTourStep(target: t1, title: 'A', description: 'a')],
+            steps: [_TourData(target: t1, title: 'A', description: 'a')],
             onClose: () => closed = true,
           ),
         ),
@@ -695,18 +747,17 @@ void main() {
     expect(closed, isTrue);
   });
 
-  testWidgets('R30.1 adaptivePosition：上方空间不足时卡片翻到目标下方',
-      (tester) async {
+  testWidgets('R30.1 adaptivePosition：上方空间不足时卡片翻到目标下方', (tester) async {
     final t1 = GlobalKey();
     await tester.pumpWidget(
       _wrap(
         _host(
           target1Key: t1,
-          tour: AntTour(
+          tour: _tour(
             open: true,
             adaptivePosition: true,
             steps: [
-              AntTourStep(
+              _TourData(
                 target: t1,
                 title: '自适应',
                 description: '避让',

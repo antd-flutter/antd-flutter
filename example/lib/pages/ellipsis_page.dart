@@ -10,8 +10,8 @@ class EllipsisPage extends StatelessWidget {
     final theme = AntTheme.of(context);
     const longText =
         'antd-mobile 是蚂蚁集团开源的移动端组件库，提供了大量高质量的移动端组件，'
-            '包括基础组件、布局组件、数据展示组件、反馈组件、导航组件等等，'
-            '支持 React、Vue、Angular 等多种框架，是国内使用最广泛的移动端组件库之一。';
+        '包括基础组件、布局组件、数据展示组件、反馈组件、导航组件等等，'
+        '支持 React、Vue、Angular 等多种框架，是国内使用最广泛的移动端组件库之一。';
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -91,14 +91,17 @@ class EllipsisPage extends StatelessWidget {
   }
 
   void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: AntText(text: msg)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: AntText(text: msg)));
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -117,8 +120,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,

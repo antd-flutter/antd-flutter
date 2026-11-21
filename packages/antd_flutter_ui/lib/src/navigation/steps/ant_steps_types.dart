@@ -36,28 +36,23 @@ enum AntStepsSize {
   small,
 }
 
-/// 步骤项。
-class AntStepsItem {
-  const AntStepsItem({
-    this.title,
-    this.description,
-    this.icon,
-    this.status,
-    this.disabled,
-  });
+/// 步骤标题构建器。未提供时回退为 `Text('$item')`。
+typedef AntStepsTitleBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+  int index,
+);
 
-  /// 标题。
-  final String? title;
+/// 步骤描述构建器。返回 null 时不展示描述。
+typedef AntStepsDescriptionBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+  int index,
+);
 
-  /// 描述文字。
-  final String? description;
-
-  /// 自定义图标。优先于自动生成的圆圈内容。
-  final Widget? icon;
-
-  /// 自定义状态。覆盖自动计算的状态。
-  final AntStepsStatus? status;
-
-  /// 是否禁用点击。
-  final bool? disabled;
-}
+/// 步骤自定义图标构建器。优先于自动生成的圆圈内容。
+typedef AntStepsIconBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+  int index,
+);

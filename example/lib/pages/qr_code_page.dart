@@ -47,7 +47,11 @@ class _QRCodePageState extends State<QRCodePage> {
               children: [
                 Column(
                   children: [
-                    const AntQRCode(value: 'L', size: 100, errorLevel: AntQRCodeErrorLevel.l),
+                    const AntQRCode(
+                      value: 'L',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.l,
+                    ),
                     SizedBox(height: 8.w),
                     const Text('L'),
                   ],
@@ -55,7 +59,11 @@ class _QRCodePageState extends State<QRCodePage> {
                 SizedBox(width: 24.w),
                 Column(
                   children: [
-                    const AntQRCode(value: 'M', size: 100, errorLevel: AntQRCodeErrorLevel.m),
+                    const AntQRCode(
+                      value: 'M',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.m,
+                    ),
                     SizedBox(height: 8.w),
                     const Text('M'),
                   ],
@@ -63,7 +71,11 @@ class _QRCodePageState extends State<QRCodePage> {
                 SizedBox(width: 24.w),
                 Column(
                   children: [
-                    const AntQRCode(value: 'Q', size: 100, errorLevel: AntQRCodeErrorLevel.q),
+                    const AntQRCode(
+                      value: 'Q',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.q,
+                    ),
                     SizedBox(height: 8.w),
                     const Text('Q'),
                   ],
@@ -71,7 +83,11 @@ class _QRCodePageState extends State<QRCodePage> {
                 SizedBox(width: 24.w),
                 Column(
                   children: [
-                    const AntQRCode(value: 'H', size: 100, errorLevel: AntQRCodeErrorLevel.h),
+                    const AntQRCode(
+                      value: 'H',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.h,
+                    ),
                     SizedBox(height: 8.w),
                     const Text('H'),
                   ],
@@ -150,7 +166,11 @@ class _QRCodePageState extends State<QRCodePage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

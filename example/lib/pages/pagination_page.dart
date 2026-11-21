@@ -18,7 +18,10 @@ class PaginationPage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '显示总条数', description: 'showTotal=true，左侧显示总条数'),
           _ShowTotalDemo(),
-          _Section(title: '每页条数切换', description: 'showSizeChanger=true，右侧显示条数切换器'),
+          _Section(
+            title: '每页条数切换',
+            description: 'showSizeChanger=true，右侧显示条数切换器',
+          ),
           _SizeChangerDemo(),
           _Section(title: '快速跳转', description: 'showQuickJumper=true，输入页码快速跳转'),
           _QuickJumperDemo(),
@@ -48,15 +51,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -166,8 +175,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           onChange: (page) => setState(() => _current = page),
         ),
         const SizedBox(height: 8),
-        Text('当前页：$_current',
-            style: Theme.of(context).textTheme.bodySmall),
+        Text('当前页：$_current', style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -177,5 +185,6 @@ void _showToast(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 1)));
+      SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
+    );
 }

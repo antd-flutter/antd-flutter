@@ -37,8 +37,8 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: 
-          title,
+        AntText(
+          text: title,
           style: TextStyle(
             fontSize: t.fontSizeLG,
             fontWeight: FontWeight.w600,
@@ -47,8 +47,8 @@ class _Section extends StatelessWidget {
         ),
         if (description != null) ...[
           SizedBox(height: 4.h),
-          AntText(text: 
-            description!,
+          AntText(
+            text: description!,
             style: TextStyle(
               fontSize: t.fontSizeSM,
               color: t.colorTextTertiary,
@@ -177,9 +177,7 @@ class _ValidationFormSection extends StatelessWidget {
             name: 'username',
             label: '用户名',
             required: true,
-            rules: [
-              AntFormFieldRule(minLength: 3, message: '用户名至少3个字符'),
-            ],
+            rules: [AntFormFieldRule(minLength: 3, message: '用户名至少3个字符')],
             builder: (field) => AntInput(
               value: field.value ?? '',
               onChange: field.didChange,

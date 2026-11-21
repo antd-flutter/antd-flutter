@@ -5,7 +5,8 @@
 /// 对齐 antd React ColorPicker 组件，支持：
 /// - [value] / [defaultValue] / [onChange] / [onChangeComplete]
 /// - [disabled] / [size] / [showText] / [format]
-/// - [presets] 预设颜色 / [disabledAlpha] / [allowClear]
+/// - [presets] 预设颜色（任意模型 `List<T>`，配 [presetLabelOf] / [presetColorsOf]）
+/// - [disabledAlpha] / [allowClear]
 /// - [open] / [defaultOpen] / [onOpenChange]
 library;
 
@@ -20,7 +21,7 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 export 'ant_color_picker_types.dart';
 
 /// 颜色选择器组件
-class AntColorPicker extends StatefulWidget {
+class AntColorPicker<T> extends StatefulWidget {
   const AntColorPicker({
     super.key,
     this.value,
@@ -32,6 +33,8 @@ class AntColorPicker extends StatefulWidget {
     this.showText = false,
     this.format = AntColorFormat.hex,
     this.presets = const [],
+    this.presetLabelOf,
+    this.presetColorsOf,
     this.disabledAlpha = false,
     this.allowClear = false,
     this.open,
@@ -63,8 +66,15 @@ class AntColorPicker extends StatefulWidget {
   /// 颜色格式
   final AntColorFormat format;
 
-  /// 预设颜色
-  final List<AntColorPreset> presets;
+  /// 预设颜色组（任意模型）。
+  final List<T> presets;
+
+  /// 预设分组标题，缺省：`T` 是 [AntColorPreset] 时取其 `label`，否则 `'$item'`。
+  final String Function(T preset)? presetLabelOf;
+
+  /// 预设分组的颜色列表（hex，如 '#1677ff'），缺省：
+  /// `T` 是 [AntColorPreset] 时取其 `colors`，否则抛 [StateError]。
+  final List<String> Function(T preset)? presetColorsOf;
 
   /// 禁用透明度
   final bool disabledAlpha;
@@ -82,13 +92,13 @@ class AntColorPicker extends StatefulWidget {
   final void Function(bool open)? onOpenChange;
 
   @override
-  State<AntColorPicker> createState() => _AntColorPickerState();
+  State<AntColorPicker<T>> createState() => _AntColorPickerState<T>();
 }
 
-class _AntColorPickerState extends State<AntColorPicker>
+class _AntColorPickerState<T> extends State<AntColorPicker<T>>
     with
-        PopupOpenScheduler<AntColorPicker>,
-        PopupContentRefresher<AntColorPicker> {
+        PopupOpenScheduler<AntColorPicker<T>>,
+        PopupContentRefresher<AntColorPicker<T>> {
   /// 触发元素 GlobalKey（弹层基座 AntPopupOverlay 定位/镂空遮挡用）。
   final GlobalKey _triggerKey = GlobalKey();
   OverlayEntry? _overlayEntry;
@@ -99,6 +109,24 @@ class _AntColorPickerState extends State<AntColorPicker>
   AntThemeData _themeData = AntThemeData.light();
 
   bool get _currentOpen => widget.open ?? _internalOpen;
+
+  /// 预设分组标题。
+  String _presetLabel(T preset) {
+    final fn = widget.presetLabelOf;
+    if (fn != null) return fn(preset);
+    if (preset is AntColorPreset) return preset.label;
+    return '$preset';
+  }
+
+  /// 预设分组的颜色列表。
+  List<String> _presetColors(T preset) {
+    final fn = widget.presetColorsOf;
+    if (fn != null) return fn(preset);
+    if (preset is AntColorPreset) return preset.colors;
+    throw StateError(
+      'AntColorPicker: 无法从 $T 提取预设颜色，请提供 presetColorsOf。',
+    );
+  }
 
   String? get _currentColorHex {
     if (widget.value != null) return widget.value;
@@ -117,7 +145,7 @@ class _AntColorPickerState extends State<AntColorPicker>
   }
 
   @override
-  void didUpdateWidget(AntColorPicker oldWidget) {
+  void didUpdateWidget(AntColorPicker<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != oldWidget.value) {
       _internalColor = _hexToHsv(widget.value!);
@@ -125,7 +153,10 @@ class _AntColorPickerState extends State<AntColorPicker>
     // 受控 open 切换统一延迟到帧末执行（PopupOpenScheduler 防构建期插 Overlay）
     if (widget.open != null && widget.open != oldWidget.open) {
       schedulePopupOpen(
-          open: widget.open!, show: _showOverlay, hide: () => _setOpen(false),);
+        open: widget.open!,
+        show: _showOverlay,
+        hide: () => _setOpen(false),
+      );
     }
   }
 
@@ -164,11 +195,13 @@ class _AntColorPickerState extends State<AntColorPicker>
             : HSVColor.fromColor(const Color(0xFF1677FF)));
     _themeData = theme;
     _overlayEntry = OverlayEntry(
-      builder: (context) => _ColorPickerOverlay(
+      builder: (context) => _ColorPickerOverlay<T>(
         triggerKey: _triggerKey,
         themeData: _themeData,
         hsv: hsv,
         presets: widget.presets,
+        presetLabelOf: _presetLabel,
+        presetColorsOf: _presetColors,
         disabledAlpha: widget.disabledAlpha,
         allowClear: widget.allowClear,
         showText: widget.showText,
@@ -309,7 +342,8 @@ int _alphaOf(Color c) => (c.a * 255.0).round().clamp(0, 255);
 
 /// HSV 转 HSL 值（hue 0-360, saturation 0-1, lightness 0-1）
 ({double hue, double saturation, double lightness}) _hsvToHslValues(
-    HSVColor hsv,) {
+  HSVColor hsv,
+) {
   final v = hsv.value;
   final s = hsv.saturation;
   final l = v * (1 - s / 2);
@@ -345,12 +379,14 @@ String _formatColor(HSVColor hsv, AntColorFormat format) {
 // ---------- 浮层面板 ----------
 
 /// 颜色选择器浮层
-class _ColorPickerOverlay extends StatefulWidget {
+class _ColorPickerOverlay<T> extends StatefulWidget {
   const _ColorPickerOverlay({
     required this.triggerKey,
     required this.themeData,
     required this.hsv,
     required this.presets,
+    required this.presetLabelOf,
+    required this.presetColorsOf,
     required this.disabledAlpha,
     required this.allowClear,
     required this.showText,
@@ -365,7 +401,9 @@ class _ColorPickerOverlay extends StatefulWidget {
   final GlobalKey triggerKey;
   final AntThemeData themeData;
   final HSVColor hsv;
-  final List<AntColorPreset> presets;
+  final List<T> presets;
+  final String Function(T preset) presetLabelOf;
+  final List<String> Function(T preset) presetColorsOf;
   final bool disabledAlpha;
   final bool allowClear;
   final bool showText;
@@ -376,10 +414,10 @@ class _ColorPickerOverlay extends StatefulWidget {
   final VoidCallback onDismiss;
 
   @override
-  State<_ColorPickerOverlay> createState() => _ColorPickerOverlayState();
+  State<_ColorPickerOverlay<T>> createState() => _ColorPickerOverlayState<T>();
 }
 
-class _ColorPickerOverlayState extends State<_ColorPickerOverlay> {
+class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
   late HSVColor _hsv;
 
   @override
@@ -490,7 +528,7 @@ class _ColorPickerOverlayState extends State<_ColorPickerOverlay> {
           SizedBox(height: 12.h),
           for (final preset in widget.presets) ...[
             Text(
-              preset.label,
+              widget.presetLabelOf(preset),
               style: TextStyle(
                 fontSize: t.fontSizeSM.sp,
                 color: t.colorTextSecondary,
@@ -501,7 +539,7 @@ class _ColorPickerOverlayState extends State<_ColorPickerOverlay> {
               spacing: 8.w,
               runSpacing: 8.h,
               children: [
-                for (final hex in preset.colors)
+                for (final hex in widget.presetColorsOf(preset))
                   _PresetSwatch(
                     hex: hex,
                     themeData: t,
@@ -853,7 +891,11 @@ class _AlphaPainter extends CustomPainter {
       );
       canvas.drawRect(
         Rect.fromLTWH(
-            i * cellWidth, size.height / 2, cellWidth, size.height / 2,),
+          i * cellWidth,
+          size.height / 2,
+          cellWidth,
+          size.height / 2,
+        ),
         Paint()..color = i.isOdd ? Colors.white : const Color(0xFFE0E0E0),
       );
     }

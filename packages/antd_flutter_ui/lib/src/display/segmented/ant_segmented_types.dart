@@ -33,9 +33,9 @@ enum AntSegmentedDirection {
   vertical,
 }
 
-/// 分段控制器选项。
-///
-/// [value] 缺省时取 [label]，[label] 缺省时取 [value]（icon-only 场景）。
+/// 分段控制器选项（旧模型，自 1.x 起推荐直接用 `AntSegmented<T>(options: List<T>)`
+/// 配合 `labelOf` / `iconBuilder` / `disabledOf`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf/iconBuilder；本类将在 2.0 移除')
 class AntSegmentedItem {
   const AntSegmentedItem({
     this.label,

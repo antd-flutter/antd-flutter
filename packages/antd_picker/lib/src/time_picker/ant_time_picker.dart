@@ -45,6 +45,7 @@ class AntTimePicker extends StatefulWidget {
     this.minuteStep = 1,
     this.secondStep = 1,
     this.autofocus = false,
+    this.labelBuilder,
   });
 
   /// 受控时间值。
@@ -79,6 +80,9 @@ class AntTimePicker extends StatefulWidget {
 
   /// 是否自动聚焦。
   final bool autofocus;
+
+  /// 触发器时间自定义渲染；为空时按 `HH:mm` 格式化显示。
+  final Widget Function(BuildContext context, TimeOfDay time)? labelBuilder;
 
   @override
   State<AntTimePicker> createState() => _AntTimePickerState();
@@ -222,12 +226,13 @@ class _AntTimePickerState extends State<AntTimePicker> {
                           color: theme.colorTextPlaceholder,
                         ),
                       )
-                    : Text(
-                        _formatTime(value),
+                    : DefaultTextStyle.merge(
                         style: TextStyle(
                           fontSize: theme.fontSize.sp,
                           color: theme.colorText,
                         ),
+                        child: widget.labelBuilder?.call(context, value) ??
+                            Text(_formatTime(value)),
                       ),
               ),
               if (showClear)

@@ -28,7 +28,8 @@ class NavBarPage extends StatelessWidget {
           _FullDemo(),
           _Section(
             title: 'AntAppBar 别名',
-            description: 'Flutter 习惯的 AppBar 形态（title/leading/actions），内部委托 AntNavBar',
+            description:
+                'Flutter 习惯的 AppBar 形态（title/leading/actions），内部委托 AntNavBar',
           ),
           _AppBarDemo(),
         ],
@@ -51,15 +52,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -167,6 +174,7 @@ void _showSnackbar(BuildContext context, String message) {
     SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
   );
 }
+
 class _AppBarDemo extends StatelessWidget {
   const _AppBarDemo();
 

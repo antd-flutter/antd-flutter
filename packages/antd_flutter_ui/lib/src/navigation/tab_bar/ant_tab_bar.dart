@@ -24,18 +24,23 @@ import 'ant_tab_bar_types.dart';
 /// 激活项高亮 colorPrimary，支持受控与非受控模式。
 ///
 /// ```dart
-/// AntTabBar(
-///   items: [
-///     AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
-///     AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
-///   ],
-///   onChange: (key) => print(key),
+/// AntTabBar<Tab>(
+///   items: tabs,
+///   keyOf: (tab) => tab.id,
+///   titleBuilder: (context, tab, index) => Text(tab.label),
+///   iconBuilder: (context, tab) => Icon(tab.icon),
 /// )
 /// ```
-class AntTabBar extends StatefulWidget {
+class AntTabBar<T> extends StatefulWidget {
   const AntTabBar({
     super.key,
     required this.items,
+    this.keyOf,
+    this.titleBuilder,
+    this.iconBuilder,
+    this.activeIconBuilder,
+    this.badgeTextOf,
+    this.badgeDotOf,
     this.activeKey,
     this.defaultActiveKey,
     this.onChange,
@@ -44,16 +49,34 @@ class AntTabBar extends StatefulWidget {
   });
 
   /// 标签项列表。
-  final List<AntTabBarItem> items;
+  final List<T> items;
+
+  /// 提取唯一标识，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 标题构建器，未提供时回退为 `Text('$item')`。
+  final AntTabBarTitleBuilder<T>? titleBuilder;
+
+  /// 图标构建器。
+  final AntTabBarIconBuilder<T>? iconBuilder;
+
+  /// 激活态图标构建器，未提供时复用普通图标。
+  final AntTabBarActiveIconBuilder<T>? activeIconBuilder;
+
+  /// 文字角标（如 '5'、'99+'）。
+  final String? Function(T item)? badgeTextOf;
+
+  /// 红点角标。
+  final bool Function(T item)? badgeDotOf;
 
   /// 受控激活项 key。
-  final String? activeKey;
+  final Object? activeKey;
 
   /// 非受控默认激活项 key。
-  final String? defaultActiveKey;
+  final Object? defaultActiveKey;
 
   /// 切换回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
   /// 是否显示顶部边框。
   final bool border;
@@ -62,27 +85,31 @@ class AntTabBar extends StatefulWidget {
   final bool safeArea;
 
   @override
-  State<AntTabBar> createState() => _AntTabBarState();
+  State<AntTabBar<T>> createState() => _AntTabBarState<T>();
 }
 
-class _AntTabBarState extends State<AntTabBar> {
-  String? _internalKey;
+class _AntTabBarState<T> extends State<AntTabBar<T>> {
+  Object? _internalKey;
 
   /// 当前激活 key（受控优先）。
-  String? get _currentKey => widget.activeKey ?? _internalKey;
+  Object? get _currentKey => widget.activeKey ?? _internalKey;
+
+  Object _keyAt(int index) => widget.keyOf?.call(widget.items[index]) ?? index;
 
   @override
   void initState() {
     super.initState();
-    _internalKey = widget.defaultActiveKey ?? widget.items.firstOrNull?.key;
+    _internalKey =
+        widget.defaultActiveKey ?? (widget.items.isEmpty ? null : _keyAt(0));
   }
 
-  void _handleTap(String key) {
+  void _handleTap(T item, int index) {
+    final key = _keyAt(index);
     if (key == _currentKey) return;
     if (widget.activeKey == null) {
       setState(() => _internalKey = key);
     }
-    widget.onChange?.call(key);
+    widget.onChange?.call(item);
   }
 
   @override
@@ -104,14 +131,24 @@ class _AntTabBarState extends State<AntTabBar> {
           height: 50.w,
           child: Row(
             children: [
-              for (final item in widget.items)
+              for (var i = 0; i < widget.items.length; i++)
                 Expanded(
                   child: _TabItem(
-                    item: item,
-                    active: item.key == currentKey,
+                    title: widget.titleBuilder?.call(
+                          context,
+                          widget.items[i],
+                          i,
+                        ) ??
+                        Text('${widget.items[i]}'),
+                    icon: widget.iconBuilder?.call(context, widget.items[i]),
+                    activeIcon: widget.activeIconBuilder
+                        ?.call(context, widget.items[i]),
+                    badgeText: widget.badgeTextOf?.call(widget.items[i]),
+                    badgeDot: widget.badgeDotOf?.call(widget.items[i]) ?? false,
+                    active: _keyAt(i) == currentKey,
                     colorPrimary: t.colorPrimary,
                     colorTextSecondary: t.colorTextSecondary,
-                    onTap: () => _handleTap(item.key),
+                    onTap: () => _handleTap(widget.items[i], i),
                   ),
                 ),
             ],
@@ -130,14 +167,22 @@ class _AntTabBarState extends State<AntTabBar> {
 
 class _TabItem extends StatelessWidget {
   const _TabItem({
-    required this.item,
+    required this.title,
+    required this.icon,
+    required this.activeIcon,
+    required this.badgeText,
+    required this.badgeDot,
     required this.active,
     required this.colorPrimary,
     required this.colorTextSecondary,
     required this.onTap,
   });
 
-  final AntTabBarItem item;
+  final Widget title;
+  final Widget? icon;
+  final Widget? activeIcon;
+  final String? badgeText;
+  final bool badgeDot;
   final bool active;
   final Color colorPrimary;
   final Color colorTextSecondary;
@@ -146,7 +191,7 @@ class _TabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = active ? colorPrimary : colorTextSecondary;
-    final icon = active ? (item.activeIcon ?? item.icon) : item.icon;
+    final currentIcon = active ? (activeIcon ?? icon) : icon;
 
     return GestureDetector(
       onTap: onTap,
@@ -154,12 +199,15 @@ class _TabItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null)
+          if (currentIcon != null)
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(icon, size: 22.sp, color: color),
-                if (item.badgeDot)
+                IconTheme.merge(
+                  data: IconThemeData(size: 22.sp, color: color),
+                  child: currentIcon,
+                ),
+                if (badgeDot)
                   Positioned(
                     right: -2.w,
                     top: -2.w,
@@ -172,7 +220,7 @@ class _TabItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (item.badgeText != null)
+                if (badgeText != null)
                   Positioned(
                     right: -8.w,
                     top: -6.w,
@@ -188,7 +236,7 @@ class _TabItem extends StatelessWidget {
                       constraints: BoxConstraints(minWidth: 14.w),
                       alignment: Alignment.center,
                       child: Text(
-                        item.badgeText!,
+                        badgeText!,
                         style: TextStyle(
                           fontSize: 9.sp,
                           color: Colors.white,
@@ -199,22 +247,11 @@ class _TabItem extends StatelessWidget {
                   ),
               ],
             ),
-          if (icon != null) SizedBox(height: 2.w),
-          if (item.titleWidget != null)
-            DefaultTextStyle(
-              style: TextStyle(
-                fontSize: 10.sp,
-                color: color,
-              ),
-              child: item.titleWidget!,
-            )
-          else if (item.title != null)
-            Text(
-              item.title!,
-              style: TextStyle(fontSize: 10.sp, color: color),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+          if (currentIcon != null) SizedBox(height: 2.w),
+          DefaultTextStyle(
+            style: TextStyle(fontSize: 10.sp, color: color),
+            child: title,
+          ),
         ],
       ),
     );

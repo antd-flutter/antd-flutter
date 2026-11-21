@@ -22,56 +22,80 @@ import 'ant_side_bar_types.dart';
 /// 白色背景 + colorPrimary 文字；非激活项灰色背景。
 ///
 /// ```dart
-/// AntSideBar(
-///   items: [
-///     AntSideBarItem(key: 'a', title: '选项一'),
-///     AntSideBarItem(key: 'b', title: '选项二'),
-///   ],
-///   onChange: (key) => print(key),
+/// AntSideBar<Category>(
+///   items: categories,
+///   keyOf: (category) => category.id,
+///   titleBuilder: (context, category, index) => Text(category.name),
 /// )
 /// ```
-class AntSideBar extends StatefulWidget {
+class AntSideBar<T> extends StatefulWidget {
   const AntSideBar({
     super.key,
     required this.items,
+    this.keyOf,
+    this.titleBuilder,
+    this.badgeTextOf,
+    this.badgeDotOf,
+    this.disabledOf,
     this.activeKey,
     this.defaultActiveKey,
     this.onChange,
   });
 
   /// 导航项列表。
-  final List<AntSideBarItem> items;
+  final List<T> items;
+
+  /// 提取唯一标识，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 标题构建器，未提供时回退为 `Text('$item')`。
+  final AntSideBarTitleBuilder<T>? titleBuilder;
+
+  /// 文字角标。
+  final String? Function(T item)? badgeTextOf;
+
+  /// 圆点角标。
+  final bool Function(T item)? badgeDotOf;
+
+  /// 是否禁用某项。
+  final bool Function(T item)? disabledOf;
 
   /// 受控激活项 key。
-  final String? activeKey;
+  final Object? activeKey;
 
   /// 非受控默认激活项 key。
-  final String? defaultActiveKey;
+  final Object? defaultActiveKey;
 
   /// 切换回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
   @override
-  State<AntSideBar> createState() => _AntSideBarState();
+  State<AntSideBar<T>> createState() => _AntSideBarState<T>();
 }
 
-class _AntSideBarState extends State<AntSideBar> {
-  String? _internalKey;
+class _AntSideBarState<T> extends State<AntSideBar<T>> {
+  Object? _internalKey;
 
-  String? get _currentKey => widget.activeKey ?? _internalKey;
+  Object? get _currentKey => widget.activeKey ?? _internalKey;
+
+  Object _keyAt(int index) => widget.keyOf?.call(widget.items[index]) ?? index;
 
   @override
   void initState() {
     super.initState();
-    _internalKey = widget.defaultActiveKey ?? widget.items.firstOrNull?.key;
+    _internalKey =
+        widget.defaultActiveKey ?? (widget.items.isEmpty ? null : _keyAt(0));
   }
 
-  void _handleTap(AntSideBarItem item) {
-    if (item.disabled || item.key == _currentKey) return;
-    if (widget.activeKey == null) {
-      setState(() => _internalKey = item.key);
+  void _handleTap(T item, int index) {
+    if ((widget.disabledOf?.call(item) ?? false) ||
+        _keyAt(index) == _currentKey) {
+      return;
     }
-    widget.onChange?.call(item.key);
+    if (widget.activeKey == null) {
+      setState(() => _internalKey = _keyAt(index));
+    }
+    widget.onChange?.call(item);
   }
 
   @override
@@ -85,10 +109,18 @@ class _AntSideBarState extends State<AntSideBar> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final item in widget.items)
+          for (var i = 0; i < widget.items.length; i++)
             _SideBarItem(
-              item: item,
-              active: item.key == currentKey,
+              title: widget.titleBuilder?.call(
+                    context,
+                    widget.items[i],
+                    i,
+                  ) ??
+                  Text('${widget.items[i]}'),
+              badgeText: widget.badgeTextOf?.call(widget.items[i]),
+              badgeDot: widget.badgeDotOf?.call(widget.items[i]) ?? false,
+              disabled: widget.disabledOf?.call(widget.items[i]) ?? false,
+              active: _keyAt(i) == currentKey,
               colorPrimary: t.colorPrimary,
               colorText: t.colorText,
               colorTextSecondary: t.colorTextSecondary,
@@ -96,7 +128,7 @@ class _AntSideBarState extends State<AntSideBar> {
               colorError: t.colorError,
               colorBgContainer: t.colorBgContainer,
               colorBgLayout: t.colorBgLayout,
-              onTap: () => _handleTap(item),
+              onTap: () => _handleTap(widget.items[i], i),
             ),
         ],
       ),
@@ -110,7 +142,10 @@ class _AntSideBarState extends State<AntSideBar> {
 
 class _SideBarItem extends StatelessWidget {
   const _SideBarItem({
-    required this.item,
+    required this.title,
+    required this.badgeText,
+    required this.badgeDot,
+    required this.disabled,
     required this.active,
     required this.colorPrimary,
     required this.colorText,
@@ -122,7 +157,10 @@ class _SideBarItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AntSideBarItem item;
+  final Widget title;
+  final String? badgeText;
+  final bool badgeDot;
+  final bool disabled;
   final bool active;
   final Color colorPrimary;
   final Color colorText;
@@ -135,13 +173,13 @@ class _SideBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = item.disabled
+    final textColor = disabled
         ? colorTextDisabled
         : (active ? colorPrimary : colorTextSecondary);
     final bgColor = active ? colorBgContainer : colorBgLayout;
 
     return GestureDetector(
-      onTap: item.disabled ? null : onTap,
+      onTap: disabled ? null : onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 46.w,
@@ -161,27 +199,18 @@ class _SideBarItem extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: item.titleWidget != null
-                  ? DefaultTextStyle(
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: textColor,
-                        fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                      child: item.titleWidget!,
-                    )
-                  : Text(
-                      item.title ?? '',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: textColor,
-                        fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: textColor,
+                  fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: title,
+              ),
             ),
-            if (item.badgeDot)
+            if (badgeDot)
               // antd Badge 圆点：10×10、danger 色
               Container(
                 width: 10.w,
@@ -192,7 +221,7 @@ class _SideBarItem extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-            if (item.badgeText != null)
+            if (badgeText != null)
               // antd Badge 文字角标：9px/行高 12、上下 1 左右 4 内边距，
               // 固定 14 高，不能随行高被拉满；宽度按内容自适应。
               Container(
@@ -207,7 +236,7 @@ class _SideBarItem extends StatelessWidget {
                 child: Center(
                   widthFactor: 1,
                   child: Text(
-                    item.badgeText!,
+                    badgeText!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 9.sp,

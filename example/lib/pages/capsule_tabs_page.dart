@@ -4,6 +4,37 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _CapsuleData {
+  const _CapsuleData({
+    required this.key,
+    required this.title,
+    this.disabled = false,
+  });
+
+  final String key;
+  final String title;
+  final bool disabled;
+}
+
+Widget _capsuleTabs({
+  Key? key,
+  List<_CapsuleData> items = const [],
+  Object? activeKey,
+  Object? defaultActiveKey,
+  ValueChanged<_CapsuleData>? onChange,
+}) {
+  return AntCapsuleTabs<_CapsuleData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) => Text(item.title),
+    disabledOf: (item) => item.disabled,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    onChange: onChange,
+  );
+}
+
 class CapsuleTabsPage extends StatelessWidget {
   const CapsuleTabsPage({super.key});
 
@@ -42,14 +73,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorText,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
+              child: Text(
+                description!,
+                style: TextStyle(fontSize: 12, color: theme.colorTextTertiary),
+              ),
             ),
         ],
       ),
@@ -62,10 +100,10 @@ class _BasicDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntCapsuleTabs(
+    return _capsuleTabs(
       items: const [
-        AntCapsuleTabItem(key: 'a', title: '选项一'),
-        AntCapsuleTabItem(key: 'b', title: '选项二'),
+        _CapsuleData(key: 'a', title: '选项一'),
+        _CapsuleData(key: 'b', title: '选项二'),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -77,12 +115,12 @@ class _MultiDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntCapsuleTabs(
+    return _capsuleTabs(
       items: const [
-        AntCapsuleTabItem(key: 'a', title: '全部'),
-        AntCapsuleTabItem(key: 'b', title: '待付款'),
-        AntCapsuleTabItem(key: 'c', title: '待发货'),
-        AntCapsuleTabItem(key: 'd', title: '已完成'),
+        _CapsuleData(key: 'a', title: '全部'),
+        _CapsuleData(key: 'b', title: '待付款'),
+        _CapsuleData(key: 'c', title: '待发货'),
+        _CapsuleData(key: 'd', title: '已完成'),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -94,11 +132,11 @@ class _DisabledDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntCapsuleTabs(
+    return _capsuleTabs(
       items: const [
-        AntCapsuleTabItem(key: 'a', title: '可用'),
-        AntCapsuleTabItem(key: 'b', title: '禁用', disabled: true),
-        AntCapsuleTabItem(key: 'c', title: '可用'),
+        _CapsuleData(key: 'a', title: '可用'),
+        _CapsuleData(key: 'b', title: '禁用', disabled: true),
+        _CapsuleData(key: 'c', title: '可用'),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );
@@ -121,14 +159,14 @@ class _ControlledDemoState extends State<_ControlledDemo> {
       children: [
         Text('当前激活: $_activeKey'),
         const SizedBox(height: 8),
-        AntCapsuleTabs(
+        _capsuleTabs(
           activeKey: _activeKey,
           items: const [
-            AntCapsuleTabItem(key: 'a', title: '选项一'),
-            AntCapsuleTabItem(key: 'b', title: '选项二'),
-            AntCapsuleTabItem(key: 'c', title: '选项三'),
+            _CapsuleData(key: 'a', title: '选项一'),
+            _CapsuleData(key: 'b', title: '选项二'),
+            _CapsuleData(key: 'c', title: '选项三'),
           ],
-          onChange: (key) => setState(() => _activeKey = key),
+          onChange: (item) => setState(() => _activeKey = item.key),
         ),
       ],
     );

@@ -3,7 +3,9 @@ library;
 
 import 'package:flutter/widgets.dart';
 
-/// 复选框选项
+/// 复选框选项（旧模型，自 1.x 起推荐直接用
+/// `AntCheckboxGroup<T>(options: List<T>)` 配合 `labelOf` / `labelBuilder`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf/labelBuilder；本类将在 2.0 移除')
 class AntCheckboxOption<T> {
   const AntCheckboxOption({
     required this.value,

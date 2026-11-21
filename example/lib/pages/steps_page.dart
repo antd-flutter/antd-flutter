@@ -4,6 +4,39 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _StepData {
+  const _StepData({this.title, this.description, this.icon});
+
+  final String? title;
+  final String? description;
+  final Widget? icon;
+}
+
+Widget _steps({
+  Key? key,
+  int current = 0,
+  List<_StepData> items = const [],
+  AntStepsDirection direction = AntStepsDirection.horizontal,
+  AntStepsStatus status = AntStepsStatus.process,
+  AntStepsSize size = AntStepsSize.normal,
+  ValueChanged<int>? onChange,
+}) {
+  return AntSteps<_StepData>(
+    key: key,
+    current: current,
+    items: items,
+    titleBuilder: (context, item, index) =>
+        item.title == null ? null : Text(item.title!),
+    descriptionBuilder: (context, item, index) =>
+        item.description == null ? null : Text(item.description!),
+    iconBuilder: (context, item, index) => item.icon,
+    direction: direction,
+    status: status,
+    size: size,
+    onChange: onChange == null ? null : (item) => onChange(items.indexOf(item)),
+  );
+}
+
 class StepsPage extends StatelessWidget {
   const StepsPage({super.key});
 
@@ -49,7 +82,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -62,12 +98,12 @@ class _BasicDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AntSteps(
+    return _steps(
       current: 1,
       items: [
-        AntStepsItem(title: '已完成', description: '第一步已完成'),
-        AntStepsItem(title: '进行中', description: '第二步正在进行'),
-        AntStepsItem(title: '待处理', description: '第三步等待处理'),
+        _StepData(title: '已完成', description: '第一步已完成'),
+        _StepData(title: '进行中', description: '第二步正在进行'),
+        _StepData(title: '待处理', description: '第三步等待处理'),
       ],
     );
   }
@@ -80,19 +116,19 @@ class _VerticalDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     // material_ui AntSteps 垂直方向内部含 Expanded，在无界高度
     // （SingleChildScrollView）下会溢出抛异常，demo 页加有界高度约束。
-    return const SizedBox(
+    return SizedBox(
       height: 320,
       width: double.infinity,
-        child: AntSteps(
-          current: 1,
-          direction: AntStepsDirection.vertical,
-          items: [
-            AntStepsItem(title: '填写信息', description: '填写基本个人信息'),
-            AntStepsItem(title: '验证身份', description: '短信验证码验证'),
-            AntStepsItem(title: '注册成功', description: '完成注册流程'),
-          ],
-        ),
-      );
+      child: _steps(
+        current: 1,
+        direction: AntStepsDirection.vertical,
+        items: [
+          _StepData(title: '填写信息', description: '填写基本个人信息'),
+          _StepData(title: '验证身份', description: '短信验证码验证'),
+          _StepData(title: '注册成功', description: '完成注册流程'),
+        ],
+      ),
+    );
   }
 }
 
@@ -101,14 +137,14 @@ class _SmallDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AntSteps(
+    return _steps(
       current: 2,
       size: AntStepsSize.small,
       items: [
-        AntStepsItem(title: '第一步'),
-        AntStepsItem(title: '第二步'),
-        AntStepsItem(title: '第三步'),
-        AntStepsItem(title: '第四步'),
+        _StepData(title: '第一步'),
+        _StepData(title: '第二步'),
+        _StepData(title: '第三步'),
+        _StepData(title: '第四步'),
       ],
     );
   }
@@ -119,13 +155,13 @@ class _ErrorDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AntSteps(
+    return _steps(
       current: 1,
       status: AntStepsStatus.error,
       items: [
-        AntStepsItem(title: '已完成'),
-        AntStepsItem(title: '出错了', description: '此步骤发生错误'),
-        AntStepsItem(title: '待处理'),
+        _StepData(title: '已完成'),
+        _StepData(title: '出错了', description: '此步骤发生错误'),
+        _StepData(title: '待处理'),
       ],
     );
   }
@@ -136,20 +172,28 @@ class _IconDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AntSteps(
+    return _steps(
       current: 1,
       items: [
-        AntStepsItem(
+        _StepData(
           title: '登录',
           icon: AntdIcon(AntIcons.loginOutlined, size: 16, color: Colors.blue),
         ),
-        AntStepsItem(
+        _StepData(
           title: '验证',
-          icon: AntdIcon(AntIcons.safetyCertificateOutlined, size: 16, color: Colors.blue),
+          icon: AntdIcon(
+            AntIcons.safetyCertificateOutlined,
+            size: 16,
+            color: Colors.blue,
+          ),
         ),
-        AntStepsItem(
+        _StepData(
           title: '完成',
-          icon: AntdIcon(AntIcons.checkCircleOutlined, size: 16, color: Colors.grey),
+          icon: AntdIcon(
+            AntIcons.checkCircleOutlined,
+            size: 16,
+            color: Colors.grey,
+          ),
         ),
       ],
     );
@@ -171,14 +215,14 @@ class _ClickableDemoState extends State<_ClickableDemo> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntSteps(
+        _steps(
           current: _current,
           onChange: (index) => setState(() => _current = index),
           items: const [
-            AntStepsItem(title: '选择商品'),
-            AntStepsItem(title: '确认订单'),
-            AntStepsItem(title: '支付'),
-            AntStepsItem(title: '完成'),
+            _StepData(title: '选择商品'),
+            _StepData(title: '确认订单'),
+            _StepData(title: '支付'),
+            _StepData(title: '完成'),
           ],
         ),
         const SizedBox(height: 16),

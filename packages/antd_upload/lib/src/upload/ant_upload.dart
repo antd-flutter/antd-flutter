@@ -7,18 +7,23 @@
 /// - [onChange] / [onRemove] / [onPreview]
 /// - [maxCount] / [multiple] / [disabled] / [accept]
 /// - [customRequest] 自定义上传逻辑
+/// - [itemBuilder] 自定义列表项渲染（配合 [AntUploadFile.extra] 承载业务字段）
 library;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_upload_types.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_upload_types.dart';
 
-/// 文件上传组件
-class AntUpload extends StatefulWidget {
+/// 文件上传组件。
+///
+/// [AntUploadFile] 描述的是实际文件；泛型 [T] 通过
+/// [AntUploadFile.extra] 承载业务侧额外数据，配合 [itemBuilder]
+/// 可完全自定义列表项渲染。
+class AntUpload<T> extends StatefulWidget {
   const AntUpload({
     super.key,
     this.fileList,
@@ -34,15 +39,16 @@ class AntUpload extends StatefulWidget {
     this.onPreview,
     this.onSelectFiles,
     this.customRequest,
+    this.itemBuilder,
     this.uploadButtonText,
     this.uploadButtonIcon,
   });
 
   /// 受控：文件列表
-  final List<AntUploadFile>? fileList;
+  final List<AntUploadFile<T>>? fileList;
 
   /// 非受控：文件列表初始值
-  final List<AntUploadFile> defaultFileList;
+  final List<AntUploadFile<T>> defaultFileList;
 
   /// 列表展示类型
   final AntUploadListType listType;
@@ -63,22 +69,29 @@ class AntUpload extends StatefulWidget {
   final String? accept;
 
   /// 文件状态变化回调
-  final void Function(AntUploadFile file, List<AntUploadFile> fileList)?
+  final void Function(AntUploadFile<T> file, List<AntUploadFile<T>> fileList)?
       onChange;
 
   /// 删除文件回调，返回 false 可阻止删除
-  final Future<bool> Function(AntUploadFile file)? onRemove;
+  final Future<bool> Function(AntUploadFile<T> file)? onRemove;
 
   /// 点击文件链接或图片回调
-  final void Function(AntUploadFile file)? onPreview;
+  final void Function(AntUploadFile<T> file)? onPreview;
 
   /// 点击上传按钮时触发文件选择的回调
   /// 返回待上传的文件列表，组件会自动调用 customRequest
-  final Future<List<AntUploadFile>> Function()? onSelectFiles;
+  final Future<List<AntUploadFile<T>>> Function()? onSelectFiles;
 
   /// 自定义上传实现
-  final Future<void> Function(AntUploadFile file, void Function(AntUploadFile updatedFile) updateFile)?
-      customRequest;
+  final Future<void> Function(
+    AntUploadFile<T> file,
+    void Function(AntUploadFile<T> updatedFile) updateFile,
+  )? customRequest;
+
+  /// 列表项自定义渲染；为空时使用内置文字/图片列表项。
+  ///
+  /// 业务字段可从 `file.extra` 读取；删除/预览可调用外部自己的逻辑。
+  final AntUploadItemBuilder<T>? itemBuilder;
 
   /// 上传按钮文案
   final String? uploadButtonText;
@@ -87,40 +100,47 @@ class AntUpload extends StatefulWidget {
   final IconData? uploadButtonIcon;
 
   @override
-  State<AntUpload> createState() => _AntUploadState();
+  State<AntUpload<T>> createState() => _AntUploadState<T>();
 }
 
-class _AntUploadState extends State<AntUpload> {
-  late List<AntUploadFile> _fileList;
+class _AntUploadState<T> extends State<AntUpload<T>> {
+  late List<AntUploadFile<T>> _fileList;
 
   @override
   void initState() {
     super.initState();
-    _fileList = List<AntUploadFile>.from(widget.fileList ?? widget.defaultFileList);
+    _fileList = List<AntUploadFile<T>>.from(
+      widget.fileList ?? widget.defaultFileList,
+    );
   }
 
   @override
-  void didUpdateWidget(AntUpload oldWidget) {
+  void didUpdateWidget(AntUpload<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.fileList != null) {
-      _fileList = List<AntUploadFile>.from(widget.fileList!);
+      _fileList = List<AntUploadFile<T>>.from(widget.fileList!);
     }
   }
 
-  List<AntUploadFile> get _currentFileList =>
-      widget.fileList ?? _fileList;
+  List<AntUploadFile<T>> get _currentFileList => widget.fileList ?? _fileList;
 
   bool get _reachedMaxCount {
     final max = widget.maxCount;
     if (max == null) return false;
-    return _currentFileList.where((f) => f.status != AntUploadStatus.removed).length >= max;
+    return _currentFileList
+            .where((f) => f.status != AntUploadStatus.removed)
+            .length >=
+        max;
   }
 
-  void _notifyChange(AntUploadFile file, List<AntUploadFile> list) {
-    widget.onChange?.call(file, List<AntUploadFile>.from(list));
+  void _notifyChange(
+    AntUploadFile<T> file,
+    List<AntUploadFile<T>> list,
+  ) {
+    widget.onChange?.call(file, List<AntUploadFile<T>>.from(list));
   }
 
-  void _updateFileInList(AntUploadFile updated) {
+  void _updateFileInList(AntUploadFile<T> updated) {
     if (widget.fileList == null) {
       setState(() {
         final index = _fileList.indexWhere((f) => f.uid == updated.uid);
@@ -143,7 +163,9 @@ class _AntUploadState extends State<AntUpload> {
     var filesToAdd = newFiles;
     final max = widget.maxCount;
     if (max != null) {
-      final current = _currentFileList.where((f) => f.status != AntUploadStatus.removed).length;
+      final current = _currentFileList
+          .where((f) => f.status != AntUploadStatus.removed)
+          .length;
       final remaining = max - current;
       if (remaining <= 0) return;
       if (!widget.multiple) {
@@ -156,7 +178,10 @@ class _AntUploadState extends State<AntUpload> {
     }
 
     for (final file in filesToAdd) {
-      final uploadingFile = file.copyWith(status: AntUploadStatus.uploading, percent: 0);
+      final uploadingFile = file.copyWith(
+        status: AntUploadStatus.uploading,
+        percent: 0,
+      );
       if (widget.fileList == null) {
         setState(() {
           _fileList.add(uploadingFile);
@@ -169,15 +194,17 @@ class _AntUploadState extends State<AntUpload> {
         widget.customRequest!(uploadingFile, _updateFileInList);
       } else {
         // 无自定义请求时直接标记为完成
-        _updateFileInList(uploadingFile.copyWith(
-          status: AntUploadStatus.done,
-          percent: 100,
-        ),);
+        _updateFileInList(
+          uploadingFile.copyWith(
+            status: AntUploadStatus.done,
+            percent: 100,
+          ),
+        );
       }
     }
   }
 
-  Future<void> _handleRemove(AntUploadFile file) async {
+  Future<void> _handleRemove(AntUploadFile<T> file) async {
     if (widget.disabled) return;
     if (widget.onRemove != null) {
       final shouldRemove = await widget.onRemove!(file);
@@ -192,7 +219,7 @@ class _AntUploadState extends State<AntUpload> {
     _notifyChange(removed, _currentFileList);
   }
 
-  void _handlePreview(AntUploadFile file) {
+  void _handlePreview(AntUploadFile<T> file) {
     if (widget.disabled) return;
     widget.onPreview?.call(file);
   }
@@ -211,7 +238,7 @@ class _AntUploadState extends State<AntUpload> {
         _buildTrigger(t),
         if (widget.showUploadList && visibleFiles.isNotEmpty) ...[
           SizedBox(height: 8.h),
-          _buildFileList(t, visibleFiles),
+          _buildFileList(context, t, visibleFiles),
         ],
       ],
     );
@@ -225,7 +252,9 @@ class _AntUploadState extends State<AntUpload> {
           width: 80.w,
           height: 80.w,
           decoration: BoxDecoration(
-            color: widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+            color: widget.disabled
+                ? t.colorBgContainerDisabled
+                : t.colorBgContainer,
             border: Border.all(
               color: widget.disabled ? t.colorBorder : t.colorSplit,
             ),
@@ -237,7 +266,8 @@ class _AntUploadState extends State<AntUpload> {
               Icon(
                 widget.uploadButtonIcon ?? AntIcons.plusOutlined,
                 size: 24.r,
-                color: widget.disabled ? t.colorTextDisabled : t.colorTextTertiary,
+                color:
+                    widget.disabled ? t.colorTextDisabled : t.colorTextTertiary,
               ),
               if (widget.uploadButtonText != null) ...[
                 SizedBox(height: 4.h),
@@ -245,7 +275,9 @@ class _AntUploadState extends State<AntUpload> {
                   widget.uploadButtonText!,
                   style: TextStyle(
                     fontSize: t.fontSizeSM.sp,
-                    color: widget.disabled ? t.colorTextDisabled : t.colorTextTertiary,
+                    color: widget.disabled
+                        ? t.colorTextDisabled
+                        : t.colorTextTertiary,
                   ),
                 ),
               ],
@@ -263,8 +295,11 @@ class _AntUploadState extends State<AntUpload> {
           vertical: (t.controlHeight - t.fontSizeLG) / 2,
         ),
         decoration: BoxDecoration(
-          color: widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-          border: Border.all(color: widget.disabled ? t.colorBorder : t.colorPrimary),
+          color:
+              widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+          border: Border.all(
+            color: widget.disabled ? t.colorBorder : t.colorPrimary,
+          ),
           borderRadius: BorderRadius.circular(t.borderRadius.r),
         ),
         child: Row(
@@ -289,14 +324,30 @@ class _AntUploadState extends State<AntUpload> {
     );
   }
 
-  Widget _buildFileList(AntThemeData t, List<AntUploadFile> files) {
+  Widget _buildFileList(
+    BuildContext context,
+    AntThemeData t,
+    List<AntUploadFile<T>> files,
+  ) {
+    final itemBuilder = widget.itemBuilder;
+    if (itemBuilder != null) {
+      final items = [
+        for (var i = 0; i < files.length; i++)
+          itemBuilder(context, files[i], i),
+      ];
+      if (widget.listType == AntUploadListType.pictureCard) {
+        return Wrap(spacing: 8.w, runSpacing: 8.h, children: items);
+      }
+      return Column(children: items);
+    }
+
     if (widget.listType == AntUploadListType.pictureCard) {
       return Wrap(
         spacing: 8.w,
         runSpacing: 8.h,
         children: [
           for (final file in files)
-            _PictureCardItem(
+            _PictureCardItem<T>(
               file: file,
               disabled: widget.disabled,
               theme: t,
@@ -310,7 +361,7 @@ class _AntUploadState extends State<AntUpload> {
     return Column(
       children: [
         for (final file in files)
-          _FileListItem(
+          _FileListItem<T>(
             file: file,
             listType: widget.listType,
             disabled: widget.disabled,
@@ -324,7 +375,7 @@ class _AntUploadState extends State<AntUpload> {
 }
 
 /// 文字/图片列表项
-class _FileListItem extends StatelessWidget {
+class _FileListItem<T> extends StatelessWidget {
   const _FileListItem({
     required this.file,
     required this.listType,
@@ -334,7 +385,7 @@ class _FileListItem extends StatelessWidget {
     required this.onPreview,
   });
 
-  final AntUploadFile file;
+  final AntUploadFile<T> file;
   final AntUploadListType listType;
   final bool disabled;
   final AntThemeData theme;
@@ -445,7 +496,7 @@ class _FileListItem extends StatelessWidget {
 }
 
 /// 图片卡片项
-class _PictureCardItem extends StatelessWidget {
+class _PictureCardItem<T> extends StatelessWidget {
   const _PictureCardItem({
     required this.file,
     required this.disabled,
@@ -454,7 +505,7 @@ class _PictureCardItem extends StatelessWidget {
     required this.onPreview,
   });
 
-  final AntUploadFile file;
+  final AntUploadFile<T> file;
   final bool disabled;
   final AntThemeData theme;
   final VoidCallback onRemove;
@@ -509,7 +560,8 @@ class _PictureCardItem extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: file.percent / 100,
                         backgroundColor: Colors.white24,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.white),
                         minHeight: 2.h,
                       ),
                     ),
@@ -525,7 +577,11 @@ class _PictureCardItem extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
                 ),
-                child: Icon(AntIcons.exclamationCircleOutlined, color: Colors.white, size: 24.r),
+                child: Icon(
+                  AntIcons.exclamationCircleOutlined,
+                  color: Colors.white,
+                  size: 24.r,
+                ),
               ),
             ),
           // 操作按钮（非上传中且非禁用）
@@ -541,7 +597,11 @@ class _PictureCardItem extends StatelessWidget {
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(AntIcons.closeOutlined, size: 14.r, color: Colors.white),
+                  child: Icon(
+                    AntIcons.closeOutlined,
+                    size: 14.r,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

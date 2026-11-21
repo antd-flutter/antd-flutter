@@ -3,20 +3,21 @@
 /// 在输入中提及某人或某物，输入 [prefix]（默认 '@'）触发选项弹出。
 ///
 /// API 与 antd React Mentions 对齐：
-/// - [options] — 提及选项列表
+/// - [options] — 提及选项列表（任意模型 `List<T>`）
+/// - [labelOf] / [valueOf] — 选项展示文案 / 插入文本
 /// - [value] / [defaultValue] — 受控/非受控文本值
 /// - [onChange] — 文本变化回调
-/// - [onSelect] — 选中提及项回调
+/// - [onSelect] — 选中提及项回调（回传模型 `T`）
 /// - [prefix] — 触发字符（默认 '@'）
 /// - [placeholder] / [disabled] / [allowClear] / [size]
 /// - [maxRows] — 最大行数
 ///
 /// ```dart
-/// AntMentions(
-///   options: [
-///     AntMentionsOption(value: 'afc163', label: 'afc163'),
-///     AntMentionsOption(value: 'zombiej', label: 'zombiej'),
-///   ],
+/// AntMentions<User>(
+///   options: users,
+///   labelOf: (u) => u.name,
+///   valueOf: (u) => u.username,
+///   onSelect: (u) => print(u.id),
 ///   onChange: (text) => print(text),
 /// )
 /// ```
@@ -39,10 +40,14 @@ export 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions_types.dart'
 /// 提及组件。
 ///
 /// 在文本输入中通过输入 '@' 等前缀触发选项列表。
-class AntMentions extends StatefulWidget {
+class AntMentions<T> extends StatefulWidget {
   const AntMentions({
     super.key,
     this.options = const [],
+    this.labelOf,
+    this.valueOf,
+    this.disabledOf,
+    this.itemBuilder,
     this.value,
     this.defaultValue,
     this.onChange,
@@ -55,8 +60,20 @@ class AntMentions extends StatefulWidget {
     this.maxRows = 3,
   });
 
-  /// 提及选项列表
-  final List<AntMentionsOption> options;
+  /// 提及选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项展示文案（下拉行文本 + 过滤匹配文本），缺省 `'$item'`。
+  final String Function(T item)? labelOf;
+
+  /// 选中后插入到文本中的内容，缺省与 [labelOf] 一致。
+  final String Function(T item)? valueOf;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
+
+  /// 整行下拉项自定义渲染（点击与禁用态仍由组件负责）。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
 
   /// 受控文本值
   final String? value;
@@ -67,8 +84,8 @@ class AntMentions extends StatefulWidget {
   /// 文本变化回调
   final ValueChanged<String>? onChange;
 
-  /// 选中提及项回调
-  final ValueChanged<AntMentionsOption>? onSelect;
+  /// 选中提及项回调（回传模型对象）。
+  final ValueChanged<T>? onSelect;
 
   /// 触发字符
   final String prefix;
@@ -89,11 +106,11 @@ class AntMentions extends StatefulWidget {
   final int maxRows;
 
   @override
-  State<AntMentions> createState() => _AntMentionsState();
+  State<AntMentions<T>> createState() => _AntMentionsState<T>();
 }
 
-class _AntMentionsState extends State<AntMentions>
-    with PopupContentRefresher<AntMentions> {
+class _AntMentionsState<T> extends State<AntMentions<T>>
+    with PopupContentRefresher<AntMentions<T>> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
@@ -136,7 +153,7 @@ class _AntMentionsState extends State<AntMentions>
   }
 
   @override
-  void didUpdateWidget(covariant AntMentions oldWidget) {
+  void didUpdateWidget(covariant AntMentions<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != oldWidget.value) {
       if (_controller.text != widget.value) {
@@ -180,7 +197,7 @@ class _AntMentionsState extends State<AntMentions>
       return KeyEventResult.ignored;
     }
     final options =
-        _filteredOptions.where((o) => !o.disabled).toList(growable: false);
+        _filteredOptions.where((o) => !_disabledOf(o)).toList(growable: false);
     if (options.isEmpty) return KeyEventResult.ignored;
     if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       setState(() {
@@ -244,11 +261,20 @@ class _AntMentionsState extends State<AntMentions>
     _showOverlay();
   }
 
-  List<AntMentionsOption> get _filteredOptions {
+  /// 选项展示文案。
+  String _labelOf(T item) => widget.labelOf?.call(item) ?? '$item';
+
+  /// 选项插入文本。
+  String _valueOf(T item) => widget.valueOf?.call(item) ?? _labelOf(item);
+
+  /// 选项是否禁用。
+  bool _disabledOf(T item) => widget.disabledOf?.call(item) ?? false;
+
+  List<T> get _filteredOptions {
     final search = _searchText.toLowerCase();
     return widget.options.where((opt) {
-      if (opt.disabled) return true; // 禁用项仍显示
-      return opt.displayLabel.toLowerCase().contains(search);
+      if (_disabledOf(opt)) return true; // 禁用项仍显示
+      return _labelOf(opt).toLowerCase().contains(search);
     }).toList();
   }
 
@@ -261,10 +287,13 @@ class _AntMentionsState extends State<AntMentions>
     }
     _themeData = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
-      builder: (context) => _MentionsOverlay(
+      builder: (context) => _MentionsOverlay<T>(
         triggerKey: _triggerKey,
         themeData: _themeData,
         options: _filteredOptions,
+        labelOf: _labelOf,
+        disabledOf: _disabledOf,
+        itemBuilder: widget.itemBuilder,
         onSelect: _onSelectOption,
         onDismiss: _removeOverlay,
       ),
@@ -291,18 +320,19 @@ class _AntMentionsState extends State<AntMentions>
     if (_open && mounted) setState(() => _open = false);
   }
 
-  void _onSelectOption(AntMentionsOption option) {
-    if (option.disabled) return;
+  void _onSelectOption(T option) {
+    if (_disabledOf(option)) return;
     final text = _controller.text;
     final cursorPos = _controller.selection.baseOffset;
+    final insertText = _valueOf(option);
 
-    // 替换 '@searchText' 为 '@option.value '
+    // 替换 '@searchText' 为 '@insertText '
     final newText =
-        '${text.substring(0, _prefixIndex)}${widget.prefix}${option.value} ${text.substring(cursorPos.clamp(0, text.length))}';
+        '${text.substring(0, _prefixIndex)}${widget.prefix}$insertText ${text.substring(cursorPos.clamp(0, text.length))}';
 
     _controller.text = newText;
     final newCursorPos =
-        _prefixIndex + widget.prefix.length + option.value.length + 1;
+        _prefixIndex + widget.prefix.length + insertText.length + 1;
     _controller.selection = TextSelection.collapsed(offset: newCursorPos);
 
     widget.onChange?.call(newText);
@@ -397,8 +427,11 @@ class _AntMentionsState extends State<AntMentions>
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
-                  child: Icon(AntIcons.closeCircleFilled,
-                      size: 14.sp, color: t.colorTextQuaternary,),
+                  child: Icon(
+                    AntIcons.closeCircleFilled,
+                    size: 14.sp,
+                    color: t.colorTextQuaternary,
+                  ),
                 ),
               ),
           ],
@@ -412,20 +445,26 @@ class _AntMentionsState extends State<AntMentions>
 // _MentionsOverlay — 提及选项浮层
 // ============================================================
 
-class _MentionsOverlay extends StatelessWidget {
+class _MentionsOverlay<T> extends StatelessWidget {
   const _MentionsOverlay({
     required this.triggerKey,
     required this.themeData,
     required this.options,
+    required this.labelOf,
+    required this.disabledOf,
     required this.onSelect,
     required this.onDismiss,
+    this.itemBuilder,
   });
 
   /// 触发元素 GlobalKey（弹层基座定位/镂空遮挡）。
   final GlobalKey triggerKey;
   final AntThemeData themeData;
-  final List<AntMentionsOption> options;
-  final ValueChanged<AntMentionsOption> onSelect;
+  final List<T> options;
+  final String Function(T item) labelOf;
+  final bool Function(T item) disabledOf;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+  final ValueChanged<T> onSelect;
   final VoidCallback onDismiss;
 
   @override
@@ -486,7 +525,9 @@ class _MentionsOverlay extends StatelessWidget {
               itemBuilder: (context, index) {
                 final option = options[index];
                 return _MentionOptionTile(
-                  option: option,
+                  label: labelOf(option),
+                  disabled: disabledOf(option),
+                  customChild: itemBuilder?.call(context, option, index),
                   fontSize: t.fontSize,
                   colorText: t.colorText,
                   colorTextDisabled: t.colorTextDisabled,
@@ -505,15 +546,19 @@ class _MentionsOverlay extends StatelessWidget {
 
 class _MentionOptionTile extends StatefulWidget {
   const _MentionOptionTile({
-    required this.option,
+    required this.label,
+    required this.disabled,
     required this.fontSize,
     required this.colorText,
     required this.colorTextDisabled,
     required this.colorFillSecondary,
     required this.onTap,
+    this.customChild,
   });
 
-  final AntMentionsOption option;
+  final String label;
+  final bool disabled;
+  final Widget? customChild;
   final double fontSize;
   final Color colorText;
   final Color colorTextDisabled;
@@ -529,7 +574,7 @@ class _MentionOptionTileState extends State<_MentionOptionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final disabled = widget.option.disabled;
+    final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -543,15 +588,16 @@ class _MentionOptionTileState extends State<_MentionOptionTile> {
               : _isHovered
                   ? widget.colorFillSecondary
                   : null,
-          child: Text(
-            widget.option.displayLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: widget.fontSize.sp,
-              color: disabled ? widget.colorTextDisabled : widget.colorText,
-            ),
-          ),
+          child: widget.customChild ??
+              Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: widget.fontSize.sp,
+                  color: disabled ? widget.colorTextDisabled : widget.colorText,
+                ),
+              ),
         ),
       ),
     );

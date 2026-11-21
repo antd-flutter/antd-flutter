@@ -4,6 +4,47 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _AnchorData {
+  const _AnchorData({
+    required this.key,
+    required this.title,
+    this.children = const [],
+  });
+
+  final String key;
+  final String title;
+  final List<_AnchorData> children;
+}
+
+Widget _anchor({
+  Key? key,
+  List<_AnchorData> items = const [],
+  AntAnchorController? controller,
+  ScrollController? scrollController,
+  Map<Object, GlobalKey> targetKeys = const {},
+  double topOffset = 0,
+  bool autoScroll = true,
+  AntAnchorDirection direction = AntAnchorDirection.vertical,
+  ValueChanged<_AnchorData>? onClick,
+  ValueChanged<Object?>? onChange,
+}) {
+  return AntAnchor<_AnchorData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) => Text(item.title),
+    childrenOf: (item) => item.children,
+    controller: controller,
+    scrollController: scrollController,
+    targetKeys: targetKeys,
+    topOffset: topOffset,
+    autoScroll: autoScroll,
+    direction: direction,
+    onClick: onClick,
+    onChange: onChange,
+  );
+}
+
 class AnchorPage extends StatelessWidget {
   const AnchorPage({super.key});
 
@@ -44,14 +85,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorText,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
+              child: Text(
+                description!,
+                style: TextStyle(fontSize: 12, color: theme.colorTextTertiary),
+              ),
             ),
         ],
       ),
@@ -74,7 +122,11 @@ class _LinkedDemoState extends State<_LinkedDemo> {
   static const _sections = [
     ('intro', '介绍', 'Anchor 用于在长页面中定位到指定区块，常与侧边导航配合。'),
     ('usage', '使用方式', '传入 scrollController 与 targetKeys 后，点击锚点会滚动到对应区块。'),
-    ('api', 'API', '常用参数：items、scrollController、targetKeys、topOffset、autoScroll。'),
+    (
+      'api',
+      'API',
+      '常用参数：items、scrollController、targetKeys、topOffset、autoScroll。',
+    ),
     ('faq', '常见问题', '区块超出视口时会自动滚动；滚动页面时锚点高亮会跟随更新。'),
   ];
 
@@ -106,13 +158,13 @@ class _LinkedDemoState extends State<_LinkedDemo> {
               border: Border.all(color: theme.colorSplit),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: AntAnchor(
+            child: _anchor(
               controller: _anchorController,
               scrollController: _scrollController,
               targetKeys: _targetKeys,
               items: [
                 for (final section in _sections)
-                  AntAnchorItem(key: section.$1, title: section.$2),
+                  _AnchorData(key: section.$1, title: section.$2),
               ],
             ),
           ),
@@ -132,10 +184,14 @@ class _LinkedDemoState extends State<_LinkedDemo> {
                       Container(
                         key: _targetKeys[_sections[i].$1],
                         height: 240,
-                        margin: EdgeInsets.only(bottom: i == _sections.length - 1 ? 0 : 16),
+                        margin: EdgeInsets.only(
+                          bottom: i == _sections.length - 1 ? 0 : 16,
+                        ),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: i.isEven ? theme.colorFillAlter : theme.colorFillQuaternary,
+                          color: i.isEven
+                              ? theme.colorFillAlter
+                              : theme.colorFillQuaternary,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -152,7 +208,10 @@ class _LinkedDemoState extends State<_LinkedDemo> {
                             const SizedBox(height: 8),
                             Text(
                               _sections[i].$3,
-                              style: TextStyle(fontSize: 13, color: theme.colorTextSecondary),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: theme.colorTextSecondary,
+                              ),
                             ),
                           ],
                         ),
@@ -180,11 +239,11 @@ class _BasicDemo extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const AntAnchor(
+      child: _anchor(
         items: [
-          AntAnchorItem(key: 'part-1', title: 'Part 1'),
-          AntAnchorItem(key: 'part-2', title: 'Part 2'),
-          AntAnchorItem(key: 'part-3', title: 'Part 3'),
+          _AnchorData(key: 'part-1', title: 'Part 1'),
+          _AnchorData(key: 'part-2', title: 'Part 2'),
+          _AnchorData(key: 'part-3', title: 'Part 3'),
         ],
       ),
     );
@@ -207,15 +266,21 @@ class _NestedDemo extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const AntAnchor(
+      child: _anchor(
         items: [
-          AntAnchorItem(key: 'part-1', title: 'Part 1', children: [
-            AntAnchorItem(key: 'part-1-1', title: 'Sub 1-1'),
-            AntAnchorItem(key: 'part-1-2', title: 'Sub 1-2'),
-          ]),
-          AntAnchorItem(key: 'part-2', title: 'Part 2', children: [
-            AntAnchorItem(key: 'part-2-1', title: 'Sub 2-1'),
-          ]),
+          _AnchorData(
+            key: 'part-1',
+            title: 'Part 1',
+            children: [
+              _AnchorData(key: 'part-1-1', title: 'Sub 1-1'),
+              _AnchorData(key: 'part-1-2', title: 'Sub 1-2'),
+            ],
+          ),
+          _AnchorData(
+            key: 'part-2',
+            title: 'Part 2',
+            children: [_AnchorData(key: 'part-2-1', title: 'Sub 2-1')],
+          ),
         ],
       ),
     );
@@ -237,12 +302,12 @@ class _HorizontalDemo extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const AntAnchor(
+      child: _anchor(
         direction: AntAnchorDirection.horizontal,
         items: [
-          AntAnchorItem(key: 'a', title: '锚点 A'),
-          AntAnchorItem(key: 'b', title: '锚点 B'),
-          AntAnchorItem(key: 'c', title: '锚点 C'),
+          _AnchorData(key: 'a', title: '锚点 A'),
+          _AnchorData(key: 'b', title: '锚点 B'),
+          _AnchorData(key: 'c', title: '锚点 C'),
         ],
       ),
     );
@@ -281,12 +346,12 @@ class _ControlledDemoState extends State<_ControlledDemo> {
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: AntAnchor(
+          child: _anchor(
             controller: _controller,
             items: const [
-              AntAnchorItem(key: 'x', title: '受控项 X'),
-              AntAnchorItem(key: 'y', title: '受控项 Y'),
-              AntAnchorItem(key: 'z', title: '受控项 Z'),
+              _AnchorData(key: 'x', title: '受控项 X'),
+              _AnchorData(key: 'y', title: '受控项 Y'),
+              _AnchorData(key: 'z', title: '受控项 Z'),
             ],
           ),
         ),

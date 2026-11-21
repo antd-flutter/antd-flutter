@@ -1,6 +1,25 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+/// 自定义模型：导航视图（文本 / 图标 / 禁用均由模型自身描述）。
+class _ViewMode {
+  const _ViewMode(this.id, this.label, this.icon, {this.disabled = false});
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final bool disabled;
+}
+
+const _viewModes = [
+  _ViewMode('list', '列表', AntIcons.unorderedListOutlined),
+  _ViewMode('map', '地图', AntIcons.globalOutlined),
+  _ViewMode('setting', '设置', AntIcons.settingOutlined, disabled: true),
+];
+
+/// 自定义模型：列表密度。
+enum _Density { compact, standard, loose }
+
 class SegmentedPage extends StatefulWidget {
   const SegmentedPage({super.key});
 
@@ -89,10 +108,8 @@ class _SegmentedPageState extends State<SegmentedPage> {
                 ),
                 SizedBox(height: 8.w),
                 AntSegmented(
-                  options: const [
-                    AntSegmentedItem(label: '可用'),
-                    AntSegmentedItem(label: '禁用项', disabled: true),
-                  ],
+                  options: const ['可用', '禁用项'],
+                  disabledOf: (v) => v == '禁用项',
                   onChange: (v) => _showMsg(context, '选中：$v'),
                 ),
               ],
@@ -102,41 +119,38 @@ class _SegmentedPageState extends State<SegmentedPage> {
           _Section(
             title: '带图标',
             theme: theme,
-            child: AntSegmented(
-              options: const [
-                AntSegmentedItem(
-                  label: '列表',
-                  icon: AntdIcon(AntIcons.unorderedListOutlined),
-                ),
-                AntSegmentedItem(
-                  label: '地图',
-                  icon: AntdIcon(AntIcons.globalOutlined),
-                ),
-                AntSegmentedItem(
-                  label: '设置',
-                  icon: AntdIcon(AntIcons.settingOutlined),
-                ),
-              ],
-              onChange: (v) => _showMsg(context, '选中：$v'),
+            child: AntSegmented<_ViewMode>(
+              options: _viewModes,
+              labelOf: (mode) => mode.label,
+              iconBuilder: (context, mode) => AntdIcon(mode.icon),
+              onChange: (mode) => _showMsg(context, '选中：${mode.label}'),
             ),
           ),
           SizedBox(height: 16.w),
           _Section(
-            title: '自定义 Item（icon-only / 混合）',
+            title: '自定义 Item（icon-only / itemBuilder）',
             theme: theme,
-            child: AntSegmented(
-              options: [
-                const AntSegmentedItem(
-                  value: 'list',
-                  icon: AntdIcon(AntIcons.unorderedListOutlined),
-                ),
-                const AntSegmentedItem(
-                  value: 'grid',
-                  icon: AntdIcon(AntIcons.appstoreOutlined),
-                ),
-                '文字项',
-              ],
-              onChange: (v) => _showMsg(context, '选中：$v'),
+            child: AntSegmented<_ViewMode>(
+              options: _viewModes,
+              // 空字符串 label → 只渲染图标
+              labelOf: (mode) => '',
+              iconBuilder: (context, mode) => AntdIcon(mode.icon),
+              onChange: (mode) => _showMsg(context, '选中：${mode.id}'),
+            ),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
+            title: '自定义模型',
+            theme: theme,
+            child: AntSegmented<_Density>(
+              options: _Density.values,
+              labelOf: (density) => switch (density) {
+                _Density.compact => '紧凑',
+                _Density.standard => '标准',
+                _Density.loose => '宽松',
+              },
+              defaultValue: _Density.standard,
+              onChange: (density) => _showMsg(context, '密度：${density.name}'),
             ),
           ),
           SizedBox(height: 16.w),
@@ -154,19 +168,12 @@ class _SegmentedPageState extends State<SegmentedPage> {
                 ),
                 SizedBox(width: 24.w),
                 // icon-only：无宽度约束，同样 hug 内容
-                AntSegmented(
-                  options: const [
-                    AntSegmentedItem(
-                      value: 'list',
-                      icon: AntdIcon(AntIcons.barsOutlined),
-                    ),
-                    AntSegmentedItem(
-                      value: 'kanban',
-                      icon: AntdIcon(AntIcons.appstoreOutlined),
-                    ),
-                  ],
+                AntSegmented<_ViewMode>(
+                  options: _viewModes.take(2).toList(),
+                  labelOf: (mode) => '',
+                  iconBuilder: (context, mode) => AntdIcon(mode.icon),
                   direction: AntSegmentedDirection.vertical,
-                  onChange: (v) => _showMsg(context, 'icon-only：$v'),
+                  onChange: (mode) => _showMsg(context, 'icon-only：${mode.id}'),
                 ),
                 SizedBox(width: 24.w),
                 // 外部 SizedBox 可自行设置宽度（有界约束生效，不足处省略号）

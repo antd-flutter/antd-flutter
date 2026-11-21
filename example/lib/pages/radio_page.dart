@@ -20,7 +20,10 @@ class RadioPage extends StatelessWidget {
           _ControlledDemo(),
           _Section(title: '禁用', description: 'disabled: true'),
           _DisabledDemo(),
-          _Section(title: '单选组', description: 'AntRadioGroup：options + onChange'),
+          _Section(
+            title: '单选组',
+            description: 'AntRadioGroup：options + onChange',
+          ),
           _GroupDemo(),
           _Section(title: '按钮风格', description: 'optionType: button'),
           _ButtonDemo(),
@@ -30,8 +33,16 @@ class RadioPage extends StatelessWidget {
           _VerticalDemo(),
           _Section(title: '整体禁用', description: '组级 disabled'),
           _GroupDisabledDemo(),
-          _Section(title: '自定义子项', description: '通过 children 传入 AntRadio / AntRadioButton'),
+          _Section(
+            title: '自定义子项',
+            description: '通过 children 传入 AntRadio / AntRadioButton',
+          ),
           _ChildrenDemo(),
+          _Section(
+            title: '自定义模型',
+            description: 'options 直接传业务模型，labelOf / disabledOf 取文案与禁用态',
+          ),
+          _ModelDemo(),
         ],
       ),
     );
@@ -53,11 +64,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -72,7 +93,11 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntFlex(wrap: true, gap: const AntFlexGap.all(24), children: children);
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(24),
+      children: children,
+    );
   }
 }
 
@@ -80,10 +105,12 @@ class _BasicDemo extends StatelessWidget {
   const _BasicDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntRadio(child: Text('未选中')),
-      AntRadio(defaultChecked: true, child: Text('默认选中')),
-    ]);
+    return const _Row(
+      children: [
+        AntRadio(child: Text('未选中')),
+        AntRadio(defaultChecked: true, child: Text('默认选中')),
+      ],
+    );
   }
 }
 
@@ -98,13 +125,15 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      AntRadio(
-        checked: _checked,
-        onChange: (v) => setState(() => _checked = v),
-        child: Text(_checked ? '已选中' : '未选中'),
-      ),
-    ]);
+    return _Row(
+      children: [
+        AntRadio(
+          checked: _checked,
+          onChange: (v) => setState(() => _checked = v),
+          child: Text(_checked ? '已选中' : '未选中'),
+        ),
+      ],
+    );
   }
 }
 
@@ -112,10 +141,12 @@ class _DisabledDemo extends StatelessWidget {
   const _DisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntRadio(disabled: true, child: Text('禁用未选')),
-      AntRadio(disabled: true, defaultChecked: true, child: Text('禁用已选')),
-    ]);
+    return const _Row(
+      children: [
+        AntRadio(disabled: true, child: Text('禁用未选')),
+        AntRadio(disabled: true, defaultChecked: true, child: Text('禁用已选')),
+      ],
+    );
   }
 }
 
@@ -123,13 +154,10 @@ class _GroupDemo extends StatelessWidget {
   const _GroupDemo();
   @override
   Widget build(BuildContext context) {
-    return const AntRadioGroup<String>(
+    return AntRadioGroup<String>(
       defaultValue: 'apple',
-      options: [
-        AntRadioOption(value: 'apple', label: Text('Apple')),
-        AntRadioOption(value: 'pear', label: Text('Pear')),
-        AntRadioOption(value: 'orange', label: Text('Orange')),
-      ],
+      options: const ['apple', 'pear', 'orange'],
+      labelOf: _capitalize,
     );
   }
 }
@@ -138,15 +166,11 @@ class _ButtonDemo extends StatelessWidget {
   const _ButtonDemo();
   @override
   Widget build(BuildContext context) {
-    return const AntRadioGroup<String>(
+    return AntRadioGroup<String>(
       defaultValue: 'a',
       optionType: AntRadioGroupOptionType.button,
-      options: [
-        AntRadioOption(value: 'a', label: Text('A')),
-        AntRadioOption(value: 'b', label: Text('B')),
-        AntRadioOption(value: 'c', label: Text('C')),
-        AntRadioOption(value: 'd', label: Text('D')),
-      ],
+      options: const ['a', 'b', 'c', 'd'],
+      labelOf: _upperOf,
     );
   }
 }
@@ -155,16 +179,12 @@ class _SolidDemo extends StatelessWidget {
   const _SolidDemo();
   @override
   Widget build(BuildContext context) {
-    return const AntRadioGroup<String>(
+    return AntRadioGroup<String>(
       defaultValue: 'a',
       optionType: AntRadioGroupOptionType.button,
       buttonStyle: AntRadioButtonStyle.solid,
-      options: [
-        AntRadioOption(value: 'a', label: Text('A')),
-        AntRadioOption(value: 'b', label: Text('B')),
-        AntRadioOption(value: 'c', label: Text('C')),
-        AntRadioOption(value: 'd', label: Text('D')),
-      ],
+      options: const ['a', 'b', 'c', 'd'],
+      labelOf: _upperOf,
     );
   }
 }
@@ -173,13 +193,10 @@ class _VerticalDemo extends StatelessWidget {
   const _VerticalDemo();
   @override
   Widget build(BuildContext context) {
-    return const AntRadioGroup<String>(
+    return AntRadioGroup<String>(
       direction: AntRadioGroupDirection.vertical,
-      options: [
-        AntRadioOption(value: 'a', label: Text('选项 A')),
-        AntRadioOption(value: 'b', label: Text('选项 B')),
-        AntRadioOption(value: 'c', label: Text('选项 C')),
-      ],
+      options: const ['a', 'b', 'c'],
+      labelOf: (value) => '选项 ${value.toUpperCase()}',
     );
   }
 }
@@ -188,14 +205,11 @@ class _GroupDisabledDemo extends StatelessWidget {
   const _GroupDisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return const AntRadioGroup<String>(
+    return AntRadioGroup<String>(
       disabled: true,
       defaultValue: 'a',
-      options: [
-        AntRadioOption(value: 'a', label: Text('选项 A')),
-        AntRadioOption(value: 'b', label: Text('选项 B')),
-        AntRadioOption(value: 'c', label: Text('选项 C')),
-      ],
+      options: const ['a', 'b', 'c'],
+      labelOf: (value) => '选项 ${value.toUpperCase()}',
     );
   }
 }
@@ -212,6 +226,41 @@ class _ChildrenDemo extends StatelessWidget {
         AntRadioButton(value: 'c', child: Text('C')),
         AntRadioButton(value: 'd', child: Text('D')),
       ],
+    );
+  }
+}
+
+String _capitalize(String value) =>
+    value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);
+
+String _upperOf(String value) => value.toUpperCase();
+
+/// 自定义模型：水果（带禁用态的业务数据）。
+class _Fruit {
+  const _Fruit(this.id, this.name, {this.disabled = false});
+
+  final String id;
+  final String name;
+  final bool disabled;
+}
+
+const _fruits = [
+  _Fruit('apple', '苹果'),
+  _Fruit('pear', '梨'),
+  _Fruit('orange', '橙子（缺货）', disabled: true),
+];
+
+class _ModelDemo extends StatelessWidget {
+  const _ModelDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return AntRadioGroup<_Fruit>(
+      defaultValue: _fruits.first,
+      options: _fruits,
+      labelOf: (fruit) => fruit.name,
+      disabledOf: (fruit) => fruit.disabled,
+      onChange: (fruit) => debugPrint('radio onChanged: ${fruit?.id}'),
     );
   }
 }

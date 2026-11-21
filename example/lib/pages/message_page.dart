@@ -44,27 +44,18 @@ class MessagePage extends StatelessWidget {
                   child: const Text('Info'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '这是一条成功提示',
-                    type: AntMessageType.success,
-                  ),
+                  onTap: () =>
+                      _show(context, '这是一条成功提示', type: AntMessageType.success),
                   child: const Text('Success'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '这是一条警告提示',
-                    type: AntMessageType.warning,
-                  ),
+                  onTap: () =>
+                      _show(context, '这是一条警告提示', type: AntMessageType.warning),
                   child: const Text('Warning'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '这是一条错误提示',
-                    type: AntMessageType.error,
-                  ),
+                  onTap: () =>
+                      _show(context, '这是一条错误提示', type: AntMessageType.error),
                   child: const Text('Error'),
                 ),
               ],
@@ -160,9 +151,8 @@ class MessagePage extends StatelessWidget {
                 context,
                 '关闭后弹出 SnackBar',
                 onClose: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('提示已关闭')),
-                  );
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('提示已关闭')));
                 },
               ),
               child: const Text('带 onClose 回调'),
@@ -173,11 +163,7 @@ class MessagePage extends StatelessWidget {
             title: '可关闭',
             theme: theme,
             child: AntButton(
-              onTap: () => _show(
-                context,
-                '右上角带关闭按钮',
-                closable: true,
-              ),
+              onTap: () => _show(context, '右上角带关闭按钮', closable: true),
               child: const Text('显示关闭按钮'),
             ),
           ),
@@ -188,7 +174,11 @@ class MessagePage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

@@ -10,11 +10,12 @@
 /// - [onStepChange] / [onFinish] / [onClose] — 步骤与关闭回调
 ///
 /// ```dart
-/// AntTour(
+/// AntTour<TourStepModel>(
 ///   open: true,
-///   steps: [
-///     AntTourStep(target: key, title: '标题', description: '描述'),
-///   ],
+///   steps: steps,
+///   targetOf: (step) => step.key,
+///   titleBuilder: (context, step, index) => Text(step.title),
+///   descriptionBuilder: (context, step, index) => Text(step.description),
 /// )
 /// ```
 ///
@@ -75,10 +76,17 @@ const String kAntTourSkipLabel = '跳过';
 /// 对齐 antd React Tour 组件：支持 target 元素锚定、遮罩镂空高亮、
 /// 多步导航（上一步/下一步/完成/跳过）、受控 open 与 current、
 /// 每步独立 placement / mask / arrow 配置。
-class AntTour extends StatefulWidget {
+class AntTour<T> extends StatefulWidget {
   const AntTour({
     super.key,
     required this.steps,
+    this.targetOf,
+    this.titleBuilder,
+    this.descriptionBuilder,
+    this.coverBuilder,
+    this.placementOf,
+    this.maskOf,
+    this.arrowOf,
     this.open = false,
     this.current,
     this.placement = AntTourPlacement.bottomCenter,
@@ -94,8 +102,29 @@ class AntTour extends StatefulWidget {
     this.onClose,
   });
 
-  /// 引导步骤集合。
-  final List<AntTourStep> steps;
+  /// 引导步骤集合（任意用户模型）。
+  final List<T> steps;
+
+  /// 目标元素提取器。
+  final AntTourTargetOf<T>? targetOf;
+
+  /// 步骤标题构建器。
+  final AntTourTitleBuilder<T>? titleBuilder;
+
+  /// 步骤描述构建器。
+  final AntTourDescriptionBuilder<T>? descriptionBuilder;
+
+  /// 步骤封面构建器。
+  final AntTourCoverBuilder<T>? coverBuilder;
+
+  /// 步骤位置提取器。
+  final AntTourPlacementOf<T>? placementOf;
+
+  /// 步骤遮罩开关提取器。
+  final AntTourMaskOf<T>? maskOf;
+
+  /// 步骤箭头开关提取器。
+  final AntTourArrowOf<T>? arrowOf;
 
   /// 受控打开状态。
   final bool open;
@@ -147,10 +176,10 @@ class AntTour extends StatefulWidget {
   final VoidCallback? onClose;
 
   @override
-  State<AntTour> createState() => _AntTourState();
+  State<AntTour<T>> createState() => _AntTourState<T>();
 }
 
-class _AntTourState extends State<AntTour> {
+class _AntTourState<T> extends State<AntTour<T>> {
   OverlayEntry? _overlayEntry;
   int _internalIndex = 0;
 
@@ -168,7 +197,7 @@ class _AntTourState extends State<AntTour> {
   }
 
   @override
-  void didUpdateWidget(covariant AntTour oldWidget) {
+  void didUpdateWidget(covariant AntTour<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.open != oldWidget.open) {
       if (widget.open) {
@@ -202,7 +231,7 @@ class _AntTourState extends State<AntTour> {
     final theme = AntTheme.of(context);
     final overlay = Overlay.of(context, rootOverlay: true);
     _overlayEntry = OverlayEntry(
-      builder: (context) => _TourOverlay(
+      builder: (context) => _TourOverlay<T>(
         tour: widget,
         themeData: theme,
         stepIndex: _effectiveIndex,
@@ -303,7 +332,7 @@ class _AntTourState extends State<AntTour> {
 // _TourOverlay — 引导浮层（遮罩 + 高亮 + 卡片）
 // ============================================================
 
-class _TourOverlay extends StatelessWidget {
+class _TourOverlay<T> extends StatelessWidget {
   const _TourOverlay({
     required this.tour,
     required this.themeData,
@@ -314,7 +343,7 @@ class _TourOverlay extends StatelessWidget {
     required this.onMaskTap,
   });
 
-  final AntTour tour;
+  final AntTour<T> tour;
   final AntThemeData themeData;
   final int stepIndex;
   final VoidCallback onPrev;
@@ -326,10 +355,13 @@ class _TourOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final step = tour.steps[stepIndex];
     final mediaSize = MediaQuery.sizeOf(context);
-    final targetRect = _resolveTargetRect(step);
-    final showMask = step.mask ?? tour.mask;
-    final showArrow = step.arrow ?? tour.arrow;
-    final placement = step.placement ?? tour.placement;
+    final targetRect = _resolveTargetRect(tour.targetOf?.call(step));
+    final showMask = tour.maskOf?.call(step) ?? tour.mask;
+    final showArrow = tour.arrowOf?.call(step) ?? tour.arrow;
+    final placement = tour.placementOf?.call(step) ?? tour.placement;
+    final title = tour.titleBuilder?.call(context, step, stepIndex);
+    final description = tour.descriptionBuilder?.call(context, step, stepIndex);
+    final cover = tour.coverBuilder?.call(context, step);
     final effectivePlacement =
         targetRect == null ? AntTourPlacement.center : placement;
 
@@ -385,10 +417,12 @@ class _TourOverlay extends StatelessWidget {
             ),
           ),
         // 引导卡片
-        _TourCard(
+        _TourCard<T>(
           tour: tour,
           themeData: themeData,
-          step: step,
+          title: title,
+          description: description,
+          cover: cover,
           stepIndex: stepIndex,
           targetRect: targetRect,
           placement: effectivePlacement,
@@ -403,8 +437,7 @@ class _TourOverlay extends StatelessWidget {
     );
   }
 
-  Rect? _resolveTargetRect(AntTourStep step) {
-    final targetKey = step.target;
+  Rect? _resolveTargetRect(GlobalKey? targetKey) {
     if (targetKey == null) return null;
     final ctx = targetKey.currentContext;
     if (ctx == null) return null;
@@ -473,11 +506,13 @@ typedef _TourCardPos = ({
   AntTourPlacement placement,
 });
 
-class _TourCard extends StatefulWidget {
+class _TourCard<T> extends StatefulWidget {
   const _TourCard({
     required this.tour,
     required this.themeData,
-    required this.step,
+    required this.title,
+    required this.description,
+    required this.cover,
     required this.stepIndex,
     required this.targetRect,
     required this.placement,
@@ -489,9 +524,11 @@ class _TourCard extends StatefulWidget {
     required this.onSkip,
   });
 
-  final AntTour tour;
+  final AntTour<T> tour;
   final AntThemeData themeData;
-  final AntTourStep step;
+  final Widget? title;
+  final Widget? description;
+  final Widget? cover;
   final int stepIndex;
   final Rect? targetRect;
   final AntTourPlacement placement;
@@ -503,10 +540,10 @@ class _TourCard extends StatefulWidget {
   final VoidCallback onSkip;
 
   @override
-  State<_TourCard> createState() => _TourCardState();
+  State<_TourCard<T>> createState() => _TourCardState<T>();
 }
 
-class _TourCardState extends State<_TourCard>
+class _TourCardState<T> extends State<_TourCard<T>>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -527,7 +564,7 @@ class _TourCardState extends State<_TourCard>
   }
 
   @override
-  void didUpdateWidget(covariant _TourCard oldWidget) {
+  void didUpdateWidget(covariant _TourCard<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 步骤切换时重放入场动画（R30.1 参考 tutorial_coach_mark 的步骤过渡）。
     if (widget.stepIndex != oldWidget.stepIndex &&
@@ -817,29 +854,32 @@ class _TourCardState extends State<_TourCard>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.step.cover != null)
+          if (widget.cover != null)
             Padding(
               padding: EdgeInsets.only(bottom: 8.w),
-              child: widget.step.cover!,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                child: widget.cover!,
+              ),
             ),
-          if (widget.step.title != null)
-            Text(
-              widget.step.title!,
+          if (widget.title != null)
+            DefaultTextStyle.merge(
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: theme.colorTextHeading,
               ),
+              child: widget.title!,
             ),
-          if (widget.step.description != null)
+          if (widget.description != null)
             Padding(
               padding: EdgeInsets.only(top: 8.w),
-              child: Text(
-                widget.step.description!,
+              child: DefaultTextStyle.merge(
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: theme.colorTextSecondary,
                 ),
+                child: widget.description!,
               ),
             ),
           SizedBox(height: 16.w),

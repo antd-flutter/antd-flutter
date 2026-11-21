@@ -267,8 +267,7 @@ class _AntCalendarState extends State<AntCalendar>
       widget.value != null ? _dateOnly(widget.value!) : _internalValue;
 
   /// 当前生效的格式（受控优先）。
-  AntCalendarFormat get _format =>
-      _internalFormat ?? widget.calendarFormat;
+  AntCalendarFormat get _format => _internalFormat ?? widget.calendarFormat;
 
   /// 当前生效的面板模式（受控优先，非受控取 initialMode）。
   AntCalendarMode get _mode =>
@@ -295,9 +294,8 @@ class _AntCalendarState extends State<AntCalendar>
     }
   }
 
-  List<DateTime> get _multiSelected => (widget.selectedDays ?? _internalSelectedDays)
-      .map(_dateOnly)
-      .toList();
+  List<DateTime> get _multiSelected =>
+      (widget.selectedDays ?? _internalSelectedDays).map(_dateOnly).toList();
 
   @override
   void initState() {
@@ -392,8 +390,7 @@ class _AntCalendarState extends State<AntCalendar>
   /// 是否展示月/年面板切换器（null 时仅 fullscreen 展示）。
   bool get _showModeSwitcher =>
       widget.showModeSwitcher ??
-      (widget.fullscreen ||
-          widget.layout == AntCalendarLayout.fullscreen);
+      (widget.fullscreen || widget.layout == AntCalendarLayout.fullscreen);
 
   /// 生成当前格式下的可见日期列表（网格计算委托 ui 日历网格引擎）。
   List<DateTime> _buildGridDays() {
@@ -444,7 +441,8 @@ class _AntCalendarState extends State<AntCalendar>
     }
 
     if (widget.selectionMode == AntCalendarSelectionMode.range) {
-      if (_internalRangeStart != null && _internalRangeEnd == null &&
+      if (_internalRangeStart != null &&
+          _internalRangeEnd == null &&
           !_isSameDay(_internalRangeStart, dayOnly)) {
         final start = _internalRangeStart!;
         final end = dayOnly;
@@ -575,7 +573,8 @@ class _AntCalendarState extends State<AntCalendar>
   void navigateMonths(int delta) => _goToMonth(delta);
 
   @override
-  void navigateToYearMonth(int year, int month) => _jumpToYearMonth(year, month);
+  void navigateToYearMonth(int year, int month) =>
+      _jumpToYearMonth(year, month);
 
   @override
   void navigateToToday() => _goToCurrentMonth();
@@ -591,18 +590,15 @@ class _AntCalendarState extends State<AntCalendar>
   void _showYearMonthDropdown() {
     final t = AntTheme.of(context);
     final loc = widget.locale ?? AntCalendarLocale.of(context);
-    final years = <AntPickerColumnItem>[
+    final years = <int>[
       for (var y = DateTime.now().year - _kYearDropdownPastYears;
           y <= DateTime.now().year + _kYearDropdownFutureYears;
           y++)
-        AntPickerColumnItem(label: loc.yearLabel(y), value: '$y'),
+        y,
     ];
-    final months = <AntPickerColumnItem>[
-      for (var m = 1; m <= 12; m++)
-        AntPickerColumnItem(label: loc.monthLabel(m), value: '$m'),
-    ];
-    String? selectedYear = '${_currentMonth.year}';
-    String? selectedMonth = '${_currentMonth.month}';
+    final months = <int>[for (var m = 1; m <= 12; m++) m];
+    int? selectedYear = _currentMonth.year;
+    int? selectedMonth = _currentMonth.month;
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: t.colorBgContainer,
@@ -635,8 +631,8 @@ class _AntCalendarState extends State<AntCalendar>
                       onTap: () {
                         Navigator.of(sheetContext).pop();
                         _jumpToYearMonth(
-                          int.tryParse(selectedYear ?? '') ?? _currentMonth.year,
-                          int.tryParse(selectedMonth ?? '') ?? _currentMonth.month,
+                          selectedYear ?? _currentMonth.year,
+                          selectedMonth ?? _currentMonth.month,
                         );
                       },
                       child: Text(
@@ -651,9 +647,21 @@ class _AntCalendarState extends State<AntCalendar>
                   ],
                 ),
               ),
-              AntPickerView(
-                defaultValue: ['${_currentMonth.year}', '${_currentMonth.month}'],
-                columns: [years, months],
+              AntPickerView<int>(
+                defaultValue: [_currentMonth.year, _currentMonth.month],
+                columns: [
+                  AntPickerColumn<int>(
+                    dataSource: years,
+                    keyOf: (year) => year,
+                    labelBuilder: (context, year) => Text(loc.yearLabel(year)),
+                  ),
+                  AntPickerColumn<int>(
+                    dataSource: months,
+                    keyOf: (month) => month,
+                    labelBuilder: (context, month) =>
+                        Text(loc.monthLabel(month)),
+                  ),
+                ],
                 onChange: (vals) {
                   selectedYear = vals[0];
                   selectedMonth = vals.length > 1 ? vals[1] : null;
@@ -684,8 +692,7 @@ class _AntCalendarState extends State<AntCalendar>
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: fullscreen ? 8.w : 4.w),
+                padding: EdgeInsets.symmetric(vertical: fullscreen ? 8.w : 4.w),
                 child: Row(
                   children: weekLabels
                       .map(
@@ -784,8 +791,9 @@ class _AntCalendarState extends State<AntCalendar>
               mainAxisSize: MainAxisSize.min,
               children: [
                 GestureDetector(
-                  onTap:
-                      widget.enableYearMonthDropdown ? _showYearMonthDropdown : null,
+                  onTap: widget.enableYearMonthDropdown
+                      ? _showYearMonthDropdown
+                      : null,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -793,7 +801,10 @@ class _AntCalendarState extends State<AntCalendar>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _locale.monthTitle(_currentMonth.year, _currentMonth.month),
+                          _locale.monthTitle(
+                            _currentMonth.year,
+                            _currentMonth.month,
+                          ),
                           style: TextStyle(
                             fontSize: t.fontSizeLG,
                             fontWeight: FontWeight.w600,
@@ -1017,22 +1028,21 @@ class _AntCalendarState extends State<AntCalendar>
     final events = _eventsOf(day);
 
     final isSelected = switch (widget.selectionMode) {
-      AntCalendarSelectionMode.range =>
-        _isSameDay(day, _internalRangeStart) ||
-            _isSameDay(day, _internalRangeEnd),
-      _ =>
-        widget.multiSelect
-            ? _multiSelected.any((d) => _isSameDay(d, day))
-            : _isSameDay(day, _selectedDate),
+      AntCalendarSelectionMode.range => _isSameDay(day, _internalRangeStart) ||
+          _isSameDay(day, _internalRangeEnd),
+      _ => widget.multiSelect
+          ? _multiSelected.any((d) => _isSameDay(d, day))
+          : _isSameDay(day, _selectedDate),
     };
     final isInRange = widget.selectionMode == AntCalendarSelectionMode.range &&
         _internalRangeStart != null &&
         _internalRangeEnd != null &&
         day.isAfter(_internalRangeStart!) &&
         day.isBefore(_internalRangeEnd!);
-    final isRangePending = widget.selectionMode == AntCalendarSelectionMode.range &&
-        _internalRangeStart != null &&
-        _internalRangeEnd == null;
+    final isRangePending =
+        widget.selectionMode == AntCalendarSelectionMode.range &&
+            _internalRangeStart != null &&
+            _internalRangeEnd == null;
 
     final disabled = _isDisabled(day);
     final info = AntCalendarCellRenderInfo(
@@ -1131,7 +1141,9 @@ class _AntCalendarState extends State<AntCalendar>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (var i = 0; i < events.length && i < _kMaxEventDots; i++)
+                    for (var i = 0;
+                        i < events.length && i < _kMaxEventDots;
+                        i++)
                       Container(
                         width: fullscreen ? 6.w : 3.w,
                         height: fullscreen ? 6.w : 3.w,

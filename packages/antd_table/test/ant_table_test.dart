@@ -18,23 +18,46 @@ Widget _wrap(Widget child) {
   );
 }
 
-// ---------------- 测试数据 ----------------
+// ---------------- 测试数据：用户自定义模型 ----------------
 
-List<Map<String, dynamic>> _people() => [
-      {'id': 1, 'name': 'Alice', 'age': 30, 'city': '北京'},
-      {'id': 2, 'name': 'Bob', 'age': 25, 'city': '上海'},
-      {'id': 3, 'name': 'Carol', 'age': 35, 'city': '深圳'},
+class Person {
+  const Person({
+    required this.id,
+    required this.name,
+    required this.age,
+    this.city = '',
+    this.children = const [],
+  });
+
+  final int id;
+  final String name;
+  final int age;
+  final String city;
+  final List<Person> children;
+}
+
+List<Person> _people() => const [
+      Person(id: 1, name: 'Alice', age: 30, city: '北京'),
+      Person(id: 2, name: 'Bob', age: 25, city: '上海'),
+      Person(id: 3, name: 'Carol', age: 35, city: '深圳'),
     ];
 
-List<AntTableColumn> _baseColumns() => [
-      const AntTableColumn(title: '姓名', dataIndex: 'name'),
-      const AntTableColumn(title: '年龄', dataIndex: 'age'),
+List<AntTableColumn<Person>> _baseColumns() => [
+      AntTableColumn<Person>(
+        title: '姓名',
+        cell: (context, person, index) => Text(person.name),
+      ),
+      AntTableColumn<Person>(
+        title: '年龄',
+        cell: (context, person, index) => Text('${person.age}'),
+      ),
     ];
 
 Widget _table({
-  List<AntTableColumn>? columns,
-  List<Map<String, dynamic>>? dataSource,
-  AntTableRowKeyFn? rowKey,
+  List<AntTableColumn<Person>>? columns,
+  List<Person>? dataSource,
+  AntTableRowKeyFn<Person>? rowKey,
+  AntTableChildrenFn<Person>? childrenOf,
   double? scrollX,
   double? scrollY,
   bool pagination = false,
@@ -44,10 +67,11 @@ Widget _table({
   bool loading = false,
   Widget? empty,
 }) {
-  return AntTable(
+  return AntTable<Person>(
     columns: columns ?? _baseColumns(),
     dataSource: dataSource ?? _people(),
-    rowKey: rowKey,
+    rowKey: rowKey ?? (person) => person.id,
+    childrenOf: childrenOf,
     scrollX: scrollX,
     scrollY: scrollY,
     pagination: pagination,
@@ -75,32 +99,49 @@ void main() {
     });
 
     testWidgets('render custom column builds custom widget', (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        columns: [
-          const AntTableColumn(title: '姓名', dataIndex: 'name'),
-          AntTableColumn(
-            title: '操作',
-            render: (value, record, index) =>
-                Text('操作-${record['name'] as String}'),
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            columns: [
+              AntTableColumn<Person>(
+                title: '姓名',
+                cell: (context, person, index) => Text(person.name),
+              ),
+              AntTableColumn<Person>(
+                title: '操作',
+                cell: (context, person, index) => Text('操作-${person.name}'),
+              ),
+            ],
           ),
-        ],
-      ),),);
+        ),
+      );
       expect(find.text('操作-Alice'), findsOneWidget);
       expect(find.text('操作-Bob'), findsOneWidget);
     });
 
-    testWidgets('default rowKey uses id field', (tester) async {
-      await tester.pumpWidget(_wrap(_table()));
+    testWidgets('default rowKey falls back to row index', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntTable<Person>(
+            columns: _baseColumns(),
+            dataSource: _people(),
+          ),
+        ),
+      );
       expect(
-        find.byKey(const ValueKey<Object?>('ant_table_row_1')),
+        find.byKey(const ValueKey<Object?>('ant_table_row_0')),
         findsOneWidget,
       );
     });
 
     testWidgets('custom rowKey function applies', (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        rowKey: (record) => 'r-${record['id']}',
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            rowKey: (record) => 'r-${record.id}',
+          ),
+        ),
+      );
       expect(
         find.byKey(const ValueKey<Object?>('ant_table_row_r-2')),
         findsOneWidget,
@@ -112,17 +153,25 @@ void main() {
     // ----------------------------------------------------------
 
     testWidgets('sort cycles ascend -> descend -> cancel', (tester) async {
-      await tester.pumpWidget(_wrap(_table(columns: [
-        const AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(
-          title: '年龄',
-          dataIndex: 'age',
-          sorter: (a, b) => (a['age'] as int).compareTo(b['age'] as int),
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            columns: [
+              AntTableColumn<Person>(
+                title: '姓名',
+                cell: (context, person, index) => Text(person.name),
+              ),
+              AntTableColumn<Person>(
+                title: '年龄',
+                cell: (context, person, index) => Text('${person.age}'),
+                sorter: (a, b) => a.age.compareTo(b.age),
+              ),
+            ],
+          ),
         ),
-      ],),),);
+      );
 
-      double dyOf(String name) =>
-          tester.getTopLeft(find.text(name)).dy;
+      double dyOf(String name) => tester.getTopLeft(find.text(name)).dy;
 
       // 初始顺序 Alice, Bob, Carol
       expect(dyOf('Alice'), lessThan(dyOf('Bob')));
@@ -145,20 +194,27 @@ void main() {
       expect(dyOf('Alice'), lessThan(dyOf('Bob')));
     });
 
-    testWidgets('sort icon colors active with primary color',
-        (tester) async {
-      await tester.pumpWidget(_wrap(_table(columns: [
-        const AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(
-          title: '年龄',
-          dataIndex: 'age',
-          sorter: (a, b) => 0,
+    testWidgets('sort icon colors active with primary color', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            columns: [
+              AntTableColumn<Person>(
+                title: '姓名',
+                cell: (context, person, index) => Text(person.name),
+              ),
+              AntTableColumn<Person>(
+                title: '年龄',
+                cell: (context, person, index) => Text('${person.age}'),
+                sorter: (a, b) => 0,
+              ),
+            ],
+          ),
         ),
-      ],),),);
+      );
 
       final theme = AntThemeData.light();
-      final upIcon =
-          tester.widget<Icon>(find.byIcon(AntIcons.arrowUpOutlined));
+      final upIcon = tester.widget<Icon>(find.byIcon(AntIcons.arrowUpOutlined));
       expect(upIcon.color, theme.colorTextQuaternary);
 
       await tester.tap(find.text('年龄'));
@@ -183,40 +239,57 @@ void main() {
     // 筛选
     // ----------------------------------------------------------
 
-    testWidgets('filter icon appears only on filter columns',
-        (tester) async {
-      await tester.pumpWidget(_wrap(_table(columns: [
-        const AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(
-          title: '城市',
-          dataIndex: 'city',
-          filters: [
-            const AntTableFilterItem(text: '北京', value: '北京'),
-            const AntTableFilterItem(text: '上海', value: '上海'),
-          ],
-          onFilter: (value, record) => record['city'] == value,
+    testWidgets('filter icon appears only on filter columns', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            columns: [
+              AntTableColumn<Person>(
+                title: '姓名',
+                cell: (context, person, index) => Text(person.name),
+              ),
+              AntTableColumn<Person>(
+                title: '城市',
+                cell: (context, person, index) => Text(person.city),
+                filters: [
+                  const AntTableFilterItem(text: '北京', value: '北京'),
+                  const AntTableFilterItem(text: '上海', value: '上海'),
+                ],
+                onFilter: (value, record) => record.city == value,
+              ),
+            ],
+          ),
         ),
-      ],),),);
+      );
       expect(find.byIcon(AntIcons.filterOutlined), findsOneWidget);
     });
 
     testWidgets('filter selects items and filters rows', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 300,
-        child: _table(columns: [
-          const AntTableColumn(title: '姓名', dataIndex: 'name'),
-          AntTableColumn(
-            title: '城市',
-            dataIndex: 'city',
-            filters: [
-              const AntTableFilterItem(text: '北京', value: '北京'),
-              const AntTableFilterItem(text: '上海', value: '上海'),
-              const AntTableFilterItem(text: '深圳', value: '深圳'),
-            ],
-            onFilter: (value, record) => record['city'] == value,
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 300,
+            child: _table(
+              columns: [
+                AntTableColumn<Person>(
+                  title: '姓名',
+                  cell: (context, person, index) => Text(person.name),
+                ),
+                AntTableColumn<Person>(
+                  title: '城市',
+                  cell: (context, person, index) => Text(person.city),
+                  filters: [
+                    const AntTableFilterItem(text: '北京', value: '北京'),
+                    const AntTableFilterItem(text: '上海', value: '上海'),
+                    const AntTableFilterItem(text: '深圳', value: '深圳'),
+                  ],
+                  onFilter: (value, record) => record.city == value,
+                ),
+              ],
+            ),
           ),
-        ],),
-      ),),);
+        ),
+      );
 
       // 打开筛选面板
       await tester.tap(find.byIcon(AntIcons.filterOutlined));
@@ -239,20 +312,29 @@ void main() {
     });
 
     testWidgets('filter reset restores rows', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 300,
-        child: _table(columns: [
-          const AntTableColumn(title: '姓名', dataIndex: 'name'),
-          AntTableColumn(
-            title: '城市',
-            dataIndex: 'city',
-            filters: [
-              const AntTableFilterItem(text: '北京', value: '北京'),
-            ],
-            onFilter: (value, record) => record['city'] == value,
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 300,
+            child: _table(
+              columns: [
+                AntTableColumn<Person>(
+                  title: '姓名',
+                  cell: (context, person, index) => Text(person.name),
+                ),
+                AntTableColumn<Person>(
+                  title: '城市',
+                  cell: (context, person, index) => Text(person.city),
+                  filters: [
+                    const AntTableFilterItem(text: '北京', value: '北京'),
+                  ],
+                  onFilter: (value, record) => record.city == value,
+                ),
+              ],
+            ),
           ),
-        ],),
-      ),),);
+        ),
+      );
 
       await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pump();
@@ -274,24 +356,35 @@ void main() {
     // 固定列
     // ----------------------------------------------------------
 
-    testWidgets('fixed left column stays outside scroll area',
-        (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 400,
-        child: _table(
-          scrollX: 800,
-          columns: [
-            const AntTableColumn(
-              title: '姓名',
-              dataIndex: 'name',
-              width: 100,
-              fixed: AntTableFixed.left,
+    testWidgets('fixed left column stays outside scroll area', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 400,
+            child: _table(
+              scrollX: 800,
+              columns: [
+                AntTableColumn<Person>(
+                  title: '姓名',
+                  width: 100,
+                  fixed: AntTableFixed.left,
+                  cell: (context, person, index) => Text(person.name),
+                ),
+                AntTableColumn<Person>(
+                  title: '年龄',
+                  width: 200,
+                  cell: (context, person, index) => Text('${person.age}'),
+                ),
+                AntTableColumn<Person>(
+                  title: '城市',
+                  width: 200,
+                  cell: (context, person, index) => Text(person.city),
+                ),
+              ],
             ),
-            const AntTableColumn(title: '年龄', dataIndex: 'age', width: 200),
-            const AntTableColumn(title: '城市', dataIndex: 'city', width: 200),
-          ],
+          ),
         ),
-      ),),);
+      );
 
       // 固定列渲染正常
       expect(find.text('姓名'), findsOneWidget);
@@ -299,41 +392,55 @@ void main() {
       // 固定列阴影存在
       final gradients = tester
           .widgetList<Container>(find.byType(Container))
-          .where((c) => c.decoration is BoxDecoration &&
-              (c.decoration! as BoxDecoration).gradient != null,)
+          .where(
+            (c) =>
+                c.decoration is BoxDecoration &&
+                (c.decoration! as BoxDecoration).gradient != null,
+          )
           .length;
       expect(gradients, greaterThanOrEqualTo(2)); // 表头 + 行
     });
 
     testWidgets('fixed right column renders', (tester) async {
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 400,
-        child: _table(
-          scrollX: 800,
-          columns: [
-            const AntTableColumn(title: '年龄', dataIndex: 'age', width: 200),
-            const AntTableColumn(
-              title: '城市',
-              dataIndex: 'city',
-              width: 100,
-              fixed: AntTableFixed.right,
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 400,
+            child: _table(
+              scrollX: 800,
+              columns: [
+                AntTableColumn<Person>(
+                  title: '年龄',
+                  width: 200,
+                  cell: (context, person, index) => Text('${person.age}'),
+                ),
+                AntTableColumn<Person>(
+                  title: '城市',
+                  width: 100,
+                  fixed: AntTableFixed.right,
+                  cell: (context, person, index) => Text(person.city),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),),);
+      );
       expect(find.text('城市'), findsOneWidget);
       expect(find.text('北京'), findsOneWidget);
     });
 
-    testWidgets('scrollY keeps header above scrollable body',
-        (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        scrollY: 200,
-        dataSource: List.generate(
-          30,
-          (i) => {'id': i, 'name': 'row $i', 'age': i},
+    testWidgets('scrollY keeps header above scrollable body', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            scrollY: 200,
+            dataSource: List.generate(
+              30,
+              (i) => Person(id: i, name: 'row $i', age: i),
+            ),
+          ),
         ),
-      ),),);
+      );
 
       // 表头在滚动区外，滚动后仍可见
       expect(find.text('姓名'), findsOneWidget);
@@ -347,15 +454,18 @@ void main() {
     // 虚拟滚动
     // ----------------------------------------------------------
 
-    testWidgets('virtual scroll lazy builds only visible rows',
-        (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        scrollY: 300,
-        dataSource: List.generate(
-          100,
-          (i) => {'id': i, 'name': 'row $i', 'age': i},
+    testWidgets('virtual scroll lazy builds only visible rows', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            scrollY: 300,
+            dataSource: List.generate(
+              100,
+              (i) => Person(id: i, name: 'row $i', age: i),
+            ),
+          ),
         ),
-      ),),);
+      );
 
       // ListView.builder 懒加载：首屏只构建可见行
       expect(find.text('row 0'), findsOneWidget);
@@ -369,10 +479,14 @@ void main() {
 
     testWidgets('small row count with scrollY does not lazy build',
         (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        scrollY: 300,
-        dataSource: _people(),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            scrollY: 300,
+            dataSource: _people(),
+          ),
+        ),
+      );
       // 3 行 < 50 行阈值，全部一次性构建
       expect(find.text('Alice'), findsOneWidget);
       expect(find.text('Carol'), findsOneWidget);
@@ -385,13 +499,17 @@ void main() {
     testWidgets('pagination splits rows by pageSize', (tester) async {
       final data = List.generate(
         9,
-        (i) => {'id': i, 'name': 'user $i', 'age': 100 + i},
+        (i) => Person(id: i, name: 'user $i', age: 100 + i),
       );
-      await tester.pumpWidget(_wrap(_table(
-        pagination: true,
-        pageSize: 4,
-        dataSource: data,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            pagination: true,
+            pageSize: 4,
+            dataSource: data,
+          ),
+        ),
+      );
 
       // 第一页显示 user 0~3
       expect(find.text('user 0'), findsOneWidget);
@@ -414,13 +532,17 @@ void main() {
     testWidgets('pagination prev/next buttons work', (tester) async {
       final data = List.generate(
         8,
-        (i) => {'id': i, 'name': 'user $i', 'age': 100 + i},
+        (i) => Person(id: i, name: 'user $i', age: 100 + i),
       );
-      await tester.pumpWidget(_wrap(_table(
-        pagination: true,
-        pageSize: 4,
-        dataSource: data,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            pagination: true,
+            pageSize: 4,
+            dataSource: data,
+          ),
+        ),
+      );
 
       // 下一页
       await tester.tap(find.byIcon(AntIcons.rightOutlined));
@@ -436,7 +558,7 @@ void main() {
     testWidgets('no pagination by default', (tester) async {
       final data = List.generate(
         25,
-        (i) => {'id': i, 'name': 'user $i', 'age': 100 + i},
+        (i) => Person(id: i, name: 'user $i', age: 100 + i),
       );
       await tester.pumpWidget(_wrap(_table(dataSource: data)));
       expect(find.text('user 24'), findsOneWidget);
@@ -450,9 +572,8 @@ void main() {
     testWidgets('bordered true draws outer border', (tester) async {
       await tester.pumpWidget(_wrap(_table(bordered: true)));
       // 外框 = 四边均有 border 的容器（Border.all）
-      final outerBorders = tester
-          .widgetList<Container>(find.byType(Container))
-          .where((c) {
+      final outerBorders =
+          tester.widgetList<Container>(find.byType(Container)).where((c) {
         final deco = c.decoration;
         if (deco is! BoxDecoration || deco.border is! Border) return false;
         final b = deco.border! as Border;
@@ -467,9 +588,8 @@ void main() {
 
     testWidgets('bordered false has no outer border', (tester) async {
       await tester.pumpWidget(_wrap(_table(bordered: false)));
-      final outerBorders = tester
-          .widgetList<Container>(find.byType(Container))
-          .where((c) {
+      final outerBorders =
+          tester.widgetList<Container>(find.byType(Container)).where((c) {
         final deco = c.decoration;
         if (deco is! BoxDecoration || deco.border is! Border) return false;
         final b = deco.border! as Border;
@@ -487,10 +607,12 @@ void main() {
       Future<double?> verticalPadding(AntTableSize size) async {
         await tester.pumpWidget(_wrap(_table(size: size)));
         final cellContainer = tester
-            .widgetList<Container>(find.ancestor(
-          of: find.text('Alice'),
-          matching: find.byType(Container),
-        ),)
+            .widgetList<Container>(
+              find.ancestor(
+                of: find.text('Alice'),
+                matching: find.byType(Container),
+              ),
+            )
             .firstWhere((c) => c.padding != null);
         return (cellContainer.padding! as EdgeInsets).vertical;
       }
@@ -514,17 +636,20 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
-    testWidgets('empty dataSource shows default placeholder',
-        (tester) async {
+    testWidgets('empty dataSource shows default placeholder', (tester) async {
       await tester.pumpWidget(_wrap(_table(dataSource: const [])));
       expect(find.text('暂无数据'), findsOneWidget);
     });
 
     testWidgets('custom empty widget renders', (tester) async {
-      await tester.pumpWidget(_wrap(_table(
-        dataSource: const [],
-        empty: const Text('自定义空状态'),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            dataSource: const [],
+            empty: const Text('自定义空状态'),
+          ),
+        ),
+      );
       expect(find.text('自定义空状态'), findsOneWidget);
       expect(find.text('暂无数据'), findsNothing);
     });
@@ -534,35 +659,48 @@ void main() {
     // ----------------------------------------------------------
 
     testWidgets('ellipsis true truncates long cell text', (tester) async {
-      const longText =
-          '这是一段非常非常非常非常非常非常非常非常长的文本内容用于测试省略号';
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 200,
-        child: _table(columns: [
-          const AntTableColumn(
-            title: '描述',
-            dataIndex: 'desc',
-            width: 100,
-            ellipsis: true,
+      const longText = '这是一段非常非常非常非常非常非常非常非常长的文本内容用于测试省略号';
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 200,
+            child: _table(
+              columns: [
+                AntTableColumn<Person>(
+                  title: '描述',
+                  width: 100,
+                  ellipsis: true,
+                  cell: (context, person, index) => const Text(longText),
+                ),
+              ],
+              dataSource: const [
+                Person(id: 1, name: 'Alice', age: 30, city: longText),
+              ],
+            ),
           ),
-        ], dataSource: const [
-          {'id': 1, 'desc': longText},
-        ],),
-      ),),);
+        ),
+      );
 
-      final cellText = tester.widget<Text>(find.text(longText));
-      expect(cellText.maxLines, 1);
-      expect(cellText.overflow, TextOverflow.ellipsis);
+      // ellipsis 通过 DefaultTextStyle 注入（不强制用户 Text 的样式）
+      final style = DefaultTextStyle.of(tester.element(find.text(longText)));
+      expect(style.maxLines, 1);
+      expect(style.overflow, TextOverflow.ellipsis);
     });
 
     testWidgets('align center/right applies alignment', (tester) async {
-      await tester.pumpWidget(_wrap(_table(columns: [
-        const AntTableColumn(
-          title: '年龄',
-          dataIndex: 'age',
-          align: AntTableAlign.center,
+      await tester.pumpWidget(
+        _wrap(
+          _table(
+            columns: [
+              AntTableColumn<Person>(
+                title: '年龄',
+                cell: (context, person, index) => Text('${person.age}'),
+                align: AntTableAlign.center,
+              ),
+            ],
+          ),
         ),
-      ],),),);
+      );
       // 居中列的表头/单元格内容以 Alignment.center 对齐
       final aligns = tester
           .widgetList<Align>(

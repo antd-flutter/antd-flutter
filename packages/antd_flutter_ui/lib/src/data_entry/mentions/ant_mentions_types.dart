@@ -1,7 +1,9 @@
 /// AntMentions types — 提及组件的类型定义
 library;
 
-/// 提及选项
+/// 提及选项（旧模型，自 1.x 起推荐直接用
+/// `AntMentions<T>(options: List<T>)` 配合 `labelOf` / `valueOf`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf/valueOf；本类将在 2.0 移除')
 class AntMentionsOption {
   const AntMentionsOption({
     required this.value,

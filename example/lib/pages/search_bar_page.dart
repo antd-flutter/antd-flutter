@@ -82,18 +82,12 @@ class SearchBarPage extends StatelessWidget {
             title: '自定义搜索图标',
             child: AntSearchBar(
               placeholder: '搜索',
-              searchIcon: Icon(
-                AntIcons.searchOutlined,
-                size: 18.sp,
-              ),
+              searchIcon: Icon(AntIcons.searchOutlined, size: 18.sp),
               onSearch: (v) => debugPrint('onSearch: $v'),
             ),
           ),
           SizedBox(height: 16.h),
-          _Section(
-            title: '受控模式',
-            child: const _ControlledSearchBar(),
-          ),
+          _Section(title: '受控模式', child: const _ControlledSearchBar()),
         ],
       ),
     );

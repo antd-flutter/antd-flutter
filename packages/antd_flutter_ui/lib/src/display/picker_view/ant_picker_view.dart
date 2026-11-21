@@ -4,12 +4,20 @@
 /// 作为通用滚轮视图沉淀于 ui 基础库，供 Picker / CalendarPicker /
 /// 后续 Date/Time Picker 等组件复用。
 ///
+/// 列数据直接是使用者自己的模型 `T`，通过 [AntPickerColumn.labelBuilder]
+/// 渲染、[AntPickerColumn.keyOf] 提供唯一标识；[value] 中的元素可以是
+/// `T` 本身，也可以是 `keyOf` 返回的 key。
+///
 /// ```dart
-/// AntPickerView(
+/// AntPickerView<Season>(
 ///   columns: [
-///     [AntPickerColumnItem(label: '周一', value: 'mon'), ...],
+///     AntPickerColumn<Season>(
+///       dataSource: seasons,
+///       keyOf: (s) => s.id,
+///       labelBuilder: (context, s) => Text(s.name),
+///     ),
 ///   ],
-///   onChange: (vals) => print(vals),
+///   onChange: (items) => print(items.map((e) => e.name)),
 /// )
 /// ```
 library;
@@ -20,7 +28,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// 内嵌滚轮选择器 — 多列滚轮，选中项实时回调。
-class AntPickerView extends StatefulWidget {
+class AntPickerView<T> extends StatefulWidget {
   const AntPickerView({
     super.key,
     required this.columns,
@@ -32,16 +40,16 @@ class AntPickerView extends StatefulWidget {
   });
 
   /// 列数据。
-  final List<AntPickerColumn> columns;
+  final List<AntPickerColumn<T>> columns;
 
-  /// 受控值（各列选中值）。
-  final List<AntPickerValue>? value;
+  /// 受控值（各列选中值，元素可为 `T` 或 key）。
+  final List<Object?>? value;
 
-  /// 非受控初始值。
-  final List<AntPickerValue> defaultValue;
+  /// 非受控初始值（元素可为 `T` 或 key）。
+  final List<Object?> defaultValue;
 
-  /// 选中变化回调。
-  final ValueChanged<List<AntPickerValue>>? onChange;
+  /// 选中变化回调（返回各列选中的模型）。
+  final ValueChanged<List<T>>? onChange;
 
   /// 单项高度。
   final double itemHeight;
@@ -50,88 +58,105 @@ class AntPickerView extends StatefulWidget {
   final double height;
 
   @override
-  State<AntPickerView> createState() => _AntPickerViewState();
+  State<AntPickerView<T>> createState() => _AntPickerViewState<T>();
 }
 
-class _AntPickerViewState extends State<AntPickerView> {
-  late List<AntPickerValue> _innerValue;
+class _AntPickerViewState<T> extends State<AntPickerView<T>> {
+  late List<int> _indexes;
   late List<FixedExtentScrollController> _controllers;
 
   @override
   void initState() {
     super.initState();
-    _innerValue = List<AntPickerValue>.from(
-      widget.value ?? widget.defaultValue,
-    );
-    _syncControllers();
+    _initControllers();
   }
 
-  void _syncControllers() {
-    _controllers = [];
-    for (var i = 0; i < widget.columns.length; i++) {
-      final idx = _indexOf(widget.columns[i], _safeValueAt(i));
-      _controllers.add(FixedExtentScrollController(initialItem: idx));
+  void _initControllers() {
+    _indexes = _indexesFor(widget.value ?? widget.defaultValue);
+    _controllers = [
+      for (final index in _indexes)
+        FixedExtentScrollController(initialItem: index),
+    ];
+  }
+
+  void _disposeControllers() {
+    for (final controller in _controllers) {
+      controller.dispose();
     }
   }
 
   @override
-  void didUpdateWidget(covariant AntPickerView oldWidget) {
+  void didUpdateWidget(covariant AntPickerView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.columns.length != oldWidget.columns.length) {
-      for (final c in _controllers) {
-        c.dispose();
-      }
-      _innerValue = List<AntPickerValue>.from(
-        widget.value ?? widget.defaultValue,
-      );
-      _syncControllers();
+    if (_columnsChanged(oldWidget.columns)) {
+      _disposeControllers();
+      _initControllers();
       return;
     }
-    if (widget.value != null) {
-      for (var i = 0; i < widget.value!.length && i < _innerValue.length; i++) {
-        if (widget.value![i] != _innerValue[i]) {
-          _innerValue[i] = widget.value![i];
-          final idx = _indexOf(widget.columns[i], _innerValue[i]);
-          if (_controllers[i].selectedItem != idx) {
-            _controllers[i].jumpToItem(idx);
-          }
-        }
+    final value = widget.value;
+    if (value == null) return;
+    for (var i = 0; i < widget.columns.length; i++) {
+      final index = _indexOf(
+        widget.columns[i],
+        i < value.length ? value[i] : null,
+      );
+      if (_indexes[i] == index) continue;
+      _indexes[i] = index;
+      if (_controllers[i].hasClients) {
+        _controllers[i].jumpToItem(index);
       }
     }
+  }
+
+  bool _columnsChanged(List<AntPickerColumn<T>> oldColumns) {
+    if (widget.columns.length != oldColumns.length) return true;
+    for (var i = 0; i < widget.columns.length; i++) {
+      if (!identical(
+        widget.columns[i].dataSource,
+        oldColumns[i].dataSource,
+      )) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
   void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
+    _disposeControllers();
     super.dispose();
   }
 
-  AntPickerValue _safeValueAt(int index) {
-    if (index < _innerValue.length) return _innerValue[index];
-    return null;
+  List<int> _indexesFor(List<Object?> values) {
+    return [
+      for (var i = 0; i < widget.columns.length; i++)
+        _indexOf(widget.columns[i], i < values.length ? values[i] : null),
+    ];
   }
 
-  int _indexOf(AntPickerColumn column, AntPickerValue value) {
-    if (value == null) return 0;
-    final idx = column.indexWhere((item) => item.value == value);
-    return idx >= 0 ? idx : 0;
+  int _indexOf(AntPickerColumn<T> column, Object? value) {
+    if (value == null || column.dataSource.isEmpty) return 0;
+    for (var i = 0; i < column.dataSource.length; i++) {
+      final item = column.dataSource[i];
+      final key = column.keyOf?.call(item) ?? i;
+      if (key == value || identical(item, value) || item == value) return i;
+    }
+    return 0;
+  }
+
+  List<T> _selectedValues() {
+    return [
+      for (var i = 0; i < widget.columns.length; i++)
+        widget.columns[i].dataSource[_indexes[i]],
+    ];
   }
 
   void _onColumnChanged(int colIndex, int itemIndex) {
     final column = widget.columns[colIndex];
-    if (itemIndex >= column.length) return;
-    final newVal = column[itemIndex].value;
-    if (colIndex < _innerValue.length) {
-      _innerValue[colIndex] = newVal;
-    } else {
-      while (_innerValue.length <= colIndex) {
-        _innerValue.add(null);
-      }
-      _innerValue[colIndex] = newVal;
-    }
-    widget.onChange?.call(List<AntPickerValue>.from(_innerValue));
+    if (itemIndex < 0 || itemIndex >= column.dataSource.length) return;
+    if (_indexes[colIndex] == itemIndex) return;
+    _indexes[colIndex] = itemIndex;
+    widget.onChange?.call(_selectedValues());
   }
 
   @override
@@ -143,7 +168,7 @@ class _AntPickerViewState extends State<AntPickerView> {
         children: [
           for (var i = 0; i < widget.columns.length; i++)
             Expanded(
-              child: WheelPickerColumn(
+              child: WheelPickerColumn<T>(
                 column: widget.columns[i],
                 controller: _controllers[i],
                 itemHeight: widget.itemHeight,

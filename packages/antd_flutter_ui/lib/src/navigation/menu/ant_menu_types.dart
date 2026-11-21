@@ -48,69 +48,24 @@ enum AntMenuItemType {
   divider,
 }
 
-/// 菜单项。
-///
-/// 对齐 antd v6 `ItemType`：
-/// - `item`：普通项（[children] 为空）
-/// - `submenu`：子菜单（[children] 非空，或显式 [type] 为 [AntMenuItemType.submenu]）
-/// - `group`：分组标题，[children] 为分组内容
-/// - `divider`：分割线（[dashed] 控制虚线）
-class AntMenuItem {
-  const AntMenuItem({
-    required this.key,
-    this.label,
-    this.labelWidget,
-    this.icon,
-    this.extra,
-    this.title,
-    this.children = const <AntMenuItem>[],
-    this.disabled = false,
-    this.danger = false,
-    this.type = AntMenuItemType.item,
-    this.dashed = false,
-  });
+/// 菜单标题构建器。未提供时回退为 `Text('$item')`（`T` 为 String 时即纯文本）。
+typedef AntMenuLabelBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+);
 
-  /// 唯一标识。
-  final String key;
+/// 菜单图标构建器。返回 null 时不展示图标。
+typedef AntMenuIconBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+);
 
-  /// 标题文字。与 [labelWidget] 二选一，[labelWidget] 优先。
-  final String? label;
+/// 菜单右侧附加内容构建器。返回 null 时不展示。
+typedef AntMenuExtraBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+);
 
-  /// 自定义标题组件。优先于 [label]。
-  final Widget? labelWidget;
-
-  /// 图标。
-  final Widget? icon;
-
-  /// 右侧附加内容（antd `extra`）。
-  final Widget? extra;
-
-  /// 悬浮提示文本。为空时折叠态使用 [label]。
-  final String? title;
-
-  /// 子菜单项 / 分组内容。
-  final List<AntMenuItem> children;
-
-  /// 是否禁用。
-  final bool disabled;
-
-  /// 是否危险操作（红色文字）。
-  final bool danger;
-
-  /// 菜单项类型。
-  final AntMenuItemType type;
-
-  /// 分割线是否为虚线（仅 [AntMenuItemType.divider] 生效）。
-  final bool dashed;
-
-  /// 是否为子菜单：显式 submenu 类型，或普通项但带 children。
-  bool get isSubMenu =>
-      type == AntMenuItemType.submenu ||
-      (type == AntMenuItemType.item && children.isNotEmpty);
-
-  /// 是否为分组标题。
-  bool get isGroup => type == AntMenuItemType.group;
-
-  /// 是否为分割线。
-  bool get isDivider => type == AntMenuItemType.divider;
-}
+/// 折叠态 Tooltip 标题提取器。
+typedef AntMenuTooltipTitleOf<T> = String? Function(T item);

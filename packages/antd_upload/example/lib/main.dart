@@ -77,20 +77,18 @@ class _AntdUploadGalleryAppState extends State<AntdUploadGalleryApp> {
                 actions: [
                   IconButton(
                     onPressed: () => setState(() => _isDark = !_isDark),
-                    icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
+                    icon: Icon(
+                      _isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined,
+                    ),
                   ),
                 ],
                 bottom: TabBar(
                   isScrollable: true,
-                  tabs: [
-                    for (final s in _sections) Tab(text: s.title),
-                  ],
+                  tabs: [for (final s in _sections) Tab(text: s.title)],
                 ),
               ),
               body: TabBarView(
-                children: [
-                  for (final s in _sections) s.builder(context),
-                ],
+                children: [for (final s in _sections) s.builder(context)],
               ),
             ),
           ),
@@ -115,7 +113,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+        ),
         SizedBox(height: 12.w),
         child,
       ],
@@ -123,17 +124,18 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   );
 }
 
-Widget _page(BuildContext context, List<Widget> children) => SingleChildScrollView(
+Widget _page(BuildContext context, List<Widget> children) =>
+    SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(children: children),
     );
 
 /// 模拟文件选择（R16：真实选择由使用方注入，demo 模拟返回）。
-Future<List<AntUploadFile>> _pickFiles(List<AntUploadFile> pool, {int count = 1}) async {
-  return List<AntUploadFile>.generate(
-    count,
-    (i) => pool[i % pool.length],
-  );
+Future<List<AntUploadFile>> _pickFiles(
+  List<AntUploadFile> pool, {
+  int count = 1,
+}) async {
+  return List<AntUploadFile>.generate(count, (i) => pool[i % pool.length]);
 }
 
 /// 模拟上传（R16：真实上传由使用方在 customRequest 注入，demo 模拟进度）。
@@ -167,41 +169,56 @@ class _BasicSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _page(context, [
-      _sectionCard(context, '文字列表（默认）', AntUpload(
-        uploadButtonText: '上传文件',
-        onSelectFiles: () => _pickFiles(_pool),
-        customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
-      )),
-      _sectionCard(context, '图片列表', AntUpload(
-        listType: AntUploadListType.picture,
-        uploadButtonText: '上传图片',
-        onSelectFiles: () => _pickFiles([
-          AntUploadFile(
+      _sectionCard(
+        context,
+        '文字列表（默认）',
+        AntUpload(
+          uploadButtonText: '上传文件',
+          onSelectFiles: () => _pickFiles(_pool),
+          customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
+        ),
+      ),
+      _sectionCard(
+        context,
+        '图片列表',
+        AntUpload(
+          listType: AntUploadListType.picture,
+          uploadButtonText: '上传图片',
+          onSelectFiles: () => _pickFiles([
+            AntUploadFile(
               uid: 'p1',
               name: '风景.jpg',
               url: kDemoImages[0],
-              thumbUrl: kDemoImages[0]),
-          AntUploadFile(
+              thumbUrl: kDemoImages[0],
+            ),
+            AntUploadFile(
               uid: 'p2',
               name: '湖泊.jpg',
               url: kDemoImages[1],
-              thumbUrl: kDemoImages[1]),
-        ]),
-        customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
-      )),
-      _sectionCard(context, '图片卡片 + maxCount=3', AntUpload(
-        listType: AntUploadListType.pictureCard,
-        maxCount: 3,
-        uploadButtonText: '上传',
-        onSelectFiles: () => _pickFiles([
-          AntUploadFile(
+              thumbUrl: kDemoImages[1],
+            ),
+          ]),
+          customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
+        ),
+      ),
+      _sectionCard(
+        context,
+        '图片卡片 + maxCount=3',
+        AntUpload(
+          listType: AntUploadListType.pictureCard,
+          maxCount: 3,
+          uploadButtonText: '上传',
+          onSelectFiles: () => _pickFiles([
+            AntUploadFile(
               uid: 'c1',
               name: '山川.jpg',
               url: kDemoImages[2],
-              thumbUrl: kDemoImages[2]),
-        ]),
-        customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
-      )),
+              thumbUrl: kDemoImages[2],
+            ),
+          ]),
+          customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
+        ),
+      ),
     ]);
   }
 }
@@ -262,8 +279,10 @@ class _StatusSectionState extends State<_StatusSection> {
   ];
   int _pickCount = 0;
 
-  Future<void> _request(AntUploadFile file,
-      void Function(AntUploadFile) updateFile) async {
+  Future<void> _request(
+    AntUploadFile file,
+    void Function(AntUploadFile) updateFile,
+  ) async {
     await _fakeUpload(file, updateFile, fail: file.uid == 's1');
   }
 
@@ -278,8 +297,7 @@ class _StatusSectionState extends State<_StatusSection> {
           children: [
             AntUpload(
               fileList: _files,
-              onChange: (file, fileList) =>
-                  setState(() => _files = fileList),
+              onChange: (file, fileList) => setState(() => _files = fileList),
               onSelectFiles: () async {
                 final f = _pool[_pickCount % _pool.length];
                 _pickCount++;
@@ -305,14 +323,21 @@ class _StatusSectionState extends State<_StatusSection> {
         AntUpload(
           defaultFileList: const [
             AntUploadFile(
-                uid: 'd1',
-                name: '上传中.pdf',
-                status: AntUploadStatus.uploading,
-                percent: 60),
+              uid: 'd1',
+              name: '上传中.pdf',
+              status: AntUploadStatus.uploading,
+              percent: 60,
+            ),
             AntUploadFile(
-                uid: 'd2', name: '已完成.pdf', status: AntUploadStatus.done),
+              uid: 'd2',
+              name: '已完成.pdf',
+              status: AntUploadStatus.done,
+            ),
             AntUploadFile(
-                uid: 'd3', name: '失败.pdf', status: AntUploadStatus.error),
+              uid: 'd3',
+              name: '失败.pdf',
+              status: AntUploadStatus.error,
+            ),
           ],
           onSelectFiles: () async => const [],
         ),
@@ -349,22 +374,26 @@ class _PreviewSectionState extends State<_PreviewSection> {
                   setState(() => _previewUrl = file.url ?? file.thumbUrl),
               onSelectFiles: () => _pickFiles([
                 AntUploadFile(
-                    uid: 'pv1',
-                    name: '风景.jpg',
-                    url: kDemoImages[0],
-                    thumbUrl: kDemoImages[0]),
+                  uid: 'pv1',
+                  name: '风景.jpg',
+                  url: kDemoImages[0],
+                  thumbUrl: kDemoImages[0],
+                ),
                 AntUploadFile(
-                    uid: 'pv2',
-                    name: '湖泊.jpg',
-                    url: kDemoImages[1],
-                    thumbUrl: kDemoImages[1]),
+                  uid: 'pv2',
+                  name: '湖泊.jpg',
+                  url: kDemoImages[1],
+                  thumbUrl: kDemoImages[1],
+                ),
                 AntUploadFile(
-                    uid: 'pv3',
-                    name: '山川.jpg',
-                    url: kDemoImages[2],
-                    thumbUrl: kDemoImages[2]),
+                  uid: 'pv3',
+                  name: '山川.jpg',
+                  url: kDemoImages[2],
+                  thumbUrl: kDemoImages[2],
+                ),
               ]),
-              customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
+              customRequest: (file, updateFile) =>
+                  _fakeUpload(file, updateFile),
             ),
             if (_previewUrl != null) ...[
               SizedBox(height: 12.w),
@@ -381,10 +410,13 @@ class _PreviewSectionState extends State<_PreviewSection> {
                 ),
               ),
               SizedBox(height: 4.w),
-              Text('点击预览图关闭',
-                  style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AntTheme.of(context).colorTextTertiary)),
+              Text(
+                '点击预览图关闭',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: AntTheme.of(context).colorTextTertiary,
+                ),
+              ),
             ],
           ],
         ),
@@ -434,11 +466,13 @@ class _ControlledSectionState extends State<_ControlledSection> {
               uploadButtonText: '受控上传',
               onSelectFiles: () async => [
                 AntUploadFile(
-                    uid: 'ctl${DateTime.now().millisecondsSinceEpoch}',
-                    name: '受控文件-${_files.length + 1}.pdf',
-                    size: 1024000),
+                  uid: 'ctl${DateTime.now().millisecondsSinceEpoch}',
+                  name: '受控文件-${_files.length + 1}.pdf',
+                  size: 1024000,
+                ),
               ],
-              customRequest: (file, updateFile) => _fakeUpload(file, updateFile),
+              customRequest: (file, updateFile) =>
+                  _fakeUpload(file, updateFile),
             ),
             SizedBox(height: 12.w),
             Container(
@@ -448,8 +482,10 @@ class _ControlledSectionState extends State<_ControlledSection> {
                 color: AntTheme.of(context).colorFillQuaternary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
-              child: Text('回调日志：$_lastAction',
-                  style: TextStyle(fontSize: 12.sp)),
+              child: Text(
+                '回调日志：$_lastAction',
+                style: TextStyle(fontSize: 12.sp),
+              ),
             ),
           ],
         ),
@@ -501,9 +537,10 @@ class _CustomItemSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('入职材料提交',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 14.sp)),
+              Text(
+                '入职材料提交',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
+              ),
               SizedBox(height: 8.w),
               AntUpload(
                 disabled: true,
@@ -516,6 +553,93 @@ class _CustomItemSection extends StatelessWidget {
           ),
         ),
       ),
+      _sectionCard(
+        context,
+        '业务模型槽（泛型 extra + itemBuilder）',
+        AntUpload<_Attachment>(
+          defaultFileList: const [
+            AntUploadFile<_Attachment>(
+              uid: 'biz1',
+              name: '需求说明书.pdf',
+              size: 2048000,
+              extra: _Attachment(
+                projectId: 'P-100',
+                owner: '张三',
+                category: '需求',
+              ),
+            ),
+            AntUploadFile<_Attachment>(
+              uid: 'biz2',
+              name: '验收报告.pdf',
+              size: 512000,
+              extra: _Attachment(
+                projectId: 'P-100',
+                owner: '李四',
+                category: '验收',
+              ),
+            ),
+          ],
+          itemBuilder: _attachmentItemBuilder,
+          onSelectFiles: () async => const [],
+        ),
+      ),
     ]);
   }
+}
+
+/// 用户自定义业务模型：附件归属信息。
+class _Attachment {
+  const _Attachment({
+    required this.projectId,
+    required this.owner,
+    required this.category,
+  });
+
+  final String projectId;
+  final String owner;
+  final String category;
+}
+
+/// 自定义列表项：文件描述用 AntUploadFile，业务字段从 extra 读取。
+Widget _attachmentItemBuilder(
+  BuildContext context,
+  AntUploadFile<_Attachment> file,
+  int index,
+) {
+  final theme = AntTheme.of(context);
+  final extra = file.extra;
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 6.w),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(AntIcons.paperClipOutlined, size: 16.r, color: theme.colorPrimary),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${index + 1}. ${file.name}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+              ),
+              if (extra != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 2.w),
+                  child: Text(
+                    '${extra.category} · 项目 ${extra.projectId} · 负责人 ${extra.owner}',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: theme.colorTextSecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }

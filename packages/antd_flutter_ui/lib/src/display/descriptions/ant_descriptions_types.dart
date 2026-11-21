@@ -24,22 +24,16 @@ enum AntDescriptionsLayout {
   vertical,
 }
 
-/// 描述列表的每一项。
-///
-/// 对齐 antd React Descriptions `items` 中的 item。
-class AntDescriptionsItem {
-  const AntDescriptionsItem({
-    this.label,
-    this.child,
-    this.span = 1,
-  });
+/// 描述标签构建器。未提供时回退为 `Text('$item')`。
+typedef AntDescriptionsLabelBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+);
 
-  /// 内容的描述标签。
-  final String? label;
-
-  /// 内容。
-  final Widget? child;
-
-  /// 占用的列数。
-  final int span;
-}
+/// 描述内容构建器。
+typedef AntDescriptionsContentBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+  int index,
+);

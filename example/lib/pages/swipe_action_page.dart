@@ -49,10 +49,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
             theme: theme,
             child: AntSwipeAction(
               rightActions: [
-                AntSwipeActionItem(
-                  text: '收藏',
-                  onPressed: () => _record('已收藏'),
-                ),
+                AntSwipeActionItem(text: '收藏', onPressed: () => _record('已收藏')),
                 AntSwipeActionItem(
                   text: '编辑',
                   color: theme.colorWarning,
@@ -144,8 +141,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
                   margin: EdgeInsets.only(bottom: 12.w),
                   decoration: BoxDecoration(
                     color: theme.colorBgLayout,
-                    borderRadius:
-                        BorderRadius.circular(theme.borderRadius),
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
                   ),
                   child: Text(
                     '最近操作：$_lastAction',
@@ -192,17 +188,18 @@ class _RowTile extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: theme.fontSize,
-          color: theme.colorText,
-        ),
+        style: TextStyle(fontSize: theme.fontSize, color: theme.colorText),
       ),
     );
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

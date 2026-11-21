@@ -101,10 +101,12 @@ void main() {
 
     testWidgets('small size uses smaller buttons', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPagination(
-          total: 50,
-          size: AntPaginationSize.small,
-        ),),
+        _wrap(
+          const AntPagination(
+            total: 50,
+            size: AntPaginationSize.small,
+          ),
+        ),
       );
       // small 模式按钮 24x24
       final buttons = tester.widgetList<Container>(
@@ -124,10 +126,12 @@ void main() {
     testWidgets('tap next calls onChange with page+1', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 50,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 50,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       await tester.tap(find.byIcon(AntIcons.rightOutlined));
       expect(changedPage, 2);
@@ -136,11 +140,13 @@ void main() {
     testWidgets('tap prev calls onChange with page-1', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          defaultCurrent: 3,
-          total: 50,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            defaultCurrent: 3,
+            total: 50,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       await tester.tap(find.byIcon(AntIcons.leftOutlined));
       expect(changedPage, 2);
@@ -149,10 +155,12 @@ void main() {
     testWidgets('tap page number calls onChange', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 50,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 50,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       await tester.tap(find.text('3'));
       expect(changedPage, 3);
@@ -161,10 +169,12 @@ void main() {
     testWidgets('tap ellipsis jumps 5 pages forward', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 100,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 100,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       // 当前页 1，右侧省略号跳 +5 → 页 6
       await tester.tap(find.byIcon(AntIcons.moreOutlined));
@@ -282,8 +292,7 @@ void main() {
                     total: 50,
                   ),
                   ElevatedButton(
-                    onPressed: () =>
-                        setState(() => externalCurrent = 4),
+                    onPressed: () => setState(() => externalCurrent = 4),
                     child: const Text('Go to 4'),
                   ),
                 ],
@@ -337,11 +346,13 @@ void main() {
     testWidgets('disabled prevents page change', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 50,
-          disabled: true,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 50,
+            disabled: true,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       await tester.tap(find.text('3'));
       expect(changedPage, -1);
@@ -350,11 +361,13 @@ void main() {
     testWidgets('disabled prevents next page', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 50,
-          disabled: true,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 50,
+            disabled: true,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
       await tester.tap(find.byIcon(AntIcons.rightOutlined));
       expect(changedPage, -1);
@@ -389,10 +402,12 @@ void main() {
   group('AntPagination — 附加功能', () {
     testWidgets('showSizeChanger renders AntDropdown', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPagination(
-          total: 100,
-          showSizeChanger: true,
-        ),),
+        _wrap(
+          const AntPagination(
+            total: 100,
+            showSizeChanger: true,
+          ),
+        ),
       );
       expect(
         find.descendant(
@@ -406,10 +421,12 @@ void main() {
 
     testWidgets('showQuickJumper renders TextField', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPagination(
-          total: 100,
-          showQuickJumper: true,
-        ),),
+        _wrap(
+          const AntPagination(
+            total: 100,
+            showQuickJumper: true,
+          ),
+        ),
       );
       expect(find.text('跳至'), findsOneWidget);
       expect(find.text('页'), findsOneWidget);
@@ -425,11 +442,13 @@ void main() {
     testWidgets('quick jumper submits page number', (tester) async {
       var changedPage = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 100,
-          showQuickJumper: true,
-          onChange: (p) => changedPage = p,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 100,
+            showQuickJumper: true,
+            onChange: (p) => changedPage = p,
+          ),
+        ),
       );
 
       await tester.enterText(
@@ -445,15 +464,16 @@ void main() {
       expect(changedPage, 5);
     });
 
-    testWidgets('onPageSizeChange called when size changed',
-        (tester) async {
+    testWidgets('onPageSizeChange called when size changed', (tester) async {
       var changedSize = -1;
       await tester.pumpWidget(
-        _wrap(AntPagination(
-          total: 100,
-          showSizeChanger: true,
-          onPageSizeChange: (s) => changedSize = s,
-        ),),
+        _wrap(
+          AntPagination(
+            total: 100,
+            showSizeChanger: true,
+            onPageSizeChange: (s) => changedSize = s,
+          ),
+        ),
       );
 
       // 打开下拉
@@ -467,13 +487,14 @@ void main() {
       expect(changedSize, 20);
     });
 
-    testWidgets('changing pageSize recalculates totalPages',
-        (tester) async {
+    testWidgets('changing pageSize recalculates totalPages', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntPagination(
-          total: 100,
-          showSizeChanger: true,
-        ),),
+        _wrap(
+          const AntPagination(
+            total: 100,
+            showSizeChanger: true,
+          ),
+        ),
       );
 
       // 初始 10 条/页 → 10 页
@@ -485,6 +506,29 @@ void main() {
       // 20 条/页 → 5 页，全部显示
       expect(find.text('6'), findsNothing);
       expect(find.text('5'), findsOneWidget);
+    });
+  });
+
+  group('AntPagination — 自定义渲染', () {
+    testWidgets('pageItemBuilder and totalBuilder drive custom widgets', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntPagination(
+            total: 30,
+            showTotal: true,
+            pageItemBuilder: (context, page, active) =>
+                Text(active ? 'P$page*' : 'P$page'),
+            totalBuilder: (context, total) => Text('T$total'),
+          ),
+        ),
+      );
+
+      expect(find.text('T30'), findsOneWidget);
+      expect(find.text('P1*'), findsOneWidget);
+      expect(find.text('P2'), findsOneWidget);
+      expect(find.text('P3'), findsOneWidget);
     });
   });
 }

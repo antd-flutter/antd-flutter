@@ -7,11 +7,14 @@
 ///
 /// ```dart
 /// AntRadioGroup<String>(
-///   options: [
-///     AntRadioOption(value: 'a', label: Text('A')),
-///     AntRadioOption(value: 'b', label: Text('B')),
-///   ],
+///   options: const ['A', 'B'],
 ///   onChange: (v) => print(v),
+/// )
+///
+/// AntRadioGroup<User>(
+///   options: users,                       // List<User>
+///   labelOf: (user) => user.name,
+///   onChange: (user) => print(user),
 /// )
 /// ```
 library;
@@ -254,9 +257,7 @@ class AntRadioButton extends StatelessWidget {
     final isDisabled = disabled || (group?.disabled ?? false);
 
     return GestureDetector(
-      onTap: isDisabled
-          ? null
-          : () => group?.onSelect(value),
+      onTap: isDisabled ? null : () => group?.onSelect(value),
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.w),
@@ -265,9 +266,7 @@ class AntRadioButton extends StatelessWidget {
               ? (isDisabled ? t.colorBgContainerDisabled : t.colorPrimary)
               : (isDisabled ? t.colorBgContainerDisabled : t.colorBgContainer),
           border: Border.all(
-            color: isChecked && !isDisabled
-                ? t.colorPrimary
-                : t.colorBorder,
+            color: isChecked && !isDisabled ? t.colorPrimary : t.colorBorder,
             width: 1.w,
           ),
         ),
@@ -307,6 +306,10 @@ class AntRadioGroup<T> extends StatefulWidget {
     this.value,
     this.defaultValue,
     this.options = const [],
+    this.labelOf,
+    this.labelBuilder,
+    this.itemBuilder,
+    this.disabledOf,
     this.disabled = false,
     this.onChange,
     this.optionType = AntRadioGroupOptionType.normal,
@@ -321,8 +324,20 @@ class AntRadioGroup<T> extends StatefulWidget {
   /// 非受控初始选中值。
   final T? defaultValue;
 
-  /// 选项列表。
-  final List<AntRadioOption<T>> options;
+  /// 选项列表（任意模型）。
+  final List<T> options;
+
+  /// 选项的字符串 label 简写（未提供 [labelBuilder] 时作为文本渲染）。
+  final String Function(T item)? labelOf;
+
+  /// 选项 label 的自定义渲染。
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+
+  /// 整项自定义渲染（含单选圆圈/按钮外观），优先级最高。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
 
   /// 是否整体禁用。
   final bool disabled;
@@ -388,26 +403,50 @@ class _AntRadioGroupState<T> extends State<AntRadioGroup<T>> {
     );
   }
 
+  Widget _buildLabel(BuildContext context, T item, int index) {
+    final custom = widget.labelBuilder?.call(context, item);
+    if (custom != null) return custom;
+    final text = widget.labelOf?.call(item) ?? '$item';
+    return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis);
+  }
+
   /// 从 options 构建
   Widget _buildFromOptions(AntThemeData t, dynamic current) {
-    final items = widget.options.map((opt) {
-      final isDisabled = widget.disabled || opt.disabled;
-      if (widget.optionType == AntRadioGroupOptionType.button) {
-        return _GroupButtonItem<T>(
-          value: opt.value,
-          checked: current == opt.value,
-          disabled: isDisabled,
-          buttonStyle: widget.buttonStyle,
-          child: opt.label,
+    final items = <Widget>[];
+    for (var i = 0; i < widget.options.length; i++) {
+      final item = widget.options[i];
+      final isDisabled =
+          widget.disabled || (widget.disabledOf?.call(item) ?? false);
+      final label = _buildLabel(context, item, i);
+      if (widget.itemBuilder != null) {
+        items.add(
+          GestureDetector(
+            onTap: isDisabled ? null : () => _handleSelect(item),
+            behavior: HitTestBehavior.opaque,
+            child: widget.itemBuilder!(context, item, i),
+          ),
+        );
+      } else if (widget.optionType == AntRadioGroupOptionType.button) {
+        items.add(
+          _GroupButtonItem<T>(
+            value: item,
+            checked: current == item,
+            disabled: isDisabled,
+            buttonStyle: widget.buttonStyle,
+            child: label,
+          ),
+        );
+      } else {
+        items.add(
+          _GroupRadioItem<T>(
+            value: item,
+            checked: current == item,
+            disabled: isDisabled,
+            child: label,
+          ),
         );
       }
-      return _GroupRadioItem<T>(
-        value: opt.value,
-        checked: current == opt.value,
-        disabled: isDisabled,
-        child: opt.label,
-      );
-    }).toList();
+    }
 
     if (widget.optionType == AntRadioGroupOptionType.button) {
       return Wrap(
@@ -549,7 +588,9 @@ class _GroupButtonItem<T> extends StatelessWidget {
           color: checked
               ? (isSolid
                   ? (disabled ? t.colorBgContainerDisabled : t.colorPrimary)
-                  : (disabled ? t.colorBgContainerDisabled : t.colorPrimary.withValues(alpha: 0.06)))
+                  : (disabled
+                      ? t.colorBgContainerDisabled
+                      : t.colorPrimary.withValues(alpha: 0.06)))
               : (disabled ? t.colorBgContainerDisabled : t.colorBgContainer),
           border: Border.all(
             color: checked && !disabled ? t.colorPrimary : t.colorBorder,

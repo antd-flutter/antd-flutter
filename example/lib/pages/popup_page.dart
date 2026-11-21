@@ -69,15 +69,15 @@ class _PopupPageState extends State<PopupPage> {
                 AntButton(
                   onTap: () {
                     AntPopup.show(
-                  context,
-                  position: AntPopupPosition.bottom,
-                  showCloseIcon: true,
-                  onClose: () => _log('关闭图标面板关闭'),
-                  body: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('右上角有关闭图标'),
-                  ),
-                );
+                      context,
+                      position: AntPopupPosition.bottom,
+                      showCloseIcon: true,
+                      onClose: () => _log('关闭图标面板关闭'),
+                      body: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('右上角有关闭图标'),
+                      ),
+                    );
                   },
                   child: const Text('显示关闭图标'),
                 ),
@@ -121,8 +121,10 @@ class _PopupPageState extends State<PopupPage> {
                 color: theme.colorFillQuaternary,
                 borderRadius: BorderRadius.circular(theme.borderRadius.r),
               ),
-              child: Text('最近事件：$_lastEvent',
-                  style: TextStyle(fontSize: 14.sp, color: theme.colorText)),
+              child: Text(
+                '最近事件：$_lastEvent',
+                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+              ),
             ),
           ),
           SizedBox(height: 32.w),
@@ -161,8 +163,10 @@ class _PopupPageState extends State<PopupPage> {
             body: Center(
               child: Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Text('${_positionLabel(_direction)}弹出内容',
-                    style: TextStyle(fontSize: 16.sp)),
+                child: Text(
+                  '${_positionLabel(_direction)}弹出内容',
+                  style: TextStyle(fontSize: 16.sp),
+                ),
               ),
             ),
           ),
@@ -177,8 +181,10 @@ class _PopupPageState extends State<PopupPage> {
             },
             body: Padding(
               padding: EdgeInsets.all(16.w),
-              child: Text('maskClosable = false，只能通过关闭图标关闭。',
-                  style: TextStyle(fontSize: 14.sp)),
+              child: Text(
+                'maskClosable = false，只能通过关闭图标关闭。',
+                style: TextStyle(fontSize: 14.sp),
+              ),
             ),
           ),
         ],
@@ -202,7 +208,11 @@ class _PopupPageState extends State<PopupPage> {
 
 /// 区块容器。
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

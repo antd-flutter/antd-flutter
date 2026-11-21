@@ -170,11 +170,7 @@ class NotificationPage extends StatelessWidget {
             theme: theme,
             child: AntButton(
               onTap: () {
-                _show(
-                  context,
-                  title: '通知 1',
-                  description: '第一条通知',
-                );
+                _show(context, title: '通知 1', description: '第一条通知');
                 _show(
                   context,
                   title: '通知 2',

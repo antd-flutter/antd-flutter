@@ -17,38 +17,6 @@ enum AntAnchorDirection {
 }
 
 // ============================================================
-// AntAnchorItem — 锚点链接项
-// ============================================================
-
-/// 锚点链接项。
-///
-/// 对齐 antd React Anchor 的 items 属性中的链接项：
-/// - [key] — 唯一标识
-/// - [title] — 文字标题
-/// - [titleWidget] — 自定义标题 Widget（优先于 [title]）
-/// - [children] — 子链接
-class AntAnchorItem {
-  const AntAnchorItem({
-    required this.key,
-    this.title,
-    this.titleWidget,
-    this.children = const [],
-  });
-
-  /// 唯一标识。
-  final String key;
-
-  /// 文字标题。
-  final String? title;
-
-  /// 自定义标题 Widget（优先于 [title]）。
-  final Widget? titleWidget;
-
-  /// 子链接。
-  final List<AntAnchorItem> children;
-}
-
-// ============================================================
 // AntAnchorController — 锚点控制器
 // ============================================================
 
@@ -64,13 +32,13 @@ class AntAnchorItem {
 /// });
 /// ```
 class AntAnchorController extends ChangeNotifier {
-  String? _activeKey;
+  Object? _activeKey;
 
   /// 当前激活的锚点 key。
-  String? get activeKey => _activeKey;
+  Object? get activeKey => _activeKey;
 
   /// 设置激活的锚点 key，null 表示无激活项。
-  void setActive(String? key) {
+  void setActive(Object? key) {
     if (_activeKey == key) return;
     _activeKey = key;
     notifyListeners();
@@ -82,3 +50,10 @@ class AntAnchorController extends ChangeNotifier {
     super.dispose();
   }
 }
+
+/// 锚点标题构建器。未提供时回退为 `Text('$item')`。
+typedef AntAnchorTitleBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+);

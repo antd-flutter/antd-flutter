@@ -1,6 +1,41 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _DescData {
+  const _DescData({required this.label, this.child, this.span = 1});
+
+  final String label;
+  final Widget? child;
+  final int span;
+}
+
+Widget _descriptions({
+  Key? key,
+  List<_DescData> items = const [],
+  Widget? title,
+  Widget? extra,
+  int column = 3,
+  bool bordered = false,
+  AntDescriptionsSize size = AntDescriptionsSize.middle,
+  bool colon = true,
+  AntDescriptionsLayout layout = AntDescriptionsLayout.horizontal,
+}) {
+  return AntDescriptions<_DescData>(
+    key: key,
+    items: items,
+    labelBuilder: (context, item, index) => Text(item.label),
+    contentBuilder: (context, item, index) => item.child,
+    spanOf: (item) => item.span,
+    title: title,
+    extra: extra,
+    column: column,
+    bordered: bordered,
+    size: size,
+    colon: colon,
+    layout: layout,
+  );
+}
+
 class DescriptionsPage extends StatelessWidget {
   const DescriptionsPage({super.key});
 
@@ -9,19 +44,19 @@ class DescriptionsPage extends StatelessWidget {
     final theme = AntTheme.of(context);
     final column = _columnFor(context);
     final items = const [
-      AntDescriptionsItem(
+      _DescData(
         label: '名称',
         child: AntText(text: '张三'),
       ),
-      AntDescriptionsItem(
+      _DescData(
         label: '手机号',
         child: AntText(text: '138****8888'),
       ),
-      AntDescriptionsItem(
+      _DescData(
         label: '城市',
         child: AntText(text: '杭州'),
       ),
-      AntDescriptionsItem(
+      _DescData(
         label: '邮箱',
         child: AntText(text: 'zhangsan@example.com'),
       ),
@@ -34,17 +69,13 @@ class DescriptionsPage extends StatelessWidget {
           _Section(
             title: '基础用法',
             theme: theme,
-            child: AntDescriptions(items: items, column: column),
+            child: _descriptions(items: items, column: column),
           ),
           SizedBox(height: 16.w),
           _Section(
             title: '带边框',
             theme: theme,
-            child: AntDescriptions(
-              items: items,
-              column: column,
-              bordered: true,
-            ),
+            child: _descriptions(items: items, column: column, bordered: true),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -52,9 +83,9 @@ class DescriptionsPage extends StatelessWidget {
             theme: theme,
             child: Column(
               children: [
-                AntDescriptions(
+                _descriptions(
                   items: [
-                    AntDescriptionsItem(
+                    _DescData(
                       label: '大号',
                       child: AntText(text: 'large'),
                     ),
@@ -63,9 +94,9 @@ class DescriptionsPage extends StatelessWidget {
                   bordered: true,
                 ),
                 SizedBox(height: 12.w),
-                AntDescriptions(
+                _descriptions(
                   items: [
-                    AntDescriptionsItem(
+                    _DescData(
                       label: '中号',
                       child: AntText(text: 'middle'),
                     ),
@@ -74,9 +105,9 @@ class DescriptionsPage extends StatelessWidget {
                   bordered: true,
                 ),
                 SizedBox(height: 12.w),
-                AntDescriptions(
+                _descriptions(
                   items: [
-                    AntDescriptionsItem(
+                    _DescData(
                       label: '小号',
                       child: AntText(text: 'small'),
                     ),
@@ -91,23 +122,23 @@ class DescriptionsPage extends StatelessWidget {
           _Section(
             title: '跨列 span',
             theme: theme,
-            child: AntDescriptions(
+            child: _descriptions(
               column: column,
               bordered: true,
               items: [
-                AntDescriptionsItem(
+                _DescData(
                   label: '产品',
                   child: AntText(text: '云服务器'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '计费模式',
                   child: AntText(text: '预付费'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '自动续费',
                   child: AntText(text: '是'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '配置',
                   child: AntText(
                     text: 'CPU 4 核 / 内存 8G / 磁盘 100G SSD / 带宽 5Mbps',
@@ -121,7 +152,7 @@ class DescriptionsPage extends StatelessWidget {
           _Section(
             title: '垂直布局',
             theme: theme,
-            child: AntDescriptions(
+            child: _descriptions(
               items: items,
               column: column,
               layout: AntDescriptionsLayout.vertical,
@@ -132,21 +163,21 @@ class DescriptionsPage extends StatelessWidget {
           _Section(
             title: '标题 + 操作区',
             theme: theme,
-            child: AntDescriptions(
+            child: _descriptions(
               items: [
-                AntDescriptionsItem(
+                _DescData(
                   label: '订单号',
                   child: AntText(text: '202405160001'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '状态',
                   child: AntText(text: '已支付'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '金额',
                   child: AntText(text: '¥299.00'),
                 ),
-                AntDescriptionsItem(
+                _DescData(
                   label: '支付方式',
                   child: AntText(text: '支付宝'),
                 ),

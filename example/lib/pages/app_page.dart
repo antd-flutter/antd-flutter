@@ -18,27 +18,29 @@ class AppPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                _Section(
-                  title: '基础包裹',
-                  theme: theme,
-                  child: const Text(
-                    'AntApp 包裹根部后，任意位置可通过 '
-                    'AntApp.of(context) 获取全局 API，'
-                    '无需依赖页面 context 弹出反馈。',
-                  ),
+              _Section(
+                title: '基础包裹',
+                theme: theme,
+                child: const Text(
+                  'AntApp 包裹根部后，任意位置可通过 '
+                  'AntApp.of(context) 获取全局 API，'
+                  '无需依赖页面 context 弹出反馈。',
                 ),
-                SizedBox(height: 16.w),
-                _Section(
-                  title: '经 App 调用 message',
-                  theme: theme,
-                  child: Builder(builder: (context) {
+              ),
+              SizedBox(height: 16.w),
+              _Section(
+                title: '经 App 调用 message',
+                theme: theme,
+                child: Builder(
+                  builder: (context) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AntButton(
                           child: const Text('普通提示'),
-                          onTap: () => AntApp.of(context)
-                              .messageShow(const Text('这是一条普通提示')),
+                          onTap: () =>
+                              AntApp.of(context)
+                                  .messageShow(const Text('这是一条普通提示')),
                         ),
                         SizedBox(height: 8.w),
                         AntButton(
@@ -50,13 +52,15 @@ class AppPage extends StatelessWidget {
                         ),
                       ],
                     );
-                  }),
+                  },
                 ),
-                SizedBox(height: 16.w),
-                _Section(
-                  title: '经 App 调用 notification',
-                  theme: theme,
-                  child: Builder(builder: (context) {
+              ),
+              SizedBox(height: 16.w),
+              _Section(
+                title: '经 App 调用 notification',
+                theme: theme,
+                child: Builder(
+                  builder: (context) {
                     return AntButton(
                       child: const Text('弹出通知'),
                       onTap: () => AntApp.of(context).notificationShow(
@@ -65,13 +69,15 @@ class AppPage extends StatelessWidget {
                         type: AntAppMessageType.info,
                       ),
                     );
-                  }),
+                  },
                 ),
-                SizedBox(height: 16.w),
-                _Section(
-                  title: '经 App 弹 modal',
-                  theme: theme,
-                  child: Builder(builder: (context) {
+              ),
+              SizedBox(height: 16.w),
+              _Section(
+                title: '经 App 弹 modal',
+                theme: theme,
+                child: Builder(
+                  builder: (context) {
                     return AntButton(
                       child: const Text('弹出确认框'),
                       onTap: () async {
@@ -88,19 +94,20 @@ class AppPage extends StatelessWidget {
                         }
                       },
                     );
-                  }),
+                  },
                 ),
-                SizedBox(height: 16.w),
-                _Section(
-                  title: '说明',
-                  theme: theme,
-                  child: const Text(
-                    '使用方式：创建 GlobalKey<NavigatorState>，'
-                    '同时传给 AntApp 与 MaterialApp；'
-                    '之后 message / notification / modal 均可'
-                    '通过 AntApp.of(context) 调用。',
-                  ),
+              ),
+              SizedBox(height: 16.w),
+              _Section(
+                title: '说明',
+                theme: theme,
+                child: const Text(
+                  '使用方式：创建 GlobalKey<NavigatorState>，'
+                  '同时传给 AntApp 与 MaterialApp；'
+                  '之后 message / notification / modal 均可'
+                  '通过 AntApp.of(context) 调用。',
                 ),
+              ),
             ],
           ),
         ),

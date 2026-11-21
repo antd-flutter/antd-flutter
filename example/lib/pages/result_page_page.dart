@@ -75,10 +75,7 @@ class ResultPagePage extends StatelessWidget {
                 Text('支付金额：￥199.00'),
               ],
               buttons: [
-                AntButton(
-                  child: const Text('查看订单'),
-                  onTap: () {},
-                ),
+                AntButton(child: const Text('查看订单'), onTap: () {}),
                 AntButton(
                   type: AntButtonType.primary,
                   child: const Text('继续购物'),
@@ -94,7 +91,11 @@ class ResultPagePage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

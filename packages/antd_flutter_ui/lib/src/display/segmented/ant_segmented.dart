@@ -1,7 +1,8 @@
 /// AntSegmented — antd React Segmented 的 Flutter 实现
 ///
 /// API 与 antd React Segmented 对齐：
-/// - [options] — 选项，支持 String 或 [AntSegmentedItem]（label/icon/value/disabled）
+/// - [options] — 选项列表（任意模型）
+/// - [labelOf] / [labelBuilder] — 选项文本 / 自定义渲染
 /// - [value] — 受控选中值
 /// - [defaultValue] — 非受控初始选中值（缺省为 options 首项）
 /// - [onChange] — 选中值变化回调
@@ -13,9 +14,11 @@
 ///
 /// ```dart
 /// AntSegmented(options: ['日', '周', '月'])
-/// AntSegmented(
-///   options: [AntSegmentedItem(label: '列表', icon: Icon(AntIcons.unorderedListOutlined))],
-///   onChange: (v) => print(v),
+/// AntSegmented<ViewMode>(
+///   options: ViewMode.values,
+///   labelOf: (mode) => mode.label,
+///   value: mode,
+///   onChange: (mode) => setState(() => this.mode = mode),
 /// )
 /// ```
 library;
@@ -31,13 +34,19 @@ const Duration _kSlideDuration = Duration(milliseconds: 200);
 
 /// 分段控制器 — 展示多个选项并允许用户选择其中单个选项。
 ///
-/// 对齐 antd React Segmented 组件。
-class AntSegmented extends StatefulWidget {
+/// 对齐 antd React Segmented 组件。选项为任意类型 [T]，字符串选项可直接
+/// `AntSegmented(options: ['日', '周', '月'])`。
+class AntSegmented<T> extends StatefulWidget {
   const AntSegmented({
     super.key,
     required this.options,
     this.value,
     this.defaultValue,
+    this.labelOf,
+    this.labelBuilder,
+    this.iconBuilder,
+    this.itemBuilder,
+    this.disabledOf,
     this.onChange,
     this.block = false,
     this.size = AntSegmentedSize.middle,
@@ -46,17 +55,32 @@ class AntSegmented extends StatefulWidget {
     this.direction = AntSegmentedDirection.horizontal,
   });
 
-  /// 选项列表，支持 String 或 [AntSegmentedItem]。
-  final List<Object> options;
+  /// 选项列表（任意模型）。
+  final List<T> options;
 
   /// 受控选中值。
-  final String? value;
+  final T? value;
 
-  /// 非受控初始选中值（缺省为 options 首项的值）。
-  final String? defaultValue;
+  /// 非受控初始选中值（缺省为 options 首项）。
+  final T? defaultValue;
+
+  /// 选项的字符串 label 简写（未提供 [labelBuilder] 时作为文本渲染）。
+  final String Function(T item)? labelOf;
+
+  /// 选项文本的自定义渲染。
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+
+  /// 选项图标的自定义渲染。
+  final Widget Function(BuildContext context, T item)? iconBuilder;
+
+  /// 整项内容自定义渲染（含图标与文本），优先级最高。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
+  /// 选项是否禁用。
+  final bool Function(T item)? disabledOf;
 
   /// 选中值变化回调。
-  final ValueChanged<String>? onChange;
+  final ValueChanged<T>? onChange;
 
   /// 是否占满整行。
   final bool block;
@@ -74,60 +98,47 @@ class AntSegmented extends StatefulWidget {
   final AntSegmentedDirection direction;
 
   @override
-  State<AntSegmented> createState() => _AntSegmentedState();
+  State<AntSegmented<T>> createState() => _AntSegmentedState<T>();
 }
 
-class _AntSegmentedState extends State<AntSegmented> {
+class _AntSegmentedState<T> extends State<AntSegmented<T>> {
   bool get _isVertical => widget.direction == AntSegmentedDirection.vertical;
 
-  late List<AntSegmentedItem> _items;
-  late String _selectedValue;
+  late T? _selectedValue;
+
+  List<T> get _items => widget.options;
+
+  String _labelOf(T item) => widget.labelOf?.call(item) ?? '$item';
 
   @override
   void initState() {
     super.initState();
-    _items = _normalizeItems();
     _selectedValue = _resolveInitialValue();
   }
 
   @override
-  void didUpdateWidget(AntSegmented oldWidget) {
+  void didUpdateWidget(AntSegmented<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.options, widget.options)) {
-      _items = _normalizeItems();
-    }
     if (widget.value != null && widget.value != _selectedValue) {
-      _selectedValue = widget.value!;
+      _selectedValue = widget.value;
     }
   }
 
-  List<AntSegmentedItem> _normalizeItems() {
-    return widget.options.map((opt) {
-      if (opt is AntSegmentedItem) return opt;
-      if (opt is String) return AntSegmentedItem(label: opt, value: opt);
-      throw ArgumentError.value(opt, 'options', '选项必须是 String 或 AntSegmentedItem');
-    }).toList();
-  }
-
-  String _resolveInitialValue() {
+  T? _resolveInitialValue() {
     final explicit = widget.value ?? widget.defaultValue;
     if (explicit != null) return explicit;
-    final first = _items.isNotEmpty ? _items.first : null;
-    return first?.value ?? first?.label ?? '';
+    return _items.isNotEmpty ? _items.first : null;
   }
 
-  String _itemValue(AntSegmentedItem item) => item.value ?? item.label ?? '';
-
-  void _handleTap(AntSegmentedItem item) {
-    if (widget.disabled || item.disabled) return;
-    final value = _itemValue(item);
-    if (value == _selectedValue) return;
+  void _handleTap(T item) {
+    if (widget.disabled || (widget.disabledOf?.call(item) ?? false)) return;
+    if (item == _selectedValue) return;
     if (widget.value == null) {
-      setState(() => _selectedValue = value);
+      setState(() => _selectedValue = item);
     } else {
-      _selectedValue = value;
+      _selectedValue = item;
     }
-    widget.onChange?.call(value);
+    widget.onChange?.call(item);
   }
 
   @override
@@ -148,9 +159,7 @@ class _AntSegmentedState extends State<AntSegmented> {
     return Container(
       constraints: _isVertical
           ? (widget.block
-              ? BoxConstraints.tightFor(
-                  height: _items.length * _trackHeight.w,
-                )
+              ? BoxConstraints.tightFor(height: _items.length * _trackHeight.w)
               : null)
           : BoxConstraints.tightFor(height: _trackHeight.w),
       padding: EdgeInsets.all(2.w),
@@ -167,15 +176,14 @@ class _AntSegmentedState extends State<AntSegmented> {
     // IntrinsicWidth hug 最宽 label 的依据），同时绘制在滑块之上（文字不被遮盖）。
     // 滑块 Positioned.fill 置底，仅作背景高亮。
     // StackFit.expand 保证有界宽度（外部 SizedBox）紧约束下选项层撑满。
+    final selectedIndex = _indexOf(_selectedValue);
     return Stack(
       fit: StackFit.expand,
       children: [
         Positioned.fill(
           child: _Slider(
             itemCount: _items.length,
-            selectedIndex: _indexOf(_selectedValue) < 0
-                ? 0
-                : _indexOf(_selectedValue),
+            selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
             borderRadius: _sliderBorderRadius(theme),
             theme: theme,
             vertical: _isVertical,
@@ -186,15 +194,11 @@ class _AntSegmentedState extends State<AntSegmented> {
           children: [
             for (var i = 0; i < _items.length; i++)
               Expanded(
-                child: _SegmentItem(
-                  item: _items[i],
-                  selected: i == _indexOf(_selectedValue),
-                  disabled: widget.disabled || _items[i].disabled,
+                child: _buildItem(
+                  index: i,
                   theme: theme,
-                  size: widget.size,
+                  selected: i == selectedIndex,
                   withBackground: false,
-                  vertical: _isVertical,
-                  onTap: () => _handleTap(_items[i]),
                 ),
               ),
           ],
@@ -204,29 +208,51 @@ class _AntSegmentedState extends State<AntSegmented> {
   }
 
   Widget _buildInline(AntThemeData theme) {
+    final selectedIndex = _indexOf(_selectedValue);
     return Flex(
       direction: _isVertical ? Axis.vertical : Axis.horizontal,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var i = 0; i < _items.length; i++)
-          _SegmentItem(
-            item: _items[i],
-            selected: i == _indexOf(_selectedValue),
-            disabled: widget.disabled || _items[i].disabled,
+          _buildItem(
+            index: i,
             theme: theme,
-            size: widget.size,
+            selected: i == selectedIndex,
             withBackground: true,
-            vertical: _isVertical,
-            onTap: () => _handleTap(_items[i]),
           ),
       ],
     );
   }
 
-  int _indexOf(String value) {
+  Widget _buildItem({
+    required int index,
+    required AntThemeData theme,
+    required bool selected,
+    required bool withBackground,
+  }) {
+    final item = _items[index];
+    return _SegmentItem<T>(
+      item: item,
+      index: index,
+      labelText: _labelOf(item),
+      labelBuilder: widget.labelBuilder,
+      iconBuilder: widget.iconBuilder,
+      itemBuilder: widget.itemBuilder,
+      selected: selected,
+      disabled: widget.disabled || (widget.disabledOf?.call(item) ?? false),
+      theme: theme,
+      size: widget.size,
+      withBackground: withBackground,
+      vertical: _isVertical,
+      onTap: () => _handleTap(item),
+    );
+  }
+
+  int _indexOf(T? value) {
+    if (value == null) return -1;
     for (var i = 0; i < _items.length; i++) {
-      if (_itemValue(_items[i]) == value) return i;
+      if (_items[i] == value) return i;
     }
     return -1;
   }
@@ -310,9 +336,11 @@ class _Slider extends StatelessWidget {
 }
 
 /// 单个选项。
-class _SegmentItem extends StatelessWidget {
+class _SegmentItem<T> extends StatelessWidget {
   const _SegmentItem({
     required this.item,
+    required this.index,
+    required this.labelText,
     required this.selected,
     required this.disabled,
     required this.theme,
@@ -320,9 +348,14 @@ class _SegmentItem extends StatelessWidget {
     required this.withBackground,
     required this.vertical,
     required this.onTap,
+    this.labelBuilder,
+    this.iconBuilder,
+    this.itemBuilder,
   });
 
-  final AntSegmentedItem item;
+  final T item;
+  final int index;
+  final String labelText;
   final bool selected;
   final bool disabled;
   final AntThemeData theme;
@@ -332,6 +365,9 @@ class _SegmentItem extends StatelessWidget {
   /// 是否垂直排列（inline 背景需纵向 padding 撑高，不使用 height infinity）。
   final bool vertical;
   final VoidCallback onTap;
+  final Widget Function(BuildContext context, T item)? labelBuilder;
+  final Widget Function(BuildContext context, T item)? iconBuilder;
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -342,34 +378,42 @@ class _SegmentItem extends StatelessWidget {
             : theme.colorTextSecondary;
     final fontSize = _fontSize();
 
-    final content = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (item.icon != null) ...[
-          IconTheme.merge(
-            data: IconThemeData(color: fg, size: _iconSize()),
-            child: item.icon!,
-          ),
-          if (item.label?.isNotEmpty ?? false) SizedBox(width: 4.w),
-        ],
-        if (item.label?.isNotEmpty ?? false)
-          // Flexible：外部宽度小于内容宽时省略号截断，避免 Row 溢出异常；
-          // 固有宽度计算不受影响（hug 内容语义不变）。
-          Flexible(
-            child: Text(
-              item.label!,
-              style: TextStyle(
-                fontSize: fontSize.sp,
-                color: fg,
-                fontWeight: selected && !disabled ? FontWeight.w500 : FontWeight.w400,
-                height: 1.0,
+    final icon = iconBuilder?.call(context, item);
+    final label = labelBuilder?.call(context, item);
+    final hasLabel = label != null || labelText.isNotEmpty;
+
+    final content = itemBuilder?.call(context, item, index) ??
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              IconTheme.merge(
+                data: IconThemeData(color: fg, size: _iconSize()),
+                child: icon,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-      ],
-    );
+              if (hasLabel) SizedBox(width: 4.w),
+            ],
+            if (hasLabel)
+              // Flexible：外部宽度小于内容宽时省略号截断，避免 Row 溢出异常；
+              // 固有宽度计算不受影响（hug 内容语义不变）。
+              Flexible(
+                child: label ??
+                    Text(
+                      labelText,
+                      style: TextStyle(
+                        fontSize: fontSize.sp,
+                        color: fg,
+                        fontWeight: selected && !disabled
+                            ? FontWeight.w500
+                            : FontWeight.w400,
+                        height: 1.0,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              ),
+          ],
+        );
 
     // 非 block 模式：滑块背景随选中项原地过渡。
     // 水平：背景撑满轨道内高（height infinity + alignment center 修复

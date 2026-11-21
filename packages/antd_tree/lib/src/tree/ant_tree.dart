@@ -1,51 +1,40 @@
-/// AntTree — antd React Tree 的 Flutter 实现
+/// Ant Design 风格树形控件（泛型数据源）。
 ///
-/// API 与 antd React Tree 对齐：
-/// - [treeData] — 树节点数据
-/// - 展开/收起：[defaultExpandedKeys] / [defaultExpandAll]、受控 [expandedKeys] + [onExpand]
-/// - 选中：[selectable]、[selectedKeys] 受控 / [defaultSelectedKeys]、[onSelect]
-/// - 复选：[checkable]、[checkedKeys] 受控 / [defaultCheckedKeys]、[onCheck]
-///   父子联动（父勾选→子全选、子全选→父勾选、半选态）；[checkStrictly] 严格模式不联动
-/// - [showLine] 连接线、[indent] 缩进、节点禁用
-///
-/// ```dart
-/// AntTree(
-///   treeData: [
-///     AntTreeNode(key: 'zj', title: '浙江', children: [
-///       AntTreeNode(key: 'hz', title: '杭州'),
-///     ]),
-///   ],
-///   checkable: true,
-///   onCheck: (checkedKeys, halfCheckedKeys) => print(checkedKeys),
-/// )
-/// ```
+/// 用户直接传入自己的模型列表 `List<T>`，通过 `keyOf` / `titleBuilder` /
+/// `childrenOf` / `disabledOf` / `checkableOf` 描述如何读写模型，组件不再
+/// 要求构造任何专用节点类。
 library;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'package:antd_tree/src/tree/ant_tree_types.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import 'ant_tree_types.dart';
 
-export 'package:antd_tree/src/tree/ant_tree_types.dart';
+export 'ant_tree_types.dart';
 
-/// 勾选回调：[checkedKeys] 全选节点，[halfCheckedKeys] 半选节点。
-typedef AntTreeOnCheck = void Function(
-  List<String> checkedKeys,
-  List<String> halfCheckedKeys,
-);
-
-// ============================================================
-// AntTree
-// ============================================================
-
-/// 树形控件 — 多层次的结构列表。
+/// 树形控件。
 ///
-/// 对齐 antd React Tree 组件。
-class AntTree extends StatefulWidget {
+/// ```dart
+/// AntTree<Category>(
+///   dataSource: categories,
+///   keyOf: (c) => c.id,
+///   titleBuilder: (_, c) => Text(c.name),
+///   childrenOf: (c) => c.children,
+///   checkable: true,
+///   checkedKeys: checked,
+///   onCheck: (keys, half) {},
+/// );
+/// ```
+class AntTree<T> extends StatefulWidget {
   const AntTree({
     super.key,
-    this.treeData = const [],
+    required this.dataSource,
+    this.keyOf,
+    this.titleBuilder,
+    this.childrenOf,
+    this.disabledOf,
+    this.checkableOf,
     this.defaultExpandedKeys,
     this.defaultExpandAll = false,
     this.expandedKeys,
@@ -63,430 +52,548 @@ class AntTree extends StatefulWidget {
     this.indent,
   });
 
-  /// 树节点数据。
-  final List<AntTreeNode> treeData;
+  /// 数据源（树形结构由 [childrenOf] 描述；为 null 时视为扁平列表）。
+  final List<T> dataSource;
 
-  /// 默认展开的节点 key。
-  final List<String>? defaultExpandedKeys;
+  /// 从数据项提取唯一 key；缺省使用按 DFS 顺序生成的稳定序号。
+  final AntTreeKeyOf<T>? keyOf;
 
-  /// 默认展开全部节点。
+  /// 节点标题构建器；缺省回退为 `Text('$item')`。
+  final AntTreeTitleBuilder<T>? titleBuilder;
+
+  /// 子节点读取器；缺省视为叶子。
+  final AntTreeChildrenOf<T>? childrenOf;
+
+  /// 禁用判断；缺省全部可用。
+  final AntTreeDisabledOf<T>? disabledOf;
+
+  /// 可勾选判断；缺省全部可勾选。
+  final AntTreeCheckableOf<T>? checkableOf;
+
+  /// 非受控默认展开的 key 集合。
+  final Set<Object>? defaultExpandedKeys;
+
+  /// 是否默认展开全部父节点。
   final bool defaultExpandAll;
 
-  /// 受控展开的节点 key。
-  final List<String>? expandedKeys;
+  /// 受控展开 key 集合；非 null 时展开状态由外部驱动。
+  final Set<Object>? expandedKeys;
 
-  /// 展开/收起回调。
-  final ValueChanged<List<String>>? onExpand;
+  /// 展开状态变化回调（参数为 keyOf 提取的 key）。
+  final ValueChanged<Set<Object>>? onExpand;
 
-  /// 是否可选中。
+  /// 标题是否可选中。
   final bool selectable;
 
-  /// 默认选中的节点 key。
-  final List<String>? defaultSelectedKeys;
+  /// 非受控默认选中的 key 集合。
+  final Set<Object>? defaultSelectedKeys;
 
-  /// 受控选中的节点 key。
-  final List<String>? selectedKeys;
+  /// 受控选中 key 集合。
+  final Set<Object>? selectedKeys;
 
-  /// 选中回调。
-  final ValueChanged<List<String>>? onSelect;
+  /// 选中状态变化回调。
+  final ValueChanged<Set<Object>>? onSelect;
 
-  /// 是否显示复选框。
+  /// 是否显示勾选框。
   final bool checkable;
 
-  /// 默认勾选的节点 key。
-  final List<String>? defaultCheckedKeys;
+  /// 非受控默认勾选的 key 集合。
+  final Set<Object>? defaultCheckedKeys;
 
-  /// 受控勾选的节点 key。
-  final List<String>? checkedKeys;
+  /// 受控勾选 key 集合。
+  final Set<Object>? checkedKeys;
 
-  /// 勾选回调。
+  /// 勾选状态变化回调。
   final AntTreeOnCheck? onCheck;
 
-  /// 严格勾选模式：父子不联动。
+  /// 父子勾选是否不联动。
   final bool checkStrictly;
 
   /// 是否显示连接线。
   final bool showLine;
 
-  /// 每级缩进宽度，默认 24。
+  /// 每级缩进宽度；缺省 24。
   final double? indent;
 
   @override
-  State<AntTree> createState() => _AntTreeState();
+  State<AntTree<T>> createState() => _AntTreeState<T>();
 }
 
-class _AntTreeState extends State<AntTree> {
-  Set<String>? _internalExpandedKeys;
-  Set<String>? _internalSelectedKeys;
-  Set<String>? _internalCheckedKeys;
+class _AntTreeState<T> extends State<AntTree<T>> {
+  Set<Object>? _internalExpandedKeys;
+  Set<Object>? _internalSelectedKeys;
+  Set<Object>? _internalCheckedKeys;
 
-  /// 收集所有有子节点的 key（用于 defaultExpandAll）。
-  Set<String> _collectParentKeys(List<AntTreeNode> nodes) {
-    final keys = <String>{};
-    for (final node in nodes) {
-      if (!node.isLeaf) {
-        keys.add(node.key);
-        keys.addAll(_collectParentKeys(node.children!));
-      }
+  /// 缺省 key：整棵树按 DFS 顺序生成，避免展开/折叠导致 key 漂移。
+  Map<T, Object> _defaultKeyMap = Map<T, Object>.identity();
+  List<T>? _defaultKeySource;
+  AntTreeChildrenOf<T>? _defaultKeyChildrenOf;
+  int _defaultKeySeq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalExpandedKeys = widget.defaultExpandedKeys == null
+        ? null
+        : <Object>{...widget.defaultExpandedKeys!};
+    _internalSelectedKeys = widget.defaultSelectedKeys == null
+        ? null
+        : <Object>{...widget.defaultSelectedKeys!};
+    _internalCheckedKeys = widget.defaultCheckedKeys == null
+        ? null
+        : <Object>{...widget.defaultCheckedKeys!};
+    _ensureDefaultKeys();
+    if (widget.expandedKeys == null && widget.defaultExpandAll) {
+      _internalExpandedKeys = _collectParentKeys();
     }
-    return keys;
-  }
-
-  /// 收集节点及其全部后代 key。
-  Set<String> _collectDescendantKeys(AntTreeNode node) {
-    final keys = <String>{node.key};
-    for (final child in node.children ?? const <AntTreeNode>[]) {
-      keys.addAll(_collectDescendantKeys(child));
-    }
-    return keys;
-  }
-
-  // ---------- 收集祖先 key
-  Set<String> _ancestorKeys(String key, [List<AntTreeNode>? nodes]) {
-    final ancestors = <String>{};
-    void walk(List<AntTreeNode> list, Set<String> path) {
-      for (final node in list) {
-        if (node.key == key) {
-          ancestors.addAll(path);
-          return;
-        }
-        walk(node.children ?? const [], {...path, node.key});
-      }
-    }
-
-    walk(nodes ?? widget.treeData, <String>{});
-    return ancestors;
-  }
-
-  // ---------- 展开 ----------
-
-  Set<String> get _expandedKeys {
-    if (widget.expandedKeys != null) return widget.expandedKeys!.toSet();
-    if (_internalExpandedKeys == null) {
-      if (widget.defaultExpandAll) {
-        _internalExpandedKeys = _collectParentKeys(widget.treeData);
-      } else {
-        _internalExpandedKeys = widget.defaultExpandedKeys?.toSet() ?? {};
-      }
-    }
-    return _internalExpandedKeys!;
-  }
-
-  void _toggleExpand(AntTreeNode node) {
-    if (node.disabled) return;
-    if (node.isLeaf) return;
-    setState(() {
-      final keys = {..._expandedKeys};
-      if (keys.contains(node.key)) {
-        keys.remove(node.key);
-      } else {
-        keys.add(node.key);
-      }
-      if (widget.expandedKeys == null) _internalExpandedKeys = keys;
-      widget.onExpand?.call(keys.toList());
-    });
-  }
-
-  // ---------- 选中 ----------
-
-  Set<String> get _selectedKeys {
-    if (widget.selectedKeys != null) return widget.selectedKeys!.toSet();
-    _internalSelectedKeys ??= widget.defaultSelectedKeys?.toSet() ?? {};
-    return _internalSelectedKeys!;
-  }
-
-  void _handleSelect(AntTreeNode node) {
-    if (!widget.selectable || node.disabled) return;
-    setState(() {
-      final keys = {..._selectedKeys};
-      if (keys.contains(node.key)) {
-        keys.remove(node.key);
-      } else {
-        keys.add(node.key);
-      }
-      if (widget.selectedKeys == null) _internalSelectedKeys = keys;
-      widget.onSelect?.call(keys.toList());
-    });
-  }
-
-  // ---------- 勾选 ----------
-
-  Set<String> get _directCheckedKeys {
-    if (widget.checkedKeys != null) return widget.checkedKeys!.toSet();
-    _internalCheckedKeys ??= widget.defaultCheckedKeys?.toSet() ?? {};
-    return _internalCheckedKeys!;
-  }
-
-  /// 计算完全勾选集合：直接勾选节点及其全部后代，或子节点全部勾选的父节点。
-  Set<String> _resolveCheckedKeys(Set<String> direct) {
-    if (widget.checkStrictly) return direct;
-
-    bool isFullyChecked(AntTreeNode node) {
-      if (direct.contains(node.key)) return true;
-      final children = node.children;
-      if (children == null || children.isEmpty) return false;
-      return children.every(isFullyChecked);
-    }
-
-    final result = <String>{};
-    void walk(List<AntTreeNode> nodes) {
-      for (final node in nodes) {
-        if (isFullyChecked(node)) result.add(node.key);
-        walk(node.children ?? const []);
-      }
-    }
-
-    walk(widget.treeData);
-    return result;
-  }
-
-  /// 计算半选集合：自身未完全勾选但有后代被勾选。
-  Set<String> _resolveHalfCheckedKeys(Set<String> checked) {
-    if (widget.checkStrictly) return {};
-
-    final half = <String>{};
-    void walk(List<AntTreeNode> nodes) {
-      for (final node in nodes) {
-        if (checked.contains(node.key)) {
-          half.addAll(_ancestorKeys(node.key));
-        }
-        walk(node.children ?? const []);
-      }
-    }
-
-    walk(widget.treeData);
-    half.removeAll(checked);
-    return half;
-  }
-
-  void _handleCheck(AntTreeNode node) {
-    if (!widget.checkable || node.disabled || !node.checkable) return;
-    setState(() {
-      final direct = {..._directCheckedKeys};
-      final checked = _resolveCheckedKeys(direct);
-      if (checked.contains(node.key)) {
-        direct.removeAll(_collectDescendantKeys(node));
-      } else {
-        direct.addAll(_collectDescendantKeys(node));
-      }
-      if (widget.checkedKeys == null) _internalCheckedKeys = direct;
-      widget.onCheck?.call(
-        _resolveCheckedKeys(direct).toList(),
-        _resolveHalfCheckedKeys(_resolveCheckedKeys(direct)).toList(),
-      );
-    });
   }
 
   @override
+  void didUpdateWidget(covariant AntTree<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.keyOf != oldWidget.keyOf ||
+        !identical(widget.dataSource, oldWidget.dataSource) ||
+        widget.childrenOf != oldWidget.childrenOf) {
+      _defaultKeySource = null;
+    }
+    _ensureDefaultKeys();
+  }
+
+  // ----------------------------------------------------------
+  // 模型读取
+  // ----------------------------------------------------------
+
+  void _ensureDefaultKeys() {
+    if (widget.keyOf != null) return;
+    if (identical(_defaultKeySource, widget.dataSource) &&
+        _defaultKeyChildrenOf == widget.childrenOf) {
+      return;
+    }
+    _defaultKeySource = widget.dataSource;
+    _defaultKeyChildrenOf = widget.childrenOf;
+    _defaultKeyMap = Map<T, Object>.identity();
+    _defaultKeySeq = 0;
+
+    void walk(List<T> items) {
+      for (final item in items) {
+        if (!_defaultKeyMap.containsKey(item)) {
+          _defaultKeyMap[item] = _defaultKeySeq++;
+        }
+        walk(_childrenOf(item));
+      }
+    }
+
+    walk(widget.dataSource);
+  }
+
+  Object _keyOf(T item) {
+    final keyOf = widget.keyOf;
+    if (keyOf != null) return keyOf(item);
+    _ensureDefaultKeys();
+    return _defaultKeyMap[item] ?? _defaultKeyMap.length;
+  }
+
+  List<T> _childrenOf(T item) {
+    final childrenOf = widget.childrenOf;
+    if (childrenOf == null) return const <Never>[];
+    return childrenOf(item);
+  }
+
+  bool _disabledOf(T item) => widget.disabledOf?.call(item) ?? false;
+
+  bool _checkableOf(T item) => widget.checkableOf?.call(item) ?? true;
+
+  Widget _titleOf(BuildContext context, T item) {
+    final builder = widget.titleBuilder;
+    if (builder != null) return builder(context, item);
+    return Text(
+      item is String ? item : '$item',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  // ----------------------------------------------------------
+  // 展开
+  // ----------------------------------------------------------
+
+  Set<Object> get _expandedKeys =>
+      widget.expandedKeys ?? _internalExpandedKeys ?? const <Object>{};
+
+  Set<Object> _collectParentKeys() {
+    final keys = <Object>{};
+    void walk(List<T> items) {
+      for (final item in items) {
+        final children = _childrenOf(item);
+        if (children.isEmpty) continue;
+        keys.add(_keyOf(item));
+        walk(children);
+      }
+    }
+
+    walk(widget.dataSource);
+    return keys;
+  }
+
+  void _toggleExpand(T item) {
+    if (_disabledOf(item)) return;
+    if (_childrenOf(item).isEmpty) return;
+    final key = _keyOf(item);
+    final next = <Object>{..._expandedKeys};
+    if (!next.remove(key)) next.add(key);
+    if (widget.expandedKeys == null) {
+      setState(() => _internalExpandedKeys = next);
+    }
+    widget.onExpand?.call(next);
+  }
+
+  // ----------------------------------------------------------
+  // 选中
+  // ----------------------------------------------------------
+
+  Set<Object> get _selectedKeys =>
+      widget.selectedKeys ?? _internalSelectedKeys ?? const <Object>{};
+
+  void _handleSelect(T item) {
+    if (!widget.selectable || _disabledOf(item)) return;
+    final key = _keyOf(item);
+    final next = <Object>{..._selectedKeys};
+    if (!next.remove(key)) next.add(key);
+    if (widget.selectedKeys == null) {
+      setState(() => _internalSelectedKeys = next);
+    }
+    widget.onSelect?.call(next);
+  }
+
+  // ----------------------------------------------------------
+  // 勾选
+  // ----------------------------------------------------------
+
+  Set<Object> get _directCheckedKeys =>
+      widget.checkedKeys ?? _internalCheckedKeys ?? const <Object>{};
+
+  Set<Object> _resolveCheckedKeys() {
+    if (widget.checkStrictly) return <Object>{..._directCheckedKeys};
+    final direct = _directCheckedKeys;
+    final result = <Object>{};
+
+    bool visit(T item) {
+      final key = _keyOf(item);
+      final children = _childrenOf(item);
+      var allChildrenChecked = children.isNotEmpty;
+      for (final child in children) {
+        if (!visit(child)) allChildrenChecked = false;
+      }
+      final self =
+          _checkableOf(item) && (direct.contains(key) || allChildrenChecked);
+      if (self) result.add(key);
+      return self;
+    }
+
+    for (final item in widget.dataSource) {
+      visit(item);
+    }
+    return result;
+  }
+
+  Set<Object> _resolveHalfCheckedKeys(Set<Object> checked) {
+    if (widget.checkStrictly) return const <Object>{};
+    final half = <Object>{};
+
+    bool hasCheckedDescendant(T item) {
+      for (final child in _childrenOf(item)) {
+        if (checked.contains(_keyOf(child)) || hasCheckedDescendant(child)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    void walk(List<T> items) {
+      for (final item in items) {
+        final key = _keyOf(item);
+        if (_checkableOf(item) &&
+            !checked.contains(key) &&
+            hasCheckedDescendant(item)) {
+          half.add(key);
+        }
+        walk(_childrenOf(item));
+      }
+    }
+
+    walk(widget.dataSource);
+    return half;
+  }
+
+  Set<Object> _collectDescendantKeys(T item) {
+    final keys = <Object>{};
+    void walk(List<T> items) {
+      for (final child in items) {
+        keys.add(_keyOf(child));
+        walk(_childrenOf(child));
+      }
+    }
+
+    walk(_childrenOf(item));
+    return keys;
+  }
+
+  Set<Object> _ancestorKeys(T item) {
+    final ancestors = <Object>{};
+
+    bool walk(T node, Set<Object> path) {
+      if (identical(node, item) || node == item) {
+        ancestors.addAll(path);
+        return true;
+      }
+      final nextPath = <Object>{...path, _keyOf(node)};
+      for (final child in _childrenOf(node)) {
+        if (walk(child, nextPath)) return true;
+      }
+      return false;
+    }
+
+    for (final root in widget.dataSource) {
+      if (walk(root, const <Object>{})) break;
+    }
+    return ancestors;
+  }
+
+  void _handleCheck(T item) {
+    if (!widget.checkable || _disabledOf(item) || !_checkableOf(item)) return;
+    final key = _keyOf(item);
+    final direct = <Object>{..._directCheckedKeys};
+
+    if (widget.checkStrictly) {
+      if (!direct.remove(key)) direct.add(key);
+      if (widget.checkedKeys == null) {
+        setState(() => _internalCheckedKeys = direct);
+      }
+      widget.onCheck?.call(direct, const <Object>{});
+      return;
+    }
+
+    final currentlyChecked = _resolveCheckedKeys().contains(key);
+    // 祖先不再强制全选，否则取消单个子项后父级仍会把它补回来。
+    for (final ancestor in _ancestorKeys(item)) {
+      direct.remove(ancestor);
+    }
+    if (currentlyChecked) {
+      direct.remove(key);
+      direct.removeAll(_collectDescendantKeys(item));
+    } else {
+      direct.add(key);
+      direct.addAll(_collectDescendantKeys(item));
+    }
+
+    if (widget.checkedKeys == null) {
+      setState(() => _internalCheckedKeys = direct);
+    }
+    final checked = _resolveCheckedKeys();
+    widget.onCheck?.call(checked, _resolveHalfCheckedKeys(checked));
+  }
+
+  // ----------------------------------------------------------
+  // 构建
+  // ----------------------------------------------------------
+
+  double get _indentWidth => (widget.indent ?? 24).w;
+
+  @override
   Widget build(BuildContext context) {
+    _ensureDefaultKeys();
     final theme = AntTheme.of(context);
+    final checked = _resolveCheckedKeys();
+    final half = _resolveHalfCheckedKeys(checked);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final node in widget.treeData)
-          _TreeNodeRow(
-            node: node,
-            tree: widget,
-            theme: theme,
-            depth: 0,
-            expandedKeys: _expandedKeys,
-            selectedKeys: _selectedKeys,
-            checkedKeys: _resolveCheckedKeys(_directCheckedKeys),
-            halfCheckedKeys:
-                _resolveHalfCheckedKeys(_resolveCheckedKeys(_directCheckedKeys)),
-            indent: widget.indent ?? 24,
-            onToggleExpand: _toggleExpand,
-            onSelect: _handleSelect,
-            onCheck: _handleCheck,
+        for (final item in widget.dataSource)
+          _buildNode(item, 0, theme, checked, half),
+      ],
+    );
+  }
+
+  Widget _buildNode(
+    T item,
+    int depth,
+    AntThemeData theme,
+    Set<Object> checked,
+    Set<Object> half,
+  ) {
+    final children = _childrenOf(item);
+    final key = _keyOf(item);
+    final expanded = _expandedKeys.contains(key);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _TreeNodeRow<T>(
+          tree: widget,
+          item: item,
+          depth: depth,
+          expanded: expanded,
+          selected: _selectedKeys.contains(key),
+          checked: checked.contains(key),
+          halfChecked: half.contains(key),
+          indentWidth: _indentWidth,
+          title: _titleOf(context, item),
+          onToggle: () => _toggleExpand(item),
+          onSelect: () => _handleSelect(item),
+          onCheck: () => _handleCheck(item),
+        ),
+        if (children.isNotEmpty)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: expanded
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final child in children)
+                        _buildNode(child, depth + 1, theme, checked, half),
+                    ],
+                  )
+                : const SizedBox(width: double.infinity),
           ),
       ],
     );
   }
 }
 
-// ============================================================
-// _TreeNodeRow — 单个节点行
-// ============================================================
-
-class _TreeNodeRow extends StatelessWidget {
+/// 单行节点。
+class _TreeNodeRow<T> extends StatelessWidget {
   const _TreeNodeRow({
-    required this.node,
     required this.tree,
-    required this.theme,
+    required this.item,
     required this.depth,
-    required this.expandedKeys,
-    required this.selectedKeys,
-    required this.checkedKeys,
-    required this.halfCheckedKeys,
-    required this.indent,
-    required this.onToggleExpand,
+    required this.expanded,
+    required this.selected,
+    required this.checked,
+    required this.halfChecked,
+    required this.indentWidth,
+    required this.title,
+    required this.onToggle,
     required this.onSelect,
     required this.onCheck,
   });
 
-  final AntTreeNode node;
-  final AntTree tree;
-  final AntThemeData theme;
+  final AntTree<T> tree;
+  final T item;
   final int depth;
-  final Set<String> expandedKeys;
-  final Set<String> selectedKeys;
-  final Set<String> checkedKeys;
-  final Set<String> halfCheckedKeys;
-  final double indent;
-  final ValueChanged<AntTreeNode> onToggleExpand;
-  final ValueChanged<AntTreeNode> onSelect;
-  final ValueChanged<AntTreeNode> onCheck;
-
-  bool get _expanded => expandedKeys.contains(node.key);
-  bool get _selected => selectedKeys.contains(node.key);
-  bool get _checked => checkedKeys.contains(node.key);
-  bool get _halfChecked => halfCheckedKeys.contains(node.key);
+  final bool expanded;
+  final bool selected;
+  final bool checked;
+  final bool halfChecked;
+  final double indentWidth;
+  final Widget title;
+  final VoidCallback onToggle;
+  final VoidCallback onSelect;
+  final VoidCallback onCheck;
 
   @override
   Widget build(BuildContext context) {
-    final t = theme;
-    final children = <Widget>[];
+    final theme = AntTheme.of(context);
+    final disabled = tree.disabledOf?.call(item) ?? false;
+    final checkable = tree.checkableOf?.call(item) ?? true;
+    final hasChildren = (tree.childrenOf?.call(item) ?? const []).isNotEmpty;
 
-    // 缩进 / 连接线引导
-    for (var i = 0; i < depth; i++) {
-      children.add(
-        tree.showLine
-            ? Container(
-                width: indent,
-                alignment: Alignment.center,
-                child: Container(
-                  width: 1,
-                  height: 24.w,
-                  color: t.colorBorderSecondary,
-                ),
-              )
-            : SizedBox(width: indent),
-      );
-    }
-
-    // switcher 箭头
-    children.add(_buildSwitcher(t));
-
-    // 复选框
-    if (tree.checkable && node.checkable) {
-      children.add(GestureDetector(
-        onTap: () => onCheck(node),
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: _buildCheckbox(t),
-        ),
-      ),);
-      children.add(SizedBox(width: 2.w));
-    }
-
-    // 标题
-    children.add(Expanded(
-      child: GestureDetector(
-        onTap: () => onSelect(node),
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(t.borderRadiusXS),
-            color: _selected
-                ? t.colorPrimaryBg
-                : (node.disabled ? t.colorBgContainerDisabled : Colors.transparent),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < depth; i++)
+          SizedBox(
+            width: indentWidth,
+            height: 24.h,
+            child: tree.showLine
+                ? Center(
+                    child: Container(
+                      width: 1,
+                      height: 24.h,
+                      color: theme.colorBorderSecondary,
+                    ),
+                  )
+                : null,
           ),
-          child: Text(
-            node.title,
-            style: TextStyle(
-              fontSize: t.fontSize.sp,
-              height: 1.5,
-              color: node.disabled ? t.colorTextDisabled : t.colorText,
+        // 展开/收起
+        if (!hasChildren)
+          SizedBox(width: 20.w, height: 24.h)
+        else
+          GestureDetector(
+            onTap: disabled ? null : onToggle,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 20.w,
+              height: 24.h,
+              child: Center(
+                child: AnimatedRotation(
+                  turns: expanded ? 0 : -0.25,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    tree.showLine
+                        ? AntIcons.enterOutlined
+                        : AntIcons.downOutlined,
+                    size: 14.sp,
+                    color: disabled
+                        ? theme.colorTextDisabled
+                        : theme.colorTextQuaternary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        // 勾选框
+        if (tree.checkable && checkable)
+          GestureDetector(
+            onTap: disabled ? null : onCheck,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: EdgeInsets.only(right: 4.w),
+              child: Icon(
+                halfChecked
+                    ? AntIcons.minusSquareFilled
+                    : checked
+                        ? AntIcons.checkSquareOutlined
+                        : AntIcons.borderOutlined,
+                size: 18.sp,
+                color: disabled
+                    ? theme.colorTextDisabled
+                    : halfChecked || checked
+                        ? theme.colorPrimary
+                        : theme.colorTextQuaternary,
+              ),
+            ),
+          ),
+        // 标题
+        Expanded(
+          child: GestureDetector(
+            onTap: tree.selectable && !disabled ? onSelect : null,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.w),
+              decoration: BoxDecoration(
+                color: selected
+                    ? theme.colorPrimaryBg
+                    : disabled
+                        ? theme.colorBgContainerDisabled
+                        : Colors.transparent,
+                borderRadius: BorderRadius.circular(theme.borderRadiusXS),
+              ),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontSize: theme.fontSize.sp,
+                  height: 1.5,
+                  color: disabled ? theme.colorTextDisabled : theme.colorText,
+                ),
+                child: title,
+              ),
             ),
           ),
         ),
-      ),
-    ),);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 1.w),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: children,
-          ),
-        ),
-        // 子节点（展开动画）
-        if (!node.isLeaf)
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topLeft,
-            child: !_expanded
-                ? const SizedBox(width: double.infinity)
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final child in node.children!)
-                        _TreeNodeRow(
-                          node: child,
-                          tree: tree,
-                          theme: theme,
-                          depth: depth + 1,
-                          expandedKeys: expandedKeys,
-                          selectedKeys: selectedKeys,
-                          checkedKeys: checkedKeys,
-                          halfCheckedKeys: halfCheckedKeys,
-                          indent: indent,
-                          onToggleExpand: onToggleExpand,
-                          onSelect: onSelect,
-                          onCheck: onCheck,
-                        ),
-                    ],
-                  ),
-          ),
       ],
-    );
-  }
-
-  /// switcher：展开/收起箭头（带旋转动画）或叶子占位。
-  Widget _buildSwitcher(AntThemeData t) {
-    if (node.isLeaf) {
-      return SizedBox(width: 16.w + 4.w);
-    }
-    return GestureDetector(
-      onTap: () => onToggleExpand(node),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2.w),
-        child: AnimatedRotation(
-          turns: _expanded ? 0.25 : 0,
-          duration: const Duration(milliseconds: 200),
-          child: Icon(
-            tree.showLine
-                ? AntIcons.enterOutlined
-                : AntIcons.downOutlined,
-            size: 14.sp,
-            color: node.disabled ? t.colorTextDisabled : t.colorTextQuaternary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 复选框：全选 / 半选 / 未选。
-  Widget _buildCheckbox(AntThemeData t) {
-    final color = node.disabled ? t.colorTextDisabled : t.colorPrimary;
-    if (_halfChecked) {
-      return Icon(AntIcons.minusSquareFilled,
-          size: 18.sp, color: color,);
-    }
-    if (_checked) {
-      return Icon(AntIcons.checkSquareOutlined, size: 18.sp, color: color);
-    }
-    return Icon(
-      AntIcons.borderOutlined,
-      size: 18.sp,
-      color: node.disabled ? t.colorTextDisabled : t.colorBorder,
     );
   }
 }

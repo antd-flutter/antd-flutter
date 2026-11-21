@@ -1,18 +1,34 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _fruits = <AntPickerColumnItem>[
-  AntPickerColumnItem(label: '苹果', value: 'apple'),
-  AntPickerColumnItem(label: '香蕉', value: 'banana'),
-  AntPickerColumnItem(label: '橙子', value: 'orange'),
-  AntPickerColumnItem(label: '葡萄', value: 'grape'),
+/// 自定义模型：内嵌滚轮列直接使用业务对象。
+class _NamedOption {
+  const _NamedOption(this.id, this.name);
+
+  final String id;
+  final String name;
+}
+
+const _fruits = <_NamedOption>[
+  _NamedOption('apple', '苹果'),
+  _NamedOption('banana', '香蕉'),
+  _NamedOption('orange', '橙子'),
+  _NamedOption('grape', '葡萄'),
 ];
 
-const _drinks = <AntPickerColumnItem>[
-  AntPickerColumnItem(label: '茶', value: 'tea'),
-  AntPickerColumnItem(label: '咖啡', value: 'coffee'),
-  AntPickerColumnItem(label: '果汁', value: 'juice'),
+const _drinks = <_NamedOption>[
+  _NamedOption('tea', '茶'),
+  _NamedOption('coffee', '咖啡'),
+  _NamedOption('juice', '果汁'),
 ];
+
+AntPickerColumn<_NamedOption> _optionColumn(List<_NamedOption> options) {
+  return AntPickerColumn<_NamedOption>(
+    dataSource: options,
+    keyOf: (option) => option.id,
+    labelBuilder: (context, option) => Text(option.name),
+  );
+}
 
 /// PickerViewPage — AntPickerView 内嵌滚轮选择器演示页。
 class PickerViewPage extends StatefulWidget {
@@ -23,7 +39,7 @@ class PickerViewPage extends StatefulWidget {
 }
 
 class _PickerViewPageState extends State<PickerViewPage> {
-  List<AntPickerValue> _value = const ['banana', 'tea'];
+  List<_NamedOption> _value = [_fruits[1], _drinks[0]];
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +51,11 @@ class _PickerViewPageState extends State<PickerViewPage> {
         children: [
           _Section(
             title: '基础多列选择',
-            child: AntPickerView(
-              columns: const [_fruits, _drinks],
-              onChange: (vals) => debugPrint('onChange: $vals'),
+            child: AntPickerView<_NamedOption>(
+              columns: [_optionColumn(_fruits), _optionColumn(_drinks)],
+              onChange: (options) => debugPrint(
+                'onChange: ${options.map((o) => o.name).toList()}',
+              ),
             ),
           ),
           SizedBox(height: 16.h),
@@ -46,14 +64,14 @@ class _PickerViewPageState extends State<PickerViewPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AntPickerView(
-                  columns: const [_fruits, _drinks],
+                AntPickerView<_NamedOption>(
+                  columns: [_optionColumn(_fruits), _optionColumn(_drinks)],
                   value: _value,
-                  onChange: (vals) => setState(() => _value = vals),
+                  onChange: (options) => setState(() => _value = options),
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  '当前选择：${_value.join(' / ')}',
+                  '当前选择：${_value.map((o) => o.name).join(' / ')}',
                   style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
                 ),
               ],
@@ -65,10 +83,10 @@ class _PickerViewPageState extends State<PickerViewPage> {
             child: IgnorePointer(
               child: Opacity(
                 opacity: 0.6,
-                child: AntPickerView(
-                  columns: const [_fruits],
-                  defaultValue: const ['orange'],
-                  onChange: (vals) => debugPrint('不应触发: $vals'),
+                child: AntPickerView<_NamedOption>(
+                  columns: [_optionColumn(_fruits)],
+                  defaultValue: [_fruits[2]],
+                  onChange: (options) => debugPrint('不应触发: $options'),
                 ),
               ),
             ),

@@ -77,12 +77,9 @@ class _MaskPageState extends State<MaskPage> {
                 child: AntButton(
                   onTap: () {
                     setState(() => _contentVisible = true);
-                    Future<void>.delayed(
-                      const Duration(seconds: 2),
-                      () {
-                        if (mounted) setState(() => _contentVisible = false);
-                      },
-                    );
+                    Future<void>.delayed(const Duration(seconds: 2), () {
+                      if (mounted) setState(() => _contentVisible = false);
+                    });
                   },
                   child: const Text('显示 Loading 遮罩（2 秒后关闭）'),
                 ),
@@ -173,7 +170,11 @@ class _MaskPageState extends State<MaskPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

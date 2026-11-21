@@ -95,10 +95,7 @@ class _LiveFactorCard extends StatelessWidget {
           Text(
             'app 入口未开启放大（默认 allowScaleUp: false），因子恒为 1；'
             '下方模拟器可预览放大配置的效果。',
-            style: TextStyle(
-              color: theme.colorTextSecondary,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: theme.colorTextSecondary, fontSize: 12),
           ),
         ],
       ),
@@ -124,7 +121,10 @@ class _Metric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: theme.colorTextSecondary, fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(color: theme.colorTextSecondary, fontSize: 12),
+        ),
         const SizedBox(height: 4),
         Text(
           value,
@@ -194,9 +194,10 @@ class _ConfigSimulatorState extends State<_ConfigSimulator> {
           const SizedBox(height: 16),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text('allowScaleUp 允许超宽放大',
-                style: TextStyle(
-                    color: theme.colorTextHeading, fontSize: 14)),
+            title: Text(
+              'allowScaleUp 允许超宽放大',
+              style: TextStyle(color: theme.colorTextHeading, fontSize: 14),
+            ),
             value: _allowScaleUp,
             onChanged: (v) => setState(() => _allowScaleUp = v),
           ),
@@ -210,7 +211,8 @@ class _ConfigSimulatorState extends State<_ConfigSimulator> {
           ),
           _Slider(
             theme: theme,
-            label: 'maxScaleFactor 放大倍率封顶：${_maxScaleFactor.toStringAsFixed(1)}',
+            label:
+                'maxScaleFactor 放大倍率封顶：${_maxScaleFactor.toStringAsFixed(1)}',
             min: 1.0,
             max: 3.0,
             value: _maxScaleFactor,
@@ -250,8 +252,10 @@ class _Slider extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(color: theme.colorTextHeading, fontSize: 14)),
+        Text(
+          label,
+          style: TextStyle(color: theme.colorTextHeading, fontSize: 14),
+        ),
         Slider(
           min: min,
           max: max,

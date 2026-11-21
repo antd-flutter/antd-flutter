@@ -4,20 +4,57 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _treeData = <AntTreeSelectOption>[
-  AntTreeSelectOption(value: 'zj', label: '浙江', children: [
-    AntTreeSelectOption(value: 'hz', label: '杭州'),
-    AntTreeSelectOption(value: 'nb', label: '宁波'),
-  ]),
-  AntTreeSelectOption(value: 'js', label: '江苏', children: [
-    AntTreeSelectOption(value: 'nj', label: '南京'),
-    AntTreeSelectOption(value: 'sz', label: '苏州'),
-  ]),
-  AntTreeSelectOption(value: 'gd', label: '广东', children: [
-    AntTreeSelectOption(value: 'gz', label: '广州'),
-    AntTreeSelectOption(value: 'sz2', label: '深圳'),
-  ]),
+/// 业务模型：城市节点。
+class _City {
+  const _City(this.code, this.name, {this.children = const [], this.disabled = false});
+
+  final String code;
+  final String name;
+  final List<_City> children;
+  final bool disabled;
+}
+
+const _treeData = <_City>[
+  _City('zj', '浙江', children: [_City('hz', '杭州'), _City('nb', '宁波')]),
+  _City('js', '江苏', children: [_City('nj', '南京'), _City('sz', '苏州')]),
+  _City('gd', '广东', children: [_City('gz', '广州'), _City('sz2', '深圳')]),
 ];
+
+const _disabledData = <_City>[
+  _City('a', '可用'),
+  _City('b', '禁用项', disabled: true),
+];
+
+AntTreeSelect<_City> _treeSelect({
+  List<_City> data = _treeData,
+  AntTreeSelectSize size = AntTreeSelectSize.middle,
+  bool multiple = false,
+  bool disabled = false,
+  bool allowClear = false,
+  bool defaultExpandAll = false,
+  Object? defaultValue,
+  Object? value,
+  String placeholder = '请选择',
+  ValueChanged<Object?>? onChange,
+}) {
+  return AntTreeSelect<_City>(
+    dataSource: data,
+    keyOf: (item) => item.code,
+    labelOf: (item) => item.name,
+    titleBuilder: (context, item) => Text(item.name),
+    childrenOf: (item) => item.children,
+    disabledOf: (item) => item.disabled,
+    size: size,
+    multiple: multiple,
+    disabled: disabled,
+    allowClear: allowClear,
+    treeDefaultExpandAll: defaultExpandAll,
+    defaultValue: defaultValue,
+    value: value,
+    placeholder: placeholder,
+    onChange: onChange,
+  );
+}
 
 class TreeSelectPage extends StatelessWidget {
   const TreeSelectPage({super.key});
@@ -30,38 +67,20 @@ class TreeSelectPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Section(
-            title: '基础用法',
-            theme: t,
-            child: _BasicDemo(),
-          ),
+          _Section(title: '基础用法', theme: t, child: const _BasicDemo()),
           SizedBox(height: 16.h),
           _Section(
             title: '默认展开全部',
             theme: t,
-            child: AntTreeSelect(
-              treeData: _treeData,
-              treeDefaultExpandAll: true,
-              placeholder: '请选择',
-            ),
+            child: _treeSelect(defaultExpandAll: true),
           ),
           SizedBox(height: 16.h),
-          _Section(
-            title: '多选',
-            theme: t,
-            child: _MultipleDemo(),
-          ),
+          _Section(title: '多选', theme: t, child: const _MultipleDemo()),
           SizedBox(height: 16.h),
           _Section(
             title: '禁用选项',
             theme: t,
-            child: AntTreeSelect(
-              treeData: const [
-                AntTreeSelectOption(value: 'a', label: '可用'),
-                AntTreeSelectOption(value: 'b', label: '禁用项', disabled: true),
-              ],
-              placeholder: '请选择',
-            ),
+            child: _treeSelect(data: _disabledData),
           ),
           SizedBox(height: 16.h),
           _Section(
@@ -69,23 +88,11 @@ class TreeSelectPage extends StatelessWidget {
             theme: t,
             child: Column(
               children: [
-                AntTreeSelect(
-                  treeData: _treeData,
-                  size: AntTreeSelectSize.large,
-                  placeholder: '大号',
-                ),
+                _treeSelect(size: AntTreeSelectSize.large, placeholder: '大号'),
                 SizedBox(height: 8.h),
-                AntTreeSelect(
-                  treeData: _treeData,
-                  size: AntTreeSelectSize.middle,
-                  placeholder: '中号',
-                ),
+                _treeSelect(size: AntTreeSelectSize.middle, placeholder: '中号'),
                 SizedBox(height: 8.h),
-                AntTreeSelect(
-                  treeData: _treeData,
-                  size: AntTreeSelectSize.small,
-                  placeholder: '小号',
-                ),
+                _treeSelect(size: AntTreeSelectSize.small, placeholder: '小号'),
               ],
             ),
           ),
@@ -93,19 +100,13 @@ class TreeSelectPage extends StatelessWidget {
           _Section(
             title: '允许清除',
             theme: t,
-            child: AntTreeSelect(
-              treeData: _treeData,
-              defaultValue: 'nj',
-              allowClear: true,
-              placeholder: '请选择',
-            ),
+            child: _treeSelect(defaultValue: 'nj', allowClear: true),
           ),
           SizedBox(height: 16.h),
           _Section(
             title: '禁用状态',
             theme: t,
-            child: AntTreeSelect(
-              treeData: _treeData,
+            child: _treeSelect(
               disabled: true,
               defaultValue: 'sz',
               placeholder: '禁用',
@@ -118,22 +119,23 @@ class TreeSelectPage extends StatelessWidget {
 }
 
 class _BasicDemo extends StatefulWidget {
+  const _BasicDemo();
+
   @override
   State<_BasicDemo> createState() => _BasicDemoState();
 }
 
 class _BasicDemoState extends State<_BasicDemo> {
-  String? _selected;
+  Object? _selected;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntTreeSelect(
-          treeData: _treeData,
+        _treeSelect(
           placeholder: '请选择城市',
-          onChange: (v) => setState(() => _selected = v as String?),
+          onChange: (v) => setState(() => _selected = v),
         ),
         if (_selected != null)
           Padding(
@@ -146,29 +148,32 @@ class _BasicDemoState extends State<_BasicDemo> {
 }
 
 class _MultipleDemo extends StatefulWidget {
+  const _MultipleDemo();
+
   @override
   State<_MultipleDemo> createState() => _MultipleDemoState();
 }
 
 class _MultipleDemoState extends State<_MultipleDemo> {
-  List<String>? _selected;
+  List<Object> _selected = const [];
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntTreeSelect(
-          treeData: _treeData,
-          treeDefaultExpandAll: true,
+        _treeSelect(
           multiple: true,
+          defaultExpandAll: true,
           placeholder: '请选择（多选）',
-          onChange: (v) => setState(() => _selected = v as List<String>?),
+          onChange: (v) => setState(
+            () => _selected = v is List ? List<Object>.from(v) : const [],
+          ),
         ),
-        if (_selected != null && _selected!.isNotEmpty)
+        if (_selected.isNotEmpty)
           Padding(
             padding: EdgeInsets.only(top: 8.h),
-            child: Text('已选：${_selected!.join('、')}'),
+            child: Text('已选：${_selected.join('、')}'),
           ),
       ],
     );
@@ -176,7 +181,11 @@ class _MultipleDemoState extends State<_MultipleDemo> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -198,7 +207,10 @@ class _Section extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: t.fontSizeLG.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: t.fontSizeLG.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           SizedBox(height: 12.h),
           child,

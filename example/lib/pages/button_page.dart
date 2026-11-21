@@ -14,13 +14,25 @@ class ButtonPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
-          _Section(title: '按钮类型', description: 'type: normal / primary / dashed / link / text'),
+          _Section(
+            title: '按钮类型',
+            description: 'type: normal / primary / dashed / link / text',
+          ),
           _TypeDemo(),
-          _Section(title: '颜色', description: 'color: normal / primary / danger'),
+          _Section(
+            title: '颜色',
+            description: 'color: normal / primary / danger',
+          ),
           _ColorDemo(),
-          _Section(title: '变体', description: 'variant: solid / filled / outlined / dashed / text'),
+          _Section(
+            title: '变体',
+            description: 'variant: solid / filled / outlined / dashed / text',
+          ),
           _VariantDemo(),
-          _Section(title: '预设色', description: 'color: blue / purple / cyan / green / ...'),
+          _Section(
+            title: '预设色',
+            description: 'color: blue / purple / cyan / green / ...',
+          ),
           _PresetColorDemo(),
           _Section(title: '尺寸', description: 'size: large / middle / small'),
           _SizeDemo(),
@@ -57,11 +69,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorText,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!, style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
+              child: Text(
+                description!,
+                style: TextStyle(fontSize: 12, color: theme.colorTextTertiary),
+              ),
             ),
         ],
       ),
@@ -76,7 +98,11 @@ class _ButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntFlex(wrap: true, gap: const AntFlexGap.all(12), children: children);
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(12),
+      children: children,
+    );
   }
 }
 
@@ -84,13 +110,15 @@ class _TypeDemo extends StatelessWidget {
   const _TypeDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(child: Text('Default')),
-      AntButton(type: AntButtonType.primary, child: Text('Primary')),
-      AntButton(type: AntButtonType.dashed, child: Text('Dashed')),
-      AntButton(type: AntButtonType.link, child: Text('Link')),
-      AntButton(type: AntButtonType.text, child: Text('Text')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(child: Text('Default')),
+        AntButton(type: AntButtonType.primary, child: Text('Primary')),
+        AntButton(type: AntButtonType.dashed, child: Text('Dashed')),
+        AntButton(type: AntButtonType.link, child: Text('Link')),
+        AntButton(type: AntButtonType.text, child: Text('Text')),
+      ],
+    );
   }
 }
 
@@ -98,11 +126,13 @@ class _ColorDemo extends StatelessWidget {
   const _ColorDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(color: AntButtonColor.normal, child: Text('Default')),
-      AntButton(color: AntButtonColor.primary, child: Text('Primary')),
-      AntButton(color: AntButtonColor.danger, child: Text('Danger')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(color: AntButtonColor.normal, child: Text('Default')),
+        AntButton(color: AntButtonColor.primary, child: Text('Primary')),
+        AntButton(color: AntButtonColor.danger, child: Text('Danger')),
+      ],
+    );
   }
 }
 
@@ -110,13 +140,35 @@ class _VariantDemo extends StatelessWidget {
   const _VariantDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(color: AntButtonColor.primary, variant: AntButtonVariant.solid, child: Text('Solid')),
-      AntButton(color: AntButtonColor.primary, variant: AntButtonVariant.filled, child: Text('Filled')),
-      AntButton(color: AntButtonColor.primary, variant: AntButtonVariant.outlined, child: Text('Outlined')),
-      AntButton(color: AntButtonColor.primary, variant: AntButtonVariant.dashed, child: Text('Dashed')),
-      AntButton(color: AntButtonColor.primary, variant: AntButtonVariant.text, child: Text('Text')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(
+          color: AntButtonColor.primary,
+          variant: AntButtonVariant.solid,
+          child: Text('Solid'),
+        ),
+        AntButton(
+          color: AntButtonColor.primary,
+          variant: AntButtonVariant.filled,
+          child: Text('Filled'),
+        ),
+        AntButton(
+          color: AntButtonColor.primary,
+          variant: AntButtonVariant.outlined,
+          child: Text('Outlined'),
+        ),
+        AntButton(
+          color: AntButtonColor.primary,
+          variant: AntButtonVariant.dashed,
+          child: Text('Dashed'),
+        ),
+        AntButton(
+          color: AntButtonColor.primary,
+          variant: AntButtonVariant.text,
+          child: Text('Text'),
+        ),
+      ],
+    );
   }
 }
 
@@ -124,18 +176,20 @@ class _PresetColorDemo extends StatelessWidget {
   const _PresetColorDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(color: AntButtonColor.blue, child: Text('Blue')),
-      AntButton(color: AntButtonColor.purple, child: Text('Purple')),
-      AntButton(color: AntButtonColor.cyan, child: Text('Cyan')),
-      AntButton(color: AntButtonColor.green, child: Text('Green')),
-      AntButton(color: AntButtonColor.magenta, child: Text('Magenta')),
-      AntButton(color: AntButtonColor.red, child: Text('Red')),
-      AntButton(color: AntButtonColor.orange, child: Text('Orange')),
-      AntButton(color: AntButtonColor.volcano, child: Text('Volcano')),
-      AntButton(color: AntButtonColor.gold, child: Text('Gold')),
-      AntButton(color: AntButtonColor.lime, child: Text('Lime')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(color: AntButtonColor.blue, child: Text('Blue')),
+        AntButton(color: AntButtonColor.purple, child: Text('Purple')),
+        AntButton(color: AntButtonColor.cyan, child: Text('Cyan')),
+        AntButton(color: AntButtonColor.green, child: Text('Green')),
+        AntButton(color: AntButtonColor.magenta, child: Text('Magenta')),
+        AntButton(color: AntButtonColor.red, child: Text('Red')),
+        AntButton(color: AntButtonColor.orange, child: Text('Orange')),
+        AntButton(color: AntButtonColor.volcano, child: Text('Volcano')),
+        AntButton(color: AntButtonColor.gold, child: Text('Gold')),
+        AntButton(color: AntButtonColor.lime, child: Text('Lime')),
+      ],
+    );
   }
 }
 
@@ -143,11 +197,13 @@ class _SizeDemo extends StatelessWidget {
   const _SizeDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(size: AntButtonSize.large, child: Text('Large')),
-      AntButton(size: AntButtonSize.middle, child: Text('Middle')),
-      AntButton(size: AntButtonSize.small, child: Text('Small')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(size: AntButtonSize.large, child: Text('Large')),
+        AntButton(size: AntButtonSize.middle, child: Text('Middle')),
+        AntButton(size: AntButtonSize.small, child: Text('Small')),
+      ],
+    );
   }
 }
 
@@ -155,23 +211,25 @@ class _ShapeDemo extends StatelessWidget {
   const _ShapeDemo();
   @override
   Widget build(BuildContext context) {
-    return _ButtonRow(children: [
-      const AntButton(child: Text('Default')),
-      const AntButton(shape: AntButtonShape.circle, child: Text('A')),
-      const AntButton(shape: AntButtonShape.round, child: Text('Round')),
-      const AntButton(shape: AntButtonShape.square, child: Text('Square')),
-      AntButton(
-        type: AntButtonType.primary,
-        shape: AntButtonShape.circle,
-        icon: const Icon(AntIcons.searchOutlined, size: 16),
-      ),
-      const AntButton(
-        type: AntButtonType.primary,
-        shape: AntButtonShape.round,
-        icon: Icon(AntIcons.downloadOutlined, size: 16),
-        child: Text('Download'),
-      ),
-    ]);
+    return _ButtonRow(
+      children: [
+        const AntButton(child: Text('Default')),
+        const AntButton(shape: AntButtonShape.circle, child: Text('A')),
+        const AntButton(shape: AntButtonShape.round, child: Text('Round')),
+        const AntButton(shape: AntButtonShape.square, child: Text('Square')),
+        AntButton(
+          type: AntButtonType.primary,
+          shape: AntButtonShape.circle,
+          icon: const Icon(AntIcons.searchOutlined, size: 16),
+        ),
+        const AntButton(
+          type: AntButtonType.primary,
+          shape: AntButtonShape.round,
+          icon: Icon(AntIcons.downloadOutlined, size: 16),
+          child: Text('Download'),
+        ),
+      ],
+    );
   }
 }
 
@@ -179,21 +237,30 @@ class _IconDemo extends StatelessWidget {
   const _IconDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(type: AntButtonType.primary, icon: Icon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
-      AntButton(icon: Icon(AntIcons.searchOutlined, size: 16), child: Text('Search')),
-      AntButton(
-        type: AntButtonType.dashed,
-        icon: Icon(AntIcons.downloadOutlined, size: 16),
-        child: Text('Download'),
-      ),
-      AntButton(
-        type: AntButtonType.primary,
-        icon: Icon(AntIcons.arrowRightOutlined, size: 16),
-        iconPlacement: AntButtonIconPlacement.end,
-        child: Text('Next'),
-      ),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(
+          type: AntButtonType.primary,
+          icon: Icon(AntIcons.searchOutlined, size: 16),
+          child: Text('Search'),
+        ),
+        AntButton(
+          icon: Icon(AntIcons.searchOutlined, size: 16),
+          child: Text('Search'),
+        ),
+        AntButton(
+          type: AntButtonType.dashed,
+          icon: Icon(AntIcons.downloadOutlined, size: 16),
+          child: Text('Download'),
+        ),
+        AntButton(
+          type: AntButtonType.primary,
+          icon: Icon(AntIcons.arrowRightOutlined, size: 16),
+          iconPlacement: AntButtonIconPlacement.end,
+          child: Text('Next'),
+        ),
+      ],
+    );
   }
 }
 
@@ -201,13 +268,27 @@ class _LoadingDemo extends StatelessWidget {
   const _LoadingDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(type: AntButtonType.primary, loading: true, child: Text('Loading')),
-      AntButton(loading: true, child: Text('Loading')),
-      AntButton(type: AntButtonType.dashed, loading: true, child: Text('Loading')),
-      AntButton(type: AntButtonType.primary, loading: true),
-      AntButton(type: AntButtonType.text, loading: true, child: Text('Loading')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(
+          type: AntButtonType.primary,
+          loading: true,
+          child: Text('Loading'),
+        ),
+        AntButton(loading: true, child: Text('Loading')),
+        AntButton(
+          type: AntButtonType.dashed,
+          loading: true,
+          child: Text('Loading'),
+        ),
+        AntButton(type: AntButtonType.primary, loading: true),
+        AntButton(
+          type: AntButtonType.text,
+          loading: true,
+          child: Text('Loading'),
+        ),
+      ],
+    );
   }
 }
 
@@ -215,13 +296,31 @@ class _DisabledDemo extends StatelessWidget {
   const _DisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return const _ButtonRow(children: [
-      AntButton(disabled: true, child: Text('Default')),
-      AntButton(type: AntButtonType.primary, disabled: true, child: Text('Primary')),
-      AntButton(type: AntButtonType.dashed, disabled: true, child: Text('Dashed')),
-      AntButton(type: AntButtonType.link, disabled: true, child: Text('Link')),
-      AntButton(type: AntButtonType.text, disabled: true, child: Text('Text')),
-    ]);
+    return const _ButtonRow(
+      children: [
+        AntButton(disabled: true, child: Text('Default')),
+        AntButton(
+          type: AntButtonType.primary,
+          disabled: true,
+          child: Text('Primary'),
+        ),
+        AntButton(
+          type: AntButtonType.dashed,
+          disabled: true,
+          child: Text('Dashed'),
+        ),
+        AntButton(
+          type: AntButtonType.link,
+          disabled: true,
+          child: Text('Link'),
+        ),
+        AntButton(
+          type: AntButtonType.text,
+          disabled: true,
+          child: Text('Text'),
+        ),
+      ],
+    );
   }
 }
 
@@ -235,12 +334,26 @@ class _GhostDemo extends StatelessWidget {
         color: Colors.grey.shade900,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const _ButtonRow(children: [
-        AntButton(ghost: true, child: Text('Default Ghost')),
-        AntButton(type: AntButtonType.primary, ghost: true, child: Text('Primary Ghost')),
-        AntButton(type: AntButtonType.dashed, ghost: true, child: Text('Dashed Ghost')),
-        AntButton(type: AntButtonType.link, ghost: true, child: Text('Link Ghost')),
-      ]),
+      child: const _ButtonRow(
+        children: [
+          AntButton(ghost: true, child: Text('Default Ghost')),
+          AntButton(
+            type: AntButtonType.primary,
+            ghost: true,
+            child: Text('Primary Ghost'),
+          ),
+          AntButton(
+            type: AntButtonType.dashed,
+            ghost: true,
+            child: Text('Dashed Ghost'),
+          ),
+          AntButton(
+            type: AntButtonType.link,
+            ghost: true,
+            child: Text('Link Ghost'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -256,7 +369,11 @@ class _BlockDemo extends StatelessWidget {
         children: [
           AntButton(block: true, child: Text('Block Default')),
           SizedBox(height: 12),
-          AntButton(block: true, type: AntButtonType.primary, child: Text('Block Primary')),
+          AntButton(
+            block: true,
+            type: AntButtonType.primary,
+            child: Text('Block Primary'),
+          ),
         ],
       ),
     );

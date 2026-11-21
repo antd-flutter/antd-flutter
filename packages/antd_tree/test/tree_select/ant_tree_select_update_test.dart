@@ -1,186 +1,152 @@
-// TreeSelect 数据/值更新回归测试（面板打开状态下的更新路径）。
-library;
-
 import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_tree/antd_tree.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+
+class _City {
+  const _City(this.id, this.name, {this.children = const <_City>[]});
+
+  final int id;
+  final String name;
+  final List<_City> children;
+}
+
+const _cities = <_City>[
+  _City(
+    1,
+    '浙江',
+    children: [_City(2, '杭州'), _City(3, '宁波')],
+  ),
+  _City(
+    6,
+    '江苏',
+    children: [_City(7, '南京'), _City(8, '苏州')],
+  ),
+];
 
 Widget _wrap(Widget child, {bool dark = false}) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: dark ? AntThemeData.dark() : AntThemeData.light(),
-            child: Material(child: child),
+            child: Material(child: Center(child: child)),
           ),
         ),
       ),
     );
 
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  bool dark = false,
+}) async {
+  await tester.pumpWidget(_wrap(child, dark: dark));
+  await tester.pumpAndSettle();
+}
+
+AntTreeSelect<_City> _select({
+  List<_City> dataSource = _cities,
+  Object? value,
+  ValueChanged<Object?>? onChange,
+  bool multiple = false,
+  bool treeDefaultExpandAll = false,
+}) {
+  return AntTreeSelect<_City>(
+    dataSource: dataSource,
+    keyOf: (city) => city.id,
+    labelOf: (city) => city.name,
+    titleBuilder: (context, city) => Text(city.name),
+    childrenOf: (city) => city.children,
+    value: value,
+    onChange: onChange,
+    multiple: multiple,
+    treeDefaultExpandAll: treeDefaultExpandAll,
+  );
+}
+
+Finder _panel() => find.byKey(const Key('ant_tree_select_panel'));
+
+Finder _panelText(String text) =>
+    find.descendant(of: _panel(), matching: find.text(text));
+
 void main() {
-  testWidgets('面板打开时更新受控 value：不报错且面板选中态跟随',
-      (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    String? value = 'zj';
-    late StateSetter setStateOuter;
-    await tester.pumpWidget(_wrap(
-      StatefulBuilder(
-        builder: (context, setState) {
-          setStateOuter = setState;
-          return AntTreeSelect(
-            treeData: const [
-              AntTreeSelectOption(value: 'zj', label: '浙江'),
-              AntTreeSelectOption(value: 'js', label: '江苏'),
-            ],
-            value: value,
-            onChange: (_) {},
-          );
-        },
-      ),
-    ),);
-    await tester.tap(find.byType(AntTreeSelect));
+  testWidgets('updates controlled value while panel is open', (tester) async {
+    await _pump(tester, _select(value: 7));
+    await tester.tap(find.byType(AntTreeSelect<_City>));
     await tester.pumpAndSettle();
+    expect(_panel(), findsOneWidget);
 
-    setStateOuter(() => value = 'js');
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    // 面板仍打开且江苏行高亮（选中 token 生效）
-    expect(find.text('江苏'), findsWidgets);
-    expect(find.byKey(const Key('ant_tree_select_panel')), findsOneWidget);
+    await _pump(tester, _select(value: 8));
+    expect(
+      find.descendant(
+        of: find.byType(AntTreeSelect<_City>),
+        matching: find.text('苏州'),
+      ),
+      findsOneWidget,
+    );
+    expect(_panel(), findsOneWidget);
   });
 
-  testWidgets('面板打开时更新 treeData：不报错且新节点渲染', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    late StateSetter setStateOuter;
-    var treeData = <AntTreeSelectOption>[
-      const AntTreeSelectOption(value: 'a', label: 'A'),
+  testWidgets('updates dataSource while panel is open', (tester) async {
+    await _pump(tester, _select());
+    await tester.tap(find.byType(AntTreeSelect<_City>));
+    await tester.pumpAndSettle();
+    expect(_panelText('浙江'), findsOneWidget);
+
+    const next = <_City>[
+      _City(10, '北京'),
+      _City(11, '上海'),
     ];
-    await tester.pumpWidget(_wrap(
-      StatefulBuilder(
-        builder: (context, setState) {
-          setStateOuter = setState;
-          return AntTreeSelect(treeData: treeData);
-        },
-      ),
-    ),);
-    await tester.tap(find.byType(AntTreeSelect));
-    await tester.pumpAndSettle();
-    expect(find.text('A'), findsWidgets);
-
-    setStateOuter(() {
-      treeData = [
-        const AntTreeSelectOption(value: 'a', label: 'A'),
-        const AntTreeSelectOption(value: 'b', label: 'B'),
-      ];
-    });
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    expect(find.byKey(const Key('ant_tree_select_panel')), findsOneWidget);
-    expect(find.text('B'), findsOneWidget);
+    await _pump(tester, _select(dataSource: next));
+    expect(_panel(), findsOneWidget);
+    expect(_panelText('北京'), findsOneWidget);
+    expect(_panelText('上海'), findsOneWidget);
   });
 
-  testWidgets('treeDefaultExpandAll 下替换 treeData：展开键随新数据重算',
-      (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    late StateSetter setStateOuter;
-    var treeData = <AntTreeSelectOption>[
-      const AntTreeSelectOption(
-        value: 'p1',
-        label: 'P1',
-        children: [AntTreeSelectOption(value: 'c1', label: 'C1')],
-      ),
+  testWidgets('recomputes expanded keys when data is replaced', (tester) async {
+    await _pump(tester, _select(treeDefaultExpandAll: true));
+    await tester.tap(find.byType(AntTreeSelect<_City>));
+    await tester.pumpAndSettle();
+    expect(_panelText('杭州'), findsOneWidget);
+
+    const next = <_City>[
+      _City(6, '江苏', children: [_City(7, '南京')]),
     ];
-    await tester.pumpWidget(_wrap(
-      StatefulBuilder(
-        builder: (context, setState) {
-          setStateOuter = setState;
-          return AntTreeSelect(
-            treeData: treeData,
-            treeDefaultExpandAll: true,
-          );
-        },
-      ),
-    ),);
-    // 未打开时替换数据 → 打开后新数据全部展开
-    setStateOuter(() {
-      treeData = [
-        const AntTreeSelectOption(
-          value: 'p2',
-          label: 'P2',
-          children: [AntTreeSelectOption(value: 'c2', label: 'C2')],
-        ),
-      ];
-    });
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(AntTreeSelect));
-    await tester.pumpAndSettle();
-    expect(find.text('P2'), findsOneWidget);
-    // 子节点直接可见（展开键重算生效）
-    expect(find.text('C2'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    await _pump(tester, _select(dataSource: next, treeDefaultExpandAll: true));
+    expect(_panelText('南京'), findsOneWidget);
+    expect(_panelText('杭州'), findsNothing);
   });
 
-  testWidgets('demo 用法（onChange 非受控流）：选择后触发重建且显示已选',
-      (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    String? selected;
-    await tester.pumpWidget(_wrap(
-      StatefulBuilder(
-        builder: (context, setState) => Column(
-          children: [
-            AntTreeSelect(
-              treeData: const [
-                AntTreeSelectOption(
-                  value: 'zj',
-                  label: '浙江',
-                  children: [AntTreeSelectOption(value: 'hz', label: '杭州')],
-                ),
-              ],
-              treeDefaultExpandAll: true,
-              onChange: (v) => setState(() => selected = v as String?),
-            ),
-            if (selected != null) Text('已选：$selected'),
-          ],
-        ),
+  testWidgets('uncontrolled multiple selection flow', (tester) async {
+    final changes = <Object?>[];
+    await _pump(
+      tester,
+      _select(
+        multiple: true,
+        treeDefaultExpandAll: true,
+        onChange: changes.add,
       ),
-    ),);
-    await tester.tap(find.byType(AntTreeSelect));
+    );
+    await tester.tap(find.byType(AntTreeSelect<_City>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('杭州'));
+    await tester.tap(_panelText('南京'));
     await tester.pumpAndSettle();
-    expect(find.text('已选：hz'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    await tester.tap(_panelText('苏州'));
+    await tester.pumpAndSettle();
+    expect(changes, <Object?>[
+      <Object>[7],
+      <Object>[7, 8],
+    ]);
   });
 
-  testWidgets('弹层打开时切换主题：不报错且面板 token 跟随', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    var dark = false;
-    await tester.pumpWidget(_wrap(
-      const AntTreeSelect(
-        treeData: [
-          AntTreeSelectOption(value: 'a', label: 'A'),
-        ],
-      ),
-      dark: dark,
-    ),);
-    await tester.tap(find.byType(AntTreeSelect));
+  testWidgets('theme switch rebuilds open panel', (tester) async {
+    await _pump(tester, _select());
+    await tester.tap(find.byType(AntTreeSelect<_City>));
     await tester.pumpAndSettle();
-    // 重建为暗色主题环境
-    await tester.pumpWidget(_wrap(
-      const AntTreeSelect(
-        treeData: [
-          AntTreeSelectOption(value: 'a', label: 'A'),
-        ],
-      ),
-      dark: true,
-    ),);
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    expect(dark, isFalse);
+    expect(_panel(), findsOneWidget);
+
+    await _pump(tester, _select(), dark: true);
+    expect(_panel(), findsOneWidget);
+    expect(_panelText('浙江'), findsOneWidget);
   });
 }

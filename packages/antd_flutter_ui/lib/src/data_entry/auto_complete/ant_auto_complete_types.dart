@@ -13,7 +13,9 @@ enum AntAutoCompleteSize {
   small,
 }
 
-/// 自动补全选项
+/// 自动补全选项（旧模型，自 1.x 起推荐直接用
+/// `AntAutoComplete<T>(options: List<T>)` 配合 `labelOf` / `valueOf`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf/valueOf；本类将在 2.0 移除')
 class AntAutoCompleteOption {
   const AntAutoCompleteOption({
     required this.value,

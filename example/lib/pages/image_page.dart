@@ -191,8 +191,8 @@ class ImagePage extends StatelessWidget {
                   errorWidget: Container(
                     color: theme.colorFillTertiary,
                     alignment: Alignment.center,
-                    child: AntText(text: 
-                      '图片走丢了',
+                    child: AntText(
+                      text: '图片走丢了',
                       style: TextStyle(
                         fontSize: 13.sp,
                         color: theme.colorTextSecondary,
@@ -235,8 +235,8 @@ class _FitDemo extends StatelessWidget {
       children: [
         child,
         SizedBox(height: 6.w),
-        AntText(text: 
-          label,
+        AntText(
+          text: label,
           style: TextStyle(fontSize: 12.sp, color: theme.colorTextSecondary),
         ),
       ],
@@ -269,8 +269,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,

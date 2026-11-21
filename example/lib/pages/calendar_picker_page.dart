@@ -23,7 +23,10 @@ class CalendarPickerPage extends StatelessWidget {
               defaultValue: [DateTime(2024, 6, 15)],
               onChange: (dates) {
                 if (dates.isNotEmpty) {
-                  _showSnackbar(context, '选中: ${dates.first.year}-${dates.first.month}-${dates.first.day}');
+                  _showSnackbar(
+                    context,
+                    '选中: ${dates.first.year}-${dates.first.month}-${dates.first.day}',
+                  );
                 }
               },
             ),
@@ -35,7 +38,10 @@ class CalendarPickerPage extends StatelessWidget {
               selectionMode: AntCalendarSelectionMode.range,
               onChange: (dates) {
                 if (dates.length == 2) {
-                  _showSnackbar(context, '范围: ${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}');
+                  _showSnackbar(
+                    context,
+                    '范围: ${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}',
+                  );
                 }
               },
             ),
@@ -98,7 +104,8 @@ class _PopupDemoState extends State<_PopupDemo> {
         onConfirm: (dates) {
           setState(() {
             if (dates.isNotEmpty) {
-              _selected = '${dates.first.year}-${dates.first.month}-${dates.first.day}';
+              _selected =
+                  '${dates.first.year}-${dates.first.month}-${dates.first.day}';
             } else {
               _selected = '未选择';
             }
@@ -113,9 +120,16 @@ class _PopupDemoState extends State<_PopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
+              Icon(
+                AntIcons.calendarOutlined,
+                size: 16.w,
+                color: t.colorTextSecondary,
+              ),
               SizedBox(width: 8.w),
-              Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
+              Text(
+                _selected,
+                style: TextStyle(fontSize: t.fontSize, color: t.colorText),
+              ),
             ],
           ),
         ),
@@ -147,7 +161,8 @@ class _RangePopupDemoState extends State<_RangePopupDemo> {
         onConfirm: (dates) {
           setState(() {
             if (dates.length == 2) {
-              _selected = '${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}';
+              _selected =
+                  '${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}';
             } else {
               _selected = '未选择';
             }
@@ -162,9 +177,16 @@ class _RangePopupDemoState extends State<_RangePopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
+              Icon(
+                AntIcons.calendarOutlined,
+                size: 16.w,
+                color: t.colorTextSecondary,
+              ),
               SizedBox(width: 8.w),
-              Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
+              Text(
+                _selected,
+                style: TextStyle(fontSize: t.fontSize, color: t.colorText),
+              ),
             ],
           ),
         ),
@@ -197,7 +219,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
               _value.isNotEmpty
                   ? '当前值: ${_value.first.year}-${_value.first.month}-${_value.first.day}'
                   : '当前值: 无',
-              style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+              style: TextStyle(
+                fontSize: t.fontSizeSM,
+                color: t.colorTextSecondary,
+              ),
             ),
           ),
           AntCalendarPickerView(

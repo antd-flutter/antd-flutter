@@ -3,7 +3,9 @@ library;
 
 import 'package:flutter/widgets.dart';
 
-/// 复选列表项
+/// 复选列表项（旧模型，自 1.x 起推荐直接用
+/// `AntCheckList<T>(items: List<T>)` 配合 `labelOf` / `labelBuilder`）。
+@Deprecated('不再需要构造列表项模型，直接传 List<T> + labelOf/labelBuilder；本类将在 2.0 移除')
 class AntCheckListItem<T> {
   const AntCheckListItem({
     required this.value,

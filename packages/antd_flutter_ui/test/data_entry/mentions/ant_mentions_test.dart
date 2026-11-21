@@ -7,10 +7,22 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
-const _testOptions = <AntMentionsOption>[
-  AntMentionsOption(value: 'afc163', label: 'afc163'),
-  AntMentionsOption(value: 'zombiej', label: 'zombiej'),
-  AntMentionsOption(value: 'yesmeck', label: 'yesmeck'),
+const _testOptions = ['afc163', 'zombiej', 'yesmeck'];
+
+/// 自定义模型：成员（username 插入文本、name 展示文案）。
+class _Member {
+  const _Member(this.id, this.name, this.username, {this.disabled = false});
+
+  final String id;
+  final String name;
+  final String username;
+  final bool disabled;
+}
+
+const _members = [
+  _Member('u1', '张三', 'zhangsan'),
+  _Member('u2', '李四', 'lisi', disabled: true),
+  _Member('u3', '王五', 'wangwu'),
 ];
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
@@ -27,39 +39,47 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
 void main() {
   group('AntMentions', () {
     testWidgets('renders placeholder when empty', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(
-          options: [],
-          placeholder: '输入 @ 提及他人',
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(
+            options: [],
+            placeholder: '输入 @ 提及他人',
+          ),
         ),
-      ),);
+      );
       expect(find.text('输入 @ 提及他人'), findsOneWidget);
     });
 
     testWidgets('renders default value', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(
-          options: [],
-          defaultValue: 'hello',
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(
+            options: [],
+            defaultValue: 'hello',
+          ),
         ),
-      ),);
+      );
       expect(find.text('hello'), findsOneWidget);
     });
 
     testWidgets('renders controlled value', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(
-          options: [],
-          value: 'controlled',
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(
+            options: [],
+            value: 'controlled',
+          ),
         ),
-      ),);
+      );
       expect(find.text('controlled'), findsOneWidget);
     });
 
     testWidgets('typing @ shows options dropdown', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(options: _testOptions),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(options: _testOptions),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -68,9 +88,11 @@ void main() {
     });
 
     testWidgets('typing @a filters options', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(options: _testOptions),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(options: _testOptions),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@a');
       await tester.pumpAndSettle();
@@ -80,9 +102,11 @@ void main() {
     });
 
     testWidgets('typing without @ does not show dropdown', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(options: _testOptions),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(options: _testOptions),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), 'hello');
       await tester.pumpAndSettle();
@@ -91,31 +115,35 @@ void main() {
 
     testWidgets('selecting option inserts mention text', (tester) async {
       String? changedText;
-      AntMentionsOption? selectedOption;
-      await tester.pumpWidget(_wrap(
-        AntMentions(
-          options: _testOptions,
-          onChange: (text) => changedText = text,
-          onSelect: (opt) => selectedOption = opt,
+      String? selectedOption;
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions(
+            options: _testOptions,
+            onChange: (text) => changedText = text,
+            onSelect: (opt) => selectedOption = opt,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
       await tester.tap(find.text('afc163').last);
       await tester.pumpAndSettle();
       expect(changedText, '@afc163 ');
-      expect(selectedOption?.value, 'afc163');
+      expect(selectedOption, 'afc163');
     });
 
     testWidgets('selecting option replaces search text', (tester) async {
       String? changedText;
-      await tester.pumpWidget(_wrap(
-        AntMentions(
-          options: _testOptions,
-          onChange: (text) => changedText = text,
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions(
+            options: _testOptions,
+            onChange: (text) => changedText = text,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@zom');
       await tester.pumpAndSettle();
@@ -125,9 +153,11 @@ void main() {
     });
 
     testWidgets('space after @ closes dropdown', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(options: _testOptions),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(options: _testOptions),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@ afc');
       await tester.pumpAndSettle();
@@ -136,16 +166,16 @@ void main() {
 
     testWidgets('disabled option cannot be selected', (tester) async {
       String? changedText;
-      const options = [
-        AntMentionsOption(value: 'ok', label: '可用'),
-        AntMentionsOption(value: 'no', label: '禁用', disabled: true),
-      ];
-      await tester.pumpWidget(_wrap(
-        AntMentions(
-          options: options,
-          onChange: (text) => changedText = text,
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions<String>(
+            options: const ['ok', 'no'],
+            labelOf: (value) => value == 'ok' ? '可用' : '禁用',
+            disabledOf: (value) => value == 'no',
+            onChange: (text) => changedText = text,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -157,27 +187,31 @@ void main() {
     });
 
     testWidgets('disabled mentions does not respond to input', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(
-          options: _testOptions,
-          disabled: true,
-          placeholder: '禁用',
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(
+            options: _testOptions,
+            disabled: true,
+            placeholder: '禁用',
+          ),
         ),
-      ),);
+      );
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.enabled, isFalse);
     });
 
     testWidgets('allowClear shows clear icon and clears text', (tester) async {
       String? changedText = 'hello';
-      await tester.pumpWidget(_wrap(
-        AntMentions(
-          options: _testOptions,
-          defaultValue: 'hello',
-          allowClear: true,
-          onChange: (text) => changedText = text,
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions(
+            options: _testOptions,
+            defaultValue: 'hello',
+            allowClear: true,
+            onChange: (text) => changedText = text,
+          ),
         ),
-      ),);
+      );
       expect(find.text('hello'), findsOneWidget);
       await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
@@ -185,12 +219,14 @@ void main() {
     });
 
     testWidgets('custom prefix triggers dropdown', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(
-          options: _testOptions,
-          prefix: '#',
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(
+            options: _testOptions,
+            prefix: '#',
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '#');
       await tester.pumpAndSettle();
@@ -200,32 +236,37 @@ void main() {
     testWidgets('controlled value updates display', (tester) async {
       late StateSetter setStateOuter;
       String? value;
-      await tester.pumpWidget(_wrap(
-        StatefulBuilder(
-          builder: (context, setState) {
-            setStateOuter = setState;
-            return AntMentions(
-              options: _testOptions,
-              value: value,
-              placeholder: '请输入',
-            );
-          },
+      await tester.pumpWidget(
+        _wrap(
+          StatefulBuilder(
+            builder: (context, setState) {
+              setStateOuter = setState;
+              return AntMentions(
+                options: _testOptions,
+                value: value,
+                placeholder: '请输入',
+              );
+            },
+          ),
         ),
-      ),);
+      );
       expect(find.text('请输入'), findsOneWidget);
       setStateOuter(() => value = 'updated');
       await tester.pumpAndSettle();
       expect(find.text('updated'), findsOneWidget);
     });
 
-    testWidgets('onChange fires on text change in uncontrolled mode', (tester) async {
+    testWidgets('onChange fires on text change in uncontrolled mode',
+        (tester) async {
       String? changedText;
-      await tester.pumpWidget(_wrap(
-        AntMentions(
-          options: _testOptions,
-          onChange: (text) => changedText = text,
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions(
+            options: _testOptions,
+            onChange: (text) => changedText = text,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.enterText(find.byType(TextField), 'hello world');
       await tester.pumpAndSettle();
@@ -233,20 +274,23 @@ void main() {
     });
   });
 
-  group('AntMentionsOption', () {
-    test('displayLabel returns label when set', () {
-      const opt = AntMentionsOption(value: 'v1', label: '显示文本');
-      expect(opt.displayLabel, '显示文本');
-    });
-
-    test('displayLabel returns value when label is null', () {
-      const opt = AntMentionsOption(value: 'v1');
-      expect(opt.displayLabel, 'v1');
-    });
-
-    test('disabled defaults to false', () {
-      const opt = AntMentionsOption(value: 'v1');
-      expect(opt.disabled, isFalse);
+  group('AntMentions — labelOf 缺省回退', () {
+    testWidgets('未提供 labelOf 时用 item 文本展示与插入', (tester) async {
+      String? changedText;
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions<String>(
+            options: const ['afc163'],
+            onChange: (text) => changedText = text,
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '@a');
+      await tester.pumpAndSettle();
+      expect(find.text('afc163'), findsWidgets);
+      await tester.tap(find.text('afc163').last);
+      await tester.pumpAndSettle();
+      expect(changedText, '@afc163 ');
     });
   });
 
@@ -259,25 +303,104 @@ void main() {
     });
   });
 
+  group('AntMentions — 自定义模型', () {
+    testWidgets('自定义模型：labelOf 展示 / valueOf 插入 / onSelect 回传模型',
+        (tester) async {
+      _Member? selected;
+      String? changedText;
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions<_Member>(
+            options: _members,
+            labelOf: (member) => member.name,
+            valueOf: (member) => member.username,
+            disabledOf: (member) => member.disabled,
+            onChange: (text) => changedText = text,
+            onSelect: (member) => selected = member,
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '@');
+      await tester.pumpAndSettle();
+      expect(find.text('张三'), findsWidgets);
+      expect(find.text('李四'), findsWidgets);
+
+      await tester.tap(find.text('张三').last);
+      await tester.pumpAndSettle();
+      expect(selected?.id, 'u1');
+      expect(changedText, '@zhangsan ');
+    });
+
+    testWidgets('自定义模型：disabledOf 命中项不可选', (tester) async {
+      _Member? selected;
+      String? changedText;
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions<_Member>(
+            options: _members,
+            labelOf: (member) => member.name,
+            valueOf: (member) => member.username,
+            disabledOf: (member) => member.disabled,
+            onChange: (text) => changedText = text,
+            onSelect: (member) => selected = member,
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '@');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('李四').last);
+      await tester.pumpAndSettle();
+      expect(selected, isNull);
+      expect(changedText, '@');
+    });
+
+    testWidgets('自定义模型：itemBuilder 整行自定义渲染', (tester) async {
+      _Member? selected;
+      await tester.pumpWidget(
+        _wrap(
+          AntMentions<_Member>(
+            options: _members,
+            labelOf: (member) => member.name,
+            valueOf: (member) => member.username,
+            itemBuilder: (context, member, index) => Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text('@${member.name}'),),
+            onSelect: (member) => selected = member,
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '@');
+      await tester.pumpAndSettle();
+      expect(find.text('@王五'), findsOneWidget);
+      await tester.tap(find.text('@王五'));
+      await tester.pumpAndSettle();
+      expect(selected?.id, 'u3');
+    });
+  });
+
   group('AntMentions — popup_engine 边界（翻转/夹回）', () {
     testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const Align(
-          alignment: Alignment.bottomCenter,
-          child: AntMentions(options: _testOptions),
+      await tester.pumpWidget(
+        _wrap(
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: AntMentions(options: _testOptions),
+          ),
         ),
-      ),);
+      );
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
       final panel = tester.getRect(find.byKey(const Key('ant_mentions_panel')));
-      final trigger = tester.getRect(find.byType(AntMentions));
+      final trigger = tester.getRect(find.byType(AntMentions<String>));
       expect(panel.bottom, lessThanOrEqualTo(trigger.top + 0.01));
     });
 
     testWidgets('镂空遮挡不干扰输入框继续输入', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntMentions(options: _testOptions),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntMentions(options: _testOptions),
+        ),
+      );
       await tester.enterText(find.byType(TextField), '@a');
       await tester.pumpAndSettle();
       // 弹层打开（@ 触发）后继续输入仍可过滤选项
@@ -289,22 +412,25 @@ void main() {
 
   group('AntMentions — 单一外层描边（双层边框回归）', () {
     testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
-      await tester.pumpWidget(AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
-          theme: ThemeData(
-            inputDecorationTheme: const InputDecorationTheme(
-              enabledBorder: OutlineInputBorder(),
-              focusedBorder: OutlineInputBorder(),
+      await tester.pumpWidget(
+        AntScreenUtilInit(
+          builder: (context, _) => MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                enabledBorder: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(),
+              ),
             ),
-          ),
-          home: Scaffold(
-            body: AntTheme(
-              data: AntThemeData.light(),
-              child: const Material(child: AntMentions(options: _testOptions)),
+            home: Scaffold(
+              body: AntTheme(
+                data: AntThemeData.light(),
+                child:
+                    const Material(child: AntMentions(options: _testOptions)),
+              ),
             ),
           ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       final decoration =
           tester.widget<TextField>(find.byType(TextField)).decoration!;
@@ -325,31 +451,34 @@ void main() {
         }
         e.visitChildren(visit);
       }
-      visit(tester.element(find.byType(AntMentions)));
+
+      visit(tester.element(find.byType(AntMentions<String>)));
       expect(borderedCount, 1);
     });
   });
 
   group('AntMentions — 验收回归（禁用灰底）', () {
     testWidgets('禁用态背景为灰底 token，输入框填充不盖掉容器灰底', (tester) async {
-      await tester.pumpWidget(AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
-          theme: ThemeData(
-            inputDecorationTheme: const InputDecorationTheme(
-              filled: true,
-              fillColor: Colors.white,
+      await tester.pumpWidget(
+        AntScreenUtilInit(
+          builder: (context, _) => MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.white,
+              ),
             ),
-          ),
-          home: Scaffold(
-            body: AntTheme(
-              data: AntThemeData.light(),
-              child: const Material(
-                child: AntMentions(options: _testOptions, disabled: true),
+            home: Scaffold(
+              body: AntTheme(
+                data: AntThemeData.light(),
+                child: const Material(
+                  child: AntMentions(options: _testOptions, disabled: true),
+                ),
               ),
             ),
           ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       final decoration =
           tester.widget<TextField>(find.byType(TextField)).decoration!;
@@ -359,15 +488,17 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(AntMentions),
+              of: find.byType(AntMentions<String>),
               matching: find.byWidgetPredicate(
                 (w) => w is Container && w.decoration is BoxDecoration,
               ),
             )
             .first,
       );
-      expect((container.decoration! as BoxDecoration).color,
-          t.colorBgContainerDisabled,);
+      expect(
+        (container.decoration! as BoxDecoration).color,
+        t.colorBgContainerDisabled,
+      );
     });
   });
 }

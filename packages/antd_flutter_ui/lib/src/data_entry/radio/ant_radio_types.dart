@@ -3,7 +3,9 @@ library;
 
 import 'package:flutter/widgets.dart';
 
-/// 单选框选项
+/// 单选框选项（旧模型，自 1.x 起推荐直接用 `AntRadioGroup<T>(options: List<T>)`
+/// 配合 `labelOf` / `labelBuilder` / `disabledOf`）。
+@Deprecated('不再需要构造选项模型，直接传 List<T> + labelOf/labelBuilder；本类将在 2.0 移除')
 class AntRadioOption<T> {
   const AntRadioOption({
     required this.value,

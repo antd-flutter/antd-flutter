@@ -20,16 +20,58 @@ Widget _wrap(Widget child) {
   );
 }
 
-List<AntCheckListItem<String>> _items() => const [
-      AntCheckListItem(value: 'a', child: Text('苹果')),
-      AntCheckListItem(value: 'b', child: Text('香蕉')),
-      AntCheckListItem(value: 'c', child: Text('橙子')),
-    ];
+const _items = ['a', 'b', 'c'];
+const _names = {'a': '苹果', 'b': '香蕉', 'c': '橙子'};
+
+String _labelOf(String value) => _names[value]!;
+
+/// 自定义模型：成员（名称 / 邮箱 / 状态由模型描述）。
+class _Member {
+  const _Member(this.id, this.name, this.email, {this.disabled = false});
+
+  final String id;
+  final String name;
+  final String email;
+  final bool disabled;
+}
+
+const _members = [
+  _Member('u1', '张三', 'zhang@example.com'),
+  _Member('u2', '李四', 'li@example.com', disabled: true),
+  _Member('u3', '王五', 'wang@example.com'),
+];
+
+/// 便捷构造：字符串列表项 + labelOf。
+AntCheckList<String> _list({
+  List<String>? value,
+  List<String>? defaultValue,
+  bool multiple = false,
+  bool disabled = false,
+  bool readOnly = false,
+  bool showCheckMark = true,
+  Widget? activeIcon,
+  bool Function(String item)? disabledOf,
+  ValueChanged<List<String>>? onChange,
+}) {
+  return AntCheckList<String>(
+    value: value,
+    defaultValue: defaultValue,
+    multiple: multiple,
+    disabled: disabled,
+    readOnly: readOnly,
+    showCheckMark: showCheckMark,
+    activeIcon: activeIcon,
+    items: _items,
+    labelOf: _labelOf,
+    disabledOf: disabledOf,
+    onChange: onChange,
+  );
+}
 
 void main() {
   group('AntCheckList — rendering', () {
     testWidgets('renders all items', (tester) async {
-      await tester.pumpWidget(_wrap(AntCheckList<String>(items: _items())));
+      await tester.pumpWidget(_wrap(_list()));
       await tester.pumpAndSettle();
 
       expect(find.text('苹果'), findsOneWidget);
@@ -40,14 +82,21 @@ void main() {
     testWidgets('renders description', (tester) async {
       await tester.pumpWidget(
         _wrap(
+          _list(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('苹果'), findsOneWidget);
+    });
+
+    testWidgets('renders description via descriptionOf', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
           const AntCheckList<String>(
-            items: [
-              AntCheckListItem(
-                value: 'a',
-                child: Text('苹果'),
-                description: Text('红色水果'),
-              ),
-            ],
+            items: ['a'],
+            labelOf: _labelOf,
+            descriptionOf: _descriptionOf,
           ),
         ),
       );
@@ -60,14 +109,11 @@ void main() {
     testWidgets('renders prefix', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntCheckList<String>(
-            items: [
-              AntCheckListItem(
-                value: 'a',
-                child: Text('苹果'),
-                prefix: Icon(AntIcons.appleOutlined),
-              ),
-            ],
+          AntCheckList<String>(
+            items: const ['a'],
+            labelOf: _labelOf,
+            prefixBuilder: (context, item) =>
+                const Icon(AntIcons.appleOutlined),
           ),
         ),
       );
@@ -79,11 +125,7 @@ void main() {
     testWidgets('hideCheckMark — no check icon shown', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            showCheckMark: false,
-            defaultValue: ['a'],
-            items: _items(),
-          ),
+          _list(showCheckMark: false, defaultValue: ['a']),
         ),
       );
       await tester.pumpAndSettle();
@@ -94,11 +136,8 @@ void main() {
     testWidgets('custom activeIcon', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            activeIcon: const Icon(AntIcons.starFilled),
-            defaultValue: ['a'],
-            items: _items(),
-          ),
+          _list(
+              activeIcon: const Icon(AntIcons.starFilled), defaultValue: ['a'],),
         ),
       );
       await tester.pumpAndSettle();
@@ -111,7 +150,7 @@ void main() {
     testWidgets('defaultValue shows check mark', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(defaultValue: ['b'], items: _items()),
+          _list(defaultValue: ['b']),
         ),
       );
       await tester.pumpAndSettle();
@@ -122,7 +161,8 @@ void main() {
         matching: find.byType(Row),
       );
       expect(
-        find.descendant(of: bRow, matching: find.byIcon(AntIcons.checkOutlined)),
+        find.descendant(
+            of: bRow, matching: find.byIcon(AntIcons.checkOutlined),),
         findsOneWidget,
       );
     });
@@ -130,12 +170,7 @@ void main() {
     testWidgets('tap selects item and fires onChange', (tester) async {
       List<String>? changed;
       await tester.pumpWidget(
-        _wrap(
-          AntCheckList<String>(
-            items: _items(),
-            onChange: (v) => changed = v,
-          ),
-        ),
+        _wrap(_list(onChange: (v) => changed = v)),
       );
       await tester.pumpAndSettle();
 
@@ -150,11 +185,7 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            defaultValue: ['a'],
-            items: _items(),
-            onChange: (v) => changed = v,
-          ),
+          _list(defaultValue: ['a'], onChange: (v) => changed = v),
         ),
       );
       await tester.pumpAndSettle();
@@ -170,11 +201,7 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            defaultValue: ['a'],
-            items: _items(),
-            onChange: (v) => changed = v,
-          ),
+          _list(defaultValue: ['a'], onChange: (v) => changed = v),
         ),
       );
       await tester.pumpAndSettle();
@@ -189,15 +216,9 @@ void main() {
 
   group('AntCheckList — multiple selection', () {
     testWidgets('tap selects multiple items', (tester) async {
-      List<List<String>> changed = [];
+      final changed = <List<String>>[];
       await tester.pumpWidget(
-        _wrap(
-          AntCheckList<String>(
-            multiple: true,
-            items: _items(),
-            onChange: (v) => changed.add(v),
-          ),
-        ),
+        _wrap(_list(multiple: true, onChange: changed.add)),
       );
       await tester.pumpAndSettle();
 
@@ -214,14 +235,13 @@ void main() {
     });
 
     testWidgets('tap again deselects', (tester) async {
-      List<List<String>> changed = [];
+      final changed = <List<String>>[];
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
+          _list(
             multiple: true,
             defaultValue: ['a', 'b'],
-            items: _items(),
-            onChange: (v) => changed.add(v),
+            onChange: changed.add,
           ),
         ),
       );
@@ -240,9 +260,7 @@ void main() {
   group('AntCheckList — controlled', () {
     testWidgets('value prop controls selection', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          AntCheckList<String>(value: ['b', 'c'], items: _items()),
-        ),
+        _wrap(_list(value: ['b', 'c'])),
       );
       await tester.pumpAndSettle();
 
@@ -253,11 +271,7 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            value: ['a'],
-            items: _items(),
-            onChange: (v) => changed = v,
-          ),
+          _list(value: ['a'], onChange: (v) => changed = v),
         ),
       );
       await tester.pumpAndSettle();
@@ -275,13 +289,7 @@ void main() {
     testWidgets('disabled list does not respond to taps', (tester) async {
       List<String>? changed;
       await tester.pumpWidget(
-        _wrap(
-          AntCheckList<String>(
-            disabled: true,
-            items: _items(),
-            onChange: (v) => changed = v,
-          ),
-        ),
+        _wrap(_list(disabled: true, onChange: (v) => changed = v)),
       );
       await tester.pumpAndSettle();
 
@@ -295,13 +303,9 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
-            items: const [
-              AntCheckListItem(value: 'a', child: Text('苹果'), disabled: true),
-              AntCheckListItem(value: 'b', child: Text('香蕉')),
-            ],
-            onChange: (v) => changed = v,
-          ),
+          _list(
+              disabledOf: (value) => value == 'a',
+              onChange: (v) => changed = v,),
         ),
       );
       await tester.pumpAndSettle();
@@ -319,10 +323,9 @@ void main() {
       List<String>? changed;
       await tester.pumpWidget(
         _wrap(
-          AntCheckList<String>(
+          _list(
             readOnly: true,
             defaultValue: ['a'],
-            items: _items(),
             onChange: (v) => changed = v,
           ),
         ),
@@ -336,4 +339,60 @@ void main() {
       expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
   });
+
+  group('AntCheckList — 自定义模型', () {
+    testWidgets('自定义模型：labelOf/descriptionOf/disabledOf 驱动渲染与选择',
+        (tester) async {
+      final changed = <List<_Member>>[];
+      await tester.pumpWidget(
+        _wrap(
+          AntCheckList<_Member>(
+            items: _members,
+            labelOf: (member) => member.name,
+            descriptionOf: (member) => member.email,
+            disabledOf: (member) => member.disabled,
+            onChange: changed.add,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('张三'), findsOneWidget);
+      expect(find.text('zhang@example.com'), findsOneWidget);
+
+      // 禁用项不响应
+      await tester.tap(find.text('李四'));
+      await tester.pumpAndSettle();
+      expect(changed, isEmpty);
+
+      // 回调直接给出模型对象
+      await tester.tap(find.text('王五'));
+      await tester.pumpAndSettle();
+      expect(changed.single.single.id, 'u3');
+    });
+
+    testWidgets('自定义模型：itemBuilder 整行自定义渲染', (tester) async {
+      final changed = <List<_Member>>[];
+      await tester.pumpWidget(
+        _wrap(
+          AntCheckList<_Member>(
+            items: _members,
+            itemBuilder: (context, member, index) =>
+                Text('${index + 1}. ${member.name}'),
+            onChange: changed.add,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('2. 李四'), findsOneWidget);
+      await tester.tap(find.text('1. 张三'));
+      await tester.pumpAndSettle();
+      expect(changed.single.single.id, 'u1');
+    });
+  });
 }
+
+const _descriptions = {'a': '红色水果'};
+
+String _descriptionOf(String value) => _descriptions[value]!;

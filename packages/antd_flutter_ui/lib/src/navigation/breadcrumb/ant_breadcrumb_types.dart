@@ -3,24 +3,15 @@ library;
 
 import 'package:flutter/widgets.dart';
 
-/// 面包屑项。
-class AntBreadcrumbItem {
-  const AntBreadcrumbItem({
-    this.title,
-    this.titleWidget,
-    this.icon,
-    this.onClick,
-  });
+/// 面包屑标题构建器。未提供时回退为 `Text('$item')`。
+typedef AntBreadcrumbTitleBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+);
 
-  /// 标题文字。
-  final String? title;
-
-  /// 标题自定义 Widget。优先于 [title]。
-  final Widget? titleWidget;
-
-  /// 图标，显示在标题左侧。
-  final Widget? icon;
-
-  /// 点击回调。不为 null 时该项可点击。
-  final VoidCallback? onClick;
-}
+/// 面包屑图标构建器。返回 null 时不展示图标。
+typedef AntBreadcrumbIconBuilder<T> = Widget? Function(
+  BuildContext context,
+  T item,
+);

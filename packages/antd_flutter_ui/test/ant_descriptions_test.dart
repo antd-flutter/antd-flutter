@@ -1,8 +1,49 @@
 import 'package:antd_flutter_ui/src/display/descriptions/ant_descriptions.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+
+class _DescData {
+  const _DescData({this.label, this.child, this.span = 1});
+
+  final String? label;
+  final Widget? child;
+  final int span;
+}
+
+Widget _descriptions({
+  Key? key,
+  required List<_DescData> items,
+  Widget? title,
+  Widget? extra,
+  int column = 3,
+  bool bordered = false,
+  AntDescriptionsSize size = AntDescriptionsSize.middle,
+  bool colon = true,
+  AntDescriptionsLayout layout = AntDescriptionsLayout.horizontal,
+}) {
+  return AntDescriptions<_DescData>(
+    key: key,
+    items: items,
+    labelBuilder: (context, item, index) => Text(item.label ?? ''),
+    contentBuilder: (context, item, index) => item.child,
+    spanOf: (item) => item.span,
+    title: title,
+    extra: extra,
+    column: column,
+    bordered: bordered,
+    size: size,
+    colon: colon,
+    layout: layout,
+  );
+}
+
+TextStyle? _effectiveStyle(WidgetTester tester, String text) {
+  final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+  return paragraph.text.style;
+}
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -17,10 +58,10 @@ Widget _wrap(Widget child) {
   );
 }
 
-const _basicItems = [
-  AntDescriptionsItem(label: '名称', child: Text('张三')),
-  AntDescriptionsItem(label: '手机号', child: Text('138****8888')),
-  AntDescriptionsItem(label: '城市', child: Text('杭州')),
+const _basicItems = <_DescData>[
+  _DescData(label: '名称', child: Text('张三')),
+  _DescData(label: '手机号', child: Text('138****8888')),
+  _DescData(label: '城市', child: Text('杭州')),
 ];
 
 void main() {
@@ -28,7 +69,7 @@ void main() {
     testWidgets('renders label and value', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             colon: false,
           ),
@@ -43,12 +84,12 @@ void main() {
     testWidgets('column wraps items into rows', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: [
-              AntDescriptionsItem(label: 'a', child: Text('1')),
-              AntDescriptionsItem(label: 'b', child: Text('2')),
-              AntDescriptionsItem(label: 'c', child: Text('3')),
-              AntDescriptionsItem(label: 'd', child: Text('4')),
+              const _DescData(label: 'a', child: Text('1')),
+              const _DescData(label: 'b', child: Text('2')),
+              const _DescData(label: 'c', child: Text('3')),
+              const _DescData(label: 'd', child: Text('4')),
             ],
             column: 2,
           ),
@@ -65,10 +106,10 @@ void main() {
     testWidgets('span crosses columns', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: [
-              AntDescriptionsItem(label: 'a', child: Text('1')),
-              AntDescriptionsItem(label: 'b', child: Text('span2'), span: 2),
+              const _DescData(label: 'a', child: Text('1')),
+              const _DescData(label: 'b', child: Text('span2'), span: 2),
             ],
             column: 3,
             bordered: true,
@@ -85,7 +126,7 @@ void main() {
     testWidgets('bordered shows gray label background', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             bordered: true,
           ),
@@ -109,33 +150,37 @@ void main() {
     testWidgets('small size uses smaller font', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             size: AntDescriptionsSize.small,
           ),
         ),
       );
-      final text = tester.widget<Text>(find.text('名称:'));
-      expect(text.style!.fontSize, AntThemeData.light().fontSizeSM);
+      expect(
+        _effectiveStyle(tester, '名称')?.fontSize,
+        AntThemeData.light().fontSizeSM,
+      );
     });
 
     testWidgets('large size uses base font', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             size: AntDescriptionsSize.large,
           ),
         ),
       );
-      final text = tester.widget<Text>(find.text('名称:'));
-      expect(text.style!.fontSize, AntThemeData.light().fontSize);
+      expect(
+        _effectiveStyle(tester, '名称')?.fontSize,
+        AntThemeData.light().fontSize,
+      );
     });
 
     testWidgets('middle size renders', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             size: AntDescriptionsSize.middle,
           ),
@@ -145,27 +190,27 @@ void main() {
     });
 
     testWidgets('colon shown by default', (tester) async {
-      await tester.pumpWidget(_wrap(const AntDescriptions(items: _basicItems)));
-      expect(find.text('名称:'), findsOneWidget);
+      await tester.pumpWidget(_wrap(_descriptions(items: _basicItems)));
+      expect(find.text(':'), findsNWidgets(3));
     });
 
     testWidgets('colon false hides colon', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             colon: false,
           ),
         ),
       );
-      expect(find.text('名称:'), findsNothing);
+      expect(find.text(':'), findsNothing);
       expect(find.text('名称'), findsOneWidget);
     });
 
     testWidgets('vertical layout stacks label above value', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             layout: AntDescriptionsLayout.vertical,
           ),
@@ -179,13 +224,13 @@ void main() {
     testWidgets('horizontal layout puts label beside value', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
             layout: AntDescriptionsLayout.horizontal,
           ),
         ),
       );
-      final label = tester.getTopLeft(find.text('名称:'));
+      final label = tester.getTopLeft(find.text('名称'));
       final value = tester.getTopLeft(find.text('张三'));
       expect(value.dx, greaterThan(label.dx));
     });
@@ -193,10 +238,10 @@ void main() {
     testWidgets('renders title and extra', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: _basicItems,
-            title: Text('用户信息'),
-            extra: Text('编辑'),
+            title: const Text('用户信息'),
+            extra: const Text('编辑'),
           ),
         ),
       );
@@ -207,9 +252,9 @@ void main() {
     testWidgets('empty items renders nothing but title', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: [],
-            title: Text('空列表'),
+            title: const Text('空列表'),
           ),
         ),
       );
@@ -220,9 +265,9 @@ void main() {
     testWidgets('custom child widget renders', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntDescriptions(
+          _descriptions(
             items: [
-              AntDescriptionsItem(
+              const _DescData(
                 label: '状态',
                 child: Icon(AntIcons.checkCircleFilled),
               ),
@@ -234,24 +279,28 @@ void main() {
     });
 
     testWidgets('窄屏不同 label 宽度下 value 起点偏移保持等宽', (tester) async {
-      await tester.pumpWidget(_wrap(const SizedBox(
-        width: 360,
-        child: AntDescriptions(
-          column: 3,
-          items: [
-            AntDescriptionsItem(label: '名称', child: Text('张三')),
-            AntDescriptionsItem(label: '手机号码', child: Text('138****8888')),
-            AntDescriptionsItem(label: '城市', child: Text('杭州')),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 360,
+            child: _descriptions(
+              column: 3,
+              items: [
+                const _DescData(label: '名称', child: Text('张三')),
+                const _DescData(label: '手机号码', child: Text('138****8888')),
+                const _DescData(label: '城市', child: Text('杭州')),
+              ],
+            ),
+          ),
         ),
-      ),),);
+      );
 
       // 每项的 value 相对自身 label 的偏移应等于同一列宽（360 / 6 = 60），
       // 不能被 label 文本宽度撑开。
       final pairs = [
-        (find.text('名称:'), find.text('张三')),
-        (find.text('手机号码:'), find.text('138****8888')),
-        (find.text('城市:'), find.text('杭州')),
+        (find.text('名称'), find.text('张三')),
+        (find.text('手机号码'), find.text('138****8888')),
+        (find.text('城市'), find.text('杭州')),
       ];
       final offsets = [
         for (final (label, value) in pairs)
@@ -263,23 +312,27 @@ void main() {
     });
 
     testWidgets('换行后的行与上一行列起点对齐', (tester) async {
-      await tester.pumpWidget(_wrap(const SizedBox(
-        width: 360,
-        child: AntDescriptions(
-          column: 2,
-          items: [
-            AntDescriptionsItem(label: '名称', child: Text('张三')),
-            AntDescriptionsItem(label: '手机号', child: Text('138****8888')),
-            AntDescriptionsItem(label: '城市', child: Text('杭州')),
-            AntDescriptionsItem(label: '邮箱', child: Text('a@b.com')),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 360,
+            child: _descriptions(
+              column: 2,
+              items: [
+                const _DescData(label: '名称', child: Text('张三')),
+                const _DescData(label: '手机号', child: Text('138****8888')),
+                const _DescData(label: '城市', child: Text('杭州')),
+                const _DescData(label: '邮箱', child: Text('a@b.com')),
+              ],
+            ),
+          ),
         ),
-      ),),);
+      );
 
       // 第二行第一列应与第一行第一列的 label / value 起点相同
       expect(
-        tester.getTopLeft(find.text('城市:')).dx,
-        closeTo(tester.getTopLeft(find.text('名称:')).dx, 0.5),
+        tester.getTopLeft(find.text('城市')).dx,
+        closeTo(tester.getTopLeft(find.text('名称')).dx, 0.5),
       );
       expect(
         tester.getTopLeft(find.text('杭州')).dx,
@@ -288,29 +341,36 @@ void main() {
     });
 
     testWidgets('边框模式同一行 label 格高度一致', (tester) async {
-      await tester.pumpWidget(_wrap(const SizedBox(
-        width: 360,
-        child: AntDescriptions(
-          column: 2,
-          bordered: true,
-          items: [
-            AntDescriptionsItem(
-              label: '名称',
-              child: Text('一段会换行很多次的较长内容用于撑高这一格以便验证同行等高'),
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 360,
+            child: _descriptions(
+              column: 2,
+              bordered: true,
+              items: [
+                const _DescData(
+                  label: '名称',
+                  child: Text('一段会换行很多次的较长内容用于撑高这一格以便验证同行等高'),
+                ),
+                const _DescData(label: '城市', child: Text('杭州')),
+              ],
             ),
-            AntDescriptionsItem(label: '城市', child: Text('杭州')),
-          ],
+          ),
         ),
-      ),),);
+      );
 
       final light = AntThemeData.light();
       final grays = tester
-          .widgetList<Container>(find.byWidgetPredicate(
-            (w) =>
-                w is Container &&
-                w.decoration is BoxDecoration &&
-                (w.decoration! as BoxDecoration).color == light.colorFillAlter,
-          ),)
+          .widgetList<Container>(
+            find.byWidgetPredicate(
+              (w) =>
+                  w is Container &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration! as BoxDecoration).color ==
+                      light.colorFillAlter,
+            ),
+          )
           .toList();
       expect(grays.length, greaterThanOrEqualTo(2));
       final heights = find

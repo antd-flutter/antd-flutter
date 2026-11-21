@@ -21,15 +21,9 @@ class PasscodeInputPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 12.w),
-          _Section(
-            title: '明文展示',
-            child: AntPasscodeInput(plain: true),
-          ),
+          _Section(title: '明文展示', child: AntPasscodeInput(plain: true)),
           SizedBox(height: 12.w),
-          _Section(
-            title: '格子分离',
-            child: AntPasscodeInput(separated: true),
-          ),
+          _Section(title: '格子分离', child: AntPasscodeInput(separated: true)),
           SizedBox(height: 12.w),
           _Section(
             title: '4 位验证码',
@@ -52,15 +46,9 @@ class PasscodeInputPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 12.w),
-          _Section(
-            title: '自动聚焦',
-            child: AntPasscodeInput(autofocus: true),
-          ),
+          _Section(title: '自动聚焦', child: AntPasscodeInput(autofocus: true)),
           SizedBox(height: 12.w),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );

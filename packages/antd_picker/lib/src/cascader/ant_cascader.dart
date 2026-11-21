@@ -1,32 +1,33 @@
 /// AntCascader — antd React Cascader 的 Flutter 实现
 ///
 /// API 与 antd React Cascader 对齐：
-/// - [options] — 级联选项树
-/// - [value] / [defaultValue] — 受控/非受控值（路径数组）
-/// - [onChange] — 值变化回调
-/// - [placeholder] / [disabled] / [allowClear] / [size]
+/// - [dataSource] — 级联选项树（直接使用使用者自己的模型 `T`）
+/// - [keyOf] — 从模型取唯一标识
+/// - [childrenOf] — 从模型取子节点（返回 null/空表示叶子）
+/// - [labelBuilder] — 选项自定义渲染（缺省 `Text('$item')`）
+/// - [disabledOf] — 选项禁用判断
+/// - [value] / [defaultValue] — 受控/非受控值（元素可为 `T` 或 `keyOf` 返回的 key）
+/// - [onChange] — 值变化回调，返回选中的 `List<T>`
 /// - [changeOnSelect] — 允许选择任意层级
 /// - [expandTrigger] — click / hover 展开子菜单
 ///
 /// ```dart
-/// AntCascader(
-///   options: [
-///     AntCascaderOption(value: 'zj', label: '浙江', children: [
-///       AntCascaderOption(value: 'hz', label: '杭州', children: [
-///         AntCascaderOption(value: 'xh', label: '西湖'),
-///       ]),
-///     ]),
-///   ],
-///   onChange: (path) => print(path),
+/// AntCascader<Region>(
+///   dataSource: regions,
+///   keyOf: (r) => r.code,
+///   childrenOf: (r) => r.children,
+///   labelBuilder: (context, r) => Text(r.name),
+///   onChange: (path) => print(path.map((r) => r.name)),
 /// )
 /// ```
 library;
 
-import 'ant_cascader_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+
+import 'ant_cascader_types.dart';
 
 export 'ant_cascader_types.dart';
 
@@ -37,10 +38,14 @@ export 'ant_cascader_types.dart';
 /// 级联选择组件。
 ///
 /// 从一组关联层级数据中进行选择，如省/市/区。
-class AntCascader extends StatefulWidget {
+class AntCascader<T> extends StatefulWidget {
   const AntCascader({
     super.key,
-    this.options = const [],
+    required this.keyOf,
+    this.dataSource = const [],
+    this.childrenOf,
+    this.labelBuilder,
+    this.disabledOf,
     this.value,
     this.defaultValue,
     this.onChange,
@@ -52,53 +57,66 @@ class AntCascader extends StatefulWidget {
     this.expandTrigger = AntCascaderExpandTrigger.click,
   });
 
-  /// 级联选项树
-  final List<AntCascaderOption> options;
+  /// 级联选项树。
+  final List<T> dataSource;
 
-  /// 受控值（路径数组，如 ['zj', 'hz', 'xh']）
-  final List<String>? value;
+  /// 从模型取唯一标识。
+  final AntCascaderKeyOf<T> keyOf;
 
-  /// 非受控默认值
-  final List<String>? defaultValue;
+  /// 从模型取子节点；为空表示所有选项都是叶子。
+  final AntCascaderChildrenOf<T>? childrenOf;
 
-  /// 值变化回调
-  final ValueChanged<List<String>>? onChange;
+  /// 选项自定义渲染；为空时回退为 `Text('$item')`。
+  final AntCascaderLabelBuilder<T>? labelBuilder;
 
-  /// 占位文本
+  /// 选项禁用判断。
+  final AntCascaderDisabledOf<T>? disabledOf;
+
+  /// 受控值（路径数组，元素可为 `T` 或 key）。
+  final List<Object>? value;
+
+  /// 非受控默认值（路径数组，元素可为 `T` 或 key）。
+  final List<Object>? defaultValue;
+
+  /// 值变化回调（返回选中的模型路径）。
+  final ValueChanged<List<T>>? onChange;
+
+  /// 占位文本。
   final String? placeholder;
 
-  /// 是否禁用
+  /// 是否禁用。
   final bool disabled;
 
-  /// 是否显示清除按钮
+  /// 是否显示清除按钮。
   final bool allowClear;
 
-  /// 允许选择任意层级（否则仅叶子节点触发 onChange）
+  /// 允许选择任意层级（否则仅叶子节点触发 onChange）。
   final bool changeOnSelect;
 
-  /// 尺寸
+  /// 尺寸。
   final AntCascaderSize size;
 
-  /// 次级菜单展开触发方式
+  /// 次级菜单展开触发方式。
   final AntCascaderExpandTrigger expandTrigger;
 
   @override
-  State<AntCascader> createState() => _AntCascaderState();
+  State<AntCascader<T>> createState() => _AntCascaderState<T>();
 }
 
-class _AntCascaderState extends State<AntCascader>
-    with PopupContentRefresher<AntCascader> {
+class _AntCascaderState<T> extends State<AntCascader<T>>
+    with PopupContentRefresher<AntCascader<T>> {
   final GlobalKey _fieldKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   bool _open = false;
 
-  /// 当前展开的路径（选中项列表，用于面板高亮与展开）
-  List<AntCascaderOption> _activePath = [];
+  /// 当前展开的路径（选中项列表，用于面板高亮与展开）。
+  List<T> _activePath = <T>[];
 
-  /// 已确认选中的路径（用于触发器显示）
-  List<String>? _internalValue;
+  /// 已确认选中的路径 keys（用于触发器显示）。
+  List<Object>? _internalValue;
 
-  List<String> get _currentValue => widget.value ?? _internalValue ?? [];
+  List<Object> get _currentValue =>
+      widget.value ?? _internalValue ?? <Object>[];
 
   double get _height {
     switch (widget.size) {
@@ -111,6 +129,20 @@ class _AntCascaderState extends State<AntCascader>
     }
   }
 
+  Object _keyOf(T item) => widget.keyOf(item);
+
+  List<T>? _childrenOf(T item) => widget.childrenOf?.call(item);
+
+  bool _isLeaf(T item) {
+    final children = _childrenOf(item);
+    return children == null || children.isEmpty;
+  }
+
+  bool _isDisabled(T item) => widget.disabledOf?.call(item) ?? false;
+
+  bool _matches(T item, Object value) =>
+      _keyOf(item) == value || identical(item, value) || item == value;
+
   @override
   void initState() {
     super.initState();
@@ -119,9 +151,9 @@ class _AntCascaderState extends State<AntCascader>
   }
 
   @override
-  void didUpdateWidget(covariant AntCascader oldWidget) {
+  void didUpdateWidget(covariant AntCascader<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
+    if (widget.value != null && widget.value != oldWidget.value) {
       _syncActivePath();
     }
   }
@@ -133,60 +165,63 @@ class _AntCascaderState extends State<AntCascader>
     super.dispose();
   }
 
-  /// 根据当前值同步 _activePath
+  /// 根据当前值同步 _activePath。
   void _syncActivePath() {
     final path = _currentValue;
     if (path.isEmpty) {
-      _activePath = [];
+      _activePath = <T>[];
       return;
     }
-    _activePath = _findPathByValue(path) ?? [];
+    _activePath = _findPathByValue(path) ?? <T>[];
   }
 
-  /// 根据值路径查找选项路径
-  List<AntCascaderOption>? _findPathByValue(List<String> values) {
-    List<AntCascaderOption>? search(
-      List<AntCascaderOption> options,
-      int depth,
-    ) {
-      if (depth >= values.length) return [];
-      for (final opt in options) {
-        if (opt.value == values[depth]) {
-          if (depth == values.length - 1) return [opt];
-          final sub =
-              opt.children != null ? search(opt.children!, depth + 1) : null;
-          if (sub != null) return [opt, ...sub];
-          return [opt];
+  /// 根据值路径查找模型路径。
+  List<T>? _findPathByValue(List<Object> values) {
+    List<T>? search(List<T> options, int depth) {
+      if (depth >= values.length) return <T>[];
+      for (final item in options) {
+        if (_matches(item, values[depth])) {
+          if (depth == values.length - 1) return <T>[item];
+          final children = _childrenOf(item);
+          final sub = children == null ? null : search(children, depth + 1);
+          if (sub != null) return <T>[item, ...sub];
+          return <T>[item];
         }
       }
       return null;
     }
 
-    return search(widget.options, 0);
+    return search(widget.dataSource, 0);
   }
 
-  /// 触发框显示文本：已确认值（_currentValue）路径的标签用 " / " 连接。
+  /// 触发器显示的已确认路径。
   ///
   /// antd 语义：非 changeOnSelect 时点击非叶子节点只展开不回填——
   /// 触发框只反映已确认选择（onChange 触发过的值），不反映面板内
   /// 临时展开路径（_activePath 仅用于面板高亮/展开，不作显示来源）。
-  String get _displayText {
+  List<T> get _displayPath {
     final path = _currentValue;
-    if (path.isEmpty) return '';
-    final displayPath = _findPathByValue(path);
-    if (displayPath == null || displayPath.isEmpty) return '';
-    return displayPath.map((o) => o.label).join(' / ');
+    if (path.isEmpty) return <T>[];
+    return _findPathByValue(path) ?? <T>[];
   }
+
+  Widget _labelFor(BuildContext context, T item) =>
+      widget.labelBuilder?.call(context, item) ?? Text('$item');
 
   void _showOverlay() {
     if (_open || widget.disabled) return;
     final t = AntTheme.of(context);
     _overlayEntry = OverlayEntry(
-      builder: (context) => _CascaderOverlay(
+      builder: (context) => _CascaderOverlay<T>(
         fieldKey: _fieldKey,
         themeData: t,
-        options: widget.options,
+        dataSource: widget.dataSource,
         activePath: _activePath,
+        keyOf: _keyOf,
+        childrenOf: _childrenOf,
+        labelBuilder: widget.labelBuilder,
+        isDisabled: _isDisabled,
+        isLeaf: _isLeaf,
         expandTrigger: widget.expandTrigger,
         changeOnSelect: widget.changeOnSelect,
         onPathChange: _onPathChange,
@@ -207,30 +242,30 @@ class _AntCascaderState extends State<AntCascader>
     if (_open) setState(() => _open = false);
   }
 
-  /// 面板中路径变化（高亮/展开子菜单）
-  void _onPathChange(List<AntCascaderOption> path) {
+  /// 面板中路径变化（高亮/展开子菜单）。
+  void _onPathChange(List<T> path) {
     setState(() => _activePath = path);
     _updateOverlay();
   }
 
-  /// 确认选择（点击叶子节点或 changeOnSelect 时点击任意节点）
-  void _onConfirm(List<AntCascaderOption> path) {
-    final values = path.map((o) => o.value).toList();
+  /// 确认选择（点击叶子节点或 changeOnSelect 时点击任意节点）。
+  void _onConfirm(List<T> path) {
+    final values = path.map(_keyOf).toList();
     setState(() {
       _internalValue = values;
       _activePath = path;
     });
-    widget.onChange?.call(values);
+    widget.onChange?.call(List<T>.from(path));
     _removeOverlay();
   }
 
-  /// 确认选择但保持面板打开（changeOnSelect 模式下点击非叶子节点）
-  void _onConfirmKeepOpen(List<AntCascaderOption> path) {
-    final values = path.map((o) => o.value).toList();
+  /// 确认选择但保持面板打开（changeOnSelect 模式下点击非叶子节点）。
+  void _onConfirmKeepOpen(List<T> path) {
+    final values = path.map(_keyOf).toList();
     setState(() {
       _internalValue = values;
     });
-    widget.onChange?.call(values);
+    widget.onChange?.call(List<T>.from(path));
   }
 
   void _updateOverlay() {
@@ -241,10 +276,10 @@ class _AntCascaderState extends State<AntCascader>
 
   void _clear() {
     setState(() {
-      _internalValue = [];
-      _activePath = [];
+      _internalValue = <Object>[];
+      _activePath = <T>[];
     });
-    widget.onChange?.call([]);
+    widget.onChange?.call(<T>[]);
   }
 
   @override
@@ -274,21 +309,7 @@ class _AntCascaderState extends State<AntCascader>
         ),
         child: Row(
           children: [
-            Expanded(
-              child: Text(
-                _displayText.isNotEmpty
-                    ? _displayText
-                    : (widget.placeholder ?? ''),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: fontSize.sp,
-                  color: _displayText.isNotEmpty
-                      ? (widget.disabled ? t.colorTextDisabled : t.colorText)
-                      : t.colorTextPlaceholder,
-                ),
-              ),
-            ),
+            Expanded(child: _buildFieldContent(context, t, fontSize)),
             if (showClear)
               GestureDetector(
                 onTap: _clear,
@@ -316,18 +337,68 @@ class _AntCascaderState extends State<AntCascader>
       ),
     );
   }
+
+  Widget _buildFieldContent(
+    BuildContext context,
+    AntThemeData t,
+    double fontSize,
+  ) {
+    final path = _displayPath;
+    if (path.isEmpty) {
+      return Text(
+        widget.placeholder ?? '',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: fontSize.sp,
+          color: t.colorTextPlaceholder,
+        ),
+      );
+    }
+    final color = widget.disabled ? t.colorTextDisabled : t.colorText;
+
+    // 未提供 labelBuilder 时保持原先的纯文本显示。
+    if (widget.labelBuilder == null) {
+      return Text(
+        path.map((item) => '$item').join(' / '),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: fontSize.sp, color: color),
+      );
+    }
+
+    return DefaultTextStyle.merge(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: fontSize.sp, color: color),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < path.length; i++) ...[
+            if (i > 0) const Text(' / '),
+            Flexible(child: _labelFor(context, path[i])),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 // ============================================================
 // _CascaderOverlay — 多列级联面板
 // ============================================================
 
-class _CascaderOverlay extends StatelessWidget {
+class _CascaderOverlay<T> extends StatelessWidget {
   const _CascaderOverlay({
     required this.fieldKey,
     required this.themeData,
-    required this.options,
+    required this.dataSource,
     required this.activePath,
+    required this.keyOf,
+    required this.childrenOf,
+    required this.labelBuilder,
+    required this.isDisabled,
+    required this.isLeaf,
     required this.expandTrigger,
     required this.changeOnSelect,
     required this.onPathChange,
@@ -338,21 +409,27 @@ class _CascaderOverlay extends StatelessWidget {
 
   final GlobalKey fieldKey;
   final AntThemeData themeData;
-  final List<AntCascaderOption> options;
-  final List<AntCascaderOption> activePath;
+  final List<T> dataSource;
+  final List<T> activePath;
+  final Object Function(T item) keyOf;
+  final List<T>? Function(T item) childrenOf;
+  final AntCascaderLabelBuilder<T>? labelBuilder;
+  final bool Function(T item) isDisabled;
+  final bool Function(T item) isLeaf;
   final AntCascaderExpandTrigger expandTrigger;
   final bool changeOnSelect;
-  final ValueChanged<List<AntCascaderOption>> onPathChange;
-  final ValueChanged<List<AntCascaderOption>> onConfirm;
-  final ValueChanged<List<AntCascaderOption>> onConfirmKeepOpen;
+  final ValueChanged<List<T>> onPathChange;
+  final ValueChanged<List<T>> onConfirm;
+  final ValueChanged<List<T>> onConfirmKeepOpen;
   final VoidCallback onDismiss;
 
-  /// 构建面板列：根据 activePath 展开层级
-  List<List<AntCascaderOption>> get _columns {
-    final cols = <List<AntCascaderOption>>[options];
+  /// 构建面板列：根据 activePath 展开层级。
+  List<List<T>> get _columns {
+    final cols = <List<T>>[dataSource];
     for (final active in activePath) {
-      if (active.children != null && active.children!.isNotEmpty) {
-        cols.add(active.children!);
+      final children = childrenOf(active);
+      if (children != null && children.isNotEmpty) {
+        cols.add(children);
       } else {
         break;
       }
@@ -361,17 +438,17 @@ class _CascaderOverlay extends StatelessWidget {
   }
 
   void _handleOptionTap(
-    List<AntCascaderOption> colOptions,
+    List<T> colOptions,
     int indexInCol,
     int colIndex,
   ) {
     final option = colOptions[indexInCol];
-    if (option.disabled) return;
+    if (isDisabled(option)) return;
 
     // 构建新路径：取 activePath 前 colIndex 项 + 当前选项
-    final newPath = [...activePath.take(colIndex), option];
+    final newPath = <T>[...activePath.take(colIndex), option];
 
-    if (option.isLeaf) {
+    if (isLeaf(option)) {
       // 叶子节点 → 确认选择并关闭面板
       onConfirm(newPath);
     } else if (changeOnSelect) {
@@ -414,7 +491,7 @@ class _CascaderOverlay extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (var colIndex = 0; colIndex < cols.length; colIndex++)
-                _buildColumn(cols[colIndex], colIndex, t),
+                _buildColumn(context, cols, colIndex, t),
             ],
           ),
         ),
@@ -423,10 +500,12 @@ class _CascaderOverlay extends StatelessWidget {
   }
 
   Widget _buildColumn(
-    List<AntCascaderOption> colOptions,
+    BuildContext context,
+    List<List<T>> cols,
     int colIndex,
     AntThemeData t,
   ) {
+    final colOptions = cols[colIndex];
     final activeInCol =
         colIndex < activePath.length ? activePath[colIndex] : null;
 
@@ -435,7 +514,7 @@ class _CascaderOverlay extends StatelessWidget {
       constraints: BoxConstraints(maxHeight: 256.h),
       decoration: BoxDecoration(
         border: Border(
-          right: colIndex < _columns.length - 1
+          right: colIndex < cols.length - 1
               ? BorderSide(color: t.colorSplit, width: 1)
               : BorderSide.none,
         ),
@@ -446,11 +525,15 @@ class _CascaderOverlay extends StatelessWidget {
         itemCount: colOptions.length,
         itemBuilder: (context, index) {
           final option = colOptions[index];
-          final isActive = activeInCol?.value == option.value;
+          final isActive = activeInCol != null &&
+              (keyOf(activeInCol) == keyOf(option) ||
+                  identical(activeInCol, option));
 
           return _CascaderOptionTile(
-            option: option,
+            label: labelBuilder?.call(context, option) ?? Text('$option'),
             isActive: isActive,
+            disabled: isDisabled(option),
+            isLeaf: isLeaf(option),
             fontSize: t.fontSize,
             colorText: t.colorText,
             colorTextDisabled: t.colorTextDisabled,
@@ -458,10 +541,10 @@ class _CascaderOverlay extends StatelessWidget {
             colorFillSecondary: t.colorFillSecondary,
             expandTrigger: expandTrigger,
             onTap: () => _handleOptionTap(colOptions, index, colIndex),
-            onHover:
-                option.isLeaf || expandTrigger == AntCascaderExpandTrigger.click
-                    ? null
-                    : () => _handleOptionTap(colOptions, index, colIndex),
+            onHover: isLeaf(option) ||
+                    expandTrigger == AntCascaderExpandTrigger.click
+                ? null
+                : () => _handleOptionTap(colOptions, index, colIndex),
           );
         },
       ),
@@ -475,8 +558,10 @@ class _CascaderOverlay extends StatelessWidget {
 
 class _CascaderOptionTile extends StatefulWidget {
   const _CascaderOptionTile({
-    required this.option,
+    required this.label,
     required this.isActive,
+    required this.disabled,
+    required this.isLeaf,
     required this.fontSize,
     required this.colorText,
     required this.colorTextDisabled,
@@ -487,8 +572,10 @@ class _CascaderOptionTile extends StatefulWidget {
     this.onHover,
   });
 
-  final AntCascaderOption option;
+  final Widget label;
   final bool isActive;
+  final bool disabled;
+  final bool isLeaf;
   final double fontSize;
   final Color colorText;
   final Color colorTextDisabled;
@@ -507,7 +594,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final disabled = widget.option.disabled;
+    final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovered = true);
@@ -529,8 +616,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  widget.option.label,
+                child: DefaultTextStyle.merge(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -541,9 +627,10 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
                             ? widget.colorPrimary
                             : widget.colorText,
                   ),
+                  child: widget.label,
                 ),
               ),
-              if (!widget.option.isLeaf)
+              if (!widget.isLeaf)
                 Icon(
                   AntIcons.rightOutlined,
                   size: 14.sp,

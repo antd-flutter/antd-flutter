@@ -107,7 +107,11 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(AntIcons.reloadOutlined, size: 18.w, color: theme.colorPrimary),
+                      Icon(
+                        AntIcons.reloadOutlined,
+                        size: 18.w,
+                        color: theme.colorPrimary,
+                      ),
                       SizedBox(width: 6.w),
                       Text('自定义头部提示', style: TextStyle(fontSize: 14.sp)),
                     ],
@@ -192,7 +196,11 @@ class _RefreshCallbackDemoState extends State<_RefreshCallbackDemo> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

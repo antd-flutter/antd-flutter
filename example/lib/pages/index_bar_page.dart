@@ -4,6 +4,34 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _IndexData {
+  const _IndexData({required this.index, this.title, this.brief, this.child});
+
+  final String index;
+  final String? title;
+  final String? brief;
+  final Widget? child;
+}
+
+Widget _indexBar({
+  Key? key,
+  List<_IndexData> items = const [],
+  bool sticky = true,
+  ValueChanged<Object>? onChange,
+}) {
+  return AntIndexBar<_IndexData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.index,
+    titleBuilder: (context, item, index) => Text(item.title ?? item.index),
+    briefBuilder: (context, item) =>
+        item.brief == null ? null : Text(item.brief!),
+    childBuilder: (context, item) => item.child,
+    sticky: sticky,
+    onChange: onChange,
+  );
+}
+
 class IndexBarPage extends StatefulWidget {
   const IndexBarPage({super.key});
 
@@ -40,10 +68,10 @@ class _IndexBarPageState extends State<IndexBarPage> {
           ),
           SizedBox(
             height: 420,
-            child: AntIndexBar(
+            child: _indexBar(
               items: [
                 for (final entry in _contacts.entries)
-                  AntIndexBarItem(
+                  _IndexData(
                     index: entry.key,
                     title: '${entry.key} · ${entry.value.length} 人',
                     child: Column(
@@ -61,19 +89,16 @@ class _IndexBarPageState extends State<IndexBarPage> {
                     ),
                   ),
               ],
-              onChange: (index) => setState(() => _current = index),
+              onChange: (index) => setState(() => _current = index.toString()),
             ),
           ),
-          _Section(
-            title: '索引字幕',
-            description: 'brief 可自定义右侧字母（如“热门”取首字“热”）',
-          ),
+          _Section(title: '索引字幕', description: 'brief 可自定义右侧字母（如“热门”取首字“热”）'),
           SizedBox(
             height: 260,
-            child: AntIndexBar(
+            child: _indexBar(
               sticky: false,
               items: const [
-                AntIndexBarItem(
+                _IndexData(
                   index: 'hot',
                   title: '热门城市',
                   brief: '热',
@@ -82,7 +107,7 @@ class _IndexBarPageState extends State<IndexBarPage> {
                     child: Text('北京 · 上海 · 广州 · 深圳 · 杭州'),
                   ),
                 ),
-                AntIndexBarItem(
+                _IndexData(
                   index: 'near',
                   title: '附近城市',
                   brief: '近',

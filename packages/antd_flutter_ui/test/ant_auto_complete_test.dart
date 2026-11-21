@@ -22,12 +22,9 @@ Widget _wrap(Widget child) {
   );
 }
 
-Widget _autoComplete() => const AntAutoComplete(
+Widget _autoComplete() => const AntAutoComplete<String>(
       defaultValue: 'Ruby',
-      options: [
-        AntAutoCompleteOption(value: 'Ruby', label: 'Ruby'),
-        AntAutoCompleteOption(value: 'Dart', label: 'Dart'),
-      ],
+      options: ['Ruby', 'Dart'],
       placeholder: '请输入',
     );
 
@@ -35,7 +32,7 @@ EditableText _editable(WidgetTester tester) {
   return tester.widget<EditableText>(
     find
         .descendant(
-          of: find.byType(AntAutoComplete),
+          of: find.byType(AntAutoComplete<String>),
           matching: find.byType(EditableText),
         )
         .first,
@@ -55,11 +52,11 @@ void main() {
     await tester.pumpWidget(_wrap(_autoComplete()));
     await tester.pumpAndSettle();
 
-    final box = tester.getRect(find.byType(AntAutoComplete));
+    final box = tester.getRect(find.byType(AntAutoComplete<String>));
     final ed = tester.getRect(
       find
           .descendant(
-            of: find.byType(AntAutoComplete),
+            of: find.byType(AntAutoComplete<String>),
             matching: find.byType(EditableText),
           )
           .first,
@@ -108,11 +105,11 @@ void main() {
     await tester.pumpWidget(_wrap(_autoComplete()));
     await tester.pumpAndSettle();
 
-    final box = tester.getRect(find.byType(AntAutoComplete));
+    final box = tester.getRect(find.byType(AntAutoComplete<String>));
     final ed = tester.getRect(
       find
           .descendant(
-            of: find.byType(AntAutoComplete),
+            of: find.byType(AntAutoComplete<String>),
             matching: find.byType(EditableText),
           )
           .first,

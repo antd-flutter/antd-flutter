@@ -1,6 +1,52 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _PanelData {
+  const _PanelData({
+    required this.label,
+    this.child,
+    this.extra,
+    this.disabled = false,
+  });
+
+  final String label;
+  final Widget? child;
+  final Widget? extra;
+  final bool disabled;
+}
+
+Widget _collapse({
+  Key? key,
+  List<_PanelData> items = const [],
+  bool accordion = false,
+  List<Object>? activeKey,
+  List<Object>? defaultActiveKey,
+  ValueChanged<List<Object>>? onChange,
+  AntCollapseExpandIconPosition expandIconPosition =
+      AntCollapseExpandIconPosition.left,
+  Widget Function(BuildContext, bool)? expandIcon,
+  bool bordered = true,
+  AntCollapseSize size = AntCollapseSize.middle,
+}) {
+  return AntCollapse<_PanelData>(
+    key: key,
+    items: items,
+    keyOf: (item) => 'panel_${items.indexOf(item)}',
+    labelBuilder: (context, item, index) => Text(item.label),
+    childBuilder: (context, item, index) => item.child,
+    extraBuilder: (context, item, index) => item.extra,
+    disabledOf: (item) => item.disabled,
+    accordion: accordion,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    onChange: onChange,
+    expandIconPosition: expandIconPosition,
+    expandIcon: expandIcon,
+    bordered: bordered,
+    size: size,
+  );
+}
+
 class CollapsePage extends StatelessWidget {
   const CollapsePage({super.key});
 
@@ -15,20 +61,11 @@ class CollapsePage extends StatelessWidget {
           _Section(
             title: '基础用法',
             theme: theme,
-            child: AntCollapse(
+            child: _collapse(
               items: const [
-                AntCollapsePanel(
-                  label: '面板一',
-                  child: Text('面板一的内容，点击标题展开或收起。'),
-                ),
-                AntCollapsePanel(
-                  label: '面板二',
-                  child: Text('面板二的内容，点击标题展开或收起。'),
-                ),
-                AntCollapsePanel(
-                  label: '面板三',
-                  child: Text('面板三的内容，点击标题展开或收起。'),
-                ),
+                _PanelData(label: '面板一', child: Text('面板一的内容，点击标题展开或收起。')),
+                _PanelData(label: '面板二', child: Text('面板二的内容，点击标题展开或收起。')),
+                _PanelData(label: '面板三', child: Text('面板三的内容，点击标题展开或收起。')),
               ],
             ),
           ),
@@ -36,30 +73,26 @@ class CollapsePage extends StatelessWidget {
           _Section(
             title: '手风琴',
             theme: theme,
-            child: AntCollapse(
+            child: _collapse(
               accordion: true,
               items: const [
-                AntCollapsePanel(label: '第一项', child: Text('同时只能展开一个面板。')),
-                AntCollapsePanel(label: '第二项', child: Text('同时只能展开一个面板。')),
-                AntCollapsePanel(label: '第三项', child: Text('同时只能展开一个面板。')),
+                _PanelData(label: '第一项', child: Text('同时只能展开一个面板。')),
+                _PanelData(label: '第二项', child: Text('同时只能展开一个面板。')),
+                _PanelData(label: '第三项', child: Text('同时只能展开一个面板。')),
               ],
             ),
           ),
           SizedBox(height: 16.w),
-          _Section(
-            title: '受控展开',
-            theme: theme,
-            child: _ControlledCollapse(),
-          ),
+          _Section(title: '受控展开', theme: theme, child: _ControlledCollapse()),
           SizedBox(height: 16.w),
           _Section(
             title: '禁用面板',
             theme: theme,
-            child: AntCollapse(
+            child: _collapse(
               defaultActiveKey: const ['panel_0'],
               items: const [
-                AntCollapsePanel(label: '可展开', child: Text('正常面板。')),
-                AntCollapsePanel(
+                _PanelData(label: '可展开', child: Text('正常面板。')),
+                _PanelData(
                   label: '禁用面板',
                   disabled: true,
                   child: Text('禁用面板的内容不可展开。'),
@@ -71,12 +104,12 @@ class CollapsePage extends StatelessWidget {
           _Section(
             title: '无边框',
             theme: theme,
-            child: AntCollapse(
+            child: _collapse(
               bordered: false,
               size: AntCollapseSize.small,
               items: const [
-                AntCollapsePanel(label: '无边框一', child: Text('无边框变体。')),
-                AntCollapsePanel(label: '无边框二', child: Text('无边框变体。')),
+                _PanelData(label: '无边框一', child: Text('无边框变体。')),
+                _PanelData(label: '无边框二', child: Text('无边框变体。')),
               ],
             ),
           ),
@@ -84,23 +117,26 @@ class CollapsePage extends StatelessWidget {
           _Section(
             title: 'extra 与自定义图标',
             theme: theme,
-            child: AntCollapse(
+            child: _collapse(
               expandIconPosition: AntCollapseExpandIconPosition.right,
               items: [
-                AntCollapsePanel(
+                _PanelData(
                   label: '带附加内容',
-                  extra: Text('OK',
-                      style: TextStyle(
-                          fontSize: 14.sp, color: theme.colorSuccess)),
+                  extra: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: theme.colorSuccess,
+                    ),
+                  ),
                   child: const Text('extra 展示在标题右侧。'),
                 ),
-                const AntCollapsePanel(
-                  label: '自定义图标',
-                  child: Text('自定义展开图标。'),
-                ),
+                const _PanelData(label: '自定义图标', child: Text('自定义展开图标。')),
               ],
               expandIcon: (context, isExpanded) => Icon(
-                isExpanded ? AntIcons.minusCircleOutlined : AntIcons.plusCircleOutlined,
+                isExpanded
+                    ? AntIcons.minusCircleOutlined
+                    : AntIcons.plusCircleOutlined,
                 size: 16.w,
               ),
             ),
@@ -130,12 +166,12 @@ class _ControlledCollapseState extends State<_ControlledCollapse> {
           style: TextStyle(fontSize: 13.sp, color: theme.colorTextSecondary),
         ),
         SizedBox(height: 8.w),
-        AntCollapse(
+        _collapse(
           activeKey: _activeKey,
           onChange: (_) {},
           items: const [
-            AntCollapsePanel(label: '受控面板一', child: Text('受控模式内容。')),
-            AntCollapsePanel(label: '受控面板二', child: Text('受控模式内容。')),
+            _PanelData(label: '受控面板一', child: Text('受控模式内容。')),
+            _PanelData(label: '受控面板二', child: Text('受控模式内容。')),
           ],
         ),
       ],
@@ -144,7 +180,11 @@ class _ControlledCollapseState extends State<_ControlledCollapse> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

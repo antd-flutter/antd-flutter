@@ -53,6 +53,8 @@ class AntPagination extends StatefulWidget {
     this.showSizeChanger = false,
     this.showQuickJumper = false,
     this.showTotal = false,
+    this.pageItemBuilder,
+    this.totalBuilder,
     this.simple = false,
     this.disabled = false,
     this.size = AntPaginationSize.normal,
@@ -85,6 +87,12 @@ class AntPagination extends StatefulWidget {
   /// 是否显示总条数。
   final bool showTotal;
 
+  /// 页码项内容构建器，渲染在既有页码按钮容器内。
+  final AntPaginationPageItemBuilder? pageItemBuilder;
+
+  /// 总条数构建器，替换默认「共 N 条」文案。
+  final AntPaginationTotalBuilder? totalBuilder;
+
   /// 简单模式。只显示前后按钮和当前页/总页数。
   final bool simple;
 
@@ -113,23 +121,17 @@ class _AntPaginationState extends State<AntPagination> {
   final TextEditingController _jumperController = TextEditingController();
   final FocusNode _jumperFocus = FocusNode();
 
-  int get _currentPage =>
-      widget.current ?? _internalCurrent;
+  int get _currentPage => widget.current ?? _internalCurrent;
 
-  int get _currentPageSize =>
-      widget.pageSize ?? _internalPageSize;
+  int get _currentPageSize => widget.pageSize ?? _internalPageSize;
 
-  int get _totalPages =>
-      math.max(1, (widget.total / _currentPageSize).ceil());
+  int get _totalPages => math.max(1, (widget.total / _currentPageSize).ceil());
 
-  double get _buttonSize =>
-      widget.size == AntPaginationSize.small ? 24 : 32;
+  double get _buttonSize => widget.size == AntPaginationSize.small ? 24 : 32;
 
-  bool get _canPrev =>
-      !widget.disabled && _currentPage > 1;
+  bool get _canPrev => !widget.disabled && _currentPage > 1;
 
-  bool get _canNext =>
-      !widget.disabled && _currentPage < _totalPages;
+  bool get _canNext => !widget.disabled && _currentPage < _totalPages;
 
   void _goto(int page) {
     final clamped = page.clamp(1, _totalPages);
@@ -146,7 +148,10 @@ class _AntPaginationState extends State<AntPagination> {
       setState(() {
         _internalPageSize = size;
         // 调整页码使当前页不超出范围
-        _internalCurrent = _internalCurrent.clamp(1, math.max(1, (widget.total / size).ceil()));
+        _internalCurrent = _internalCurrent.clamp(
+          1,
+          math.max(1, (widget.total / size).ceil()),
+        );
       });
     }
     widget.onPageSizeChange?.call(size);
@@ -184,7 +189,12 @@ class _AntPaginationState extends State<AntPagination> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildNavButton(theme, AntIcons.leftOutlined, _canPrev, () => _goto(_currentPage - 1)),
+        _buildNavButton(
+          theme,
+          AntIcons.leftOutlined,
+          _canPrev,
+          () => _goto(_currentPage - 1),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
@@ -192,7 +202,12 @@ class _AntPaginationState extends State<AntPagination> {
             style: TextStyle(fontSize: theme.fontSize, color: theme.colorText),
           ),
         ),
-        _buildNavButton(theme, AntIcons.rightOutlined, _canNext, () => _goto(_currentPage + 1)),
+        _buildNavButton(
+          theme,
+          AntIcons.rightOutlined,
+          _canNext,
+          () => _goto(_currentPage + 1),
+        ),
       ],
     );
   }
@@ -210,7 +225,12 @@ class _AntPaginationState extends State<AntPagination> {
     }
 
     children.add(
-      _buildNavButton(theme, AntIcons.leftOutlined, _canPrev, () => _goto(_currentPage - 1)),
+      _buildNavButton(
+        theme,
+        AntIcons.leftOutlined,
+        _canPrev,
+        () => _goto(_currentPage - 1),
+      ),
     );
 
     final pages = _generatePages(_currentPage, _totalPages);
@@ -223,7 +243,12 @@ class _AntPaginationState extends State<AntPagination> {
     }
 
     children.add(
-      _buildNavButton(theme, AntIcons.rightOutlined, _canNext, () => _goto(_currentPage + 1)),
+      _buildNavButton(
+        theme,
+        AntIcons.rightOutlined,
+        _canNext,
+        () => _goto(_currentPage + 1),
+      ),
     );
 
     if (widget.showSizeChanger) {
@@ -243,9 +268,12 @@ class _AntPaginationState extends State<AntPagination> {
   }
 
   Widget _buildTotalText(AntThemeData theme) {
+    final custom = widget.totalBuilder?.call(context, widget.total);
+    if (custom != null) return custom;
     return Text(
       '共 ${widget.total} 条',
-      style: TextStyle(fontSize: theme.fontSize, color: theme.colorTextSecondary),
+      style:
+          TextStyle(fontSize: theme.fontSize, color: theme.colorTextSecondary),
     );
   }
 
@@ -274,16 +302,17 @@ class _AntPaginationState extends State<AntPagination> {
       enabled: !widget.disabled && !isCurrent,
       onTap: () => _goto(page),
       background: isCurrent ? theme.colorPrimary : Colors.transparent,
-      child: Text(
-        '$page',
-        style: TextStyle(
-          fontSize: theme.fontSize,
-          fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
-          color: widget.disabled
-              ? theme.colorTextDisabled
-              : (isCurrent ? Colors.white : theme.colorTextSecondary),
-        ),
-      ),
+      child: widget.pageItemBuilder?.call(context, page, isCurrent) ??
+          Text(
+            '$page',
+            style: TextStyle(
+              fontSize: theme.fontSize,
+              fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
+              color: widget.disabled
+                  ? theme.colorTextDisabled
+                  : (isCurrent ? Colors.white : theme.colorTextSecondary),
+            ),
+          ),
     );
   }
 
@@ -349,10 +378,12 @@ class _AntPaginationState extends State<AntPagination> {
         trigger: AntDropdownTrigger.click,
         disabled: widget.disabled,
         items: options
-            .map((size) => AntDropdownItem(
-                  key: '$size',
-                  label: '$size 条/页',
-                ),)
+            .map(
+              (size) => AntDropdownItem(
+                key: '$size',
+                label: '$size 条/页',
+              ),
+            )
             .toList(),
         onClick: (key) {
           final value = int.tryParse(key);
@@ -384,7 +415,10 @@ class _AntPaginationState extends State<AntPagination> {
       children: [
         Text(
           '跳至',
-          style: TextStyle(fontSize: theme.fontSize, color: theme.colorTextSecondary),
+          style: TextStyle(
+            fontSize: theme.fontSize,
+            color: theme.colorTextSecondary,
+          ),
         ),
         const SizedBox(width: 8),
         SizedBox(
@@ -425,7 +459,10 @@ class _AntPaginationState extends State<AntPagination> {
         const SizedBox(width: 4),
         Text(
           '页',
-          style: TextStyle(fontSize: theme.fontSize, color: theme.colorTextSecondary),
+          style: TextStyle(
+            fontSize: theme.fontSize,
+            color: theme.colorTextSecondary,
+          ),
         ),
       ],
     );

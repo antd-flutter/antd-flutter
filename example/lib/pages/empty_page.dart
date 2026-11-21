@@ -12,11 +12,7 @@ class EmptyPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Section(
-            title: '基础用法',
-            theme: theme,
-            child: const AntEmpty(),
-          ),
+          _Section(title: '基础用法', theme: theme, child: const AntEmpty()),
           SizedBox(height: 16.w),
           _Section(
             title: '自定义描述',
@@ -76,7 +72,11 @@ class EmptyPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -95,8 +95,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,

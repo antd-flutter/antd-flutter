@@ -58,7 +58,10 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 cancelText: '再想想',
                 onConfirm: () => _record('确认发布'),
                 onCancel: () => _record('暂不发布'),
-                child: const AntButton(type: AntButtonType.primary, child: Text('Publish')),
+                child: const AntButton(
+                  type: AntButtonType.primary,
+                  child: Text('Publish'),
+                ),
               ),
             ),
             SizedBox(height: 16.w),
@@ -69,42 +72,15 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 spacing: 8.w,
                 runSpacing: 8.w,
                 children: [
-                  _placementDemo(
-                    '上左',
-                    AntPopconfirmPlacement.topLeft,
-                  ),
-                  _placementDemo(
-                    '上中',
-                    AntPopconfirmPlacement.topCenter,
-                  ),
-                  _placementDemo(
-                    '上右',
-                    AntPopconfirmPlacement.topRight,
-                  ),
-                  _placementDemo(
-                    '下左',
-                    AntPopconfirmPlacement.bottomLeft,
-                  ),
-                  _placementDemo(
-                    '下中',
-                    AntPopconfirmPlacement.bottomCenter,
-                  ),
-                  _placementDemo(
-                    '下右',
-                    AntPopconfirmPlacement.bottomRight,
-                  ),
-                  _placementDemo(
-                    '左中',
-                    AntPopconfirmPlacement.leftCenter,
-                  ),
-                  _placementDemo(
-                    '右中',
-                    AntPopconfirmPlacement.rightCenter,
-                  ),
-                  _placementDemo(
-                    '右下',
-                    AntPopconfirmPlacement.rightBottom,
-                  ),
+                  _placementDemo('上左', AntPopconfirmPlacement.topLeft),
+                  _placementDemo('上中', AntPopconfirmPlacement.topCenter),
+                  _placementDemo('上右', AntPopconfirmPlacement.topRight),
+                  _placementDemo('下左', AntPopconfirmPlacement.bottomLeft),
+                  _placementDemo('下中', AntPopconfirmPlacement.bottomCenter),
+                  _placementDemo('下右', AntPopconfirmPlacement.bottomRight),
+                  _placementDemo('左中', AntPopconfirmPlacement.leftCenter),
+                  _placementDemo('右中', AntPopconfirmPlacement.rightCenter),
+                  _placementDemo('右下', AntPopconfirmPlacement.rightBottom),
                 ],
               ),
             ),
@@ -128,7 +104,8 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                   AntPopconfirm(
                     title: '受控确认框',
                     open: _controlledOpen,
-                    onOpenChange: (open) => setState(() => _controlledOpen = open),
+                    onOpenChange: (open) =>
+                        setState(() => _controlledOpen = open),
                     onConfirm: () => _record('受控确认'),
                     onCancel: () => _record('受控取消'),
                     child: AntButton(
@@ -206,7 +183,11 @@ class _ControllerPopconfirmDemoState extends State<_ControllerPopconfirmDemo> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

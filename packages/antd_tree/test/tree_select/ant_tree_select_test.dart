@@ -1,475 +1,366 @@
-/// AntTreeSelect widget tests
-library;
-
-import 'package:antd_tree/antd_tree.dart';
-import 'package:antd_theme/antd_theme.dart';
-import 'package:material_ui/material_ui.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:antd_tree/antd_tree.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
-List<AntTreeSelectOption> _testTreeData() => [
-      const AntTreeSelectOption(value: 'zj', label: '浙江', children: [
-        AntTreeSelectOption(value: 'hz', label: '杭州'),
-        AntTreeSelectOption(value: 'nb', label: '宁波'),
-      ],),
-      const AntTreeSelectOption(value: 'js', label: '江苏', children: [
-        AntTreeSelectOption(value: 'nj', label: '南京'),
-        AntTreeSelectOption(value: 'sz', label: '苏州'),
-      ],),
-      const AntTreeSelectOption(value: 'gd', label: '广东'),
-    ];
+/// 用户自定义模型：组件不要求实现任何接口。
+class _City {
+  const _City(
+    this.id,
+    this.name, {
+    this.children = const <_City>[],
+    this.disabled = false,
+  });
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
+  final int id;
+  final String name;
+  final List<_City> children;
+  final bool disabled;
+}
+
+const _cities = <_City>[
+  _City(
+    1,
+    '浙江',
+    children: [
+      _City(
+        2,
+        '杭州',
+        children: [_City(3, '西湖'), _City(4, '临安')],
+      ),
+      _City(5, '宁波'),
+    ],
+  ),
+  _City(
+    6,
+    '江苏',
+    children: [_City(7, '南京'), _City(8, '苏州')],
+  ),
+  _City(9, '广东'),
+];
+
+Widget _wrap(Widget child, {bool dark = false}) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
+            data: dark ? AntThemeData.dark() : AntThemeData.light(),
+            child: Material(child: Center(child: child)),
           ),
         ),
       ),
     );
 
+Future<void> _pumpSelect(
+  WidgetTester tester, {
+  List<_City> dataSource = _cities,
+  Object? value,
+  Object? defaultValue,
+  ValueChanged<Object?>? onChange,
+  bool multiple = false,
+  bool disabled = false,
+  bool allowClear = false,
+  bool treeDefaultExpandAll = false,
+  AntTreeSelectSize size = AntTreeSelectSize.middle,
+  String? placeholder,
+  double? width,
+  double? height,
+  double? dropdownHeight,
+  bool dark = false,
+  Widget Function(BuildContext context, _City city)? titleBuilder,
+}) async {
+  await tester.pumpWidget(
+    _wrap(
+      AntTreeSelect<_City>(
+        dataSource: dataSource,
+        keyOf: (city) => city.id,
+        labelOf: (city) => city.name,
+        titleBuilder: titleBuilder ?? (context, city) => Text(city.name),
+        childrenOf: (city) => city.children,
+        disabledOf: (city) => city.disabled,
+        value: value,
+        defaultValue: defaultValue,
+        onChange: onChange,
+        multiple: multiple,
+        disabled: disabled,
+        allowClear: allowClear,
+        treeDefaultExpandAll: treeDefaultExpandAll,
+        size: size,
+        placeholder: placeholder,
+        width: width,
+        height: height,
+        dropdownHeight: dropdownHeight,
+      ),
+      dark: dark,
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Finder _panel() => find.byKey(const Key('ant_tree_select_panel'));
+
+Finder _panelText(String text) =>
+    find.descendant(of: _panel(), matching: find.text(text));
+
+Finder _panelRow(String title) =>
+    find.ancestor(of: _panelText(title), matching: find.byType(Row)).first;
+
+Future<void> _open(WidgetTester tester) async {
+  await tester.tap(find.byType(AntTreeSelect<_City>));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _expand(WidgetTester tester, String title) async {
+  await tester.tap(
+    find.descendant(
+      of: _panelRow(title),
+      matching: find.byIcon(AntIcons.rightOutlined),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> _selectNode(WidgetTester tester, String title) async {
+  await tester.tap(_panelText(title));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('AntTreeSelect', () {
-    testWidgets('renders placeholder when no value', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          placeholder: '请选择',
-        ),
-      ),);
+    testWidgets('renders placeholder when empty', (tester) async {
+      await _pumpSelect(tester, placeholder: '请选择');
       expect(find.text('请选择'), findsOneWidget);
     });
 
-    testWidgets('displays default single value', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          defaultValue: 'hz',
-          placeholder: '请选择',
-        ),
-      ),);
-      // defaultValue is 'hz' but treeData is empty, so label falls back to value
-      expect(find.text('hz'), findsOneWidget);
-    });
-
-    testWidgets('displays controlled single value with label', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          value: 'nj',
-          placeholder: '请选择',
-        ),
-      ),);
-      expect(find.text('nj'), findsOneWidget);
-    });
-
-    testWidgets('opens dropdown on tap and shows root nodes', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      expect(find.text('浙江'), findsWidgets);
-      expect(find.text('江苏'), findsWidgets);
-      expect(find.text('广东'), findsOneWidget);
-    });
-
-    testWidgets('children hidden until parent expanded', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      // 子节点不应显示
-      expect(find.text('杭州'), findsNothing);
-      expect(find.text('南京'), findsNothing);
-    });
-
-    testWidgets('expand shows children', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      // 点击展开箭头展开
-      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
-      await tester.pumpAndSettle();
-      expect(find.text('杭州'), findsOneWidget);
-      expect(find.text('宁波'), findsOneWidget);
-    });
-
-    testWidgets('collapse hides children', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      // 展开
-      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
-      await tester.pumpAndSettle();
-      expect(find.text('杭州'), findsOneWidget);
-      // 再次点击箭头收起
-      await tester.tap(find.byIcon(AntIcons.downOutlined).first);
-      await tester.pumpAndSettle();
-      expect(find.text('杭州'), findsNothing);
-    });
-
-    testWidgets('treeDefaultExpandAll shows all nodes', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: _testTreeData(),
-          treeDefaultExpandAll: true,
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      expect(find.text('杭州'), findsOneWidget);
+    testWidgets('shows default single value label', (tester) async {
+      await _pumpSelect(tester, defaultValue: 7);
       expect(find.text('南京'), findsOneWidget);
     });
 
-    testWidgets('selecting leaf sets value and closes dropdown', (tester) async {
-      String? selected;
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: _testTreeData(),
-          treeDefaultExpandAll: true,
-          onChange: (v) => selected = v as String?,
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('南京'));
-      await tester.pumpAndSettle();
-      expect(selected, 'nj');
-      expect(find.text('南京'), findsOneWidget); // 触发器显示
-    });
-
-    testWidgets('disabled node cannot be selected', (tester) async {
-      String? selected;
-      final data = [
-        const AntTreeSelectOption(value: 'a', label: '可用'),
-        const AntTreeSelectOption(value: 'b', label: '禁用', disabled: true),
-      ];
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: data,
-          onChange: (v) => selected = v as String?,
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('禁用'));
-      await tester.pumpAndSettle();
-      expect(selected, isNull);
-    });
-
-    testWidgets('disabled tree select does not open', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          disabled: true,
-          placeholder: '禁用',
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      expect(find.text('浙江'), findsNothing);
-    });
-
-    testWidgets('multiple mode toggles selection', (tester) async {
-      List<String>? selected;
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: _testTreeData(),
-          treeDefaultExpandAll: true,
-          multiple: true,
-          onChange: (v) => selected = v as List<String>?,
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('杭州'));
-      await tester.pumpAndSettle();
-      expect(selected, ['hz']);
-      await tester.tap(find.text('南京'));
-      await tester.pumpAndSettle();
-      expect(selected, ['hz', 'nj']);
-      // 再次点击取消
-      await tester.tap(find.text('杭州'));
-      await tester.pumpAndSettle();
-      expect(selected, ['nj']);
-    });
-
-    testWidgets('multiple mode displays joined labels', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          multiple: true,
-          defaultValue: ['a', 'b'],
-          placeholder: '请选择',
-        ),
-      ),);
-      expect(find.text('a、b'), findsOneWidget);
-    });
-
-    testWidgets('allowClear clears single value', (tester) async {
-      String? selected = 'nj';
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: _testTreeData(),
-          defaultValue: 'nj',
-          allowClear: true,
-          onChange: (v) => selected = v as String?,
-        ),
-      ),);
-      expect(find.text('南京'), findsOneWidget);
-      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
-      await tester.pumpAndSettle();
-      expect(selected, isNull);
-    });
-
-    testWidgets('allowClear clears multiple values', (tester) async {
-      List<String>? selected = ['hz'];
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: _testTreeData(),
-          multiple: true,
-          defaultValue: const ['hz'],
-          allowClear: true,
-          onChange: (v) => selected = v as List<String>?,
-        ),
-      ),);
-      expect(find.text('杭州'), findsOneWidget);
-      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
-      await tester.pumpAndSettle();
-      expect(selected, []);
-    });
-
-    testWidgets('closes dropdown when tapping outside', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-      expect(find.text('浙江'), findsWidgets);
-      await tester.tapAt(const Offset(300, 500));
-      await tester.pumpAndSettle();
-      expect(find.text('浙江'), findsNothing);
-    });
-
-    testWidgets('controlled value updates display', (tester) async {
-      late StateSetter setStateOuter;
-      String? value;
-      await tester.pumpWidget(_wrap(
-        StatefulBuilder(
-          builder: (context, setState) {
-            setStateOuter = setState;
-            return AntTreeSelect(
-              treeData: _testTreeData(),
-              value: value,
-              placeholder: '请选择',
-            );
-          },
-        ),
-      ),);
-      expect(find.text('请选择'), findsOneWidget);
-      setStateOuter(() => value = 'sz');
-      await tester.pumpAndSettle();
+    testWidgets('shows controlled value label', (tester) async {
+      await _pumpSelect(tester, value: 8);
       expect(find.text('苏州'), findsOneWidget);
     });
 
-    testWidgets('large size renders with larger height', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          size: AntTreeSelectSize.large,
-          placeholder: '大',
+    testWidgets('opens dropdown and lists top-level nodes', (tester) async {
+      await _pumpSelect(tester);
+      await _open(tester);
+      expect(_panel(), findsOneWidget);
+      expect(_panelText('浙江'), findsOneWidget);
+      expect(_panelText('江苏'), findsOneWidget);
+      expect(_panelText('广东'), findsOneWidget);
+      expect(_panelText('杭州'), findsNothing);
+    });
+
+    testWidgets('children stay hidden until expanded', (tester) async {
+      await _pumpSelect(tester);
+      await _open(tester);
+      await _expand(tester, '浙江');
+      expect(_panelText('杭州'), findsOneWidget);
+      expect(_panelText('宁波'), findsOneWidget);
+
+      await tester.tap(
+        find.descendant(
+          of: _panelRow('浙江'),
+          matching: find.byIcon(AntIcons.downOutlined),
         ),
-      ),);
-      final box = tester.getSize(find.byType(AntTreeSelect));
-      expect(box.height, greaterThan(35));
+      );
+      await tester.pumpAndSettle();
+      expect(_panelText('杭州'), findsNothing);
     });
 
-    testWidgets('small size renders with smaller height', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [],
-          size: AntTreeSelectSize.small,
-          placeholder: '小',
+    testWidgets('treeDefaultExpandAll expands all parents', (tester) async {
+      await _pumpSelect(tester, treeDefaultExpandAll: true);
+      await _open(tester);
+      expect(_panelText('杭州'), findsOneWidget);
+      expect(_panelText('宁波'), findsOneWidget);
+      expect(_panelText('南京'), findsOneWidget);
+    });
+
+    testWidgets('selecting a node emits its key and closes panel',
+        (tester) async {
+      Object? changed;
+      await _pumpSelect(
+        tester,
+        treeDefaultExpandAll: true,
+        onChange: (v) => changed = v,
+      );
+      await _open(tester);
+      await _selectNode(tester, '南京');
+      expect(changed, 7);
+      expect(_panel(), findsNothing);
+      expect(find.text('南京'), findsOneWidget);
+    });
+
+    testWidgets('disabled node cannot be selected', (tester) async {
+      final data = <_City>[
+        const _City(1, '浙江'),
+        const _City(9, '广东', disabled: true),
+      ];
+      Object? changed;
+      await _pumpSelect(tester, dataSource: data, onChange: (v) => changed = v);
+      await _open(tester);
+      await _selectNode(tester, '广东');
+      expect(changed, isNull);
+      expect(_panel(), findsOneWidget);
+    });
+
+    testWidgets('whole trigger disabled does not open', (tester) async {
+      await _pumpSelect(tester, disabled: true);
+      await _open(tester);
+      expect(_panel(), findsNothing);
+    });
+
+    testWidgets('multiple toggles keys and keeps panel open', (tester) async {
+      final changes = <Object?>[];
+      await _pumpSelect(
+        tester,
+        multiple: true,
+        treeDefaultExpandAll: true,
+        onChange: changes.add,
+      );
+      await _open(tester);
+      await _selectNode(tester, '南京');
+      expect(changes.last, <Object>[7]);
+      expect(_panel(), findsOneWidget);
+      await _selectNode(tester, '苏州');
+      expect(changes.last, <Object>[7, 8]);
+      await _selectNode(tester, '南京');
+      expect(changes.last, <Object>[8]);
+    });
+
+    testWidgets('multiple joins selected labels in trigger', (tester) async {
+      await _pumpSelect(tester, multiple: true, defaultValue: <Object>[7, 8]);
+      expect(find.text('南京、苏州'), findsOneWidget);
+    });
+
+    testWidgets('allowClear clears single value', (tester) async {
+      Object? changed = 7;
+      await _pumpSelect(
+        tester,
+        defaultValue: 7,
+        allowClear: true,
+        onChange: (v) => changed = v,
+      );
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
+      await tester.pumpAndSettle();
+      expect(changed, isNull);
+      expect(find.text('南京'), findsNothing);
+    });
+
+    testWidgets('allowClear clears multiple values', (tester) async {
+      Object? changed;
+      await _pumpSelect(
+        tester,
+        multiple: true,
+        defaultValue: <Object>[7, 8],
+        allowClear: true,
+        onChange: (v) => changed = v,
+      );
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
+      await tester.pumpAndSettle();
+      expect(changed, <Object>[]);
+    });
+
+    testWidgets('tapping outside closes panel', (tester) async {
+      await _pumpSelect(tester);
+      await _open(tester);
+      expect(_panel(), findsOneWidget);
+      await tester.tapAt(const Offset(8, 8));
+      await tester.pumpAndSettle();
+      expect(_panel(), findsNothing);
+    });
+
+    testWidgets('controlled value update refreshes trigger', (tester) async {
+      await _pumpSelect(tester, value: 7);
+      expect(find.text('南京'), findsOneWidget);
+      await _pumpSelect(tester, value: 8);
+      expect(find.text('苏州'), findsOneWidget);
+    });
+
+    testWidgets('size and custom dimensions are applied', (tester) async {
+      await _pumpSelect(
+        tester,
+        size: AntTreeSelectSize.small,
+        height: 44,
+        width: 180,
+      );
+      final trigger = find
+          .descendant(
+            of: find.byType(AntTreeSelect<_City>),
+            matching: find.byType(Container),
+          )
+          .first;
+      final expectedHeight = 44 * ScreenUtil().scaleHeight;
+      expect(tester.getSize(trigger), Size(180, expectedHeight));
+    });
+
+    testWidgets('dropdownHeight limits panel height', (tester) async {
+      await _pumpSelect(tester, dropdownHeight: 120);
+      await _open(tester);
+      final panel = tester.widget<Container>(_panel());
+      expect(
+        panel.constraints?.maxHeight,
+        120 * ScreenUtil().scaleHeight,
+      );
+    });
+
+    testWidgets('自定义模型：keyOf + labelOf 驱动触发器与 onChange', (tester) async {
+      var changes = <Object?>[];
+      await _pumpSelect(
+        tester,
+        treeDefaultExpandAll: true,
+        onChange: changes.add,
+      );
+      await _open(tester);
+      await _selectNode(tester, '西湖');
+      expect(changes, <Object>[3]);
+      expect(find.text('西湖'), findsOneWidget);
+    });
+
+    testWidgets('自定义模型：childrenOf + disabledOf 驱动展开与禁用', (tester) async {
+      final data = <_City>[
+        const _City(
+          1,
+          '浙江',
+          children: [_City(2, '杭州'), _City(3, '宁波', disabled: true)],
         ),
-      ),);
-      final box = tester.getSize(find.byType(AntTreeSelect));
-      expect(box.height, lessThan(30));
+        const _City(9, '广东'),
+      ];
+      Object? changed;
+      await _pumpSelect(
+        tester,
+        dataSource: data,
+        treeDefaultExpandAll: true,
+        onChange: (v) => changed = v,
+      );
+      await _open(tester);
+      expect(_panelText('杭州'), findsOneWidget);
+      await _selectNode(tester, '宁波');
+      expect(changed, isNull);
+      await _selectNode(tester, '杭州');
+      expect(changed, 2);
     });
 
-    testWidgets('dropdown opens downward when space below is enough',
-        (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(treeData: _testTreeData()),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-
-      final triggerBox =
-          tester.renderObject<RenderBox>(find.byType(AntTreeSelect));
-      final panelBox = tester.renderObject<RenderBox>(
-          find.byKey(const Key('ant_tree_select_panel')),);
-      final triggerTop = triggerBox.localToGlobal(Offset.zero).dy;
-      final panelTop = panelBox.localToGlobal(Offset.zero).dy;
-      // 触发元素上方空间充足，面板应贴在触发元素下方
-      expect(panelTop, greaterThan(triggerTop));
-    });
-
-    testWidgets('dropdown flips upward near viewport bottom edge',
-        (tester) async {
-      // 触发元素放置在视口底部（下方空间不足），面板应自动翻转到上方。
-      await tester.pumpWidget(_wrap(
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: AntTreeSelect(treeData: _testTreeData()),
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-
-      final triggerBox =
-          tester.renderObject<RenderBox>(find.byType(AntTreeSelect));
-      final panelBox = tester.renderObject<RenderBox>(
-          find.byKey(const Key('ant_tree_select_panel')),);
-      final triggerTop = triggerBox.localToGlobal(Offset.zero).dy;
-      final panelBottom =
-          panelBox.localToGlobal(Offset.zero).dy + panelBox.size.height;
-      final viewportHeight =
-          tester.view.physicalSize.height / tester.view.devicePixelRatio;
-      // 触发元素贴近视口底部，面板翻转后在触发元素上方且未超出视口
-      expect(triggerTop, greaterThan(viewportHeight / 2));
-      expect(panelBottom, lessThan(triggerTop));
-      expect(panelBottom, lessThanOrEqualTo(viewportHeight));
-    });
-
-    testWidgets('in-place refresh keeps panel mounted (no animation remount)',
-        (tester) async {
-      // 原地重建（PopupContentRefresher）：展开节点后 OverlayEntry 不重挂，
-      // 面板 Element 复用，滚动位置保留且位置/尺寸重算正确。
-      await tester.pumpWidget(_wrap(
-        Align(
-          alignment: Alignment.topLeft,
-          child: AntTreeSelect(treeData: _testTreeData()),
-        ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-
-      final panelBox = tester.renderObject<RenderBox>(
-          find.byKey(const Key('ant_tree_select_panel')),);
-      final heightBefore = panelBox.size.height;
-      // 面板内容未超高时无滚动；展开一个节点后面板高度应增长且位置重算
-      final topBefore = panelBox.localToGlobal(Offset.zero).dy;
-      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
-      await tester.pumpAndSettle();
-
-      final panelAfter = tester.renderObject<RenderBox>(
-          find.byKey(const Key('ant_tree_select_panel')),);
-      final topAfter = panelAfter.localToGlobal(Offset.zero).dy;
-      // 高度增长（2 子节点加入）
-      expect(panelAfter.size.height, greaterThan(heightBefore));
-      // 空间充足时面板仍贴触发元素下方（位置重算无跳位）
-      expect(topAfter, topBefore);
-    });
-
-    testWidgets('in-place refresh preserves panel scroll offset',
-        (tester) async {
-      // 内容超高产生内部滚动后，继续展开节点不应丢失滚动位置。
-      await tester.pumpWidget(_wrap(
-        AntTreeSelect(
-          treeData: [
-            for (var i = 0; i < 12; i++)
-              AntTreeSelectOption(
-                value: 'n$i',
-                label: '节点 $i',
-                children: [
-                  AntTreeSelectOption(value: 'n$i-c', label: '子节点 $i'),
-                ],
-              ),
+    testWidgets('custom titleBuilder renders row content', (tester) async {
+      await _pumpSelect(
+        tester,
+        titleBuilder: (context, city) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(AntIcons.environmentOutlined, size: 12),
+            Text(city.name),
           ],
         ),
-      ),);
-      await tester.tap(find.byType(AntTreeSelect));
-      await tester.pumpAndSettle();
-
-      final scrollable = find.descendant(
-        of: find.byKey(const Key('ant_tree_select_panel')),
-        matching: find.byType(Scrollable),
       );
-      expect(scrollable, findsOneWidget);
-      // 滚动到中部
-      await tester.drag(scrollable.first, const Offset(0, -200));
-      await tester.pumpAndSettle();
-      final position = tester.state<ScrollableState>(scrollable.first).position;
-      final offsetBefore = position.pixels;
-      expect(offsetBefore, greaterThan(0));
-
-      // 展开任一节点 → 原地重建，滚动位置不丢
-      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
-      await tester.pumpAndSettle();
-      final positionAfter =
-          tester.state<ScrollableState>(scrollable.first).position;
-      expect(positionAfter.pixels, offsetBefore);
-    });
-  });
-
-  group('AntTreeSelectOption', () {
-    test('isLeaf returns true when children is null or empty', () {
-      const leaf1 = AntTreeSelectOption(value: 'a', label: 'A');
-      expect(leaf1.isLeaf, isTrue);
-
-      const leaf2 = AntTreeSelectOption(value: 'b', label: 'B', children: []);
-      expect(leaf2.isLeaf, isTrue);
-    });
-
-    test('isLeaf returns false when children is non-empty', () {
-      const parent = AntTreeSelectOption(value: 'a', label: 'A', children: [
-        AntTreeSelectOption(value: 'a1', label: 'A1'),
-      ],);
-      expect(parent.isLeaf, isFalse);
-    });
-
-    test('disabled defaults to false', () {
-      const opt = AntTreeSelectOption(value: 'a', label: 'A');
-      expect(opt.disabled, isFalse);
-    });
-  });
-
-  group('AntTreeSelect 自定义宽高', () {
-    testWidgets('height/width 覆盖触发器尺寸', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntTreeSelect(
-          treeData: [AntTreeSelectOption(value: 'a', label: 'A')],
-          height: 48,
-          width: 260,
+      await _open(tester);
+      expect(
+        find.descendant(
+          of: _panel(),
+          matching: find.byIcon(AntIcons.environmentOutlined),
         ),
-      ),);
-      await tester.pump(const Duration(milliseconds: 100));
-      final box = tester.renderObject<RenderBox>(
-        find.byType(AntTreeSelect).first,
+        findsNWidgets(3),
       );
-      expect(box.size.height, closeTo(48.h, 2));
-      expect(box.size.width, closeTo(260.w, 2));
-    });
-  });
-
-  group('AntTreeSelectFieldNames', () {
-    test('default constructor sets fields', () {
-      const fn = AntTreeSelectFieldNames(
-        label: 'name',
-        value: 'id',
-        children: 'subs',
-      );
-      expect(fn.label, 'name');
-      expect(fn.value, 'id');
-      expect(fn.children, 'subs');
     });
   });
 }

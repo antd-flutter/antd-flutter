@@ -1,6 +1,8 @@
 /// AntUpload 类型定义
 library;
 
+import 'package:material_ui/material_ui.dart';
+
 /// 上传文件状态
 enum AntUploadStatus {
   /// 上传中
@@ -28,8 +30,11 @@ enum AntUploadListType {
   pictureCard,
 }
 
-/// 上传文件信息
-class AntUploadFile {
+/// 上传文件信息。
+///
+/// 它描述的是「实际文件」而不是业务模型；业务侧额外字段放到泛型
+/// [extra] 槽里（或使用 `AntUpload<T>` 的 `itemBuilder` 自行渲染）。
+class AntUploadFile<T> {
   const AntUploadFile({
     required this.uid,
     required this.name,
@@ -39,6 +44,7 @@ class AntUploadFile {
     this.thumbUrl,
     this.percent = 0,
     this.response,
+    this.extra,
   });
 
   /// 唯一标识
@@ -65,8 +71,11 @@ class AntUploadFile {
   /// 服务端响应数据
   final dynamic response;
 
+  /// 业务侧额外数据（不参与 ==/hashCode）。
+  final T? extra;
+
   /// 复制并修改属性
-  AntUploadFile copyWith({
+  AntUploadFile<T> copyWith({
     String? uid,
     String? name,
     AntUploadStatus? status,
@@ -75,8 +84,9 @@ class AntUploadFile {
     String? thumbUrl,
     int? percent,
     dynamic response,
+    T? extra,
   }) {
-    return AntUploadFile(
+    return AntUploadFile<T>(
       uid: uid ?? this.uid,
       name: name ?? this.name,
       status: status ?? this.status,
@@ -85,6 +95,7 @@ class AntUploadFile {
       thumbUrl: thumbUrl ?? this.thumbUrl,
       percent: percent ?? this.percent,
       response: response ?? this.response,
+      extra: extra ?? this.extra,
     );
   }
 
@@ -104,6 +115,15 @@ class AntUploadFile {
   int get hashCode =>
       Object.hash(uid, name, status, size, url, thumbUrl, percent);
 }
+
+/// 上传列表项自定义渲染。
+///
+/// 用于完全接管某一文件的列表项渲染（业务字段可读 `file.extra`）。
+typedef AntUploadItemBuilder<T> = Widget Function(
+  BuildContext context,
+  AntUploadFile<T> file,
+  int index,
+);
 
 /// 上传进度信息
 class AntUploadProgressInfo {

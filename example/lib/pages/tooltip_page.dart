@@ -21,10 +21,7 @@ class TooltipPage extends StatelessWidget {
               spacing: 24.w,
               runSpacing: 12.w,
               children: const [
-                AntTooltip(
-                  tooltip: Text('提示文案'),
-                  child: Text('鼠标移上来'),
-                ),
+                AntTooltip(tooltip: Text('提示文案'), child: Text('鼠标移上来')),
                 AntTooltip(
                   tooltip: Text('下方提示'),
                   placement: AntTooltipPlacement.bottom,
@@ -144,7 +141,8 @@ class TooltipPage extends StatelessWidget {
           SizedBox(height: 16.w),
           _Section(
             title: 'Controller 模式',
-            description: 'controller.show/hide/toggle 程序化控制，无需 GlobalKey 或外部 state。',
+            description:
+                'controller.show/hide/toggle 程序化控制，无需 GlobalKey 或外部 state。',
             theme: theme,
             child: const _ControllerTooltipDemo(),
           ),
@@ -240,15 +238,9 @@ class _ControllerTooltipDemoState extends State<_ControllerTooltipDemo> {
           child: const Text('toggle'),
         ),
         SizedBox(width: 12.w),
-        AntButton(
-          onTap: () => _controller.show(),
-          child: const Text('show'),
-        ),
+        AntButton(onTap: () => _controller.show(), child: const Text('show')),
         SizedBox(width: 12.w),
-        AntButton(
-          onTap: () => _controller.hide(),
-          child: const Text('hide'),
-        ),
+        AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
       ],
     );
   }
@@ -291,10 +283,7 @@ class _Section extends StatelessWidget {
           SizedBox(height: 4.w),
           Text(
             description,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: theme.colorTextSecondary,
-            ),
+            style: TextStyle(fontSize: 12.sp, color: theme.colorTextSecondary),
           ),
           SizedBox(height: 12.w),
           child,

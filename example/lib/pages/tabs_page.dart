@@ -4,6 +4,59 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _TabData {
+  const _TabData({
+    required this.key,
+    this.label,
+    this.child,
+    this.icon,
+    this.disabled = false,
+  });
+
+  final String key;
+  final String? label;
+  final Widget? child;
+  final Widget? icon;
+  final bool disabled;
+}
+
+Widget _tabs({
+  Key? key,
+  List<_TabData> items = const [],
+  Object? activeKey,
+  Object? defaultActiveKey,
+  AntTabsType type = AntTabsType.line,
+  AntTabsSize size = AntTabsSize.normal,
+  AntTabPosition tabPosition = AntTabPosition.top,
+  bool centered = false,
+  bool animated = true,
+  double? tabBarGutter,
+  Widget? addIcon,
+  ValueChanged<_TabData>? onChange,
+  void Function(_TabData? item, AntTabsEditAction action)? onEdit,
+}) {
+  return AntTabs<_TabData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    labelBuilder: (context, item, index) => Text(item.label ?? item.key),
+    childBuilder: (context, item, index) => item.child,
+    iconBuilder: (context, item) => item.icon,
+    disabledOf: (item) => item.disabled,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    type: type,
+    size: size,
+    tabPosition: tabPosition,
+    centered: centered,
+    animated: animated,
+    tabBarGutter: tabBarGutter,
+    addIcon: addIcon,
+    onChange: onChange,
+    onEdit: onEdit,
+  );
+}
+
 class TabsPage extends StatelessWidget {
   const TabsPage({super.key});
 
@@ -18,7 +71,10 @@ class TabsPage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '卡片样式', description: 'type=card，标签以卡片形式展示'),
           _CardDemo(),
-          _Section(title: '外边框分段', description: 'type=outlined，整组一枚圆角外框、内部等分，选中段主色描边'),
+          _Section(
+            title: '外边框分段',
+            description: 'type=outlined，整组一枚圆角外框、内部等分，选中段主色描边',
+          ),
           _OutlinedDemo(),
           _Section(title: '可编辑卡片', description: 'type=editableCard，支持增删选项卡'),
           _EditableDemo(),
@@ -51,7 +107,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -70,14 +129,26 @@ class _BasicDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     // material_ui AntTabs 内部含 Expanded（垂直内容区），在无界高度
     // （SingleChildScrollView）下会溢出抛异常，demo 页加有界高度约束。
-    return const SizedBox(
+    return SizedBox(
       height: 220,
       width: double.infinity,
-      child: AntTabs(
+      child: _tabs(
         items: [
-          AntTabsItem(key: '1', label: 'Tab 1', child: Text('Content of Tab Pane 1')),
-          AntTabsItem(key: '2', label: 'Tab 2', child: Text('Content of Tab Pane 2')),
-          AntTabsItem(key: '3', label: 'Tab 3', child: Text('Content of Tab Pane 3')),
+          _TabData(
+            key: '1',
+            label: 'Tab 1',
+            child: Text('Content of Tab Pane 1'),
+          ),
+          _TabData(
+            key: '2',
+            label: 'Tab 2',
+            child: Text('Content of Tab Pane 2'),
+          ),
+          _TabData(
+            key: '3',
+            label: 'Tab 3',
+            child: Text('Content of Tab Pane 3'),
+          ),
         ],
       ),
     );
@@ -93,15 +164,15 @@ class _CardDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: 220,
       width: double.infinity,
-      child: AntTabs(
+      child: _tabs(
         type: AntTabsType.card,
         items: [
-          AntTabsItem(key: '1', label: 'Tab 1', child: Text('Card content 1')),
-          AntTabsItem(key: '2', label: 'Tab 2', child: Text('Card content 2')),
-          AntTabsItem(key: '3', label: 'Tab 3', child: Text('Card content 3')),
+          _TabData(key: '1', label: 'Tab 1', child: Text('Card content 1')),
+          _TabData(key: '2', label: 'Tab 2', child: Text('Card content 2')),
+          _TabData(key: '3', label: 'Tab 3', child: Text('Card content 3')),
         ],
       ),
     );
@@ -117,16 +188,28 @@ class _OutlinedDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: 200,
       width: double.infinity,
-      child: AntTabs(
+      child: _tabs(
         type: AntTabsType.outlined,
         size: AntTabsSize.small,
         items: [
-          AntTabsItem(key: 's', label: 'Small', child: Text('Small size tab content')),
-          AntTabsItem(key: 'm', label: 'Medium', child: Text('Medium size tab content')),
-          AntTabsItem(key: 'l', label: 'Large', child: Text('Large size tab content')),
+          _TabData(
+            key: 's',
+            label: 'Small',
+            child: Text('Small size tab content'),
+          ),
+          _TabData(
+            key: 'm',
+            label: 'Medium',
+            child: Text('Medium size tab content'),
+          ),
+          _TabData(
+            key: 'l',
+            label: 'Large',
+            child: Text('Large size tab content'),
+          ),
         ],
       ),
     );
@@ -151,7 +234,7 @@ class _EditableDemoState extends State<_EditableDemo> {
   Widget build(BuildContext context) {
     final items = List.generate(
       _count,
-      (i) => AntTabsItem(
+      (i) => _TabData(
         key: '${i + 1}',
         label: 'Tab ${i + 1}',
         child: Text('Content of Tab ${i + 1}'),
@@ -160,10 +243,10 @@ class _EditableDemoState extends State<_EditableDemo> {
     return SizedBox(
       height: 220,
       width: double.infinity,
-      child: AntTabs(
+      child: _tabs(
         type: AntTabsType.editableCard,
         items: items,
-        onEdit: (key, action) {
+        onEdit: (_, action) {
           setState(() {
             if (action == AntTabsEditAction.add) {
               _count++;
@@ -191,22 +274,38 @@ class _PositionDemo extends StatelessWidget {
       children: [
         SizedBox(
           height: 200,
-          child: AntTabs(
+          child: _tabs(
             tabPosition: AntTabPosition.left,
             items: const [
-              AntTabsItem(key: '1', label: 'Tab 1', child: Text('Left position content 1')),
-              AntTabsItem(key: '2', label: 'Tab 2', child: Text('Left position content 2')),
+              _TabData(
+                key: '1',
+                label: 'Tab 1',
+                child: Text('Left position content 1'),
+              ),
+              _TabData(
+                key: '2',
+                label: 'Tab 2',
+                child: Text('Left position content 2'),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 200,
-          child: AntTabs(
+          child: _tabs(
             tabPosition: AntTabPosition.bottom,
             items: const [
-              AntTabsItem(key: '1', label: 'Tab 1', child: Text('Bottom position content 1')),
-              AntTabsItem(key: '2', label: 'Tab 2', child: Text('Bottom position content 2')),
+              _TabData(
+                key: '1',
+                label: 'Tab 1',
+                child: Text('Bottom position content 1'),
+              ),
+              _TabData(
+                key: '2',
+                label: 'Tab 2',
+                child: Text('Bottom position content 2'),
+              ),
             ],
           ),
         ),
@@ -229,22 +328,38 @@ class _SizeDemo extends StatelessWidget {
       children: [
         SizedBox(
           height: 220,
-          child: AntTabs(
+          child: _tabs(
             size: AntTabsSize.small,
             items: const [
-              AntTabsItem(key: '1', label: 'Small Tab 1', child: Text('Small content 1')),
-              AntTabsItem(key: '2', label: 'Small Tab 2', child: Text('Small content 2')),
+              _TabData(
+                key: '1',
+                label: 'Small Tab 1',
+                child: Text('Small content 1'),
+              ),
+              _TabData(
+                key: '2',
+                label: 'Small Tab 2',
+                child: Text('Small content 2'),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 220,
-          child: AntTabs(
+          child: _tabs(
             centered: true,
             items: const [
-              AntTabsItem(key: '1', label: 'Centered 1', child: Text('Centered content 1')),
-              AntTabsItem(key: '2', label: 'Centered 2', child: Text('Centered content 2')),
+              _TabData(
+                key: '1',
+                label: 'Centered 1',
+                child: Text('Centered content 1'),
+              ),
+              _TabData(
+                key: '2',
+                label: 'Centered 2',
+                child: Text('Centered content 2'),
+              ),
             ],
           ),
         ),
@@ -265,21 +380,21 @@ class _IconDisabledDemo extends StatelessWidget {
     return SizedBox(
       height: 220,
       width: double.infinity,
-      child: AntTabs(
+      child: _tabs(
         items: const [
-          AntTabsItem(
+          _TabData(
             key: '1',
             label: 'Tab 1',
             icon: AntdIcon(AntIcons.androidOutlined, size: 16),
             child: Text('Content with icon'),
           ),
-          AntTabsItem(
+          _TabData(
             key: '2',
             label: 'Tab 2',
             icon: AntdIcon(AntIcons.appleOutlined, size: 16),
             child: Text('Another content'),
           ),
-          AntTabsItem(
+          _TabData(
             key: '3',
             label: 'Disabled',
             child: Text('Disabled content'),

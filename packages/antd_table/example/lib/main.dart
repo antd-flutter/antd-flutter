@@ -6,6 +6,10 @@
 /// - 暗色切换：AppBar 按钮联动 AntTheme + themeMode
 /// - 覆盖全部高级用法：基础表格、排序、筛选、固定列、固定表头、
 ///   行选择、合并单元格、展开行、树形数据、分页、汇总行、分组表头
+///
+/// 数据 API 为泛型 `AntTable<T>`：示例统一使用用户自定义模型 [Person]，
+/// 通过 `cell` 自绘单元格、`sorter` 排序、`onFilter` 筛选、`childrenOf`
+/// 展开树形数据，不再需要把行数据转成 `Map`。
 library;
 
 import 'package:antd_table/antd_table.dart';
@@ -70,21 +74,20 @@ class _AntdTableGalleryAppState extends State<AntdTableGalleryApp> {
                   actions: [
                     IconButton(
                       onPressed: () => setState(() => _isDark = !_isDark),
-                      icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
+                      icon: Icon(
+                        _isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined,
+                      ),
                     ),
                   ],
                   bottom: TabBar(
                     isScrollable: true,
-                    tabs: [
-                      for (final t in _sectionTitles) Tab(text: t),
-                    ],
+                    tabs: [for (final t in _sectionTitles) Tab(text: t)],
                   ),
                 ),
                 // R35.4：desktop 宽屏双栏、phone 窄屏单栏，缩放窗口不溢出。
                 body: TabBarView(
                   children: [
-                    for (final t in _sectionTitles)
-                      _SectionPage(title: t),
+                    for (final t in _sectionTitles) _SectionPage(title: t),
                   ],
                 ),
               ),
@@ -112,7 +115,8 @@ class _SectionPage extends StatelessWidget {
         child: Builder(
           builder: (context) {
             final breakpoint = AntResponsive.breakpointOf(context);
-            final isWide = breakpoint == AntBreakpoint.lg ||
+            final isWide =
+                breakpoint == AntBreakpoint.lg ||
                 breakpoint == AntBreakpoint.xl ||
                 breakpoint == AntBreakpoint.xxl ||
                 breakpoint == AntBreakpoint.xxxl;
@@ -198,7 +202,10 @@ class _Card extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           child,
         ],
@@ -207,18 +214,57 @@ class _Card extends StatelessWidget {
   }
 }
 
-// ---------------- 测试数据 ----------------
+// ---------------- 用户自定义模型（泛型数据源） ----------------
 
-List<Map<String, dynamic>> _people({int count = 5}) => [
-      for (var i = 1; i <= count; i++)
-        {
-          'key': 'p$i',
-          'name': '用户$i',
-          'age': 20 + i * 3,
-          'address': '杭州市西湖区文一路 $i 号',
-          'tags': ['开发', '测试'][i % 2],
-        },
-    ];
+/// 示例业务模型：用户。`children` 用于树形数据展示。
+class Person {
+  const Person({
+    required this.key,
+    required this.name,
+    required this.age,
+    required this.address,
+    this.tag = '',
+    this.score = 0,
+    this.phone = '',
+    this.metrics = const [],
+    this.children = const [],
+  });
+
+  /// 业务主键（通过 `rowKey` 提供给表格，用于选择 / 展开态等）。
+  final String key;
+  final String name;
+  final int age;
+  final String address;
+  final String tag;
+  final int score;
+  final String phone;
+
+  /// 固定列演示用的额外指标列。
+  final List<String> metrics;
+
+  /// 子节点（树形数据，通过 `childrenOf` 提供给表格）。
+  final List<Person> children;
+}
+
+List<Person> _people({int count = 5}) => [
+  for (var i = 1; i <= count; i++)
+    Person(
+      key: 'p$i',
+      name: '用户$i',
+      age: 20 + i * 3,
+      address: '杭州市西湖区文一路 $i 号',
+      tag: ['开发', '测试'][i % 2],
+      score: 60 + i,
+      phone: '0571-1000$i',
+      metrics: [for (var j = 1; j <= 6; j++) '数据 $j'],
+    ),
+];
+
+/// 行主键：直接使用业务模型字段。
+Object _rowKeyOf(Person person) => person.key;
+
+/// 树形子节点：直接读取业务模型的 children。
+List<Person> _childrenOf(Person person) => person.children;
 
 // ---------------- 演示组件 ----------------
 
@@ -228,11 +274,21 @@ class _BasicTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
-        AntTableColumn(title: '地址', dataIndex: 'address'),
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
+        AntTableColumn<Person>(
+          title: '地址',
+          cell: (context, person, index) => Text(person.address),
+        ),
       ],
       dataSource: _people(),
     );
@@ -245,15 +301,22 @@ class _SortTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       columns: [
-        const AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(
-          title: '年龄',
-          dataIndex: 'age',
-          sorter: (a, b) => (a['age'] as int).compareTo(b['age'] as int),
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
         ),
-        const AntTableColumn(title: '地址', dataIndex: 'address'),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+          sorter: (a, b) => a.age.compareTo(b.age),
+        ),
+        AntTableColumn<Person>(
+          title: '地址',
+          cell: (context, person, index) => Text(person.address),
+        ),
       ],
       dataSource: _people(),
     );
@@ -266,18 +329,25 @@ class _FilterTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       columns: [
-        const AntTableColumn(title: '姓名', dataIndex: 'name'),
-        const AntTableColumn(title: '年龄', dataIndex: 'age'),
-        AntTableColumn(
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
+        AntTableColumn<Person>(
           title: '标签',
-          dataIndex: 'tags',
+          cell: (context, person, index) => Text(person.tag),
           filters: const [
             AntTableFilterItem(text: '开发', value: '开发'),
             AntTableFilterItem(text: '测试', value: '测试'),
           ],
-          onFilter: (value, record) => record['tags'] == value,
+          onFilter: (value, person) => person.tag == value,
         ),
       ],
       dataSource: _people(),
@@ -291,31 +361,30 @@ class _FixedColumnTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       scrollX: 900,
       columns: [
-        const AntTableColumn(
+        AntTableColumn<Person>(
           title: '姓名',
-          dataIndex: 'name',
           width: 120,
           fixed: AntTableFixed.left,
+          cell: (context, person, index) => Text(person.name),
         ),
         for (var i = 1; i <= 6; i++)
-          AntTableColumn(title: '指标$i', dataIndex: 'm$i', width: 120),
-        const AntTableColumn(
+          AntTableColumn<Person>(
+            title: '指标$i',
+            width: 120,
+            cell: (context, person, index) => Text(person.metrics[i - 1]),
+          ),
+        AntTableColumn<Person>(
           title: '地址',
-          dataIndex: 'address',
           width: 200,
           fixed: AntTableFixed.right,
+          cell: (context, person, index) => Text(person.address),
         ),
       ],
-      dataSource: [
-        for (final p in _people(count: 5))
-          {
-            ...p,
-            for (var i = 1; i <= 6; i++) 'm$i': '数据 $i',
-          },
-      ],
+      dataSource: _people(),
     );
   }
 }
@@ -326,12 +395,22 @@ class _FixedHeaderTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       scrollY: 240,
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
-        AntTableColumn(title: '地址', dataIndex: 'address'),
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
+        AntTableColumn<Person>(
+          title: '地址',
+          cell: (context, person, index) => Text(person.address),
+        ),
       ],
       dataSource: _people(count: 30),
     );
@@ -351,17 +430,24 @@ class _SelectionTableState extends State<_SelectionTable> {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
       ],
       dataSource: _people(),
-      rowSelection: AntTableRowSelection(
+      rowSelection: AntTableRowSelection<Person>(
         selectedRowKeys: _selected,
         onChange: (keys) => setState(() => _selected = keys),
-        getCheckboxProps: (record) =>
-            AntTableRowCheckboxProps(disabled: record['key'] == 'p3'),
+        getCheckboxProps: (person) =>
+            AntTableRowCheckboxProps(disabled: person.key == 'p3'),
       ),
     );
   }
@@ -373,30 +459,62 @@ class _MergeTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AntTableCellSpan? nameCell(Map<String, dynamic> r, int i) {
-      if (i == 0) return const AntTableCellSpan(rowSpan: 2);
-      if (i == 1) return const AntTableCellSpan(rowSpan: 0);
+    AntTableCellSpan? nameCell(Person person, int rowIndex) {
+      if (rowIndex == 0) return const AntTableCellSpan(rowSpan: 2);
+      if (rowIndex == 1) return const AntTableCellSpan(rowSpan: 0);
       return null;
     }
 
-    AntTableCellSpan? addressCell(Map<String, dynamic> r, int i) {
-      if (i == 2) return const AntTableCellSpan(colSpan: 2);
-      if (i == 3) return const AntTableCellSpan(colSpan: 0);
+    AntTableCellSpan? addressCell(Person person, int rowIndex) {
+      if (rowIndex == 2) return const AntTableCellSpan(colSpan: 2);
       return null;
     }
 
-    return AntTable(
+    AntTableCellSpan? phoneCell(Person person, int rowIndex) {
+      if (rowIndex == 2) return const AntTableCellSpan(colSpan: 0);
+      return null;
+    }
+
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       bordered: true,
       columns: [
-        AntTableColumn(title: '姓名', dataIndex: 'name', onCell: nameCell),
-        const AntTableColumn(title: '年龄', dataIndex: 'age'),
-        AntTableColumn(title: '地址', dataIndex: 'address', onCell: addressCell),
-        AntTableColumn(title: '电话', dataIndex: 'phone', onCell: addressCell),
+        AntTableColumn<Person>(
+          title: '姓名',
+          onCell: nameCell,
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
+        AntTableColumn<Person>(
+          title: '地址',
+          onCell: addressCell,
+          cell: (context, person, index) => Text(person.address),
+        ),
+        AntTableColumn<Person>(
+          title: '电话',
+          onCell: phoneCell,
+          cell: (context, person, index) => Text(person.phone),
+        ),
       ],
       dataSource: const [
-        {'key': '1', 'name': '张三', 'age': 32, 'address': '西湖区 1 号', 'phone': '0571-10001'},
-        {'key': '2', 'name': '张三', 'age': 32, 'address': '西湖区 1 号', 'phone': '0571-10002'},
-        {'key': '3', 'name': '李四', 'age': 28, 'address': '', 'phone': '0571-10003'},
+        Person(
+          key: '1',
+          name: '张三',
+          age: 32,
+          address: '西湖区 1 号',
+          phone: '0571-10001',
+        ),
+        Person(
+          key: '2',
+          name: '张三',
+          age: 32,
+          address: '西湖区 1 号',
+          phone: '0571-10002',
+        ),
+        Person(key: '3', name: '李四', age: 28, address: '', phone: '0571-10003'),
       ],
     );
   }
@@ -408,16 +526,23 @@ class _ExpandTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
       ],
       dataSource: _people(),
       expandRowByClick: true,
-      expandedRowRender: (record, index) => Padding(
+      expandedRowRender: (context, person, index) => Padding(
         padding: const EdgeInsets.all(8),
-        child: Text('详情：${record['name']} — ${record['address']}'),
+        child: Text('详情：${person.name} — ${person.address}'),
       ),
     );
   }
@@ -429,30 +554,40 @@ class _TreeTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
+      childrenOf: _childrenOf,
       defaultExpandAllRows: true,
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
       ],
-      dataSource: [
-        {
-          'key': '1',
-          'name': '张三',
-          'age': 32,
-          'children': [
-            {'key': '1-1', 'name': '小张', 'age': 8},
+      dataSource: const [
+        Person(
+          key: '1',
+          name: '张三',
+          age: 32,
+          address: '西湖区 1 号',
+          children: [
+            Person(key: '1-1', name: '小张', age: 8, address: '西湖区 1 号'),
           ],
-        },
-        {
-          'key': '2',
-          'name': '李四',
-          'age': 28,
-          'children': [
-            {'key': '2-1', 'name': '小李', 'age': 6},
-            {'key': '2-2', 'name': '小黎', 'age': 3},
+        ),
+        Person(
+          key: '2',
+          name: '李四',
+          age: 28,
+          address: '西湖区 2 号',
+          children: [
+            Person(key: '2-1', name: '小李', age: 6, address: '西湖区 2 号'),
+            Person(key: '2-2', name: '小黎', age: 3, address: '西湖区 2 号'),
           ],
-        },
+        ),
       ],
     );
   }
@@ -464,12 +599,19 @@ class _PaginationTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       pagination: true,
       pageSize: 5,
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
       ],
       dataSource: _people(count: 23),
     );
@@ -482,31 +624,44 @@ class _SummaryTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       bordered: true,
       summary: (data) => [
         AntTableSummaryCell(
           columnIndex: 0,
           colSpan: 2,
-          child: const Text('总计', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: const Text(
+            '总计',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         AntTableSummaryCell(
           columnIndex: 2,
           child: Text(
-            '${data.fold<int>(0, (sum, r) => sum + r['age'] as int)}',
+            '${data.fold<int>(0, (sum, person) => sum + person.score)}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
       ],
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(title: '年龄', dataIndex: 'age'),
-        AntTableColumn(title: '分数', dataIndex: 'score'),
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
+          title: '年龄',
+          cell: (context, person, index) => Text('${person.age}'),
+        ),
+        AntTableColumn<Person>(
+          title: '分数',
+          cell: (context, person, index) => Text('${person.score}'),
+        ),
       ],
       dataSource: const [
-        {'key': '1', 'name': '张三', 'age': 32, 'score': 90},
-        {'key': '2', 'name': '李四', 'age': 28, 'score': 85},
-        {'key': '3', 'name': '王五', 'age': 26, 'score': 78},
+        Person(key: '1', name: '张三', age: 32, address: '西湖区 1 号', score: 90),
+        Person(key: '2', name: '李四', age: 28, address: '西湖区 2 号', score: 85),
+        Person(key: '3', name: '王五', age: 26, address: '西湖区 3 号', score: 78),
       ],
     );
   }
@@ -518,18 +673,31 @@ class _GroupHeaderTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntTable(
+    return AntTable<Person>(
+      rowKey: _rowKeyOf,
       bordered: true,
-      columns: const [
-        AntTableColumn(title: '姓名', dataIndex: 'name'),
-        AntTableColumn(
+      columns: [
+        AntTableColumn<Person>(
+          title: '姓名',
+          cell: (context, person, index) => Text(person.name),
+        ),
+        AntTableColumn<Person>(
           title: '基本信息',
           children: [
-            AntTableColumn(title: '年龄', dataIndex: 'age'),
-            AntTableColumn(title: '地址', dataIndex: 'address'),
+            AntTableColumn<Person>(
+              title: '年龄',
+              cell: (context, person, index) => Text('${person.age}'),
+            ),
+            AntTableColumn<Person>(
+              title: '地址',
+              cell: (context, person, index) => Text(person.address),
+            ),
           ],
         ),
-        AntTableColumn(title: '标签', dataIndex: 'tags'),
+        AntTableColumn<Person>(
+          title: '标签',
+          cell: (context, person, index) => Text(person.tag),
+        ),
       ],
       dataSource: _people(),
     );

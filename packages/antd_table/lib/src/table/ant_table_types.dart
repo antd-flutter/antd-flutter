@@ -1,4 +1,15 @@
 /// AntTable 类型定义
+///
+/// 数据模型泛型化（P08）：Table 直接消费使用者的模型 `T`，不再要求
+/// `Map<String, dynamic>` 行或 `dataIndex` 字符串取数。取数一律走回调：
+/// - 行 key：[AntTableRowKeyFn]（缺省用行下标）
+/// - 树形子行：[AntTableChildrenFn]
+/// - 单元格：[AntTableCellBuilder]（`cell`）
+/// - 排序：[AntTableSorter]（比较两个 `T`）
+/// - 筛选：[AntTableFilterFn]（筛选项值 + `T`）
+/// - 合并单元格：[AntTableCellSpanFn]
+/// - 展开行：[AntTableExpandedRowBuilder]
+/// - 汇总行：[AntTableSummaryFn]
 library;
 
 import 'package:flutter/widgets.dart';
@@ -62,7 +73,7 @@ class AntTableFilterItem {
   /// 筛选项展示文本。
   final String text;
 
-  /// 筛选项值（传给 [AntTableColumn.onFilter]）。
+  /// 筛选项值（传给 [AntTableColumn.onFilter] 的第一个参数）。
   final Object value;
 }
 
@@ -104,8 +115,8 @@ class AntTableRowSelectionItem {
   final ValueChanged<Set<Object>> onSelect;
 }
 
-/// 行选择配置（对齐 antd `rowSelection`）。
-class AntTableRowSelection {
+/// 行选择配置（对齐 antd `rowSelection`），泛型 `T` 为用户行模型。
+class AntTableRowSelection<T> {
   const AntTableRowSelection({
     this.selectedRowKeys,
     this.defaultSelectedRowKeys,
@@ -128,8 +139,7 @@ class AntTableRowSelection {
   final ValueChanged<List<Object>>? onChange;
 
   /// 行复选框属性（禁用等）。
-  final AntTableRowCheckboxProps Function(Map<String, dynamic> record)?
-      getCheckboxProps;
+  final AntTableRowCheckboxProps Function(T record)? getCheckboxProps;
 
   /// 自定义选择项（表头复选框旁出现下拉菜单）。
   final List<AntTableRowSelectionItem>? selections;
@@ -169,40 +179,44 @@ class AntTableSummaryCell {
   final Widget child;
 }
 
-/// 汇总行构建函数（对齐 antd `summary`）。
-typedef AntTableSummaryFn = List<AntTableSummaryCell>? Function(
-  List<Map<String, dynamic>> data,
+/// 汇总行构建函数（对齐 antd `summary`；参数为处理后的顶层 `T` 列表）。
+typedef AntTableSummaryFn<T> = List<AntTableSummaryCell>? Function(
+  List<T> data,
 );
 
 // ============================================================
 // 列定义
 // ============================================================
 
-/// 列比较函数。
-typedef AntTableSorter = int Function(
-  Map<String, dynamic> a,
-  Map<String, dynamic> b,
+/// 列比较函数（直接比较两个 `T`）。
+typedef AntTableSorter<T> = int Function(T a, T b);
+
+/// 列过滤函数（筛选项值 + 行模型）。
+typedef AntTableFilterFn<T> = bool Function(Object value, T record);
+
+/// 单元格构建函数（`index` 为同级行下标）。
+typedef AntTableCellBuilder<T> = Widget Function(
+  BuildContext context,
+  T record,
+  int index,
 );
 
-/// 列过滤函数。
-typedef AntTableFilterFn = bool Function(
-  Object value,
-  Map<String, dynamic> record,
-);
-
-/// 单元格自定义渲染。
-typedef AntTableRenderFn = Widget? Function(
-  Object? value,
-  Map<String, dynamic> record,
+/// 展开行构建函数（`index` 为当前展示行下标）。
+typedef AntTableExpandedRowBuilder<T> = Widget? Function(
+  BuildContext context,
+  T record,
   int index,
 );
 
 /// 行 key 提取函数。
-typedef AntTableRowKeyFn = Object? Function(Map<String, dynamic> record);
+typedef AntTableRowKeyFn<T> = Object Function(T record);
+
+/// 子行提取函数（树形数据；返回空列表表示叶子行）。
+typedef AntTableChildrenFn<T> = List<T> Function(T record);
 
 /// 合并单元格配置函数（对齐 antd `column.onCell`）。
-typedef AntTableCellSpanFn = AntTableCellSpan? Function(
-  Map<String, dynamic> record,
+typedef AntTableCellSpanFn<T> = AntTableCellSpan? Function(
+  T record,
   int rowIndex,
 );
 
@@ -221,20 +235,20 @@ typedef AntTableFilterChangeFn = void Function(
 /// 展开行变化回调。
 typedef AntTableExpandChangeFn = void Function(List<Object> expandedKeys);
 
-/// 列定义。
+/// 列定义（泛型 `T` 为用户行模型）。
 ///
-/// 对齐 antd React Table `ColumnType` 核心 API。
-class AntTableColumn {
+/// 对齐 antd React Table `ColumnType` 核心 API，但取数不依赖
+/// `dataIndex` 字符串：叶子列必须提供 [cell]，分组列必须提供 [children]。
+class AntTableColumn<T> {
   const AntTableColumn({
     required this.title,
-    this.dataIndex,
     this.width,
     this.fixed,
     this.align = AntTableAlign.left,
     this.sorter,
     this.filters,
     this.onFilter,
-    this.render,
+    this.cell,
     this.ellipsis = false,
     this.children,
     this.defaultSortOrder,
@@ -248,13 +262,13 @@ class AntTableColumn {
     this.filteredValue,
     this.filterMultiple = true,
     this.onCell,
-  });
+  }) : assert(
+          cell != null || (children != null && children.length > 0),
+          'AntTableColumn：叶子列必须提供 cell；分组列必须提供非空 children。',
+        );
 
   /// 列头文本。
   final String title;
-
-  /// 列数据在记录中的字段名。
-  final String? dataIndex;
 
   /// 列宽（设计稿逻辑像素，内部按 `.w` 缩放；不传则弹性分配）。
   final double? width;
@@ -266,22 +280,22 @@ class AntTableColumn {
   final AntTableAlign align;
 
   /// 排序比较函数，传入后表头可点击排序（升序 → 降序 → 取消）。
-  final AntTableSorter? sorter;
+  final AntTableSorter<T>? sorter;
 
   /// 筛选项列表，传入后表头出现筛选图标。
   final List<AntTableFilterItem>? filters;
 
   /// 过滤判定函数。
-  final AntTableFilterFn? onFilter;
+  final AntTableFilterFn<T>? onFilter;
 
-  /// 自定义单元格渲染。
-  final AntTableRenderFn? render;
+  /// 单元格构建（叶子列必填）。
+  final AntTableCellBuilder<T>? cell;
 
-  /// 超出宽度是否省略（单行 + ellipsis 截断）。
+  /// 超出宽度是否省略（为 cell 内容套用单行省略的默认文本样式）。
   final bool ellipsis;
 
   /// 子列（非空时本列为表头分组列，展开为多级表头；叶子列才参与数据渲染）。
-  final List<AntTableColumn>? children;
+  final List<AntTableColumn<T>>? children;
 
   /// 非受控初始排序方向。
   final AntTableSortOrder? defaultSortOrder;
@@ -307,5 +321,5 @@ class AntTableColumn {
   final bool filterMultiple;
 
   /// 合并单元格配置（rowSpan / colSpan）。
-  final AntTableCellSpanFn? onCell;
+  final AntTableCellSpanFn<T>? onCell;
 }

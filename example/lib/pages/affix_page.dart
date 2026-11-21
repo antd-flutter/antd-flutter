@@ -33,18 +33,27 @@ class _AffixPageState extends State<AffixPage> {
               child: _bar(theme, '固定在顶部 16px'),
             ),
           ),
-          Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
+          Container(
+            height: 120,
+            alignment: Alignment.center,
+            child: const Text('占位内容'),
+          ),
           _Section(
             title: '回调状态',
             theme: theme,
             status: _statusText('callback'),
             child: AntAffix(
               offsetTop: 56,
-              onChange: (affixed) => setState(() => _affixed['callback'] = affixed),
+              onChange: (affixed) =>
+                  setState(() => _affixed['callback'] = affixed),
               child: _bar(theme, '带 onChange 回调'),
             ),
           ),
-          Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
+          Container(
+            height: 120,
+            alignment: Alignment.center,
+            child: const Text('占位内容'),
+          ),
           _Section(
             title: '长页面演示（占位不跳动）',
             theme: theme,

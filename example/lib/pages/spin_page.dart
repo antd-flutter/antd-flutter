@@ -65,10 +65,7 @@ class _SpinPageState extends State<SpinPage> {
                     alignment: Alignment.center,
                     child: Text(
                       '列表内容区域',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: theme.colorText,
-                      ),
+                      style: TextStyle(fontSize: 16.sp, color: theme.colorText),
                     ),
                   ),
                 ),
@@ -88,9 +85,7 @@ class _SpinPageState extends State<SpinPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                AntSpin(
-                  indicator: AntdIcon(AntIcons.syncOutlined, size: 28),
-                ),
+                AntSpin(indicator: AntdIcon(AntIcons.syncOutlined, size: 28)),
                 AntSpin(
                   indicator: SizedBox(
                     width: 28,
@@ -108,7 +103,11 @@ class _SpinPageState extends State<SpinPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

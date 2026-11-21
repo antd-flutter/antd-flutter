@@ -61,24 +61,24 @@ class ModalPage extends StatelessWidget {
               children: [
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '点击遮罩不关闭',
                       content: const Text('maskClosable = false'),
-                  maskClosable: false,
-                );
-              },
+                      maskClosable: false,
+                    );
+                  },
                   child: const Text('遮罩不可关闭'),
                 ),
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '无右上角关闭',
                       content: const Text('closable = false'),
-                  closable: false,
-                );
-              },
+                      closable: false,
+                    );
+                  },
                   child: const Text('无关闭图标'),
                 ),
               ],
@@ -93,24 +93,24 @@ class ModalPage extends StatelessWidget {
               children: [
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '窄对话框',
                       content: const Text('width = 260'),
-                  width: 260,
-                );
-              },
+                      width: 260,
+                    );
+                  },
                   child: const Text('width 260'),
                 ),
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '宽对话框',
                       content: const Text('width = 420'),
-                  width: 420,
-                );
-              },
+                      width: 420,
+                    );
+                  },
                   child: const Text('width 420'),
                 ),
               ],
@@ -254,25 +254,29 @@ class _CustomFooterModalDemoState extends State<_CustomFooterModalDemo> {
             ],
           ),
         ),
-      SizedBox(height: 8.w),
-      AntButton(
-        onTap: () => setState(() => _open2 = true),
-        child: const Text('隐藏底部（footer=null）'),
-      ),
-      AntModal(
-        open: _open2,
-        title: '无底部',
-        content: const Text('footer 传 null 隐藏整个底部。'),
-        footer: null,
-        closable: true,
-      ),
+        SizedBox(height: 8.w),
+        AntButton(
+          onTap: () => setState(() => _open2 = true),
+          child: const Text('隐藏底部（footer=null）'),
+        ),
+        AntModal(
+          open: _open2,
+          title: '无底部',
+          content: const Text('footer 传 null 隐藏整个底部。'),
+          footer: null,
+          closable: true,
+        ),
       ],
     );
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

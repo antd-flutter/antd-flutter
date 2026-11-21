@@ -38,17 +38,29 @@ class _FloatButtonPageState extends State<FloatButtonPage> {
               _ShapeDemo(),
               _Section(title: '图标', description: '自定义 icon'),
               _IconDemo(),
-              _Section(title: '角标', description: 'badge: count / dot / overflowCount'),
+              _Section(
+                title: '角标',
+                description: 'badge: count / dot / overflowCount',
+              ),
               _BadgeDemo(),
               _Section(title: '禁用', description: 'disabled: true'),
               _DisabledDemo(),
-              _Section(title: '按钮组 — 点击触发', description: 'trigger: click，点击展开/收起'),
+              _Section(
+                title: '按钮组 — 点击触发',
+                description: 'trigger: click，点击展开/收起',
+              ),
               _GroupClickDemo(),
-              _Section(title: '按钮组 — 悬停触发', description: 'trigger: hover，悬停展开/移开收起'),
+              _Section(
+                title: '按钮组 — 悬停触发',
+                description: 'trigger: hover，悬停展开/移开收起',
+              ),
               _GroupHoverDemo(),
               _Section(title: '按钮组 — 方形', description: 'shape: square，连体方形按钮'),
               _GroupSquareDemo(),
-              _Section(title: '按钮组 — 方位', description: 'placement: top / bottom / left / right'),
+              _Section(
+                title: '按钮组 — 方位',
+                description: 'placement: top / bottom / left / right',
+              ),
               _GroupPlacementDemo(),
               _Section(title: '回到顶部', description: '滚动超过 400px 后右下角出现回顶按钮'),
               _BackTopHint(),
@@ -71,7 +83,10 @@ class _FloatButtonPageState extends State<FloatButtonPage> {
 
 void _showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: AntText(text: message), duration: const Duration(seconds: 1)),
+    SnackBar(
+      content: AntText(text: message),
+      duration: const Duration(seconds: 1),
+    ),
   );
 }
 
@@ -93,15 +108,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -149,9 +170,10 @@ class _ShapeDemo extends StatelessWidget {
         AntFloatButton(shape: AntFloatButtonShape.circle, tooltip: 'circle'),
         AntFloatButton(shape: AntFloatButtonShape.square, tooltip: 'square'),
         AntFloatButton(
-            shape: AntFloatButtonShape.square,
-            type: AntFloatButtonType.primary,
-            tooltip: 'primary square'),
+          shape: AntFloatButtonShape.square,
+          type: AntFloatButtonType.primary,
+          tooltip: 'primary square',
+        ),
       ],
     );
   }
@@ -170,7 +192,9 @@ class _IconDemo extends StatelessWidget {
         AntFloatButton(icon: Icon(AntIcons.moreOutlined), tooltip: '更多'),
         AntFloatButton(icon: Icon(AntIcons.closeOutlined), tooltip: '关闭'),
         AntFloatButton(
-            icon: Icon(AntIcons.verticalAlignTopOutlined), tooltip: '顶部'),
+          icon: Icon(AntIcons.verticalAlignTopOutlined),
+          tooltip: '顶部',
+        ),
       ],
     );
   }
@@ -185,10 +209,19 @@ class _BadgeDemo extends StatelessWidget {
       wrap: true,
       gap: const AntFlexGap.only(column: 16),
       children: const [
-        AntFloatButton(badge: AntFloatButtonBadge(count: 5), tooltip: 'count=5'),
-        AntFloatButton(badge: AntFloatButtonBadge(count: 200), tooltip: 'count=200'),
+        AntFloatButton(
+          badge: AntFloatButtonBadge(count: 5),
+          tooltip: 'count=5',
+        ),
+        AntFloatButton(
+          badge: AntFloatButtonBadge(count: 200),
+          tooltip: 'count=200',
+        ),
         AntFloatButton(badge: AntFloatButtonBadge(dot: true), tooltip: 'dot'),
-        AntFloatButton(badge: AntFloatButtonBadge(count: 0), tooltip: 'count=0 不显示'),
+        AntFloatButton(
+          badge: AntFloatButtonBadge(count: 0),
+          tooltip: 'count=0 不显示',
+        ),
       ],
     );
   }
@@ -205,7 +238,10 @@ class _DisabledDemo extends StatelessWidget {
       children: const [
         AntFloatButton(disabled: true, tooltip: '禁用'),
         AntFloatButton(
-            disabled: true, type: AntFloatButtonType.primary, tooltip: '禁用'),
+          disabled: true,
+          type: AntFloatButtonType.primary,
+          tooltip: '禁用',
+        ),
       ],
     );
   }
@@ -292,28 +328,37 @@ class _GroupPlacementDemo extends StatelessWidget {
         AntFloatButtonGroup(
           placement: AntFloatButtonGroupPlacement.top,
           children: [
-            AntFloatButton(icon: const Icon(AntIcons.fileTextOutlined), tooltip: 'top'),
+            AntFloatButton(
+              icon: const Icon(AntIcons.fileTextOutlined),
+              tooltip: 'top',
+            ),
           ],
         ),
         AntFloatButtonGroup(
           placement: AntFloatButtonGroupPlacement.bottom,
           children: [
             AntFloatButton(
-                icon: const Icon(AntIcons.fileTextOutlined), tooltip: 'bottom'),
+              icon: const Icon(AntIcons.fileTextOutlined),
+              tooltip: 'bottom',
+            ),
           ],
         ),
         AntFloatButtonGroup(
           placement: AntFloatButtonGroupPlacement.left,
           children: [
             AntFloatButton(
-                icon: const Icon(AntIcons.fileTextOutlined), tooltip: 'left'),
+              icon: const Icon(AntIcons.fileTextOutlined),
+              tooltip: 'left',
+            ),
           ],
         ),
         AntFloatButtonGroup(
           placement: AntFloatButtonGroupPlacement.right,
           children: [
             AntFloatButton(
-                icon: const Icon(AntIcons.fileTextOutlined), tooltip: 'right'),
+              icon: const Icon(AntIcons.fileTextOutlined),
+              tooltip: 'right',
+            ),
           ],
         ),
       ],
@@ -333,8 +378,8 @@ class _BackTopHint extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AntText(text: 
-        '向下滚动本页面，右下角将出现回到顶部按钮',
+      child: AntText(
+        text: '向下滚动本页面，右下角将出现回到顶部按钮',
         style: theme.textTheme.bodyMedium,
       ),
     );

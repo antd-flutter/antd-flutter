@@ -15,6 +15,13 @@ enum AntListSize {
   small,
 }
 
+/// 列表条目构建器。
+typedef AntListItemBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+);
+
 /// 列表条目操作项。
 class AntListAction {
   const AntListAction({required this.child, this.onTap});

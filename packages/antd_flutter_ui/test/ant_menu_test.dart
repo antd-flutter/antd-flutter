@@ -1,6 +1,7 @@
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
@@ -17,16 +18,108 @@ Widget _wrap(Widget child) {
   );
 }
 
+class _MenuData {
+  const _MenuData({
+    required this.key,
+    this.label,
+    this.labelWidget,
+    this.icon,
+    this.children = const [],
+    this.disabled = false,
+    this.danger = false,
+    this.type = AntMenuItemType.item,
+  });
+
+  final String key;
+  final String? label;
+  final Widget? labelWidget;
+  final Widget? icon;
+  final List<_MenuData> children;
+  final bool disabled;
+  final bool danger;
+  final AntMenuItemType type;
+}
+
+Widget _menu({
+  Key? key,
+  List<_MenuData> items = const [],
+  AntMenuMode mode = AntMenuMode.inline,
+  AntMenuTheme theme = AntMenuTheme.light,
+  List<Object>? selectedKeys,
+  List<Object> defaultSelectedKeys = const [],
+  List<Object>? openKeys,
+  List<Object> defaultOpenKeys = const [],
+  ValueChanged<String>? onClick,
+  ValueChanged<_MenuData>? onItemClick,
+  ValueChanged<_MenuData>? onSelect,
+  ValueChanged<_MenuData>? onDeselect,
+  ValueChanged<List<Object>>? onSelectedKeysChange,
+  ValueChanged<List<Object>>? onOpenChange,
+  bool selectable = true,
+  bool multiple = false,
+  AntMenuTrigger triggerSubMenuAction = AntMenuTrigger.hover,
+  Duration subMenuOpenDelay = const Duration(milliseconds: 100),
+  Duration subMenuCloseDelay = const Duration(milliseconds: 100),
+  bool inlineCollapsed = false,
+  double inlineIndent = 24,
+  Widget? expandIcon,
+  Widget? overflowedIndicator,
+  bool disabled = false,
+  bool tooltip = true,
+}) {
+  return AntMenu<_MenuData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    childrenOf: (item) => item.children,
+    labelBuilder: (context, item, index) =>
+        item.labelWidget ?? Text(item.label ?? ''),
+    iconBuilder: (context, item) => item.icon,
+    typeOf: (item) => item.type,
+    disabledOf: (item) => item.disabled,
+    dangerOf: (item) => item.danger,
+    collapsedLabelOf: (item) => item.label,
+    mode: mode,
+    theme: theme,
+    selectedKeys: selectedKeys,
+    defaultSelectedKeys: defaultSelectedKeys,
+    openKeys: openKeys,
+    defaultOpenKeys: defaultOpenKeys,
+    onClick: onClick == null ? null : (item) => onClick(item.key),
+    onItemClick: onItemClick,
+    onSelect: onSelect,
+    onDeselect: onDeselect,
+    onSelectedKeysChange: onSelectedKeysChange,
+    onOpenChange: onOpenChange,
+    selectable: selectable,
+    multiple: multiple,
+    triggerSubMenuAction: triggerSubMenuAction,
+    subMenuOpenDelay: subMenuOpenDelay,
+    subMenuCloseDelay: subMenuCloseDelay,
+    inlineCollapsed: inlineCollapsed,
+    inlineIndent: inlineIndent,
+    expandIcon: expandIcon,
+    overflowedIndicator: overflowedIndicator,
+    disabled: disabled,
+    tooltip: tooltip,
+  );
+}
+
+TextStyle? _effectiveStyle(WidgetTester tester, String text) {
+  final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+  return paragraph.text.style;
+}
+
 void main() {
   group('AntMenu — 基础渲染', () {
     testWidgets('渲染菜单项文本', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
-              AntMenuItem(key: '3', label: '菜单项三'),
+              const _MenuData(key: '1', label: '菜单项一'),
+              const _MenuData(key: '2', label: '菜单项二'),
+              const _MenuData(key: '3', label: '菜单项三'),
             ],
           ),
         ),
@@ -39,12 +132,12 @@ void main() {
 
     testWidgets('items 为空时渲染 SizedBox.shrink', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntMenu()),
+        _wrap(_menu()),
       );
-      expect(find.byType(AntMenu), findsOneWidget);
+      expect(find.byType(AntMenu<_MenuData>), findsOneWidget);
       final sizedBox = tester.widget<SizedBox>(
         find.descendant(
-          of: find.byType(AntMenu),
+          of: find.byType(AntMenu<_MenuData>),
           matching: find.byType(SizedBox),
         ),
       );
@@ -55,9 +148,9 @@ void main() {
     testWidgets('渲染图标', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(
+              const _MenuData(
                 key: '1',
                 label: '首页',
                 icon: Icon(AntIcons.homeOutlined),
@@ -73,9 +166,9 @@ void main() {
     testWidgets('渲染 labelWidget', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(
+              const _MenuData(
                 key: '1',
                 label: '文本标签',
                 labelWidget: Text('自定义标签'),
@@ -91,15 +184,15 @@ void main() {
     testWidgets('渲染分组标题', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(
+              const _MenuData(
                 key: 'g1',
                 label: '分组一',
                 type: AntMenuItemType.group,
                 children: [
-                  AntMenuItem(key: '1', label: '选项 1'),
-                  AntMenuItem(key: '2', label: '选项 2'),
+                  _MenuData(key: '1', label: '选项 1'),
+                  _MenuData(key: '2', label: '选项 2'),
                 ],
               ),
             ],
@@ -114,11 +207,11 @@ void main() {
     testWidgets('渲染分割线', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '选项 1'),
-              AntMenuItem(key: 'd', type: AntMenuItemType.divider),
-              AntMenuItem(key: '2', label: '选项 2'),
+              const _MenuData(key: '1', label: '选项 1'),
+              const _MenuData(key: 'd', type: AntMenuItemType.divider),
+              const _MenuData(key: '2', label: '选项 2'),
             ],
           ),
         ),
@@ -134,10 +227,10 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              _MenuData(key: '1', label: '菜单项一'),
+              _MenuData(key: '2', label: '菜单项二'),
             ],
             onClick: (key) => clickedKey = key,
           ),
@@ -153,10 +246,10 @@ void main() {
     testWidgets('defaultSelectedKeys 默认选中', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              const _MenuData(key: '1', label: '菜单项一'),
+              const _MenuData(key: '2', label: '菜单项二'),
             ],
             defaultSelectedKeys: ['2'],
           ),
@@ -165,10 +258,12 @@ void main() {
 
       // 选中项应有背景色（找到带 BoxDecoration 的 Container）
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('菜单项二'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('菜单项二'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, isNot(Colors.transparent));
@@ -177,10 +272,10 @@ void main() {
     testWidgets('selectedKeys 受控选中', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              const _MenuData(key: '1', label: '菜单项一'),
+              const _MenuData(key: '2', label: '菜单项二'),
             ],
             selectedKeys: ['1'],
           ),
@@ -188,10 +283,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('菜单项一'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('菜单项一'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, isNot(Colors.transparent));
@@ -200,10 +297,10 @@ void main() {
     testWidgets('非受控模式点击后自动选中', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              const _MenuData(key: '1', label: '菜单项一'),
+              const _MenuData(key: '2', label: '菜单项二'),
             ],
           ),
         ),
@@ -213,10 +310,12 @@ void main() {
       await tester.pump();
 
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('菜单项二'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('菜单项二'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, isNot(Colors.transparent));
@@ -226,10 +325,10 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: '1', label: '菜单项一'),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              _MenuData(key: '1', label: '菜单项一'),
+              _MenuData(key: '2', label: '菜单项二'),
             ],
             selectedKeys: ['1'],
             onClick: (key) => clickedKey = key,
@@ -243,10 +342,12 @@ void main() {
       expect(clickedKey, '2');
       // 受控模式下 '1' 仍然选中
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('菜单项一'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('菜单项一'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, isNot(Colors.transparent));
@@ -256,10 +357,10 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: '1', label: '菜单项一', disabled: true),
-              AntMenuItem(key: '2', label: '菜单项二'),
+              _MenuData(key: '1', label: '菜单项一', disabled: true),
+              _MenuData(key: '2', label: '菜单项二'),
             ],
             onClick: (key) => clickedKey = key,
           ),
@@ -275,16 +376,15 @@ void main() {
     testWidgets('danger 项文字为红色', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: '1', label: '危险操作', danger: true),
+              const _MenuData(key: '1', label: '危险操作', danger: true),
             ],
           ),
         ),
       );
 
-      final text = tester.widget<Text>(find.text('危险操作'));
-      expect(text.style?.color, isA<Color>());
+      expect(_effectiveStyle(tester, '危险操作')?.color, isA<Color>());
     });
   });
 
@@ -292,11 +392,15 @@ void main() {
     testWidgets('点击子菜单标题切换展开', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-              ],),
+              const _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                ],
+              ),
             ],
           ),
         ),
@@ -319,11 +423,15 @@ void main() {
     testWidgets('defaultOpenKeys 默认展开', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-              ],),
+              const _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                ],
+              ),
             ],
             defaultOpenKeys: ['sub1'],
           ),
@@ -337,11 +445,15 @@ void main() {
     testWidgets('openKeys 受控展开', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-              ],),
+              const _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                ],
+              ),
             ],
             openKeys: ['sub1'],
           ),
@@ -353,14 +465,18 @@ void main() {
     });
 
     testWidgets('onOpenChange 回调触发', (tester) async {
-      List<String>? openKeys;
+      List<Object>? openKeys;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-              ],),
+              _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                ],
+              ),
             ],
             onOpenChange: (keys) => openKeys = keys,
           ),
@@ -377,12 +493,16 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-                AntMenuItem(key: '1-2', label: '子项 2'),
-              ],),
+              _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                  _MenuData(key: '1-2', label: '子项 2'),
+                ],
+              ),
             ],
             defaultOpenKeys: ['sub1'],
             onClick: (key) => clickedKey = key,
@@ -398,14 +518,18 @@ void main() {
     });
 
     testWidgets('受控 openKeys 点击不改变展开状态', (tester) async {
-      List<String>? lastOpenKeys;
+      List<Object>? lastOpenKeys;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             items: const [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '子项 1'),
-              ],),
+              _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '子项 1'),
+                ],
+              ),
             ],
             openKeys: ['sub1'],
             onOpenChange: (keys) => lastOpenKeys = keys,
@@ -426,13 +550,21 @@ void main() {
     testWidgets('嵌套子菜单', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             items: [
-              AntMenuItem(key: 'sub1', label: '一级菜单', children: [
-                AntMenuItem(key: 'sub1-1', label: '二级菜单', children: [
-                  AntMenuItem(key: '1-1-1', label: '三级项'),
-                ],),
-              ],),
+              const _MenuData(
+                key: 'sub1',
+                label: '一级菜单',
+                children: [
+                  _MenuData(
+                    key: 'sub1-1',
+                    label: '二级菜单',
+                    children: [
+                      _MenuData(key: '1-1-1', label: '三级项'),
+                    ],
+                  ),
+                ],
+              ),
             ],
             defaultOpenKeys: ['sub1'],
           ),
@@ -453,20 +585,22 @@ void main() {
     testWidgets('暗色主题背景色', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             theme: AntMenuTheme.dark,
             items: [
-              AntMenuItem(key: '1', label: '菜单项'),
+              const _MenuData(key: '1', label: '菜单项'),
             ],
           ),
         ),
       );
 
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('菜单项'),
-          matching: find.byType(Container),
-        ).last,
+        find
+            .ancestor(
+              of: find.text('菜单项'),
+              matching: find.byType(Container),
+            )
+            .last,
       );
       // 暗色主题背景为 0xFF001529
       expect(container.color, const Color(0xFF001529));
@@ -475,11 +609,11 @@ void main() {
     testWidgets('水平模式渲染', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             mode: AntMenuMode.horizontal,
             items: [
-              AntMenuItem(key: '1', label: '导航一'),
-              AntMenuItem(key: '2', label: '导航二'),
+              const _MenuData(key: '1', label: '导航一'),
+              const _MenuData(key: '2', label: '导航二'),
             ],
           ),
         ),
@@ -492,11 +626,11 @@ void main() {
     testWidgets('水平模式选中项有底部边框', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             mode: AntMenuMode.horizontal,
             items: [
-              AntMenuItem(key: '1', label: '导航一'),
-              AntMenuItem(key: '2', label: '导航二'),
+              const _MenuData(key: '1', label: '导航一'),
+              const _MenuData(key: '2', label: '导航二'),
             ],
             selectedKeys: ['1'],
           ),
@@ -504,10 +638,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('导航一'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('导航一'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration;
       final border = decoration.border as Border;
@@ -518,13 +654,17 @@ void main() {
     testWidgets('水平模式点击子菜单展开下拉面板', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             mode: AntMenuMode.horizontal,
             items: [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '下拉项 1'),
-              ],),
-              AntMenuItem(key: '2', label: '导航二'),
+              const _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '下拉项 1'),
+                ],
+              ),
+              const _MenuData(key: '2', label: '导航二'),
             ],
           ),
         ),
@@ -542,12 +682,16 @@ void main() {
       String? clickedKey;
       await tester.pumpWidget(
         _wrap(
-          AntMenu(
+          _menu(
             mode: AntMenuMode.horizontal,
             items: const [
-              AntMenuItem(key: 'sub1', label: '子菜单', children: [
-                AntMenuItem(key: '1-1', label: '下拉项 1'),
-              ],),
+              _MenuData(
+                key: 'sub1',
+                label: '子菜单',
+                children: [
+                  _MenuData(key: '1-1', label: '下拉项 1'),
+                ],
+              ),
             ],
             onClick: (key) => clickedKey = key,
           ),
@@ -568,18 +712,18 @@ void main() {
     testWidgets('水平模式跳过分组项', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             mode: AntMenuMode.horizontal,
             items: [
-              AntMenuItem(
+              const _MenuData(
                 key: 'g1',
                 label: '分组',
                 type: AntMenuItemType.group,
                 children: [
-                  AntMenuItem(key: '1', label: '选项'),
+                  _MenuData(key: '1', label: '选项'),
                 ],
               ),
-              AntMenuItem(key: '2', label: '普通项'),
+              const _MenuData(key: '2', label: '普通项'),
             ],
           ),
         ),
@@ -595,10 +739,14 @@ void main() {
     testWidgets('折叠模式下不渲染文字标签', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             inlineCollapsed: true,
             items: [
-              AntMenuItem(key: '1', label: '菜单项', icon: Icon(AntIcons.homeOutlined)),
+              const _MenuData(
+                key: '1',
+                label: '菜单项',
+                icon: Icon(AntIcons.homeOutlined),
+              ),
             ],
           ),
         ),
@@ -611,15 +759,15 @@ void main() {
     testWidgets('折叠模式下无展开箭头', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             inlineCollapsed: true,
             items: [
-              AntMenuItem(
+              const _MenuData(
                 key: 'sub1',
                 label: '子菜单',
                 icon: Icon(AntIcons.settingOutlined),
                 children: [
-                  AntMenuItem(key: '1-1', label: '子项'),
+                  _MenuData(key: '1-1', label: '子项'),
                 ],
               ),
             ],
@@ -637,12 +785,16 @@ void main() {
     testWidgets('inlineIndent 影响子菜单缩进', (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const AntMenu(
+          _menu(
             inlineIndent: 32,
             items: [
-              AntMenuItem(key: 'sub1', label: '一级', children: [
-                AntMenuItem(key: '1-1', label: '二级'),
-              ],),
+              const _MenuData(
+                key: 'sub1',
+                label: '一级',
+                children: [
+                  _MenuData(key: '1-1', label: '二级'),
+                ],
+              ),
             ],
             defaultOpenKeys: ['sub1'],
           ),
@@ -654,16 +806,20 @@ void main() {
 
       // 验证二级项的 padding left 大于一级项
       final level1Container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('一级'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('一级'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final level2Container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('二级'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('二级'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final l1Padding = level1Container.padding as EdgeInsets;
       final l2Padding = level2Container.padding as EdgeInsets;

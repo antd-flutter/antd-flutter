@@ -26,15 +26,9 @@ class FloatingBubblePage extends StatelessWidget {
             title: '三种拖拽轴向',
             child: Column(
               children: [
-                _AxisDemo(
-                  label: 'axis: x（仅水平）',
-                  axis: AntFloatingBubbleAxis.x,
-                ),
+                _AxisDemo(label: 'axis: x（仅水平）', axis: AntFloatingBubbleAxis.x),
                 SizedBox(height: 8),
-                _AxisDemo(
-                  label: 'axis: y（仅垂直）',
-                  axis: AntFloatingBubbleAxis.y,
-                ),
+                _AxisDemo(label: 'axis: y（仅垂直）', axis: AntFloatingBubbleAxis.y),
                 SizedBox(height: 8),
                 _AxisDemo(
                   label: 'axis: both（任意方向）',
@@ -44,15 +38,9 @@ class FloatingBubblePage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.w),
-          const _Section(
-            title: '带菜单',
-            child: _MenuDemo(),
-          ),
+          const _Section(title: '带菜单', child: _MenuDemo()),
           SizedBox(height: 16.w),
-          const _Section(
-            title: '边缘吸附（拖拽松手自动贴边）',
-            child: _AutoSnapDemo(),
-          ),
+          const _Section(title: '边缘吸附（拖拽松手自动贴边）', child: _AutoSnapDemo()),
           SizedBox(height: 16.w),
           const _Section(
             title: '自定义图标',
@@ -112,8 +100,8 @@ class _AxisDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: 
-          label,
+        AntText(
+          text: label,
           style: TextStyle(
             fontSize: theme.fontSizeSM.sp,
             color: theme.colorTextSecondary,
@@ -187,8 +175,8 @@ class _MenuDemoState extends State<_MenuDemo> {
         ),
         if (_lastAction != null) ...[
           SizedBox(height: 8.w),
-          AntText(text: 
-            '最近操作：$_lastAction',
+          AntText(
+            text: '最近操作：$_lastAction',
             style: TextStyle(
               fontSize: theme.fontSizeSM.sp,
               color: theme.colorTextSecondary,
@@ -221,8 +209,7 @@ class _AutoSnapDemoState extends State<_AutoSnapDemo> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AntText(
-          text:
-              '左：拖拽松手自动吸附最近左/右边缘（autoSnapToEdge）；右：拖拽后点按钮手动吸附',
+          text: '左：拖拽松手自动吸附最近左/右边缘（autoSnapToEdge）；右：拖拽后点按钮手动吸附',
           style: TextStyle(
             fontSize: theme.fontSizeSM.sp,
             color: theme.colorTextSecondary,
@@ -298,13 +285,16 @@ class _Section extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
-        border: Border.all(color: theme.colorBorderSecondary, width: theme.lineWidth),
+        border: Border.all(
+          color: theme.colorBorderSecondary,
+          width: theme.lineWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: theme.fontSize.sp,
               fontWeight: FontWeight.w600,

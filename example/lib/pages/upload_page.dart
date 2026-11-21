@@ -73,10 +73,14 @@ class UploadPage extends StatelessWidget {
                 // 模拟上传进度
                 for (var i = 0; i <= 100; i += 25) {
                   await Future.delayed(const Duration(milliseconds: 200));
-                  update(file.copyWith(
-                    status: i >= 100 ? AntUploadStatus.done : AntUploadStatus.uploading,
-                    percent: i,
-                  ));
+                  update(
+                    file.copyWith(
+                      status: i >= 100
+                          ? AntUploadStatus.done
+                          : AntUploadStatus.uploading,
+                      percent: i,
+                    ),
+                  );
                 }
               },
             ),
@@ -96,9 +100,7 @@ class UploadPage extends StatelessWidget {
             title: '禁用状态',
             child: const AntUpload(
               disabled: true,
-              defaultFileList: [
-                AntUploadFile(uid: '1', name: '只读文件.txt'),
-              ],
+              defaultFileList: [AntUploadFile(uid: '1', name: '只读文件.txt')],
             ),
           ),
           SizedBox(height: 16.h),

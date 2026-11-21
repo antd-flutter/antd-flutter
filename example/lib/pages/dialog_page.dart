@@ -102,7 +102,9 @@ class _DialogPageState extends State<DialogPage> {
                     AntDialog.alert(
                       context,
                       title: '强制操作',
-                      content: const AntText(text: 'closeOnMaskClick = false，必须点击按钮关闭。'),
+                      content: const AntText(
+                        text: 'closeOnMaskClick = false，必须点击按钮关闭。',
+                      ),
                       closeOnMaskClick: false,
                     );
                   },
@@ -128,8 +130,10 @@ class _DialogPageState extends State<DialogPage> {
                 color: theme.colorFillQuaternary,
                 borderRadius: BorderRadius.circular(theme.borderRadius.r),
               ),
-              child: AntText(text: '最近结果：$_lastResult',
-                  style: TextStyle(fontSize: 14.sp, color: theme.colorText)),
+              child: AntText(
+                text: '最近结果：$_lastResult',
+                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+              ),
             ),
           ),
           SizedBox(height: 16.w),
@@ -163,7 +167,11 @@ class _DialogPageState extends State<DialogPage> {
 
 /// 区块容器。
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -174,8 +182,8 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: 
-          title,
+        AntText(
+          text: title,
           style: TextStyle(
             fontSize: 15.sp,
             fontWeight: FontWeight.w600,

@@ -26,7 +26,10 @@ class DropdownPage extends StatelessWidget {
           _ItemStyleDemo(),
           _Section(title: '受控模式', description: 'open + onOpenChange 外部控制'),
           _ControlledDemo(),
-          _Section(title: 'Controller 模式', description: 'controller.show/hide 程序化控制，无需外部 state'),
+          _Section(
+            title: 'Controller 模式',
+            description: 'controller.show/hide 程序化控制，无需外部 state',
+          ),
           _ControllerDemo(),
         ],
       ),
@@ -48,15 +51,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
         ],
       ),

@@ -5,6 +5,52 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
+class _PanelData {
+  const _PanelData({
+    required this.label,
+    this.child,
+    this.extra,
+    this.disabled = false,
+  });
+
+  final String label;
+  final Widget? child;
+  final Widget? extra;
+  final bool disabled;
+}
+
+Widget _collapse({
+  Key? key,
+  required List<_PanelData> items,
+  bool accordion = false,
+  List<Object>? activeKey,
+  List<Object>? defaultActiveKey,
+  ValueChanged<List<Object>>? onChange,
+  AntCollapseExpandIconPosition expandIconPosition =
+      AntCollapseExpandIconPosition.left,
+  bool bordered = true,
+  AntCollapseSize size = AntCollapseSize.middle,
+  Widget Function(BuildContext, bool)? expandIcon,
+}) {
+  return AntCollapse<_PanelData>(
+    key: key,
+    items: items,
+    keyOf: (item) => 'panel_${items.indexOf(item)}',
+    labelBuilder: (context, item, index) => Text(item.label),
+    childBuilder: (context, item, index) => item.child,
+    extraBuilder: (context, item, index) => item.extra,
+    disabledOf: (item) => item.disabled,
+    accordion: accordion,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    onChange: onChange,
+    expandIconPosition: expandIconPosition,
+    bordered: bordered,
+    size: size,
+    expandIcon: expandIcon,
+  );
+}
+
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
     builder: (context, _) => MaterialApp(
@@ -18,16 +64,17 @@ Widget _wrap(Widget child) {
   );
 }
 
-List<AntCollapsePanel> _panels() => const [
-      AntCollapsePanel(label: '面板一', child: Text('内容一')),
-      AntCollapsePanel(label: '面板二', child: Text('内容二')),
-      AntCollapsePanel(label: '面板三', child: Text('内容三')),
+List<_PanelData> _panels() => const [
+      _PanelData(label: '面板一', child: Text('内容一')),
+      _PanelData(label: '面板二', child: Text('内容二')),
+      _PanelData(label: '面板三', child: Text('内容三')),
     ];
 
 void main() {
   group('AntCollapse', () {
-    testWidgets('basic rendering shows all labels and no content', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+    testWidgets('basic rendering shows all labels and no content',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_collapse(items: _panels())));
       expect(find.text('面板一'), findsOneWidget);
       expect(find.text('面板二'), findsOneWidget);
       expect(find.text('面板三'), findsOneWidget);
@@ -35,7 +82,7 @@ void main() {
     });
 
     testWidgets('tap expands content', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+      await tester.pumpWidget(_wrap(_collapse(items: _panels())));
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
       expect(find.text('内容一'), findsOneWidget);
@@ -43,10 +90,14 @@ void main() {
 
     testWidgets('tap again collapses content', (tester) async {
       const collapseKey = Key('collapse');
-      await tester.pumpWidget(_wrap(AntCollapse(
-        key: collapseKey,
-        items: _panels(),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            key: collapseKey,
+            items: _panels(),
+          ),
+        ),
+      );
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
       final expanded = tester.getSize(find.byKey(collapseKey)).height;
@@ -58,7 +109,7 @@ void main() {
 
     testWidgets('accordion allows only one open panel', (tester) async {
       await tester.pumpWidget(
-        _wrap(AntCollapse(items: _panels(), accordion: true)),
+        _wrap(_collapse(items: _panels(), accordion: true)),
       );
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
@@ -67,7 +118,7 @@ void main() {
       final aligns = tester
           .widgetList<Align>(
             find.descendant(
-              of: find.byType(AntCollapse),
+              of: find.byType(AntCollapse<_PanelData>),
               matching: find.byType(Align),
             ),
           )
@@ -80,20 +131,28 @@ void main() {
     });
 
     testWidgets('defaultActiveKey opens multiple panels', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(
-        items: _panels(),
-        defaultActiveKey: const ['panel_0', 'panel_1'],
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: _panels(),
+            defaultActiveKey: const ['panel_0', 'panel_1'],
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('内容一'), findsOneWidget);
       expect(find.text('内容二'), findsOneWidget);
     });
 
     testWidgets('controlled activeKey overrides taps', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(
-        items: _panels(),
-        activeKey: const ['panel_0'],
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: _panels(),
+            activeKey: const ['panel_0'],
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('内容一'), findsOneWidget);
       // 受控模式下点击面板二不会展开
@@ -103,11 +162,15 @@ void main() {
     });
 
     testWidgets('onChange fires with expanded keys', (tester) async {
-      final changes = <List<String>>[];
-      await tester.pumpWidget(_wrap(AntCollapse(
-        items: _panels(),
-        onChange: changes.add,
-      ),),);
+      final changes = <List<Object>>[];
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: _panels(),
+            onChange: changes.add,
+          ),
+        ),
+      );
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
       expect(changes, hasLength(1));
@@ -115,26 +178,50 @@ void main() {
     });
 
     testWidgets('disabled panel does not expand', (tester) async {
-      await tester.pumpWidget(_wrap(const AntCollapse(items: [
-        AntCollapsePanel(label: '禁用面板', child: Text('内容'), disabled: true),
-      ],),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: [
+              const _PanelData(
+                label: '禁用面板',
+                child: Text('内容'),
+                disabled: true,
+              ),
+            ],
+          ),
+        ),
+      );
       await tester.tap(find.text('禁用面板'));
       await tester.pumpAndSettle();
       expect(find.text('内容'), findsNothing);
     });
 
     testWidgets('extra widget renders in header', (tester) async {
-      await tester.pumpWidget(_wrap(const AntCollapse(items: [
-        AntCollapsePanel(label: '带extra', extra: Text('附加'), child: Text('内容')),
-      ],),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: [
+              const _PanelData(
+                label: '带extra',
+                extra: Text('附加'),
+                child: Text('内容'),
+              ),
+            ],
+          ),
+        ),
+      );
       expect(find.text('附加'), findsOneWidget);
     });
 
     testWidgets('expandIconPosition right places icon at end', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(
-        items: _panels(),
-        expandIconPosition: AntCollapseExpandIconPosition.right,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: _panels(),
+            expandIconPosition: AntCollapseExpandIconPosition.right,
+          ),
+        ),
+      );
       final row = tester.widget<Row>(
         find.ancestor(of: find.text('面板一'), matching: find.byType(Row)).first,
       );
@@ -142,37 +229,51 @@ void main() {
     });
 
     testWidgets('custom expandIcon is used', (tester) async {
-      await tester.pumpWidget(_wrap(AntCollapse(
-        items: _panels(),
-        expandIcon: (context, isExpanded) => const Icon(AntIcons.starFilled),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            items: _panels(),
+            expandIcon: (context, isExpanded) =>
+                const Icon(AntIcons.starFilled),
+          ),
+        ),
+      );
       expect(find.byIcon(AntIcons.starFilled), findsWidgets);
     });
 
     testWidgets('borderless variant has no outer border', (tester) async {
       const collapseKey = Key('collapse');
-      await tester.pumpWidget(_wrap(AntCollapse(
-        key: collapseKey,
-        items: _panels(),
-        bordered: false,
-      ),),);
-      final decorated = tester
-          .widget<DecoratedBox>(
-            find.descendant(
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            key: collapseKey,
+            items: _panels(),
+            bordered: false,
+          ),
+        ),
+      );
+      final decorated = tester.widget<DecoratedBox>(
+        find
+            .descendant(
               of: find.byKey(collapseKey),
               matching: find.byType(DecoratedBox),
-            ).first,
-          );
+            )
+            .first,
+      );
       final decoration = decorated.decoration as BoxDecoration;
       expect(decoration.border, isNull);
     });
 
     testWidgets('expanded panel height greater than collapsed', (tester) async {
       const collapseKey = Key('collapse');
-      await tester.pumpWidget(_wrap(AntCollapse(
-        key: collapseKey,
-        items: _panels(),
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _collapse(
+            key: collapseKey,
+            items: _panels(),
+          ),
+        ),
+      );
       final before = tester.getSize(find.byKey(collapseKey)).height;
       await tester.tap(find.text('面板一'));
       await tester.pumpAndSettle();
@@ -191,7 +292,7 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       });
 
-      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+      await tester.pumpWidget(_wrap(_collapse(items: _panels())));
       await tester.pump();
 
       // 669 逻辑宽下 .w 因子约 1.78；箭头应保持 12px 而非被放大到 ~21px。
@@ -212,7 +313,7 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       });
 
-      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+      await tester.pumpWidget(_wrap(_collapse(items: _panels())));
       await tester.pump();
 
       expect(

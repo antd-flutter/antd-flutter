@@ -16,12 +16,11 @@
 /// 垂直布局下每项占 `span` 列，同一行的 label、content 分别成行对齐。
 ///
 /// ```dart
-/// AntDescriptions(
+/// AntDescriptions<User>(
 ///   title: Text('用户信息'),
-///   items: [
-///     AntDescriptionsItem(label: '名称', child: Text('张三')),
-///     AntDescriptionsItem(label: '手机号', child: Text('138****8888'), span: 2),
-///   ],
+///   items: users,
+///   labelBuilder: (context, user, index) => Text('用户'),
+///   contentBuilder: (context, user, index) => Text(user.name),
 /// )
 /// ```
 library;
@@ -39,10 +38,13 @@ import 'package:material_ui/material_ui.dart';
 /// 描述列表 — 成列展示只读字段。
 ///
 /// 对齐 antd React Descriptions 组件。
-class AntDescriptions extends StatelessWidget {
+class AntDescriptions<T> extends StatelessWidget {
   const AntDescriptions({
     super.key,
     required this.items,
+    this.labelBuilder,
+    this.contentBuilder,
+    this.spanOf,
     this.title,
     this.extra,
     this.column = 3,
@@ -53,7 +55,16 @@ class AntDescriptions extends StatelessWidget {
   });
 
   /// 描述项列表。
-  final List<AntDescriptionsItem> items;
+  final List<T> items;
+
+  /// 描述标签构建器，未提供时回退为 `Text('$item')`。
+  final AntDescriptionsLabelBuilder<T>? labelBuilder;
+
+  /// 描述内容构建器。
+  final AntDescriptionsContentBuilder<T>? contentBuilder;
+
+  /// 占用列数提取器，默认 1。
+  final int Function(T item)? spanOf;
 
   /// 列表标题。
   final Widget? title;
@@ -124,6 +135,7 @@ class AntDescriptions extends StatelessWidget {
                   : MediaQuery.sizeOf(context).width;
               final unit = width / (vertical ? columns : columns * 2);
               return _buildTable(
+                context,
                 theme,
                 metrics,
                 rows,
@@ -175,12 +187,11 @@ class AntDescriptions extends StatelessWidget {
       final rowItems = <_PlacedItem>[];
       var usedSpan = 0;
       while (index < items.length && usedSpan < columns) {
-        final item = items[index];
-        final span = (item.span < 1 ? 1 : item.span).clamp(
+        final span = (spanOf?.call(items[index]) ?? 1).clamp(
           1,
           columns - usedSpan,
         );
-        rowItems.add(_PlacedItem(item: item, span: span));
+        rowItems.add(_PlacedItem(index: index, span: span));
         usedSpan += span;
         index++;
       }
@@ -190,6 +201,7 @@ class AntDescriptions extends StatelessWidget {
   }
 
   Widget _buildTable(
+    BuildContext context,
     AntThemeData theme,
     _DescriptionsMetrics metrics,
     List<List<_PlacedItem>> rows,
@@ -203,8 +215,17 @@ class AntDescriptions extends StatelessWidget {
       final isLastRow = index == rows.length - 1;
       blocks.add(
         vertical
-            ? _buildVerticalBlock(theme, metrics, row, unit, columns, isLastRow)
+            ? _buildVerticalBlock(
+                context,
+                theme,
+                metrics,
+                row,
+                unit,
+                columns,
+                isLastRow,
+              )
             : _buildHorizontalRow(
+                context,
                 theme,
                 metrics,
                 row,
@@ -230,6 +251,7 @@ class AntDescriptions extends StatelessWidget {
 
   /// 水平布局的一行：每项占 `2 * span` 列，label 固定 1 列宽。
   Widget _buildHorizontalRow(
+    BuildContext context,
     AntThemeData theme,
     _DescriptionsMetrics metrics,
     List<_PlacedItem> row,
@@ -249,6 +271,7 @@ class AntDescriptions extends StatelessWidget {
           flex: placed.span * 2,
           child: bordered
               ? _buildBorderedHorizontalCell(
+                  context,
                   theme,
                   metrics,
                   placed,
@@ -267,14 +290,20 @@ class AntDescriptions extends StatelessWidget {
                       SizedBox(
                         width: unit,
                         child: _buildLabel(
+                          context,
                           theme,
                           theme.colorTextTertiary,
+                          index: placed.index,
                           metrics: metrics,
-                          item: placed.item,
                         ),
                       ),
                       Expanded(
-                        child: _buildContent(theme, placed.item, metrics),
+                        child: _buildContent(
+                          context,
+                          theme,
+                          placed.index,
+                          metrics,
+                        ),
                       ),
                     ],
                   ),
@@ -319,6 +348,7 @@ class AntDescriptions extends StatelessWidget {
 
   /// 水平 + 边框：label 灰底格 + content 格，right/bottom 画内部分隔线。
   Widget _buildBorderedHorizontalCell(
+    BuildContext context,
     AntThemeData theme,
     _DescriptionsMetrics metrics,
     _PlacedItem placed,
@@ -341,10 +371,11 @@ class AntDescriptions extends StatelessWidget {
             ),
           ),
           child: _buildLabel(
+            context,
             theme,
             theme.colorTextSecondary,
+            index: placed.index,
             metrics: metrics,
-            item: placed.item,
           ),
         ),
         Expanded(
@@ -356,7 +387,7 @@ class AntDescriptions extends StatelessWidget {
                 bottom: isLastRow ? BorderSide.none : divider,
               ),
             ),
-            child: _buildContent(theme, placed.item, metrics),
+            child: _buildContent(context, theme, placed.index, metrics),
           ),
         ),
       ],
@@ -365,6 +396,7 @@ class AntDescriptions extends StatelessWidget {
 
   /// 垂直布局的一块：label 行 + content 行，跨列方向对齐。
   Widget _buildVerticalBlock(
+    BuildContext context,
     AntThemeData theme,
     _DescriptionsMetrics metrics,
     List<_PlacedItem> row,
@@ -399,10 +431,11 @@ class AntDescriptions extends StatelessWidget {
                     ),
                   ),
                   child: _buildLabel(
+                    context,
                     theme,
                     theme.colorTextSecondary,
+                    index: placed.index,
                     metrics: metrics,
-                    item: placed.item,
                     showColon: false,
                   ),
                 )
@@ -412,10 +445,11 @@ class AntDescriptions extends StatelessWidget {
                     bottom: 8.w,
                   ),
                   child: _buildLabel(
+                    context,
                     theme,
                     theme.colorTextTertiary,
+                    index: placed.index,
                     metrics: metrics,
-                    item: placed.item,
                     showColon: false,
                   ),
                 ),
@@ -437,14 +471,14 @@ class AntDescriptions extends StatelessWidget {
                           : BorderSide(color: theme.colorSplit, width: 1),
                     ),
                   ),
-                  child: _buildContent(theme, placed.item, metrics),
+                  child: _buildContent(context, theme, placed.index, metrics),
                 )
               : Padding(
                   padding: EdgeInsets.only(
                     right: metrics.itemPaddingEnd,
                     bottom: isLastRow ? 0 : metrics.itemPaddingBottom,
                   ),
-                  child: _buildContent(theme, placed.item, metrics),
+                  child: _buildContent(context, theme, placed.index, metrics),
                 ),
         ),
       );
@@ -513,26 +547,39 @@ class AntDescriptions extends StatelessWidget {
   }
 
   Widget _buildLabel(
+    BuildContext context,
     AntThemeData theme,
     Color color, {
+    required int index,
     required _DescriptionsMetrics metrics,
-    required AntDescriptionsItem item,
     bool showColon = true,
   }) {
     final hasColon = showColon && colon;
-    return Text(
-      '${item.label ?? ''}${hasColon ? ':' : ''}',
-      style: TextStyle(
-        fontSize: metrics.labelFontSize,
-        color: color,
-        height: 1.5,
-      ),
+    final style = TextStyle(
+      fontSize: metrics.labelFontSize,
+      color: color,
+      height: 1.5,
+    );
+    final label = labelBuilder?.call(context, items[index], index);
+    if (label == null) {
+      return Text('${items[index]}${hasColon ? ':' : ''}', style: style);
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(
+          child: DefaultTextStyle.merge(style: style, child: label),
+        ),
+        if (hasColon) Text(':', style: style),
+      ],
     );
   }
 
   Widget _buildContent(
+    BuildContext context,
     AntThemeData theme,
-    AntDescriptionsItem item,
+    int index,
     _DescriptionsMetrics metrics,
   ) {
     return DefaultTextStyle.merge(
@@ -541,16 +588,17 @@ class AntDescriptions extends StatelessWidget {
         color: theme.colorText,
         height: 1.5,
       ),
-      child: item.child ?? const SizedBox.shrink(),
+      child: contentBuilder?.call(context, items[index], index) ??
+          const SizedBox.shrink(),
     );
   }
 }
 
 /// 一项及其在本行中实际占用的列数。
 class _PlacedItem {
-  const _PlacedItem({required this.item, required this.span});
+  const _PlacedItem({required this.index, required this.span});
 
-  final AntDescriptionsItem item;
+  final int index;
   final int span;
 }
 

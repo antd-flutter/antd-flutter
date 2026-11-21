@@ -53,18 +53,9 @@ class StepperPage extends StatelessWidget {
             child: AntSpace(
               align: AntSpaceAlign.center,
               children: [
-                AntStepper(
-                  defaultValue: 1,
-                  size: AntStepperSize.small,
-                ),
-                AntStepper(
-                  defaultValue: 1,
-                  size: AntStepperSize.middle,
-                ),
-                AntStepper(
-                  defaultValue: 1,
-                  size: AntStepperSize.large,
-                ),
+                AntStepper(defaultValue: 1, size: AntStepperSize.small),
+                AntStepper(defaultValue: 1, size: AntStepperSize.middle),
+                AntStepper(defaultValue: 1, size: AntStepperSize.large),
               ],
             ),
           ),
@@ -89,16 +80,10 @@ class StepperPage extends StatelessWidget {
           SizedBox(height: 16.h),
           _Section(
             title: '禁用状态',
-            child: AntStepper(
-              defaultValue: 3,
-              disabled: true,
-            ),
+            child: AntStepper(defaultValue: 3, disabled: true),
           ),
           SizedBox(height: 16.h),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );
@@ -150,7 +135,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: theme.fontSizeLG, fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: theme.fontSizeLG,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           SizedBox(height: 12.h),
           child,
         ],

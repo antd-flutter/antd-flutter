@@ -103,6 +103,14 @@ packages/
   - 已有双端差异的控件（Calendar card 布局、Picker 滚轮/下拉等）按同一原则复核
 - R39 **图标统一使用 antd_icons_flutter（用户指定，适用于所有 UI）**：组件代码、示例与测试中的图标一律使用 `antd_icons_flutter` 的 `AntIcons.*` / `AntdIcon`，不得再使用 Material `Icons.*`；antd 图标集无对应语义时选择最接近的 antd 图标并在提交说明中记录；非图标语义的图形标记（如 Radio 圆点、Checkbox 方块）按 antd 外观自绘，不借 Material 图标凑形状。新增组件同样遵守。
 
+- R40 **数据参数泛型化（用户指定，适用于所有数据组件）**：组件类带 `<T>`，数据集合一律 `List<T> dataSource` / `List<T> items`，值为 `T value`；组件不得要求使用者先构造本库的 `Ant*Item/Option` 或 `Map` 行。
+  - 结构取数只靠回调：`keyOf`（缺省 index）、`childrenOf`（树/级联/菜单/分组）、`disabledOf`、`valueExtractor` 等；
+  - 渲染一律 builder：`labelBuilder(context,T)`、`titleBuilder`、`descriptionBuilder`、`contentBuilder`、`itemBuilder(context,T,int)`、`dotBuilder` 等，字符串标题仅作缺省回退；
+  - 禁止字符串取值：不再有 `dataIndex`；排序/筛选用 `Comparator<T>`/`bool Function(T,T)` 等类型回调；
+  - 1.0 发布前允许破坏性变更；旧 `Ant*Item` 数据类可保留 `@Deprecated` 过渡，但组件必须已走泛型；
+  - 每个组件至少一条「用户自定义模型」测试，示例页统一用业务模型（如 `_Person`/`_Region`），不用字符串 Map；
+  - 约定细节见 `docs/plan/tasks/data-model-generic-convention.md`，审计清单见 `docs/plan/tasks/data-model-audit.md`。
+
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
 - R30.1 轮子参考清单（实现对应组件时必须先研究该轮子源码）：
@@ -229,6 +237,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **数据参数全面泛型化（破坏性）**：Table/Tree/TreeSelect/Transfer/Picker/Cascader/PickerView/Upload/Select/Radio/Checkbox/CheckList/Selector/Segmented/AutoComplete/Mentions/Slider/ColorPicker/ImageUploader/Tabs 家族/SideBar/IndexBar/Menu/Steps/Anchor/Breadcrumb/List/Timeline/Descriptions/Collapse/Tour/Card 改为 `<T>` + builder 数据源，删除 dataIndex/Ant*Item 强约束；新增规则 R40 与两份任务文档；ui 测试 1540、root example 59、各独立包全绿 |
 | 2026-11-21 | **全库图标迁移 antd_icons_flutter**：58 个库文件 + 53 个测试文件 + 主示例 4 处 Material `Icons.*` 全部替换为 `AntIcons.*`，Table 单选筛选改为自绘圆点，新增规则 R39；11 个依赖图标包的独立包补充 `antd_icons_flutter` 依赖 |
 | 2026-11-21 | **批次 3 收尾完成并合并 develop**（cc7ef4d）：select-like 核查 / Calendar 双端打磨 / 全量回归 / example 身份 + gen-docs 终态；删除 task/p08-split，当前分支 develop |
 | 2026-11-21 | **交接状态刷新**：快照更新至批次 2 全部完成（16 独立包）；验收清单按状态表归位（`migration_status.dart` 修正 14 误挂/16 误标/6 重复 → 78 ✅ / 29 ⏱）；进行中任务改为批次 3 收尾；标记 R37/自举/README 完成 |

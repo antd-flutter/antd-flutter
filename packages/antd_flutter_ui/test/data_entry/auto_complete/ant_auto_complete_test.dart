@@ -17,27 +17,46 @@ Widget _wrap(Widget child) {
   );
 }
 
-const _options = [
-  AntAutoCompleteOption(value: 'apple', label: 'Apple'),
-  AntAutoCompleteOption(value: 'banana', label: 'Banana'),
-  AntAutoCompleteOption(value: 'cherry', label: 'Cherry'),
-  AntAutoCompleteOption(value: 'grape', label: 'Grape'),
-];
+const _options = ['apple', 'banana', 'cherry', 'grape'];
+
+/// 字符串选项 → 首字母大写 label。
+String _labelOf(String value) =>
+    value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);
+
+/// 自定义模型：城市（名称用于展示与回填）。
+class _City {
+  const _City(this.id, this.name);
+
+  final String id;
+  final String name;
+}
+
+const _cities = [_City('sh', '上海'), _City('bj', '北京')];
 
 void main() {
   group('AntAutoComplete', () {
     testWidgets('renders placeholder', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        placeholder: '请输入',
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            placeholder: '请输入',
+          ),
+        ),
+      );
       expect(find.text('请输入'), findsOneWidget);
     });
 
     testWidgets('shows dropdown when focused', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+          ),
+        ),
+      );
       // Initially no dropdown
       expect(find.text('Apple'), findsNothing);
       // Tap to focus
@@ -51,9 +70,14 @@ void main() {
     });
 
     testWidgets('filters options based on input', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'app');
@@ -64,10 +88,16 @@ void main() {
       expect(find.text('Grape'), findsNothing);
     });
 
-    testWidgets('shows no-match message when filter finds nothing', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-      ),),);
+    testWidgets('shows no-match message when filter finds nothing',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'zzz');
@@ -76,9 +106,14 @@ void main() {
     });
 
     testWidgets('selects option and fills input', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       // Tap option in dropdown
@@ -86,15 +121,20 @@ void main() {
       await tester.pumpAndSettle();
       // Input filled with value
       final textField = tester.widget<TextField>(find.byType(TextField));
-      expect(textField.controller!.text, 'banana');
+      expect(textField.controller!.text, 'Banana');
     });
 
     testWidgets('calls onChange when typing', (tester) async {
       String? changed;
-      await tester.pumpWidget(_wrap(AntAutoComplete(
-        options: _options,
-        onChange: (v) => changed = v,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            onChange: (v) => changed = v,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'hello');
@@ -103,34 +143,49 @@ void main() {
     });
 
     testWidgets('calls onSelect when selecting an option', (tester) async {
-      AntAutoCompleteOption? selected;
-      await tester.pumpWidget(_wrap(AntAutoComplete(
-        options: _options,
-        onSelect: (o) => selected = o,
-      ),),);
+      String? selected;
+      await tester.pumpWidget(
+        _wrap(
+          AntAutoComplete<String>(
+            options: _options,
+            labelOf: _labelOf,
+            onSelect: (o) => selected = o,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cherry').last);
       await tester.pumpAndSettle();
-      expect(selected, isNotNull);
-      expect(selected!.value, 'cherry');
+      expect(selected, 'cherry');
     });
 
     testWidgets('disabled state prevents interaction', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        disabled: true,
-        placeholder: '禁用',
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            disabled: true,
+            placeholder: '禁用',
+          ),
+        ),
+      );
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.enabled, false);
     });
 
-    testWidgets('filterOption=false shows all options regardless of input', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        filterOption: false,
-      ),),);
+    testWidgets('filterOption=false shows all options regardless of input',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            filterOption: false,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'zzz');
@@ -140,29 +195,45 @@ void main() {
     });
 
     testWidgets('defaultValue shows initial value', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        defaultValue: 'banana',
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            defaultValue: 'banana',
+          ),
+        ),
+      );
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.controller!.text, 'banana');
     });
 
     testWidgets('controlled value overrides internal value', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        value: 'apple',
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            value: 'Apple',
+          ),
+        ),
+      );
       final textField = tester.widget<TextField>(find.byType(TextField));
-      expect(textField.controller!.text, 'apple');
+      expect(textField.controller!.text, 'Apple');
     });
 
-    testWidgets('allowClear shows clear button and clears value', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: _options,
-        defaultValue: 'banana',
-        allowClear: true,
-      ),),);
+    testWidgets('allowClear shows clear button and clears value',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+            options: _options,
+            labelOf: _labelOf,
+            defaultValue: 'Banana',
+            allowClear: true,
+          ),
+        ),
+      );
       // Clear icon visible
       expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
       await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
@@ -172,15 +243,17 @@ void main() {
     });
 
     testWidgets('disabled option cannot be selected', (tester) async {
-      const options = [
-        AntAutoCompleteOption(value: 'a', label: 'A'),
-        AntAutoCompleteOption(value: 'b', label: 'B', disabled: true),
-      ];
-      AntAutoCompleteOption? selected;
-      await tester.pumpWidget(_wrap(AntAutoComplete(
-        options: options,
-        onSelect: (o) => selected = o,
-      ),),);
+      String? selected;
+      await tester.pumpWidget(
+        _wrap(
+          AntAutoComplete<String>(
+            options: const ['a', 'b'],
+            labelOf: (v) => v.toUpperCase(),
+            disabledOf: (v) => v == 'b',
+            onSelect: (o) => selected = o,
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       // Disabled option has no InkWell onTap
@@ -193,36 +266,95 @@ void main() {
       expect(selected, isNull);
     });
 
-    testWidgets('option displayLabel falls back to value when label is null', (tester) async {
-      const options = [AntAutoCompleteOption(value: 'onlyValue')];
-      await tester.pumpWidget(_wrap(const AntAutoComplete(
-        options: options,
-      ),),);
+    testWidgets('labelOf 缺省时回退为 item 文本', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete<String>(
+            options: ['onlyValue'],
+          ),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       expect(find.text('onlyValue'), findsOneWidget);
     });
   });
 
-  group('AntAutoComplete — popup_engine 边界（翻转/夹回）', () {
-    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const Align(
-          alignment: Alignment.bottomCenter,
-          child: AntAutoComplete(options: _options),
+  group('AntAutoComplete — 自定义模型', () {
+    testWidgets('自定义模型：labelOf/valueOf/onSelect 回传模型对象', (tester) async {
+      _City? selected;
+      String? typed;
+      await tester.pumpWidget(
+        _wrap(
+          AntAutoComplete<_City>(
+            options: _cities,
+            labelOf: (city) => city.name,
+            onSelect: (city) => selected = city,
+            onChange: (text) => typed = text,
+          ),
         ),
-      ),);
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
-      final panel = tester.getRect(find.byKey(const Key('ant_auto_complete_panel')));
-      final trigger = tester.getRect(find.byType(AntAutoComplete));
+      expect(find.text('上海'), findsOneWidget);
+      expect(find.text('北京'), findsOneWidget);
+
+      await tester.tap(find.text('北京').last);
+      await tester.pumpAndSettle();
+      expect(selected?.id, 'bj');
+      expect(typed, '北京');
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      expect(textField.controller!.text, '北京');
+    });
+
+    testWidgets('自定义模型：itemBuilder 整行自定义渲染', (tester) async {
+      _City? selected;
+      await tester.pumpWidget(
+        _wrap(
+          AntAutoComplete<_City>(
+            options: _cities,
+            labelOf: (city) => city.name,
+            itemBuilder: (context, city, index) => Padding(
+                padding: const EdgeInsets.all(6),
+                child: Text('城市：${city.name}'),),
+            onSelect: (city) => selected = city,
+          ),
+        ),
+      );
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      expect(find.text('城市：上海'), findsOneWidget);
+      await tester.tap(find.text('城市：上海'));
+      await tester.pumpAndSettle();
+      expect(selected?.id, 'sh');
+    });
+  });
+
+  group('AntAutoComplete — popup_engine 边界（翻转/夹回）', () {
+    testWidgets('视口下方放不下时面板翻转到上方', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: AntAutoComplete(options: _options, labelOf: _labelOf),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+      final panel =
+          tester.getRect(find.byKey(const Key('ant_auto_complete_panel')));
+      final trigger = tester.getRect(find.byType(AntAutoComplete<String>));
       expect(panel.top, lessThanOrEqualTo(trigger.top + 0.01));
     });
 
     testWidgets('镂空遮挡不干扰输入框继续输入', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntAutoComplete(options: _options, defaultValue: ''),
-      ),);
+      await tester.pumpWidget(
+        _wrap(
+          const AntAutoComplete(
+              options: _options, labelOf: _labelOf, defaultValue: '',),
+        ),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       // 弹层打开时输入框仍可输入（弹层遮挡镂空触发区域）
@@ -242,34 +374,40 @@ void main() {
         if (w is DecoratedBox && w.decoration is BoxDecoration) {
           final d = w.decoration as BoxDecoration;
           final b = d.border;
-          if (b != null && !(b is Border && b.dimensions == const EdgeInsets.all(0))) {
+          if (b != null &&
+              !(b is Border && b.dimensions == const EdgeInsets.all(0))) {
             count++;
           }
         }
         e.visitChildren(visit);
       }
+
       visit(root);
       return count;
     }
 
     testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
       // 模拟 app 主题注入 enabledBorder/focusedBorder（双层边框根因场景）
-      await tester.pumpWidget(AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
-          theme: ThemeData(
-            inputDecorationTheme: const InputDecorationTheme(
-              enabledBorder: OutlineInputBorder(),
-              focusedBorder: OutlineInputBorder(),
+      await tester.pumpWidget(
+        AntScreenUtilInit(
+          builder: (context, _) => MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                enabledBorder: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(),
+              ),
             ),
-          ),
-          home: Scaffold(
-            body: AntTheme(
-              data: AntThemeData.light(),
-              child: const Material(child: AntAutoComplete(options: _options)),
+            home: Scaffold(
+              body: AntTheme(
+                data: AntThemeData.light(),
+                child: const Material(
+                    child:
+                        AntAutoComplete(options: _options, labelOf: _labelOf),),
+              ),
             ),
           ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       // 输入框自身四态边框均为 none（单一外层描边语义）
       final decoration =
@@ -279,19 +417,21 @@ void main() {
       expect(decoration.focusedBorder, InputBorder.none);
       expect(decoration.disabledBorder, InputBorder.none);
       // 探针出图核对：触发区域整棵子树只有外层容器 1 道边框
-      final root = tester.element(find.byType(AntAutoComplete));
+      final root = tester.element(find.byType(AntAutoComplete<String>));
       expect(countBorderedDecorations(root), 1);
     });
   });
 
   group('AntAutoComplete — 验收回归（面板贴齐 / 禁用灰底）', () {
     testWidgets('联想面板紧贴触发元素：面板 top − 触发 bottom ≈ gap(4±2)', (tester) async {
-      await tester.pumpWidget(_wrap(const AntAutoComplete(options: _options)),);
+      await tester.pumpWidget(
+        _wrap(const AntAutoComplete(options: _options, labelOf: _labelOf)),
+      );
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
       final panel =
           tester.getRect(find.byKey(const Key('ant_auto_complete_panel')));
-      final trigger = tester.getRect(find.byType(AntAutoComplete));
+      final trigger = tester.getRect(find.byType(AntAutoComplete<String>));
       final actualGap = panel.top - trigger.bottom;
       expect(actualGap, greaterThanOrEqualTo(2));
       expect(actualGap, lessThanOrEqualTo(6));
@@ -299,27 +439,30 @@ void main() {
 
     testWidgets('禁用态背景为灰底（colorBgContainerDisabled），非主题白色填充', (tester) async {
       // 模拟 Material 桥接主题注入 filled 白底（双层白底根因场景）
-      await tester.pumpWidget(AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
-          theme: ThemeData(
-            inputDecorationTheme: const InputDecorationTheme(
-              filled: true,
-              fillColor: Colors.white,
+      await tester.pumpWidget(
+        AntScreenUtilInit(
+          builder: (context, _) => MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.white,
+              ),
             ),
-          ),
-          home: Scaffold(
-            body: AntTheme(
-              data: AntThemeData.light(),
-              child: const Material(
-                child: AntAutoComplete(
-                  options: _options,
-                  disabled: true,
+            home: Scaffold(
+              body: AntTheme(
+                data: AntThemeData.light(),
+                child: const Material(
+                  child: AntAutoComplete(
+                    options: _options,
+                    labelOf: _labelOf,
+                    disabled: true,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       // 输入框不自行填充（filled:false 基座契约，杜绝主题白底渗入盖掉容器灰底）
       final decoration =
@@ -330,15 +473,17 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(AntAutoComplete),
+              of: find.byType(AntAutoComplete<String>),
               matching: find.byWidgetPredicate(
                 (w) => w is Container && w.decoration is BoxDecoration,
               ),
             )
             .first,
       );
-      expect((container.decoration! as BoxDecoration).color,
-          t.colorBgContainerDisabled,);
+      expect(
+        (container.decoration! as BoxDecoration).color,
+        t.colorBgContainerDisabled,
+      );
     });
   });
 }

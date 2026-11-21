@@ -49,10 +49,22 @@ class TagPage extends StatelessWidget {
               spacing: 8.w,
               runSpacing: 8.w,
               children: const [
-                AntTag(child: '成功', color: AntTagColor.success, bordered: false),
-                AntTag(child: '处理中', color: AntTagColor.processing, bordered: false),
+                AntTag(
+                  child: '成功',
+                  color: AntTagColor.success,
+                  bordered: false,
+                ),
+                AntTag(
+                  child: '处理中',
+                  color: AntTagColor.processing,
+                  bordered: false,
+                ),
                 AntTag(child: '错误', color: AntTagColor.error, bordered: false),
-                AntTag(child: '警告', color: AntTagColor.warning, bordered: false),
+                AntTag(
+                  child: '警告',
+                  color: AntTagColor.warning,
+                  bordered: false,
+                ),
               ],
             ),
           ),
@@ -130,14 +142,16 @@ class TagPage extends StatelessWidget {
   }
 
   void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

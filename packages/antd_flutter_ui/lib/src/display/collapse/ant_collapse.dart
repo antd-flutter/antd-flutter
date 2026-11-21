@@ -11,8 +11,11 @@
 /// - [size] — 尺寸
 ///
 /// ```dart
-/// AntCollapse(items: [AntCollapsePanel(label: '标题', child: Text('内容'))])
-/// AntCollapse(accordion: true, items: [...])
+/// AntCollapse<Section>(
+///   items: sections,
+///   labelBuilder: (context, section, index) => Text(section.title),
+///   childBuilder: (context, section, index) => Text(section.body),
+/// )
 /// ```
 library;
 
@@ -30,10 +33,16 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 /// 折叠面板 — 内容分组折叠展示。
 ///
 /// 对齐 antd React Collapse 组件。
-class AntCollapse extends StatefulWidget {
+class AntCollapse<T> extends StatefulWidget {
   const AntCollapse({
     super.key,
     required this.items,
+    this.keyOf,
+    this.labelBuilder,
+    this.childBuilder,
+    this.extraBuilder,
+    this.disabledOf,
+    this.forceRenderOf,
     this.accordion = false,
     this.activeKey,
     this.defaultActiveKey,
@@ -45,19 +54,37 @@ class AntCollapse extends StatefulWidget {
   });
 
   /// 面板列表。
-  final List<AntCollapsePanel> items;
+  final List<T> items;
+
+  /// 面板 key 提取器，默认使用下标。
+  final Object Function(T item)? keyOf;
+
+  /// 面板标题构建器，未提供时回退为 `Text('$item')`。
+  final AntCollapseLabelBuilder<T>? labelBuilder;
+
+  /// 面板内容构建器。
+  final AntCollapseChildBuilder<T>? childBuilder;
+
+  /// 面板右侧附加内容构建器。
+  final AntCollapseExtraBuilder<T>? extraBuilder;
+
+  /// 是否禁用。
+  final bool Function(T item)? disabledOf;
+
+  /// 是否强制渲染内容。
+  final bool Function(T item)? forceRenderOf;
 
   /// 手风琴模式（同时只展开一个面板）。
   final bool accordion;
 
   /// 受控展开 key 集合（accordion 模式下最多一个）。
-  final List<String>? activeKey;
+  final List<Object>? activeKey;
 
   /// 默认展开 key 集合。
-  final List<String>? defaultActiveKey;
+  final List<Object>? defaultActiveKey;
 
   /// 展开状态变化回调。
-  final ValueChanged<List<String>>? onChange;
+  final ValueChanged<List<Object>>? onChange;
 
   /// 箭头位置。
   final AntCollapseExpandIconPosition expandIconPosition;
@@ -72,11 +99,11 @@ class AntCollapse extends StatefulWidget {
   final AntCollapseSize size;
 
   @override
-  State<AntCollapse> createState() => _AntCollapseState();
+  State<AntCollapse<T>> createState() => _AntCollapseState<T>();
 }
 
-class _AntCollapseState extends State<AntCollapse> {
-  late Set<String> _expandedKeys;
+class _AntCollapseState<T> extends State<AntCollapse<T>> {
+  late Set<Object> _expandedKeys;
 
   bool get _isControlled => widget.activeKey != null;
 
@@ -87,26 +114,25 @@ class _AntCollapseState extends State<AntCollapse> {
   }
 
   @override
-  void didUpdateWidget(covariant AntCollapse oldWidget) {
+  void didUpdateWidget(covariant AntCollapse<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_isControlled) {
       _expandedKeys = widget.activeKey!.toSet();
     }
   }
 
-  Set<String> _initialKeys() {
+  Set<Object> _initialKeys() {
     if (_isControlled) return widget.activeKey!.toSet();
-    final keys = widget.defaultActiveKey?.toSet() ?? <String>{};
+    final keys = widget.defaultActiveKey?.toSet() ?? <Object>{};
     if (widget.accordion && keys.length > 1) {
       return {keys.first};
     }
     return keys;
   }
 
-  String _panelKey(AntCollapsePanel panel, int index) =>
-      panel.key ?? 'panel_$index';
+  Object _panelKey(T item, int index) => widget.keyOf?.call(item) ?? index;
 
-  void _toggle(String key) {
+  void _toggle(Object key) {
     if (_isControlled) {
       // 受控模式：只回调，不改变内部状态
       widget.onChange?.call(_expandedKeys.toList());
@@ -117,7 +143,9 @@ class _AntCollapseState extends State<AntCollapse> {
         _expandedKeys.remove(key);
       } else {
         if (widget.accordion) {
-          _expandedKeys..clear()..add(key);
+          _expandedKeys
+            ..clear()
+            ..add(key);
         } else {
           _expandedKeys.add(key);
         }
@@ -166,13 +194,15 @@ class _AntCollapseState extends State<AntCollapse> {
   Widget _buildPanel(
     BuildContext context,
     AntThemeData theme,
-    AntCollapsePanel panel,
+    T item,
     int index,
     ({double vertical, double horizontal}) paddings,
     bool showTopBorder,
   ) {
-    final key = _panelKey(panel, index);
+    final key = _panelKey(item, index);
     final expanded = _expandedKeys.contains(key);
+    final disabled = widget.disabledOf?.call(item) ?? false;
+    final forceRender = widget.forceRenderOf?.call(item) ?? false;
     final isRight =
         widget.expandIconPosition == AntCollapseExpandIconPosition.right;
 
@@ -185,11 +215,12 @@ class _AntCollapseState extends State<AntCollapse> {
           child: Icon(
             AntIcons.rightOutlined,
             size: theme.fontSizeIcon,
-            color: panel.disabled
-                ? theme.colorTextDisabled
-                : theme.colorTextSecondary,
+            color:
+                disabled ? theme.colorTextDisabled : theme.colorTextSecondary,
           ),
         );
+
+    final extra = widget.extraBuilder?.call(context, item, index);
 
     Widget headerRow = Row(
       children: [
@@ -198,20 +229,20 @@ class _AntCollapseState extends State<AntCollapse> {
           SizedBox(width: theme.marginXS),
         ],
         Expanded(
-          child: Text(
-            panel.label,
+          child: DefaultTextStyle.merge(
             style: TextStyle(
               fontSize: theme.fontSize,
               fontWeight: FontWeight.w500,
-              color: panel.disabled
-                  ? theme.colorTextDisabled
-                  : theme.colorTextHeading,
+              color:
+                  disabled ? theme.colorTextDisabled : theme.colorTextHeading,
             ),
+            child: widget.labelBuilder?.call(context, item, index) ??
+                Text('$item'),
           ),
         ),
-        if (panel.extra != null) ...[
+        if (extra != null) ...[
           SizedBox(width: theme.marginXS),
-          panel.extra!,
+          extra,
         ],
         if (isRight) ...[
           SizedBox(width: theme.marginXS),
@@ -220,7 +251,7 @@ class _AntCollapseState extends State<AntCollapse> {
       ],
     );
 
-    if (!panel.disabled) {
+    if (!disabled) {
       headerRow = GestureDetector(
         onTap: () => _toggle(key),
         behavior: HitTestBehavior.opaque,
@@ -229,7 +260,7 @@ class _AntCollapseState extends State<AntCollapse> {
     }
 
     // 内容懒加载：首次展开或 forceRender 时才挂载
-    final shouldRenderContent = panel.forceRender || expanded;
+    final shouldRenderContent = forceRender || expanded;
 
     return Container(
       key: ValueKey<String>('collapse_item_$key'),
@@ -263,7 +294,7 @@ class _AntCollapseState extends State<AntCollapse> {
                           right: paddings.horizontal,
                           bottom: paddings.vertical,
                         ),
-                        child: panel.child,
+                        child: widget.childBuilder?.call(context, item, index),
                       ),
                     )
                   : const SizedBox(width: double.infinity),

@@ -119,13 +119,11 @@ class AvatarPage extends StatelessWidget {
             child: Row(
               children: [
                 AntAvatar(
-                  src:
-                      'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+                  src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                 ),
                 SizedBox(width: 16.w),
                 AntAvatar(
-                  src:
-                      'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+                  src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                   shape: AntAvatarShape.square,
                 ),
                 SizedBox(width: 16.w),
@@ -134,9 +132,8 @@ class AvatarPage extends StatelessWidget {
                 AntAvatar(
                   src: 'https://invalid.example.com/bad.png',
                   onError: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('图片加载失败')),
-                    );
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(content: Text('图片加载失败')));
                   },
                 ),
               ],
@@ -149,7 +146,11 @@ class AvatarPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;

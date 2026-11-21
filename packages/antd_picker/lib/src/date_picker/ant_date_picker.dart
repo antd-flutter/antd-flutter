@@ -41,6 +41,7 @@ class AntDatePicker extends StatefulWidget {
     this.size = AntDatePickerSize.middle,
     this.format = 'yyyy-MM-dd',
     this.autofocus = false,
+    this.labelBuilder,
   });
 
   /// 受控日期值。
@@ -69,6 +70,9 @@ class AntDatePicker extends StatefulWidget {
 
   /// 是否自动聚焦。
   final bool autofocus;
+
+  /// 触发器日期自定义渲染；为空时按 [format] 格式化显示。
+  final Widget Function(BuildContext context, DateTime date)? labelBuilder;
 
   @override
   State<AntDatePicker> createState() => _AntDatePickerState();
@@ -217,12 +221,13 @@ class _AntDatePickerState extends State<AntDatePicker> {
                           color: theme.colorTextPlaceholder,
                         ),
                       )
-                    : Text(
-                        _formatDate(value),
+                    : DefaultTextStyle.merge(
                         style: TextStyle(
                           fontSize: theme.fontSize.sp,
                           color: theme.colorText,
                         ),
+                        child: widget.labelBuilder?.call(context, value) ??
+                            Text(_formatDate(value)),
                       ),
               ),
               if (showClear)

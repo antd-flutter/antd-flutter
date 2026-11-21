@@ -87,28 +87,30 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
           _Section(
             title: 'locale 自定义文案',
             theme: theme,
-            child: Builder(builder: (context) {
-              const zh = AntConfigLocale(
-                languageCode: 'zh-CN',
-                messages: {'ok': '确认', 'cancel': '取消'},
-              );
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('语言码：${zh.languageCode}'),
-                  SizedBox(height: 4.w),
-                  AntConfigProvider(
-                    locale: zh,
-                    child: Builder(
-                      builder: (context) => Text(
-                        '文案：${AntConfigProvider.of(context).text('ok')} / '
-                        '${AntConfigProvider.of(context).text('cancel')}',
+            child: Builder(
+              builder: (context) {
+                const zh = AntConfigLocale(
+                  languageCode: 'zh-CN',
+                  messages: {'ok': '确认', 'cancel': '取消'},
+                );
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('语言码：${zh.languageCode}'),
+                    SizedBox(height: 4.w),
+                    AntConfigProvider(
+                      locale: zh,
+                      child: Builder(
+                        builder: (context) => Text(
+                          '文案：${AntConfigProvider.of(context).text('ok')} / '
+                          '${AntConfigProvider.of(context).text('cancel')}',
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            }),
+                  ],
+                );
+              },
+            ),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -136,15 +138,17 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
           _Section(
             title: '默认值',
             theme: theme,
-            child: Builder(builder: (context) {
-              final config = AntConfigProvider.of(context);
-              return Text(
-                '当前页面无 Provider 时返回默认：'
-                'direction=${config.direction.name}、'
-                'locale=${config.locale?.languageCode ?? "未设置"}、'
-                '主题=${AntTheme.of(context).isDark ? "暗色" : "亮色"}',
-              );
-            }),
+            child: Builder(
+              builder: (context) {
+                final config = AntConfigProvider.of(context);
+                return Text(
+                  '当前页面无 Provider 时返回默认：'
+                  'direction=${config.direction.name}、'
+                  'locale=${config.locale?.languageCode ?? "未设置"}、'
+                  '主题=${AntTheme.of(context).isDark ? "暗色" : "亮色"}',
+                );
+              },
+            ),
           ),
         ],
       ),

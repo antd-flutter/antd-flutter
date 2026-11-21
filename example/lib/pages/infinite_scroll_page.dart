@@ -19,23 +19,11 @@ class InfiniteScrollPage extends StatelessWidget {
             child: const _ControllerDemo(),
           ),
           SizedBox(height: 16.w),
-          _Section(
-            title: '基础用法（模拟分页加载）',
-            theme: theme,
-            child: _BasicDemo(),
-          ),
+          _Section(title: '基础用法（模拟分页加载）', theme: theme, child: _BasicDemo()),
           SizedBox(height: 16.w),
-          _Section(
-            title: '失败重试',
-            theme: theme,
-            child: const _RetryDemo(),
-          ),
+          _Section(title: '失败重试', theme: theme, child: const _RetryDemo()),
           SizedBox(height: 16.w),
-          _Section(
-            title: '自定义文案',
-            theme: theme,
-            child: _CustomTextDemo(),
-          ),
+          _Section(title: '自定义文案', theme: theme, child: _CustomTextDemo()),
           SizedBox(height: 16.w),
           _Section(
             title: 'threshold 提前触发',
@@ -43,11 +31,7 @@ class InfiniteScrollPage extends StatelessWidget {
             child: _ThresholdDemo(),
           ),
           SizedBox(height: 16.w),
-          _Section(
-            title: '没有更多',
-            theme: theme,
-            child: const _NoMoreDemo(),
-          ),
+          _Section(title: '没有更多', theme: theme, child: const _NoMoreDemo()),
         ],
       ),
     );
@@ -79,8 +63,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -109,8 +93,7 @@ class _ControllerDemo extends StatefulWidget {
 }
 
 class _ControllerDemoState extends State<_ControllerDemo> {
-  final AntInfiniteScrollController _controller =
-      AntInfiniteScrollController();
+  final AntInfiniteScrollController _controller = AntInfiniteScrollController();
   final List<String> _items = _mockPage(0);
   int _page = 1;
 
@@ -154,19 +137,21 @@ class _ControllerDemoState extends State<_ControllerDemo> {
             child: SingleChildScrollView(
               child: Column(
                 children: _items
-                    .map((item) => Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(12.w),
-                          margin: EdgeInsets.only(bottom: 8.w),
-                          decoration: BoxDecoration(
-                            color: AntTheme.of(context).colorFillQuaternary,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: AntText(
-                            text: item,
-                            style: TextStyle(fontSize: 14.sp),
-                          ),
-                        ))
+                    .map(
+                      (item) => Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.w),
+                        margin: EdgeInsets.only(bottom: 8.w),
+                        decoration: BoxDecoration(
+                          color: AntTheme.of(context).colorFillQuaternary,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: AntText(
+                          text: item,
+                          style: TextStyle(fontSize: 14.sp),
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -184,7 +169,8 @@ class _BasicDemo extends StatefulWidget {
   State<_BasicDemo> createState() => _BasicDemoState();
 }
 
-class _BasicDemoState extends State<_BasicDemo> {  final List<String> _items = _mockPage(0);
+class _BasicDemoState extends State<_BasicDemo> {
+  final List<String> _items = _mockPage(0);
   int _page = 1;
 
   Future<bool> _loadMore() async {
@@ -205,19 +191,21 @@ class _BasicDemoState extends State<_BasicDemo> {  final List<String> _items = _
         child: SingleChildScrollView(
           child: Column(
             children: _items
-                .map((item) => Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(12.w),
-                      margin: EdgeInsets.only(bottom: 8.w),
-                      decoration: BoxDecoration(
-                        color: AntTheme.of(context).colorFillQuaternary,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: AntText(
-                        text: item,
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                    ))
+                .map(
+                  (item) => Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12.w),
+                    margin: EdgeInsets.only(bottom: 8.w),
+                    decoration: BoxDecoration(
+                      color: AntTheme.of(context).colorFillQuaternary,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -244,13 +232,15 @@ class _RetryDemo extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: _mockPage(0)
-                .map((item) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.w),
-                      child: AntText(
-                        text: item,
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.w),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -287,13 +277,15 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
         child: SingleChildScrollView(
           child: Column(
             children: _mockPage(0)
-                .map((item) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.w),
-                      child: AntText(
-                        text: item,
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.w),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -332,10 +324,15 @@ class _ThresholdDemoState extends State<_ThresholdDemo> {
         child: SingleChildScrollView(
           child: Column(
             children: _items
-                .map((item) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.w),
-                      child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.w),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -357,13 +354,15 @@ class _NoMoreDemo extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: _mockPage(0)
-                .map((item) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.w),
-                      child: AntText(
-                        text: item,
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.w),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),

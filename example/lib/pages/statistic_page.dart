@@ -47,11 +47,7 @@ class StatisticPage extends StatelessWidget {
                   prefix: Text('¥'),
                 ),
                 SizedBox(width: 48.w),
-                const AntStatistic(
-                  title: '距离',
-                  value: 88,
-                  suffix: Text('km'),
-                ),
+                const AntStatistic(title: '距离', value: 88, suffix: Text('km')),
               ],
             ),
           ),
@@ -108,11 +104,7 @@ class StatisticPage extends StatelessWidget {
             theme: theme,
             child: Row(
               children: [
-                const AntStatistic(
-                  title: '加载中',
-                  value: 112893,
-                  loading: true,
-                ),
+                const AntStatistic(title: '加载中', value: 112893, loading: true),
               ],
             ),
           ),
@@ -123,7 +115,11 @@ class StatisticPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
