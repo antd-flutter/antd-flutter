@@ -179,9 +179,11 @@ class _AntCollapseState extends State<AntCollapse> {
         AnimatedRotation(
           turns: expanded ? 0.25 : 0,
           duration: const Duration(milliseconds: 200),
+          // 箭头跟随字号而非屏幕宽度：桌面 12px（antd fontSizeIcon），
+          // 移动端随 14px 标题等比，避免宽屏设备上 .w 放大到 21px+。
           child: Icon(
             Icons.arrow_forward_ios,
-            size: 12.w,
+            size: theme.fontSizeIcon,
             color: panel.disabled
                 ? theme.colorTextDisabled
                 : theme.colorTextSecondary,

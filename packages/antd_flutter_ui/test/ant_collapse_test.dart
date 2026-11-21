@@ -1,5 +1,6 @@
 import 'package:antd_flutter_ui/src/display/collapse/ant_collapse.dart';
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -176,6 +177,47 @@ void main() {
       await tester.pumpAndSettle();
       final after = tester.getSize(find.byKey(collapseKey)).height;
       expect(after, greaterThan(before));
+    });
+
+    testWidgets('arrow size is fixed regardless of wide mobile width',
+        (tester) async {
+      tester.view.physicalSize = const Size(669 * 3, 951 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+      await tester.pump();
+
+      // 669 逻辑宽下 .w 因子约 1.78；箭头应保持 12px 而非被放大到 ~21px。
+      expect(
+        tester.getSize(find.byIcon(Icons.arrow_forward_ios).first),
+        const Size(12, 12),
+      );
+    });
+
+    testWidgets('arrow size matches desktop on wide desktop window',
+        (tester) async {
+      tester.view.physicalSize = const Size(1728 * 2, 972 * 2);
+      tester.view.devicePixelRatio = 2.0;
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      await tester.pumpWidget(_wrap(AntCollapse(items: _panels())));
+      await tester.pump();
+
+      expect(
+        tester.getSize(find.byIcon(Icons.arrow_forward_ios).first),
+        const Size(12, 12),
+      );
     });
   });
 }
