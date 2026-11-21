@@ -26,7 +26,6 @@ const kPendingVerify = <String>[
   'virtual_input',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
   'auto_complete',
-  'mentions',
   // 批次 0-5 数据展示残余
   'collapse',
   'descriptions',
@@ -52,6 +51,7 @@ const kPendingVerify = <String>[
 ];
 
 const kMigratedVerified = <String>[
+  'mentions',
   // 基础层
   'button',
   'typography',
