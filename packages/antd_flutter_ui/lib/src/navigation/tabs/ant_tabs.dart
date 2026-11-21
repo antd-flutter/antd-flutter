@@ -134,6 +134,11 @@ class _AntTabsState<T> extends State<AntTabs<T>> {
   /// 当前指示条几何信息；null 表示尚未测量完成。
   Rect? _indicatorRect;
 
+  /// outlined 分段控件的内容坐标基准与各段矩形（用于绘制外框/分隔线/选中段描边）。
+  final GlobalKey _outlinedContentKey = GlobalKey();
+  List<Rect> _outlinedSegments = const <Rect>[];
+  bool _outlinedMeasureScheduled = false;
+
   bool _measureScheduled = false;
 
   @override
@@ -289,6 +294,42 @@ class _AntTabsState<T> extends State<AntTabs<T>> {
 
     if (_indicatorRect == rect) return;
     setState(() => _indicatorRect = rect);
+  }
+
+  /// 在布局完成后测量 outlined 各段矩形，驱动边框绘制层。
+  void _scheduleOutlinedMeasure() {
+    if (_outlinedMeasureScheduled) return;
+    _outlinedMeasureScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _outlinedMeasureScheduled = false;
+      if (!mounted) return;
+      _updateOutlinedSegments();
+    });
+  }
+
+  void _updateOutlinedSegments() {
+    if (!widget.items.isNotEmpty || widget.type != AntTabsType.outlined) return;
+    final contentBox =
+        _outlinedContentKey.currentContext?.findRenderObject() as RenderBox?;
+    if (contentBox == null || !contentBox.hasSize) return;
+
+    final rects = <Rect>[];
+    for (final key in _tabKeys) {
+      final box = key.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return;
+      final origin = box.localToGlobal(Offset.zero, ancestor: contentBox);
+      rects.add(origin & box.size);
+    }
+    if (rects.length != _outlinedSegments.length) {
+      setState(() => _outlinedSegments = rects);
+      return;
+    }
+    for (var i = 0; i < rects.length; i++) {
+      if (rects[i] != _outlinedSegments[i]) {
+        setState(() => _outlinedSegments = rects);
+        return;
+      }
+    }
   }
 
   /// line 类型的滑动指示条（唯一一条，随激活项平移）。
@@ -488,18 +529,36 @@ class _AntTabsState<T> extends State<AntTabs<T>> {
     }
 
     if (isOutlined) {
+      _scheduleOutlinedMeasure();
+      var activeIndex = -1;
+      for (var i = 0; i < widget.items.length; i++) {
+        if (_keyAt(i) == _currentKey) {
+          activeIndex = i;
+          break;
+        }
+      }
       // 外框只包住标签本身（与 antd Radio.Button 分组一致），不撑满整行。
       bar = Align(
         alignment: AlignmentDirectional.centerStart,
         child: IntrinsicWidth(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorBgContainer,
-              border: Border.all(color: theme.colorBorder),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: bar,
+          child: Stack(
+            children: [
+              KeyedSubtree(key: _outlinedContentKey, child: bar),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    key: const ValueKey('ant-tabs-outlined-border'),
+                    painter: _OutlinedTabsPainter(
+                      segments: _outlinedSegments,
+                      activeIndex: activeIndex,
+                      borderColor: theme.colorBorder,
+                      activeColor: theme.colorPrimary,
+                      radius: 6,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -583,22 +642,25 @@ class _AntTabsState<T> extends State<AntTabs<T>> {
     }
 
     // 外边框分段样式：段与段之间以 1px 分隔线切分，选中段覆盖主色描边。
-    BoxDecoration? outlinedDecoration;
-    if (isOutlined) {
-      outlinedDecoration = isActive
-          ? BoxDecoration(
-              color: theme.colorBgContainer,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: theme.colorPrimary),
-            )
-          : BoxDecoration(
-              border: Border(
-                left: index == 0
-                    ? BorderSide.none
-                    : BorderSide(color: theme.colorBorder),
-              ),
-            );
-    }
+    // outlined 分段控件的边框统一由「外框 + 分隔线 + 选中段描边」绘制层负责，
+    // 各段自身不再画边框，避免相邻段边线重叠、圆角与整组圆角不一致。
+    final outlinedDecoration = isOutlined && _isHorizontal && isActive
+        ? BoxDecoration(color: theme.colorBgContainer)
+        : null;
+
+    // 让 labelBuilder 返回的内容继承激活/禁用态的文字颜色与字号。
+    tabContent = DefaultTextStyle.merge(
+      style: TextStyle(
+        fontSize: _fontSize,
+        fontWeight: FontWeight.w400,
+        color: disabled
+            ? theme.colorTextDisabled
+            : isActive
+                ? theme.colorPrimary
+                : theme.colorText,
+      ),
+      child: tabContent,
+    );
 
     // 卡片样式：每项一枚带边框的卡片，活动项底色与内容区连通。
     BoxDecoration? cardDecoration;
@@ -786,5 +848,85 @@ class _AntTabsState<T> extends State<AntTabs<T>> {
       return Expanded(child: content);
     }
     return Expanded(child: content);
+  }
+}
+
+/// outlined 分段控件边框绘制层：整组圆角外框 + 内部分隔线 + 选中段描边。
+/// 选中段与整组共用外框圆角，内侧保持直角，避免出现独立圆角胶囊。
+class _OutlinedTabsPainter extends CustomPainter {
+  _OutlinedTabsPainter({
+    required this.segments,
+    required this.activeIndex,
+    required this.borderColor,
+    required this.activeColor,
+    required this.radius,
+  });
+
+  final List<Rect> segments;
+  final int activeIndex;
+  final Color borderColor;
+  final Color activeColor;
+  final double radius;
+
+  static const double _stroke = 1;
+
+  Paint get _borderPaint => Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = _stroke
+    ..color = borderColor;
+
+  Paint get _activePaint => Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = _stroke
+    ..color = activeColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final frame = Rect.fromLTWH(
+      _stroke / 2,
+      _stroke / 2,
+      size.width - _stroke,
+      size.height - _stroke,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, Radius.circular(radius)),
+      _borderPaint,
+    );
+
+    for (var i = 0; i < segments.length - 1; i++) {
+      if (i == activeIndex || i + 1 == activeIndex) continue;
+      final x = segments[i].right;
+      canvas.drawLine(
+        Offset(x, _stroke),
+        Offset(x, size.height - _stroke),
+        _borderPaint,
+      );
+    }
+
+    if (activeIndex < 0 || activeIndex >= segments.length) return;
+    final seg = segments[activeIndex].deflate(_stroke / 2);
+    final corner = Radius.circular(radius);
+    final isFirst = activeIndex == 0;
+    final isLast = activeIndex == segments.length - 1;
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        seg,
+        topLeft: isFirst ? corner : Radius.zero,
+        bottomLeft: isFirst ? corner : Radius.zero,
+        topRight: isLast ? corner : Radius.zero,
+        bottomRight: isLast ? corner : Radius.zero,
+      ),
+      _activePaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_OutlinedTabsPainter oldDelegate) {
+    return oldDelegate.activeIndex != activeIndex ||
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.activeColor != activeColor ||
+        oldDelegate.radius != radius ||
+        oldDelegate.segments != segments;
   }
 }

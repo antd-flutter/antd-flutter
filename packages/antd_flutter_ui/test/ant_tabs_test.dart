@@ -1,6 +1,10 @@
 /// AntTabs Widget 测试
 library;
 
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
+
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -68,13 +72,13 @@ Widget _tabs({
 
 Widget _wrap(Widget child) {
   return MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
-    );
+    ),
+  );
 }
 
 List<_TabData> _sampleItems() => const [
@@ -273,11 +277,24 @@ void main() {
 
     testWidgets('outlined type renders one outer frame with segmented tabs',
         (tester) async {
+      final shotKey = GlobalKey();
       await tester.pumpWidget(
-        _wrap(_tabs(type: AntTabsType.outlined, items: _sampleItems())),
+        RepaintBoundary(
+          key: shotKey,
+          child:
+              _wrap(_tabs(type: AntTabsType.outlined, items: _sampleItems())),
+        ),
       );
-      // 整组一枚外框
-      final outer = tester
+      await tester.pumpAndSettle();
+
+      // 边框由统一绘制层负责：外框 + 分隔线 + 选中段描边。
+      expect(
+        find.byKey(const ValueKey('ant-tabs-outlined-border')),
+        findsOneWidget,
+      );
+
+      // 各段自身不再画边框，避免相邻段边线重叠与孤立圆角。
+      final segmentDecorations = tester
           .widgetList<Container>(
             find.descendant(
               of: find.byType(AntTabs<_TabData>),
@@ -286,32 +303,11 @@ void main() {
           )
           .map((c) => c.decoration)
           .whereType<BoxDecoration>()
-          .where(
-            (d) =>
-                d.border != null &&
-                d.border!.top.color == const Color(0xFFD9D9D9),
-          )
+          .where((d) => d.border != null)
           .toList();
-      expect(outer, isNotEmpty);
+      expect(segmentDecorations, isEmpty);
 
-      // 选中段：主色描边
-      final active = tester
-          .widgetList<Container>(
-            find.ancestor(
-              of: find.text('Tab 1'),
-              matching: find.byType(Container),
-            ),
-          )
-          .map((c) => c.decoration)
-          .whereType<BoxDecoration>()
-          .firstWhere(
-            (d) =>
-                d.border != null &&
-                d.border!.top.color == const Color(0xFF1677FF),
-          );
-      expect(active.borderRadius, BorderRadius.circular(6));
-
-      // 非选中段之间由 1px 分隔线切分
+      // 各段首尾相接（无间隙）
       final first = tester.getRect(
         find
             .ancestor(of: find.text('Tab 1'), matching: find.byType(Container))
@@ -323,9 +319,29 @@ void main() {
             .first,
       );
       expect(second.left, closeTo(first.right, 0.01));
-
-      // 高度 32
       expect(first.height, closeTo(32, 0.01));
+
+      // 选中段左侧边缘为 1px 主色描边（与外框圆角一致）。
+      final boundary = tester.renderObject<RenderRepaintBoundary>(
+        find.byKey(shotKey),
+      );
+      final image = await tester.runAsync(
+        () => boundary.toImage(pixelRatio: 1),
+      );
+      final data = await tester.runAsync(
+        () => image!.toByteData(format: ui.ImageByteFormat.rawRgba),
+      );
+      final bytes = data!.buffer.asUint8List();
+      final y = (first.top + first.height / 2).round();
+      final x = first.left.floor();
+      final offset = (y * image!.width + x) * 4;
+      final pixel = Color.fromARGB(
+        bytes[offset + 3],
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+      );
+      expect(pixel, const Color(0xFF1677FF));
     });
 
     testWidgets('editableCard shows add button', (tester) async {
