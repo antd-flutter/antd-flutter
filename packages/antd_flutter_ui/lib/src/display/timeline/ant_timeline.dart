@@ -91,6 +91,7 @@ class AntTimeline extends StatelessWidget {
         for (var i = 0; i < displayItems.length; i++)
           _TimelineRow(
             item: displayItems[i],
+            index: i,
             isFirst: i == 0,
             isLast: i == displayItems.length - 1,
             alternate:
@@ -109,6 +110,7 @@ class AntTimeline extends StatelessWidget {
 class _TimelineRow extends StatelessWidget {
   const _TimelineRow({
     required this.item,
+    required this.index,
     required this.isFirst,
     required this.isLast,
     required this.alternate,
@@ -118,6 +120,7 @@ class _TimelineRow extends StatelessWidget {
   });
 
   final AntTimelineItem item;
+  final int index;
   final bool isFirst;
   final bool isLast;
   final bool alternate;
@@ -125,13 +128,14 @@ class _TimelineRow extends StatelessWidget {
   final bool rightAligned;
   final AntThemeData theme;
 
-  static const double _dotSize = 12;
+  static const double _dotSize = 12;  // antd dotSize，固定不随屏幕缩放
   static const double _lineWidth = 2;
 
   @override
   Widget build(BuildContext context) {
     final dot = _buildDot();
     final content = _buildContent();
+    final gap = isLast ? 0.0 : 16.w;
     final label = item.label != null
         ? Text(
             item.label!,
@@ -155,17 +159,17 @@ class _TimelineRow extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 16.w, top: 2.w),
+                  padding: EdgeInsets.only(right: 16.w, bottom: gap),
                   child: leftSide ?? const SizedBox.shrink(),
                 ),
               ),
             ),
-            _buildCenterColumn(dot),
+            _buildDotColumn(dot),
             Expanded(
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 16.w, top: 2.w),
+                  padding: EdgeInsets.only(left: 16.w, bottom: gap),
                   child: rightSide ?? const SizedBox.shrink(),
                 ),
               ),
@@ -183,13 +187,13 @@ class _TimelineRow extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(top: 2.w),
+                  padding: EdgeInsets.only(bottom: gap),
                   child: content,
                 ),
               ),
             ),
             SizedBox(width: 16.w),
-            _buildEndColumn(dot),
+            _buildDotColumn(dot),
           ],
         ),
       );
@@ -208,9 +212,14 @@ class _TimelineRow extends StatelessWidget {
                 ),
               ),
             ],
-            _buildStartColumn(dot),
+            _buildDotColumn(dot),
             SizedBox(width: 16.w),
-            Expanded(child: content),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: gap),
+                child: content,
+              ),
+            ),
           ],
         ),
       );
@@ -228,83 +237,40 @@ class _TimelineRow extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 16.w),
-      child: row,
-    );
+    return row;
   }
 
-  /// 节点 + 上下延伸的轴线（居中列，alternate 用）。
-  Widget _buildCenterColumn(Widget dot) {
+  /// 节点列：轴线贯穿整列，节点垂直居中于内容首行。
+  ///
+  /// 内容列不再额外加顶部偏移，节点中心即首行行高的一半；
+  /// 轴线用 CustomPaint 画在节点下方/上方并一直延伸到行边界，
+  /// 行与行衔接处不会断开；首项不再向上延伸、末项不再向下延伸。
+  Widget _buildDotColumn(Widget dot) {
+    final centerY = theme.fontSize * 1.5 / 2;
     return SizedBox(
-      width: _dotSize.w,
-      child: Column(
+      width: _dotSize,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                width: _lineWidth.w,
-                child: Container(
-                  color: isFirst ? Colors.transparent : theme.colorSplit,
-                ),
-              ),
+          CustomPaint(
+            key: ValueKey('ant-timeline-tail-$index'),
+            painter: _TimelineRailPainter(
+              color: theme.colorSplit,
+              lineWidth: _lineWidth,
+              centerY: centerY,
+              isFirst: isFirst,
+              isLast: isLast,
             ),
           ),
-          dot,
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                width: _lineWidth.w,
-                child: Container(
-                  color: isLast ? Colors.transparent : theme.colorSplit,
-                ),
+          Column(
+            children: [
+              SizedBox(height: (centerY - _dotSize / 2).clamp(0.0, double.infinity)),
+              SizedBox(
+                height: _dotSize,
+                child: Center(child: dot),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  /// 节点 + 向下延伸的轴线（左端列，默认模式用）。
-  Widget _buildStartColumn(Widget dot) {
-    return SizedBox(
-      width: _dotSize.w,
-      child: Column(
-        children: [
-          dot,
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                width: _lineWidth.w,
-                child: Container(
-                  color: isLast ? Colors.transparent : theme.colorSplit,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 节点 + 向上延伸的轴线（右端列，right 模式用）。
-  Widget _buildEndColumn(Widget dot) {
-    return SizedBox(
-      width: _dotSize.w,
-      child: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                width: _lineWidth.w,
-                child: Container(
-                  color: isFirst ? Colors.transparent : theme.colorSplit,
-                ),
-              ),
-            ),
-          ),
-          dot,
         ],
       ),
     );
@@ -316,14 +282,15 @@ class _TimelineRow extends StatelessWidget {
     }
     final color = item.dotColor ?? _presetColor(theme);
     return Container(
-      width: _dotSize.w,
-      height: _dotSize.w,
+      key: ValueKey('ant-timeline-dot-$index'),
+      width: _dotSize,
+      height: _dotSize,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
         border: Border.all(
           color: theme.colorBgContainer,
-          width: 2.w,
+          width: 2,
         ),
       ),
     );
@@ -356,5 +323,43 @@ class _TimelineRow extends StatelessWidget {
       ),
       child: item.content ?? const SizedBox.shrink(),
     );
+  }
+}
+
+/// 轴线绘制：从节点中心向下延伸到行底部（末项止于节点中心），
+/// 首项不向上延伸。相邻两行的轴线首尾相接，整条时间轴保持连续。
+class _TimelineRailPainter extends CustomPainter {
+  const _TimelineRailPainter({
+    required this.color,
+    required this.lineWidth,
+    required this.centerY,
+    required this.isFirst,
+    required this.isLast,
+  });
+
+  final Color color;
+  final double lineWidth;
+  final double centerY;
+  final bool isFirst;
+  final bool isLast;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final top = isFirst ? centerY : 0.0;
+    final bottom = isLast ? centerY : size.height;
+    if (bottom <= top) return;
+    canvas.drawRect(
+      Rect.fromLTWH((size.width - lineWidth) / 2, top, lineWidth, bottom - top),
+      Paint()..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _TimelineRailPainter oldDelegate) {
+    return color != oldDelegate.color ||
+        lineWidth != oldDelegate.lineWidth ||
+        centerY != oldDelegate.centerY ||
+        isFirst != oldDelegate.isFirst ||
+        isLast != oldDelegate.isLast;
   }
 }

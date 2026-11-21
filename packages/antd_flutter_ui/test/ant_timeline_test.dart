@@ -46,6 +46,32 @@ void main() {
       expect(find.text('文本'), findsOneWidget);
     });
 
+    testWidgets('tail line is continuous between items', (tester) async {
+      await tester.pumpWidget(_wrap(AntTimeline(items: _basicItems())));
+      // 相邻两段的轴线首尾相接，中间不能因为行间距断开
+      for (var i = 0; i < 2; i++) {
+        final tail = tester.getRect(
+          find.byKey(ValueKey('ant-timeline-tail-$i')),
+        );
+        final nextTail = tester.getRect(
+          find.byKey(ValueKey('ant-timeline-tail-${i + 1}')),
+        );
+        expect(
+          tail.bottom,
+          closeTo(nextTail.top, 0.01),
+          reason: '第 $i 段轴线底部应与第 ${i + 1} 段顶部相接',
+        );
+      }
+    });
+
+    testWidgets('dot is vertically centered on the first content line',
+        (tester) async {
+      await tester.pumpWidget(_wrap(AntTimeline(items: _basicItems())));
+      final dot = tester.getRect(find.byKey(const ValueKey('ant-timeline-dot-0')));
+      final text = tester.getRect(find.text('创建站点'));
+      expect(dot.center.dy, closeTo(text.center.dy, 0.5));
+    });
+
     testWidgets('mode alternate alternates sides', (tester) async {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
