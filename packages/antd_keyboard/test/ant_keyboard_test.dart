@@ -169,11 +169,11 @@ void main() {
       // 按下即触发 1 次
       await tester.pump();
       expect(deletes, 1);
-      // 300ms 延迟到期 → 启动周期重复
-      await tester.pump(const Duration(milliseconds: 350));
+      // antd-mobile 节奏：按住 700ms 后每 150ms 连删一次
+      await tester.pump(const Duration(milliseconds: 720));
       final afterDelay = deletes;
-      expect(afterDelay, greaterThanOrEqualTo(1));
-      // 周期 80ms：再推进 200ms 应继续递增
+      expect(afterDelay, greaterThan(1));
+      // 周期 150ms：再推进 200ms 应继续递增
       await tester.pump(const Duration(milliseconds: 200));
       expect(deletes, greaterThan(afterDelay));
       await gesture.up();

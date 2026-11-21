@@ -3,6 +3,10 @@
 /// API 与 antd-mobile React VirtualInput 对齐：
 /// - [AntVirtualInput] — 虚拟输入（value/placeholder/clearable/内置数字键盘）
 ///
+/// 移动端：无边框文本 + 闪烁光标（antd-mobile `virtual-input.less`），
+/// 点击展开底部键盘；桌面端：antd v6 Input 形态，默认走系统键盘，
+/// 传 `keyboardDesktop: true` 时额外弹出 QWERTY 软键盘（绑定同一 controller）。
+///
 /// ```dart
 /// AntVirtualInput(
 ///   placeholder: '请输入',
@@ -16,20 +20,17 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_keyboard/src/virtual_input/ant_virtual_input_types.dart';
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../engines/ant_keyboard/ant_keyboard.dart';
+import '../engines/ant_keyboard/ant_keyboard_controller.dart';
 import '../engines/ant_keyboard/ant_keyboard_layout.dart';
 import '../engines/ant_keyboard/ant_keyboard_theme.dart';
 import '../engines/input_platform.dart';
 import '../engines/keyboard_overlay.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
 
-/// 虚拟输入 — 通过内置数字键盘输入的只读输入框。
-///
-/// 对齐 antd-mobile React VirtualInput。点击输入框展开数字键盘，
-/// 不唤起系统软键盘，适用于安全输入场景。
+/// 虚拟输入 — 通过内置键盘输入的只读输入框。
 class AntVirtualInput extends StatefulWidget {
   const AntVirtualInput({
     super.key,
@@ -91,7 +92,7 @@ class AntVirtualInput extends StatefulWidget {
   /// 键盘预设类型（便捷参数；[keyboardLayout] 显式指定时忽略）。
   final AntKeyboardPreset? keyboardPreset;
 
-  /// 键盘弹出对齐：贴底（默认）/贴顶（桌面展示形态可切换）。
+  /// 键盘弹出对齐：贴底（默认）/贴顶。
   final bool keyboardAlignTop;
 
   /// 桌面展示形态下显示控制条（贴底/贴顶切换按钮）。
@@ -100,7 +101,7 @@ class AntVirtualInput extends StatefulWidget {
   /// 键盘主题覆盖。
   final AntKeyboardThemeData? keyboardTheme;
 
-  /// 键盘桌面密度（展示形态由调用方决定）。
+  /// 桌面形态：是否额外弹出 QWERTY 软键盘（默认走系统键盘）。
   final bool keyboardDesktop;
 
   /// 是否自动聚焦。
@@ -116,34 +117,42 @@ class AntVirtualInput extends StatefulWidget {
   State<AntVirtualInput> createState() => _AntVirtualInputState();
 }
 
-class _AntVirtualInputState extends State<AntVirtualInput> {
+class _AntVirtualInputState extends State<AntVirtualInput>
+    with SingleTickerProviderStateMixin {
   late String _internalValue;
   bool _focused = false;
 
-  /// 桌面端系统输入支持
-  late final bool _desktop;
+  /// 是否桌面平台。
+  late final bool _desktop = isDesktopInputPlatform();
 
-  /// 移动端底部弹出键盘控制器
   final AntKeyboardOverlayController _kb = AntKeyboardOverlayController();
-  TextEditingController? _desktopController;
-  FocusNode? _desktopFocus;
+  final AntKeyboardController _keyboardController = AntKeyboardController();
+  late final TextEditingController _controller =
+      TextEditingController(text: _initialText);
+  late final FocusNode _focusNode = FocusNode();
+  late final AnimationController _caret = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  );
 
   String get _currentValue => widget.value ?? _internalValue;
+
+  String get _initialText => widget.value ?? widget.defaultValue;
+
+  /// 是否使用自定义软键盘（移动端恒为 true；桌面端需显式开启）。
+  bool get _useCustomKeyboard => !_desktop || widget.keyboardDesktop;
 
   @override
   void initState() {
     super.initState();
     _internalValue = widget.defaultValue;
-    _desktop = isDesktopInputPlatform();
-    if (_desktop) {
-      _desktopController = TextEditingController(text: _internalValue);
-      _desktopFocus = FocusNode()..addListener(_handleDesktopFocus);
-    }
+    _controller.addListener(_handleTextChanged);
+    _focusNode.addListener(_handleFocusChanged);
     if (widget.autoFocus) {
-      _focused = true;
-      if (!_desktop) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _showKeyboard());
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _focusNode.requestFocus();
+      });
     }
   }
 
@@ -152,209 +161,260 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
     super.didUpdateWidget(oldWidget);
     if (widget.value != null && widget.value != oldWidget.value) {
       _internalValue = widget.value!;
-      if (_desktop &&
-          _desktopController != null &&
-          _desktopController!.text != _internalValue) {
-        _desktopController!.text = _internalValue;
+      if (_controller.text != _internalValue) {
+        _controller.value = TextEditingValue(
+          text: _internalValue,
+          selection: TextSelection.collapsed(offset: _internalValue.length),
+        );
       }
+    }
+    if (widget.disabled && _focused) {
+      _focusNode.unfocus();
     }
   }
 
   @override
   void dispose() {
-    _kb.hide();
-    _desktopFocus?.removeListener(_handleDesktopFocus);
-    _desktopFocus?.dispose();
-    _desktopController?.dispose();
+    _kb.dispose();
+    _keyboardController.dispose();
+    _focusNode.removeListener(_handleFocusChanged);
+    _focusNode.dispose();
+    _controller.removeListener(_handleTextChanged);
+    _controller.dispose();
+    _caret.dispose();
     super.dispose();
   }
 
-  void _handleDesktopFocus() {
-    final focused = _desktopFocus?.hasFocus ?? false;
+  void _handleTextChanged() {
+    final text = _controller.text;
+    if (text == _currentValue) {
+      if (mounted) setState(() {});
+      return;
+    }
+    _handleChange(text);
+    if (mounted) setState(() {});
+  }
+
+  void _handleFocusChanged() {
+    final focused = _focusNode.hasFocus;
+    if (focused == _focused) return;
     setState(() => _focused = focused);
     if (focused) {
+      if (!_desktop) _caret.repeat();
       widget.onFocus?.call();
+      if (_useCustomKeyboard) _showKeyboard();
     } else {
+      _caret.stop();
+      if (_kb.showing) _kb.hide();
       widget.onBlur?.call();
     }
   }
 
-  void _handleChange(String v) {
-    if (v == _currentValue) return;
+  void _handleChange(String value) {
+    if (value == _currentValue) return;
     if (widget.value != null) {
-      widget.onChange?.call(v);
+      widget.onChange?.call(value);
     } else {
-      setState(() => _internalValue = v);
-      widget.onChange?.call(v);
+      setState(() => _internalValue = value);
+      widget.onChange?.call(value);
     }
   }
 
   void _handleClear() {
-    if (widget.value != null) {
-      widget.onChange?.call('');
-    } else {
-      setState(() => _internalValue = '');
-      widget.onChange?.call('');
-    }
+    if (widget.disabled) return;
+    if (_currentValue.isEmpty) return;
+    _controller.clear();
   }
 
   void _handleConfirm() {
     widget.onEnterPress?.call(_currentValue);
-  }
-
-  void _focus() {
-    if (widget.disabled || _focused) return;
-    setState(() => _focused = true);
-    widget.onFocus?.call();
-    _showKeyboard();
+    _blur();
   }
 
   void _blur() {
-    if (!_focused) return;
-    setState(() => _focused = false);
-    _kb.hide();
-    widget.onBlur?.call();
+    _focusNode.unfocus();
   }
 
   void _showKeyboard() {
-    // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
+    if (widget.disabled || _kb.showing) return;
     final layout = widget.keyboardLayout ??
         (widget.keyboardPreset == null
             ? null
             : AntKeyboardLayouts.of(widget.keyboardPreset!));
+    // 显式指定布局/预设，或桌面形态开启软键盘时，使用通用键盘引擎；
+    // 否则移动端默认数字键盘（AntNumberKeyboard）。
+    final useEngine = layout != null || widget.keyboardDesktop;
+    final keyboard = useEngine
+        ? AntKeyboard(
+            layout: layout ??
+                (_desktop
+                    ? AntKeyboardLayout.qwertyDesktop()
+                    : AntKeyboardLayout.numeric()),
+            controller: _keyboardController,
+            theme: widget.keyboardTheme ??
+                AntKeyboardThemeData(desktop: widget.keyboardDesktop),
+            confirmText: widget.confirmText,
+            onConfirm: _handleConfirm,
+            onHide: _blur,
+            showControlBar:
+                widget.keyboardDesktop && widget.keyboardShowControlBar,
+            onAlignTop: () => _kb.realign(context, alignTop: true),
+            onAlignBottom: () => _kb.realign(context, alignTop: false),
+          )
+        : AntNumberKeyboard(
+            value: _currentValue,
+            onChange: _handleChange,
+            confirmText: widget.confirmText,
+            onConfirm: _handleConfirm,
+            randomOrder: widget.randomOrder,
+            customKey: widget.customKey,
+            theme: widget.keyboardTheme,
+            desktop: widget.keyboardDesktop,
+          );
+    if (useEngine) {
+      _keyboardController.attach(
+        controller: _controller,
+        focusNode: _focusNode,
+        maxLines: 1,
+        onChanged: _handleChange,
+      );
+    }
     _kb.show(
       context,
-      layout != null
-          // 通用键盘引擎：文本/符号/邮箱/自定义布局
-          ? AntKeyboard(
-              layout: layout,
-              theme: widget.keyboardTheme ??
-                  AntKeyboardThemeData(desktop: widget.keyboardDesktop),
-              onTextInput: (s) => _handleChange(_currentValue + s),
-              onBackspace: () {
-                if (_currentValue.isNotEmpty) {
-                  _handleChange(
-                    _currentValue.substring(0, _currentValue.length - 1),
-                  );
-                }
-              },
-              onConfirm: () {
-                _handleConfirm();
-                _blur();
-              },
-              onHide: _blur,
-              showControlBar:
-                  widget.keyboardDesktop && widget.keyboardShowControlBar,
-              onAlignTop: () => _kb.realign(context, alignTop: true),
-              onAlignBottom: () => _kb.realign(context, alignTop: false),
-            )
-          // 默认：数字键盘预设
-          : AntNumberKeyboard(
-              value: _currentValue,
-              onChange: _handleChange,
-              confirmText: widget.confirmText,
-              onConfirm: () {
-                _handleConfirm();
-                _blur();
-              },
-              randomOrder: widget.randomOrder,
-              customKey: widget.customKey,
-              theme: widget.keyboardTheme,
-              desktop: widget.keyboardDesktop,
-            ),
-      onDismiss: _blur,
+      keyboard,
+      alignTop: widget.keyboardAlignTop,
+      onDismiss: () {
+        if (!mounted) return;
+        if (_focusNode.hasFocus) _focusNode.unfocus();
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final value = _currentValue;
     if (_desktop) {
-      return _buildDesktopInput(t, value);
+      return _buildDesktopInput(t);
     }
+    return _buildVirtual(t);
+  }
 
-    final borderColor = widget.disabled
-        ? t.colorBorder
-        : _focused
-            ? t.colorPrimary
-            : t.colorBorder;
+  // ---------------------------------------------------------------------------
+  // 移动端：antd-mobile VirtualInput（无边框 + 光标 + 尾部图标）
+  // ---------------------------------------------------------------------------
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GestureDetector(
-          onTap: _focus,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            height: t.controlHeight.w,
-            padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
-            decoration: BoxDecoration(
-              color: widget.disabled
-                  ? t.colorBgContainerDisabled
-                  : t.colorBgContainer,
-              border: Border.all(color: borderColor, width: 1.w),
-              borderRadius: BorderRadius.circular(t.borderRadius.w),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: value.isNotEmpty
-                      ? Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: t.fontSize.sp,
-                            color: widget.disabled
-                                ? t.colorTextDisabled
-                                : t.colorText,
-                          ),
-                        )
-                      : Text(
+  Widget _buildVirtual(AntThemeData t) {
+    final value = _currentValue;
+    final color = widget.disabled ? t.colorTextDisabled : t.colorText;
+    return Focus(
+      focusNode: _focusNode,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (widget.disabled) return;
+          if (_focusNode.hasFocus) {
+            _blur();
+          } else {
+            _focusNode.requestFocus();
+          }
+        },
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 24.w),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  reverse: true,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (value.isEmpty)
+                        Text(
                           widget.placeholder ?? '',
+                          maxLines: 1,
                           style: TextStyle(
                             fontSize: t.fontSize.sp,
                             color: t.colorTextPlaceholder,
                           ),
+                        )
+                      else
+                        Text(
+                          value,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: t.fontSize.sp,
+                            letterSpacing: 1,
+                            color: color,
+                          ),
                         ),
+                      if (_focused && !widget.disabled)
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: AnimatedBuilder(
+                            animation: _caret,
+                            builder: (context, child) => Opacity(
+                              opacity: _caret.value < 0.5 ? 1 : 0,
+                              child: child,
+                            ),
+                            child: Container(
+                              key: const ValueKey('ant-virtual-input-caret'),
+                              width: 2.w,
+                              height: t.fontSize.sp * 1.1,
+                              color: t.colorPrimary,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                if (widget.clearable &&
-                    value.isNotEmpty &&
-                    _focused &&
-                    !widget.disabled) ...[
-                  SizedBox(width: t.marginXS.w),
-                  GestureDetector(
-                    onTap: _handleClear,
-                    behavior: HitTestBehavior.opaque,
+              ),
+              if (widget.clearable &&
+                  value.isNotEmpty &&
+                  !widget.disabled) ...[
+                SizedBox(width: t.marginXS.w),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _handleClear,
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
                     child: Icon(
                       Icons.cancel,
                       size: 16.w,
                       color: t.colorTextQuaternary,
                     ),
                   ),
-                ],
-                if (_focused && !widget.disabled) ...[
-                  SizedBox(width: t.marginXS.w),
-                  GestureDetector(
-                    onTap: _blur,
-                    behavior: HitTestBehavior.opaque,
+                ),
+              ],
+              if (_focused && !widget.disabled) ...[
+                SizedBox(width: 4.w),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _blur,
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
                     child: Icon(
                       Icons.keyboard_hide_outlined,
-                      size: 20.w,
+                      size: 18.w,
                       color: t.colorTextSecondary,
                     ),
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
-  /// 桌面端：表现为普通输入框，走系统键盘，不嵌入自定义键盘
-  Widget _buildDesktopInput(AntThemeData t, String value) {
+  // ---------------------------------------------------------------------------
+  // 桌面端：antd v6 Input 形态，可选 QWERTY 软键盘
+  // ---------------------------------------------------------------------------
+
+  Widget _buildDesktopInput(AntThemeData t) {
+    final value = _currentValue;
     final borderColor = widget.disabled
         ? t.colorBorder
         : _focused
@@ -375,15 +435,14 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
         children: [
           Expanded(
             child: TextField(
-              controller: _desktopController,
-              focusNode: _desktopFocus,
+              controller: _controller,
+              focusNode: _focusNode,
               enabled: !widget.disabled,
+              readOnly: false,
+              showCursor: true,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-              ],
               style: TextStyle(
                 fontSize: t.fontSize.sp,
                 color: widget.disabled ? t.colorTextDisabled : t.colorText,
@@ -407,16 +466,12 @@ class _AntVirtualInputState extends State<AntVirtualInput> {
                 ),
                 hintText: widget.placeholder,
               ),
-              onChanged: _handleChange,
             ),
           ),
           if (widget.clearable && value.isNotEmpty && !widget.disabled) ...[
             SizedBox(width: t.marginXS.w),
             GestureDetector(
-              onTap: () {
-                _desktopController?.clear();
-                _handleClear();
-              },
+              onTap: _handleClear,
               behavior: HitTestBehavior.opaque,
               child: Icon(
                 Icons.cancel,

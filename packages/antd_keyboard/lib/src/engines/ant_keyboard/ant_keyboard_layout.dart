@@ -10,6 +10,8 @@
 /// - 自定义布局：直接构造 [AntKeyboardLayout]（rows 或 modes，可扩展新布局）
 library;
 
+import 'package:material_ui/material_ui.dart';
+
 /// 按键动作类型
 enum AntKeyAction {
   /// 文本输入键
@@ -98,9 +100,19 @@ class AntKeyboardKey {
 }
 
 /// 键盘行
+///
+/// [leading] / [trailing] 对齐参考库 `KeyboardRow`：在按键序列两端插入固定
+/// 宽度的附加组件（如桌面端的拖拽把手、左侧功能列），按键本身仍按 flex 平分。
 class AntKeyboardRow {
-  const AntKeyboardRow(this.keys);
+  const AntKeyboardRow(
+    this.keys, {
+    this.leading,
+    this.trailing,
+  });
+
   final List<AntKeyboardKey> keys;
+  final Widget? leading;
+  final Widget? trailing;
 }
 
 /// 键盘布局

@@ -1,31 +1,38 @@
-/// AntKeyboard — 通用屏上键盘引擎（仿 flutter_onscreen_keyboard 设计，
-/// MIT，完全仿造改造不引依赖）
-///
-/// - 渲染任意 [AntKeyboardLayout]，主题 token 化（[AntKeyboardThemeData]）
-/// - 按压反馈（移动端）/ 悬停反馈（desktop 密度）
-/// - 退格长按连续删除（先延迟后周期重复）
-/// - 文本键长按变体：弹出备选字符条（如字母重音），点选输入
-/// - 全平台可渲染：桌面端展示形态由组件/调用方显式启用（默认唤起策略按平台降级）
-library;
-
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_layout.dart';
-import 'package:antd_keyboard/src/engines/ant_keyboard/ant_keyboard_theme.dart';
-import 'package:antd_keyboard/src/engines/input_platform.dart';
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/services.dart'
+    show HardwareKeyboard, KeyDownEvent, KeyEvent, LogicalKeyboardKey;
 import 'package:material_ui/material_ui.dart';
 
-/// 移动端触控目标下限（iOS HIG / Material 无障碍最低触控尺寸）
+import 'ant_keyboard_controller.dart';
+import 'ant_keyboard_key.dart';
+import 'ant_keyboard_layout.dart';
+import 'ant_keyboard_theme.dart';
+import '../input_platform.dart';
+
+/// 触控目标最小尺寸（移动端可点击区域不得小于 44×44）。
 const double kAntKeyboardMinTouchTarget = 44.0;
 
-/// 通用屏上键盘
+/// 通用屏上键盘。
+///
+/// 布局引擎吸收自 `flutter_onscreen_keyboard`：按「行 → 权重 flex」排布，
+/// 行支持 leading/trailing 附加组件，键分文本键 / 动作键两类；修饰态
+/// （Shift/CapsLock）采用 XOR，文本通过可选的 [controller] 直接写入
+/// `TextEditingController`（支持选区替换、inputFormatters、emoji 退格、
+/// enter 提交/换行、tab 插入）。
+///
+/// 双端形态（仓库 R38 规则）：
+/// - 移动端：键高 48、1px 描边、4 圆角、无 hover，对齐 antd-mobile v5；
+/// - 桌面端：`colorBgElevated` 浮层 + `colorFillSecondary` 键面 +
+///   `boxShadowSecondary` 阴影 + hover/pressed 反馈，对齐 antd v6。
 class AntKeyboard extends StatefulWidget {
   const AntKeyboard({
     super.key,
     required this.layout,
     this.theme,
+    this.controller,
     this.confirmText,
     this.onTextInput,
     this.onBackspace,
@@ -35,638 +42,689 @@ class AntKeyboard extends StatefulWidget {
     this.showControlBar = false,
     this.onAlignTop,
     this.onAlignBottom,
+    this.backspaceHoldDelay = const Duration(milliseconds: 700),
+    this.backspaceRepeatInterval = const Duration(milliseconds: 150),
+    this.handleHardwareKeys = false,
+    this.showSurface = true,
+    this.contentPadding,
   });
 
-  /// 布局（预设或自定义）
+  /// 键盘布局（单模式 rows 或多模式 modes）。
   final AntKeyboardLayout layout;
 
-  /// 主题覆盖（null 时从 AntTheme 派生）
+  /// 主题覆盖；不传时按平台从 [AntThemeData] 派生。
   final AntKeyboardThemeData? theme;
 
-  /// 确认键文案（null 时不渲染独立确认键，confirm 动作键按布局显示）
+  /// 可选控制器：绑定输入框、驱动修饰态与模式。
+  final AntKeyboardController? controller;
+
+  /// 确认键文案（动作键自身的 actionLabel 优先）。
   final String? confirmText;
 
-  /// 文本输入回调（含长按变体选择）
+  /// 文本输入回调；[controller] 已绑定输入框时仍会回调，业务侧避免二次写入。
   final ValueChanged<String>? onTextInput;
 
-  /// 退格回调（长按连续触发）
+  /// 退格回调；[controller] 已绑定输入框时仍会回调。
   final VoidCallback? onBackspace;
 
-  /// 确认回调
+  /// 确认 / 单行回车回调。
   final VoidCallback? onConfirm;
 
-  /// 收起回调（hide 动作键）
+  /// 收起键盘回调（hide 键 / Esc）。
   final VoidCallback? onHide;
 
-  /// 原始按键回调（所有按键统一出口，便于扩展）
+  /// 任意键点击回调（先于具体动作触发）。
   final ValueChanged<AntKeyboardKey>? onKey;
 
-  /// 桌面展示形态：顶部控制条（贴底/贴顶切换按钮）
+  /// 是否显示右上角的贴顶/贴底控制条。
   final bool showControlBar;
 
-  /// 控制条：切到贴顶
+  /// 控制条「贴顶」回调。
   final VoidCallback? onAlignTop;
 
-  /// 控制条：切到贴底
+  /// 控制条「贴底」回调。
   final VoidCallback? onAlignBottom;
+
+  /// 退格长按后开始连续删除的延迟。
+  final Duration backspaceHoldDelay;
+
+  /// 退格连续删除间隔。
+  final Duration backspaceRepeatInterval;
+
+  /// 是否接管桌面物理键盘（无输入框聚焦时把按键回灌到键盘）。
+  final bool handleHardwareKeys;
+
+  /// 是否绘制键盘面板背景（嵌入自定义容器时可关闭）。
+  final bool showSurface;
+
+  /// 覆盖面板内边距。
+  final EdgeInsets? contentPadding;
 
   @override
   State<AntKeyboard> createState() => _AntKeyboardState();
 }
 
 class _AntKeyboardState extends State<AntKeyboard> {
-  // 长按连续删除
+  late final AntKeyboardController _ownedController =
+      AntKeyboardController();
+  AntKeyboardController get _controller =>
+      widget.controller ?? _ownedController;
+
   Timer? _backspaceDelay;
   Timer? _backspaceRepeat;
-
-  // 长按变体气泡
   OverlayEntry? _variantEntry;
+  Timer? _flashTimer;
 
-  // 多模式布局：当前模式名（单模式布局为 null）
-  String? _modeName;
+  /// 物理键盘按下时短暂高亮的键（大写形式，忽略大小写比较）。
+  String? _flashText;
+  AntKeyAction? _flashAction;
 
-  // Shift（一次性：文本输入后自动复位）与 CapsLock（持久）状态
-  bool _shiftOn = false;
-  bool _capsOn = false;
+  bool _hardwareAttached = false;
 
   @override
   void initState() {
     super.initState();
-    _modeName = widget.layout.initialMode;
+    _controller.addListener(_onControllerChanged);
+    _syncHardwareListener();
   }
 
   @override
   void didUpdateWidget(covariant AntKeyboard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.layout != oldWidget.layout) {
-      _modeName = widget.layout.initialMode;
-      _shiftOn = false;
-      _capsOn = false;
+    if (oldWidget.controller != widget.controller) {
+      (oldWidget.controller ?? _ownedController)
+          .removeListener(_onControllerChanged);
+      _controller.addListener(_onControllerChanged);
+    }
+    if (oldWidget.handleHardwareKeys != widget.handleHardwareKeys) {
+      _syncHardwareListener();
     }
   }
 
-  /// 当前模式行（单模式布局直接返回 rows）
-  List<AntKeyboardRow> get _currentRows {
-    final modes = widget.layout.modes;
-    if (modes == null || modes.isEmpty) return widget.layout.rows;
-    return modes[_modeName] ?? modes.values.first;
+  void _syncHardwareListener() {
+    final shouldAttach = widget.handleHardwareKeys;
+    if (shouldAttach == _hardwareAttached) return;
+    _hardwareAttached = shouldAttach;
+    if (shouldAttach) {
+      HardwareKeyboard.instance.addHandler(_handleHardwareKey);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_handleHardwareKey);
+    }
   }
 
-  /// Shift/CapsLock 激活态（影响文本键输出与显示）
-  bool get _shiftActive => _shiftOn || _capsOn;
-
-  /// 解析文本键在当前修饰态下的实际输出字符
-  String? _resolveText(AntKeyboardKey key) {
-    final text = key.text;
-    if (text == null) return null;
-    if (!_shiftActive) return text;
-    // 副字符优先（数字行 1→!）；否则单字母大写
-    if (key.secondary != null) return key.secondary;
-    if (text.length == 1) return text.toUpperCase();
-    return text;
-  }
-
-  void _cycleMode() {
-    final modes = widget.layout.modes;
-    if (modes == null || modes.isEmpty) return;
-    final names = modes.keys.toList();
-    final idx = names.indexOf(_modeName ?? names.first);
-    setState(() => _modeName = names[(idx + 1) % names.length]);
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _cancelBackspaceRepeat();
+    _cancelBackspace();
     _hideVariants();
+    _flashTimer?.cancel();
+    if (_hardwareAttached) {
+      HardwareKeyboard.instance.removeHandler(_handleHardwareKey);
+    }
+    _controller.removeListener(_onControllerChanged);
+    _ownedController.dispose();
     super.dispose();
   }
 
-  void _cancelBackspaceRepeat() {
-    _backspaceDelay?.cancel();
-    _backspaceRepeat?.cancel();
-    _backspaceDelay = null;
-    _backspaceRepeat = null;
+  // ---------------------------------------------------------------------------
+  // 布局 / 主题
+  // ---------------------------------------------------------------------------
+
+  Map<String, List<AntKeyboardRow>> get _modes =>
+      widget.layout.modes ?? const <String, List<AntKeyboardRow>>{};
+
+  String? get _modeName {
+    final modes = _modes;
+    if (modes.isEmpty) return null;
+    final requested = _controller.modeName;
+    if (requested != null && modes.containsKey(requested)) return requested;
+    final initial = widget.layout.initialMode;
+    if (initial != null && modes.containsKey(initial)) return initial;
+    return modes.keys.first;
   }
 
-  void _onBackspaceDown() {
-    widget.onBackspace?.call();
-    widget.onKey?.call(const AntKeyboardKey.action(AntKeyAction.backspace));
-    // 长按连续删除：延迟 300ms 后每 80ms 重复
-    _backspaceDelay = Timer(const Duration(milliseconds: 300), () {
-      _backspaceRepeat = Timer.periodic(
-        const Duration(milliseconds: 80),
-        (_) => widget.onBackspace?.call(),
-      );
-    });
+  List<AntKeyboardRow> get _rows {
+    final modes = _modes;
+    if (modes.isEmpty) return widget.layout.rows;
+    return modes[_modeName] ?? modes.values.first;
   }
 
-  void _onBackspaceUp() => _cancelBackspaceRepeat();
-
-  void _handleKeyTap(AntKeyboardKey key) {
-    widget.onKey?.call(key);
-    switch (key.action) {
-      case AntKeyAction.text:
-        widget.onTextInput?.call(_resolveText(key) ?? '');
-        // Shift 一次性语义：输入一个字符后自动复位（CapsLock 除外）
-        if (_shiftOn && !_capsOn) setState(() => _shiftOn = false);
-      case AntKeyAction.backspace:
-        widget.onBackspace?.call();
-      case AntKeyAction.space:
-        widget.onTextInput?.call(' ');
-        if (_shiftOn && !_capsOn) setState(() => _shiftOn = false);
-      case AntKeyAction.confirm:
-        widget.onConfirm?.call();
-      case AntKeyAction.hide:
-        widget.onHide?.call();
-      case AntKeyAction.shift:
-        setState(() => _shiftOn = !_shiftOn);
-      case AntKeyAction.capslock:
-        setState(() {
-          _capsOn = !_capsOn;
-          _shiftOn = false;
-        });
-      case AntKeyAction.modeSwitch:
-        _cycleMode();
-      case AntKeyAction.enter:
-        // 语义与确认一致（搜索/提交场景），调用方经 onConfirm 承接
-        widget.onConfirm?.call();
-      case AntKeyAction.tab:
-        break;
-      case AntKeyAction.none:
-        break;
-    }
-  }
-
-  // ----------------------------------------------------------
-  // 长按变体气泡
-  // ----------------------------------------------------------
-
-  void _showVariants(AntKeyboardKey key, BuildContext anchorContext) {
-    if (_variantEntry != null) return;
-    final overlay = Overlay.maybeOf(context, rootOverlay: true);
-    if (overlay == null) return;
-    final box = anchorContext.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos = box.localToGlobal(Offset.zero);
-    final size = box.size;
-    final theme = _resolveTheme();
-    _variantEntry = OverlayEntry(
-      builder: (ctx) {
-        final itemWidth = size.width * 0.8;
-        final stripWidth = key.variants.length * itemWidth;
-        final left = (pos.dx + size.width / 2 - stripWidth / 2)
-            .clamp(0.0, MediaQuery.of(ctx).size.width - stripWidth);
-        return Stack(
-          children: [
-            // 点击空白关闭
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _hideVariants,
-              ),
-            ),
-            Positioned(
-              left: left,
-              top: pos.dy - theme.keyHeight! - 6,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  padding: EdgeInsets.all(theme.sectionPadding!),
-                  decoration: BoxDecoration(
-                    color: theme.keyBackgroundColor,
-                    borderRadius: BorderRadius.circular(theme.keyBorderRadius!),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 6),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final v in key.variants)
-                        GestureDetector(
-                          onTap: () {
-                            _hideVariants();
-                            widget.onTextInput?.call(v);
-                            widget.onKey?.call(AntKeyboardKey.text(v));
-                          },
-                          child: Container(
-                            width: itemWidth,
-                            height: theme.keyHeight,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: theme.keyPressedBackgroundColor,
-                              borderRadius: BorderRadius.circular(
-                                theme.keyBorderRadius!,
-                              ),
-                            ),
-                            child: Text(
-                              v,
-                              style: TextStyle(
-                                fontSize: theme.fontSize,
-                                color: theme.keyForegroundColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-    overlay.insert(_variantEntry!);
-  }
-
-  void _hideVariants() {
-    _variantEntry?.remove();
-    _variantEntry = null;
-  }
-
-  AntKeyboardThemeData _resolveTheme() {
-    final t = AntTheme.of(context);
-    // 形态判定：显式传入主题时尊重其 desktop 标记（API 兼容）；
-    // 未传主题时按平台自动选择——移动端（iOS/Android）固定触控形态
-    // （≥44 触控目标、无 hover、按压态强化），桌面端自动使用桌面密度。
-    final desktop = widget.theme?.desktop ??
-        (widget.theme == null && isDesktopInputPlatform());
-    final resolved =
-        AntKeyboardThemeData.resolve(t, desktop: desktop).merge(widget.theme);
-    // 移动端触控目标下限：自定义主题 keyHeight 过小时钳制到 44（桌面密度不受限）
-    if (!desktop) {
-      return resolved.copyWith(
-        keyHeight:
-            math.max(kAntKeyboardMinTouchTarget, resolved.keyHeight ?? 44.0),
+  AntKeyboardThemeData _resolveTheme(BuildContext context) {
+    final ant = AntTheme.of(context);
+    final desktop =
+        widget.theme?.desktop ?? isDesktopInputPlatform();
+    var resolved =
+        AntKeyboardThemeData.resolve(ant, desktop: desktop).merge(widget.theme);
+    final height = resolved.keyHeight;
+    if (!resolved.desktop && height != null) {
+      resolved = resolved.copyWith(
+        keyHeight: math.max(kAntKeyboardMinTouchTarget, height),
       );
     }
     return resolved;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = _resolveTheme();
-    // R36 安全区避让：贴底使用时避开 home indicator / 手势条。
-    // 经 AntKeyboardOverlayController 弹出时外层 SafeArea 已消费 bottom inset，
-    // 此处 MediaQuery 值为 0，不会重复避让。
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    return Container(
-      color: theme.surfaceColor,
-      padding: EdgeInsets.fromLTRB(
-        theme.sectionPadding!,
-        theme.sectionPadding!,
-        theme.sectionPadding!,
-        theme.sectionPadding! + bottomInset,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+  // ---------------------------------------------------------------------------
+  // 输入
+  // ---------------------------------------------------------------------------
+
+  String _displayText(AntKeyboardKey key) {
+    final text = key.text ?? '';
+    if (_controller.shiftActive) {
+      if (key.secondary != null) return key.secondary!;
+      if (text.isNotEmpty) return text.toUpperCase();
+    }
+    return text;
+  }
+
+  void _emitText(String value) {
+    if (value.isEmpty) return;
+    if (_controller.hasAttachedField) {
+      _controller.insert(value);
+    }
+    widget.onTextInput?.call(value);
+    if (_controller.shiftOn) _controller.consumeShift();
+  }
+
+  void _deleteOnce() {
+    if (_controller.hasAttachedField) {
+      _controller.backspace();
+    }
+    widget.onBackspace?.call();
+  }
+
+  void _onBackspaceDown() {
+    widget.onKey?.call(const AntKeyboardKey.action(AntKeyAction.backspace));
+    _deleteOnce();
+    _backspaceDelay?.cancel();
+    _backspaceDelay = Timer(widget.backspaceHoldDelay, () {
+      if (!mounted) return;
+      _deleteOnce();
+      _backspaceRepeat?.cancel();
+      _backspaceRepeat = Timer.periodic(
+        widget.backspaceRepeatInterval,
+        (_) {
+          if (!mounted) return;
+          _deleteOnce();
+        },
+      );
+    });
+  }
+
+  void _cancelBackspace() {
+    _backspaceDelay?.cancel();
+    _backspaceDelay = null;
+    _backspaceRepeat?.cancel();
+    _backspaceRepeat = null;
+  }
+
+  void _handleKeyTap(AntKeyboardKey key) {
+    widget.onKey?.call(key);
+    switch (key.action) {
+      case AntKeyAction.text:
+        _emitText(_displayText(key));
+      case AntKeyAction.space:
+        _emitText(' ');
+      case AntKeyAction.backspace:
+        _deleteOnce();
+      case AntKeyAction.confirm:
+        widget.onConfirm?.call();
+      case AntKeyAction.enter:
+        if (_controller.hasAttachedField) {
+          final multiline = (_controller.binding?.maxLines ?? 1) > 1;
+          if (multiline) {
+            _emitText('\n');
+          } else {
+            _controller.newline();
+            widget.onConfirm?.call();
+          }
+        } else {
+          widget.onConfirm?.call();
+        }
+      case AntKeyAction.hide:
+        widget.onHide?.call();
+      case AntKeyAction.shift:
+        _controller.toggleShift();
+      case AntKeyAction.capslock:
+        _controller.toggleCaps();
+      case AntKeyAction.modeSwitch:
+        _controller.cycleMode(_modes.keys.toList());
+      case AntKeyAction.tab:
+        _controller.tab();
+      case AntKeyAction.none:
+        break;
+    }
+  }
+
+  bool _handleHardwareKey(KeyEvent event) {
+    if (event is! KeyDownEvent) return false;
+    final keyboard = HardwareKeyboard.instance;
+    if (keyboard.isControlPressed ||
+        keyboard.isMetaPressed ||
+        keyboard.isAltPressed) {
+      return false;
+    }
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.escape) {
+      widget.onHide?.call();
+      _flash(AntKeyAction.hide);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.backspace) {
+      _deleteOnce();
+      _flash(AntKeyAction.backspace);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
+      widget.onConfirm?.call();
+      _flash(AntKeyAction.enter);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.tab) {
+      _handleKeyTap(const AntKeyboardKey.action(AntKeyAction.tab));
+      _flash(AntKeyAction.tab);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.space) {
+      _emitText(' ');
+      _flash(null, text: ' ');
+      return true;
+    }
+    final character = event.character;
+    if (character == null ||
+        character.isEmpty ||
+        character.codeUnitAt(0) < 32) {
+      return false;
+    }
+    _emitText(character);
+    _flash(null, text: character);
+    return true;
+  }
+
+  void _flash(AntKeyAction? action, {String? text}) {
+    _flashTimer?.cancel();
+    setState(() {
+      _flashAction = action;
+      _flashText = text?.toUpperCase();
+    });
+    _flashTimer = Timer(const Duration(milliseconds: 140), () {
+      if (!mounted) return;
+      setState(() {
+        _flashAction = null;
+        _flashText = null;
+      });
+    });
+  }
+
+  bool _isFlashText(String label) =>
+      _flashText != null && _flashText == label.toUpperCase();
+
+  // ---------------------------------------------------------------------------
+  // 长按变体气泡
+  // ---------------------------------------------------------------------------
+
+  void _showVariants(AntKeyboardKey key, Offset globalPosition) {
+    _hideVariants();
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null || key.variants.isEmpty) return;
+    final theme = _resolveTheme(context);
+    final screen = MediaQuery.sizeOf(context);
+    const itemWidth = 44.0;
+    final bubbleWidth = itemWidth * key.variants.length + 12 * 2;
+    final left = (globalPosition.dx - bubbleWidth / 2)
+        .clamp(8.0, math.max(8.0, screen.width - bubbleWidth - 8));
+    final top = math.max(
+      8.0,
+      globalPosition.dy - (theme.keyHeight ?? 44) - 12,
+    );
+
+    _variantEntry = OverlayEntry(
+      builder: (context) => Stack(
         children: [
-          // 桌面展示形态控制条（贴底/贴顶切换）
-          if (widget.showControlBar)
-            Padding(
-              padding: EdgeInsets.only(bottom: theme.keySpacing ?? 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _KeyboardControlButton(
-                    icon: Icons.vertical_align_bottom_rounded,
-                    onTap: widget.onAlignBottom,
-                    theme: theme,
-                  ),
-                  SizedBox(width: theme.keySpacing ?? 4),
-                  _KeyboardControlButton(
-                    icon: Icons.vertical_align_top_rounded,
-                    onTap: widget.onAlignTop,
-                    theme: theme,
-                  ),
-                ],
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _hideVariants,
+              child: const SizedBox.expand(),
+            ),
+          ),
+          Positioned(
+            left: left.toDouble(),
+            top: top,
+            child: Material(
+              color: theme.surfaceColor,
+              elevation: 6,
+              borderRadius:
+                  BorderRadius.circular(theme.keyBorderRadius ?? 6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final variant in key.variants)
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          _emitText(variant);
+                          _hideVariants();
+                        },
+                        child: SizedBox(
+                          width: itemWidth,
+                          height: theme.keyHeight,
+                          child: Center(
+                            child: Text(
+                              variant,
+                              style: TextStyle(
+                                fontSize: theme.fontSize,
+                                color: theme.keyForegroundColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          for (var i = 0; i < _currentRows.length; i++) ...[
-            if (i > 0) SizedBox(height: theme.keySpacing ?? 4),
-            Row(
+          ),
+        ],
+      ),
+    );
+    overlay.insert(_variantEntry!);
+    setState(() {});
+  }
+
+  void _hideVariants() {
+    if (_variantEntry == null) return;
+    _variantEntry?.remove();
+    _variantEntry = null;
+    if (mounted) setState(() {});
+  }
+
+  // ---------------------------------------------------------------------------
+  // 构建
+  // ---------------------------------------------------------------------------
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = _resolveTheme(context);
+    final rows = _rows;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final pad = theme.sectionPadding ?? 8.w;
+    final spacing = theme.keySpacing ?? 0;
+
+    Widget body = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.showControlBar) _buildControlBar(theme),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) SizedBox(height: spacing),
+          SizedBox(
+            height: theme.keyHeight,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var j = 0; j < _currentRows[i].keys.length; j++) ...[
-                  if (j > 0) SizedBox(width: theme.keySpacing),
+                if (rows[i].leading != null) rows[i].leading!,
+                for (var j = 0; j < rows[i].keys.length; j++) ...[
+                  if (j > 0) SizedBox(width: spacing),
                   Expanded(
-                    flex: _currentRows[i].keys[j].flex,
-                    child: _buildKey(theme, _currentRows[i].keys[j]),
+                    flex: rows[i].keys[j].flex,
+                    child: _buildKey(rows[i].keys[j], theme),
                   ),
                 ],
+                if (rows[i].trailing != null) rows[i].trailing!,
               ],
             ),
-          ],
+          ),
+        ],
+      ],
+    );
+
+    final padding = widget.contentPadding ??
+        EdgeInsets.fromLTRB(pad, pad, pad, pad + bottomInset);
+
+    Widget content = Container(
+      padding: padding,
+      decoration: widget.showSurface
+          ? BoxDecoration(
+              color: theme.surfaceColor,
+              borderRadius: theme.surfaceBorderRadius != null &&
+                      theme.surfaceBorderRadius! > 0
+                  ? BorderRadius.only(
+                      topLeft: Radius.circular(theme.surfaceBorderRadius!),
+                      topRight: Radius.circular(theme.surfaceBorderRadius!),
+                    )
+                  : null,
+              border: theme.surfaceBorderColor != null &&
+                      (theme.keyBorderWidth ?? 0) > 0
+                  ? Border.all(
+                      color: theme.surfaceBorderColor!,
+                      width: theme.keyBorderWidth!,
+                    )
+                  : null,
+              boxShadow: theme.boxShadow,
+            )
+          : null,
+      child: body,
+    );
+
+    final radius = theme.surfaceBorderRadius ?? 0;
+    if (radius > 0) {
+      content = ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(radius),
+          topRight: Radius.circular(radius),
+        ),
+        child: content,
+      );
+    }
+    return content;
+  }
+
+  Widget _buildControlBar(AntKeyboardThemeData theme) {
+    Widget button(IconData icon, VoidCallback? onTap, String label) {
+      return Semantics(
+        button: true,
+        label: label,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(theme.keySpacing ?? 4),
+            child: Icon(
+              icon,
+              size: (theme.iconSize ?? 22) * 0.8,
+              color: theme.actionKeyForegroundColor,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: theme.keySpacing ?? 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          button(
+            Icons.vertical_align_top_rounded,
+            widget.onAlignTop,
+            '贴顶',
+          ),
+          button(
+            Icons.vertical_align_bottom_rounded,
+            widget.onAlignBottom,
+            '贴底',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildKey(AntKeyboardThemeData theme, AntKeyboardKey key) {
-    if (key.isBackspace) {
-      // 退格：onTapDown 触发单删 + 启动长按连删，onTapUp 停止（onTap 不再重复触发）
-      return _KeyboardActionButton(
-        theme: theme,
-        isBackspace: true,
-        onTapDown: _onBackspaceDown,
-        onTapUp: _onBackspaceUp,
-        child: Icon(
-          Icons.backspace_outlined,
-          size: theme.iconSize,
-          color: theme.actionKeyForegroundColor,
-        ),
-      );
-    }
+  Widget _buildKey(AntKeyboardKey key, AntKeyboardThemeData theme) {
+    final radius = theme.keyBorderRadius;
+    final height = theme.keyHeight;
     switch (key.action) {
       case AntKeyAction.text:
-        return _KeyboardTextKey(
+        final label = _displayText(key);
+        final flashing = _isFlashText(label);
+        return AntKeyboardKeyView(
           theme: theme,
-          key_: key,
-          displayText: _resolveText(key),
+          height: height,
+          borderRadius: radius,
+          active: flashing,
+          activeBackground: theme.confirmBackgroundColor,
           onTap: () => _handleKeyTap(key),
-          onLongPress: key.hasVariants
-              ? (anchorContext) => _showVariants(key, anchorContext)
-              : null,
+          onLongPressStart:
+              key.hasVariants ? (pos) => _showVariants(key, pos) : null,
+          semanticLabel: label,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: theme.fontSize,
+              fontWeight: FontWeight.w500,
+              color: flashing
+                  ? theme.confirmForegroundColor
+                  : theme.keyForegroundColor,
+            ),
+          ),
+        );
+      case AntKeyAction.backspace:
+        return AntKeyboardKeyView(
+          theme: theme,
+          height: height,
+          borderRadius: radius,
+          background: theme.actionKeyBackgroundColor,
+          pressedBackground: theme.actionKeyPressedBackgroundColor,
+          active: _flashAction == AntKeyAction.backspace,
+          activeBackground: theme.confirmBackgroundColor,
+          onTapDown: _onBackspaceDown,
+          onTapUp: _cancelBackspace,
+          onTapCancel: _cancelBackspace,
+          semanticLabel: '退格',
+          child: Icon(
+            Icons.backspace_outlined,
+            size: theme.iconSize,
+            color: _flashAction == AntKeyAction.backspace
+                ? theme.confirmForegroundColor
+                : theme.actionKeyForegroundColor,
+          ),
         );
       case AntKeyAction.shift:
-        return _KeyboardActionButton(
-          theme: theme,
-          active: _shiftActive,
-          onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.arrow_upward_rounded,
-            size: theme.iconSize,
-            color: _shiftActive
-                ? theme.confirmBackgroundColor
-                : theme.actionKeyForegroundColor,
-          ),
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.arrow_upward_rounded,
+          label: 'Shift',
+          active: _controller.shiftOn,
         );
       case AntKeyAction.capslock:
-        return _KeyboardActionButton(
-          theme: theme,
-          active: _capsOn,
-          onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.keyboard_capslock_rounded,
-            size: theme.iconSize,
-            color: _capsOn
-                ? theme.confirmBackgroundColor
-                : theme.actionKeyForegroundColor,
-          ),
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.keyboard_capslock_rounded,
+          label: 'CapsLock',
+          active: _controller.capsOn,
         );
       case AntKeyAction.modeSwitch:
-        return _KeyboardActionButton(
-          theme: theme,
-          onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.swap_horiz_rounded,
-            size: theme.iconSize,
-            color: theme.actionKeyForegroundColor,
-          ),
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.swap_horiz_rounded,
+          label: '切换键盘',
         );
       case AntKeyAction.enter:
-        return _KeyboardActionButton(
-          theme: theme,
-          onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.keyboard_return_rounded,
-            size: theme.iconSize,
-            color: theme.actionKeyForegroundColor,
-          ),
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.keyboard_return_rounded,
+          label: '回车',
+          active: _flashAction == AntKeyAction.enter,
         );
       case AntKeyAction.tab:
-        return _KeyboardActionButton(
-          theme: theme,
-          onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.keyboard_tab_rounded,
-            size: theme.iconSize,
-            color: theme.actionKeyForegroundColor,
-          ),
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.keyboard_tab_rounded,
+          label: 'Tab',
+          active: _flashAction == AntKeyAction.tab,
         );
       case AntKeyAction.space:
-        return _KeyboardActionButton(
+        return AntKeyboardKeyView(
           theme: theme,
+          height: height,
+          borderRadius: radius,
+          semanticLabel: '空格',
           onTap: () => _handleKeyTap(key),
           child: Icon(
             Icons.space_bar,
             size: theme.iconSize,
-            color: theme.actionKeyForegroundColor,
-          ),
-        );
-      case AntKeyAction.confirm:
-        return _KeyboardActionButton(
-          theme: theme,
-          isConfirm: true,
-          onTap: () => _handleKeyTap(key),
-          child: Text(
-            key.actionLabel ?? widget.confirmText ?? '确定',
-            style: TextStyle(
-              fontSize: theme.fontSize! * 0.8,
-              color: theme.confirmForegroundColor,
-              fontWeight: FontWeight.w500,
-            ),
+            color: theme.keyForegroundColor,
           ),
         );
       case AntKeyAction.hide:
-        return _KeyboardActionButton(
+        return _actionKey(
+          theme,
+          key,
+          icon: Icons.keyboard_hide_outlined,
+          label: '收起键盘',
+          active: _flashAction == AntKeyAction.hide,
+        );
+      case AntKeyAction.confirm:
+        final label = key.actionLabel ?? widget.confirmText ?? '确定';
+        return AntKeyboardKeyView(
           theme: theme,
+          height: height,
+          borderRadius: radius,
+          background: theme.confirmBackgroundColor,
+          pressedBackground: theme.confirmBackgroundColor,
+          semanticLabel: label,
           onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.keyboard_hide_outlined,
-            size: theme.iconSize,
-            color: theme.actionKeyForegroundColor,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: theme.confirmFontSize ?? theme.fontSize,
+              fontWeight: FontWeight.w500,
+              color: theme.confirmForegroundColor,
+            ),
           ),
         );
-      case AntKeyAction.backspace:
-        return const SizedBox.shrink();
       case AntKeyAction.none:
         return const SizedBox.shrink();
     }
   }
-}
 
-/// 文本键（按压反馈 + 桌面悬停反馈 + 长按变体）
-class _KeyboardTextKey extends StatefulWidget {
-  const _KeyboardTextKey({
-    required this.theme,
-    required this.key_,
-    required this.onTap,
-    this.onLongPress,
-    this.displayText,
-  });
-
-  final AntKeyboardThemeData theme;
-  final AntKeyboardKey key_;
-  final VoidCallback onTap;
-  final ValueChanged<BuildContext>? onLongPress;
-
-  /// 当前修饰态下显示的字符（null 时用 key_.text）
-  final String? displayText;
-
-  @override
-  State<_KeyboardTextKey> createState() => _KeyboardTextKeyState();
-}
-
-class _KeyboardTextKeyState extends State<_KeyboardTextKey> {
-  bool _pressed = false;
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = widget.theme;
-    var bg = theme.keyBackgroundColor!;
-    if (theme.desktop && _hovered) bg = theme.keyHoverBackgroundColor ?? bg;
-    if (_pressed) bg = theme.keyPressedBackgroundColor ?? bg;
-
-    final key = GestureDetector(
-      onTap: widget.onTap,
-      onLongPressStart: widget.onLongPress == null
-          ? null
-          : (details) => widget.onLongPress!(context),
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: theme.keyHeight,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(theme.keyBorderRadius!),
-        ),
-        child: Text(
-          widget.displayText ?? widget.key_.text ?? '',
-          style: TextStyle(
-            fontSize: theme.fontSize,
-            color: theme.keyForegroundColor,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-
-    if (!theme.desktop) return key;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: key,
-    );
-  }
-}
-
-/// 动作键（退格支持长按连续删除）
-class _KeyboardActionButton extends StatefulWidget {
-  const _KeyboardActionButton({
-    required this.theme,
-    required this.child,
-    this.onTap,
-    this.onTapDown,
-    this.onTapUp,
-    this.isBackspace = false,
-    this.isConfirm = false,
-    this.active = false,
-  });
-
-  final AntKeyboardThemeData theme;
-  final Widget child;
-  final VoidCallback? onTap;
-  final VoidCallback? onTapDown;
-  final VoidCallback? onTapUp;
-  final bool isBackspace;
-  final bool isConfirm;
-
-  /// 锁定/激活态（Shift/CapsLock 开启时高亮）
-  final bool active;
-
-  @override
-  State<_KeyboardActionButton> createState() => _KeyboardActionButtonState();
-}
-
-class _KeyboardActionButtonState extends State<_KeyboardActionButton> {
-  bool _pressed = false;
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = widget.theme;
-    Color bg;
-    if (widget.isConfirm) {
-      bg = theme.confirmBackgroundColor!;
-    } else {
-      bg = theme.actionKeyBackgroundColor!;
-    }
-    if (theme.desktop && _hovered && !widget.isConfirm) {
-      bg = theme.keyHoverBackgroundColor ?? bg;
-    }
-    if (_pressed && !widget.isConfirm) {
-      bg = theme.actionKeyPressedBackgroundColor ?? bg;
-    }
-    if (widget.active && !widget.isConfirm) {
-      bg = theme.confirmBackgroundColor ?? bg;
-    }
-
-    final btn = GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) {
-        setState(() => _pressed = true);
-        widget.onTapDown?.call();
-      },
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onTapUp?.call();
-      },
-      onTapCancel: () {
-        setState(() => _pressed = false);
-        widget.onTapUp?.call();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: theme.keyHeight,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(theme.keyBorderRadius!),
-        ),
-        child: widget.child,
-      ),
-    );
-
-    if (!theme.desktop) return btn;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: btn,
-    );
-  }
-}
-
-/// 控制条按钮（桌面展示形态：贴底/贴顶切换）
-class _KeyboardControlButton extends StatelessWidget {
-  const _KeyboardControlButton({
-    required this.icon,
-    required this.onTap,
-    required this.theme,
-  });
-
-  final IconData icon;
-  final VoidCallback? onTap;
-  final AntKeyboardThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.keySpacing ?? 4),
-        child: Icon(
-          icon,
-          size: (theme.iconSize ?? 20) * 0.8,
-          color: theme.actionKeyForegroundColor,
-        ),
+  Widget _actionKey(
+    AntKeyboardThemeData theme,
+    AntKeyboardKey key, {
+    required IconData icon,
+    required String label,
+    bool active = false,
+  }) {
+    return AntKeyboardKeyView(
+      theme: theme,
+      height: theme.keyHeight,
+      borderRadius: theme.keyBorderRadius,
+      background: theme.actionKeyBackgroundColor,
+      pressedBackground: theme.actionKeyPressedBackgroundColor,
+      active: active,
+      activeBackground: theme.confirmBackgroundColor,
+      semanticLabel: label,
+      onTap: () => _handleKeyTap(key),
+      child: Icon(
+        icon,
+        size: theme.iconSize,
+        color: active
+            ? theme.confirmForegroundColor
+            : theme.actionKeyForegroundColor,
       ),
     );
   }

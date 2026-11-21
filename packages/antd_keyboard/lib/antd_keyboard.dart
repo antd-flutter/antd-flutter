@@ -2,6 +2,7 @@
 ///
 /// 从 antd_flutter_ui 拆分的独立组件包（参照 antd_picker 先例）：
 /// - [AntKeyboard] — 通用键盘引擎（布局预设 + 自定义布局 + 长按变体 + 主题）
+/// - [AntKeyboardController] — 键盘修饰态/模式 + TextEditingController 绑定控制器
 /// - [AntNumberKeyboard] — 数字键盘（numeric / decimal，对齐 antd-mobile API）
 /// - [AntPasscodeInput] — 密码输入框（配合数字键盘的格子密码输入）
 /// - [AntVirtualInput] — 虚拟输入框（自定义虚拟键盘文本输入）
@@ -17,6 +18,8 @@
 library;
 
 export 'src/engines/ant_keyboard/ant_keyboard.dart';
+export 'src/engines/ant_keyboard/ant_keyboard_controller.dart';
+export 'src/engines/ant_keyboard/ant_keyboard_key.dart';
 export 'src/engines/ant_keyboard/ant_keyboard_layout.dart';
 export 'src/engines/ant_keyboard/ant_keyboard_theme.dart';
 

@@ -3,6 +3,9 @@
 /// API 与 antd-mobile React PasscodeInput 对齐：
 /// - [AntPasscodeInput] — 密码格子输入（value/length/plain/error/separated/onFill）
 ///
+/// 移动端：点击格子唤起底部 [AntNumberKeyboard] 浮层，格子内显示闪烁光标；
+/// 桌面端：格子覆盖透明 [TextField] 采集系统键盘输入（不弹软键盘）。
+///
 /// ```dart
 /// AntPasscodeInput(
 ///   length: 6,
@@ -24,9 +27,6 @@ import '../engines/keyboard_overlay.dart';
 import '../number_keyboard/ant_number_keyboard.dart';
 
 /// 密码格子输入 — 用于验证码/密码场景的格子输入组件。
-///
-/// 对齐 antd-mobile React PasscodeInput。默认内置 [AntNumberKeyboard]，
-/// 点击格子区域可展开/收起键盘。
 class AntPasscodeInput extends StatefulWidget {
   const AntPasscodeInput({
     super.key,
@@ -34,12 +34,18 @@ class AntPasscodeInput extends StatefulWidget {
     this.defaultValue = '',
     this.onChange,
     this.onFill,
+    this.onFocus,
+    this.onBlur,
     this.length = 6,
     this.plain = false,
     this.error = false,
     this.separated = false,
     this.keyboard = true,
     this.autofocus = false,
+    this.cellSize,
+    this.cellGap,
+    this.dotSize,
+    this.borderRadius,
   });
 
   /// 受控当前值。
@@ -51,8 +57,14 @@ class AntPasscodeInput extends StatefulWidget {
   /// 值变化回调。
   final ValueChanged<String>? onChange;
 
-  /// 填满回调（值长度达到 [length] 时触发）。
+  /// 填满回调（值长度首次达到 [length] 时触发，删减后再次填满会再次触发）。
   final ValueChanged<String>? onFill;
+
+  /// 聚焦回调。
+  final VoidCallback? onFocus;
+
+  /// 失焦回调。
+  final VoidCallback? onBlur;
 
   /// 格子数量。
   final int length;
@@ -60,7 +72,7 @@ class AntPasscodeInput extends StatefulWidget {
   /// 是否明文展示。
   final bool plain;
 
-  /// 是否错误状态。
+  /// 是否错误状态（切换为 true 时播放抖动动画）。
   final bool error;
 
   /// 是否格子分离。
@@ -69,280 +81,428 @@ class AntPasscodeInput extends StatefulWidget {
   /// 是否内置数字键盘。
   final bool keyboard;
 
-  /// 是否自动展开键盘。
+  /// 是否自动聚焦（移动端自动展开键盘，桌面端自动取焦）。
   final bool autofocus;
+
+  /// 格子尺寸（默认 40.w，对齐 antd-mobile）。
+  final double? cellSize;
+
+  /// 格子间距（separated 模式默认 6.w）。
+  final double? cellGap;
+
+  /// 掩码圆点尺寸（默认 10.w）。
+  final double? dotSize;
+
+  /// 圆角（默认 8.w）。
+  final double? borderRadius;
 
   @override
   State<AntPasscodeInput> createState() => _AntPasscodeInputState();
 }
 
-class _AntPasscodeInputState extends State<AntPasscodeInput> {
+class _AntPasscodeInputState extends State<AntPasscodeInput>
+    with SingleTickerProviderStateMixin {
   late String _internalValue;
   bool _active = false;
+  bool _fillNotified = false;
 
-  /// 桌面端系统输入支持（透明 TextField 覆盖格子区域采集输入）
-  late final bool _desktop;
+  /// 桌面端系统输入支持（透明 TextField 覆盖格子区域采集输入）。
+  late final bool _desktop = isDesktopInputPlatform();
 
-  /// 移动端底部弹出键盘控制器
+  /// 移动端底部弹出键盘控制器。
   final AntKeyboardOverlayController _kb = AntKeyboardOverlayController();
   TextEditingController? _desktopController;
   FocusNode? _desktopFocus;
+  late final AnimationController _shake = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
 
   String get _currentValue => widget.value ?? _internalValue;
 
   @override
   void initState() {
     super.initState();
-    _internalValue = widget.defaultValue;
-    _desktop = isDesktopInputPlatform();
+    _internalValue = _sanitize(widget.defaultValue);
     if (_desktop) {
       _desktopController = TextEditingController(text: _internalValue)
         ..addListener(_handleDesktopInput);
       _desktopFocus = FocusNode()..addListener(_handleDesktopFocus);
     }
-    if (widget.autofocus) {
-      _active = true;
-      if (_desktop) {
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => _desktopFocus?.requestFocus());
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_active || !mounted) return;
-          _kb.show(
-            context,
-            AntNumberKeyboard(
-              value: _currentValue,
-              onChange: _handleChange,
-              maxLength: widget.length,
-            ),
-            onDismiss: () => setState(() => _active = false),
-          );
-        });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _maybeFill(_currentValue);
+      if (widget.autofocus) {
+        if (_desktop) {
+          _desktopFocus?.requestFocus();
+        } else {
+          _showKeyboard();
+        }
       }
-    }
+    });
+    if (widget.error) _shake.forward(from: 0);
   }
 
   @override
   void didUpdateWidget(covariant AntPasscodeInput oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.error && !oldWidget.error) {
+      _shake.forward(from: 0);
+    }
     if (widget.value != null && widget.value != oldWidget.value) {
-      _internalValue = widget.value!;
-      if (_desktop &&
-          _desktopController != null &&
-          _desktopController!.text != _internalValue) {
-        _desktopController!.text = _internalValue;
+      final next = _sanitize(widget.value!);
+      _internalValue = next;
+      final controller = _desktopController;
+      if (controller != null && controller.text != next) {
+        controller.value = TextEditingValue(
+          text: next,
+          selection: TextSelection.collapsed(offset: next.length),
+        );
       }
+      if (next.length < widget.length) _fillNotified = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _maybeFill(_currentValue);
+      });
     }
   }
 
   @override
   void dispose() {
-    _kb.hide();
-    _desktopFocus?.removeListener(_handleDesktopFocus);
-    _desktopFocus?.dispose();
-    _desktopController?.removeListener(_handleDesktopInput);
+    _kb.dispose();
     _desktopController?.dispose();
+    _desktopFocus?.dispose();
+    _shake.dispose();
     super.dispose();
   }
 
-  void _handleDesktopFocus() {
-    setState(() => _active = _desktopFocus?.hasFocus ?? false);
+  String _sanitize(String raw) {
+    final digits = raw.replaceAll(RegExp(r'\D'), '');
+    return digits.length > widget.length
+        ? digits.substring(0, widget.length)
+        : digits;
   }
 
   void _handleDesktopInput() {
-    _handleChange(_desktopController?.text ?? '');
+    final controller = _desktopController;
+    if (controller == null) return;
+    final next = _sanitize(controller.text);
+    if (next != controller.text) {
+      controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    }
+    _handleChange(next);
   }
 
-  void _handleChange(String v) {
-    if (v == _currentValue) return;
-    if (widget.value != null) {
-      widget.onChange?.call(v);
+  void _handleDesktopFocus() {
+    final focused = _desktopFocus?.hasFocus ?? false;
+    if (focused == _active) return;
+    setState(() => _active = focused);
+    if (focused) {
+      widget.onFocus?.call();
     } else {
-      setState(() => _internalValue = v);
-      widget.onChange?.call(v);
+      widget.onBlur?.call();
     }
-    if (v.length >= widget.length) {
-      widget.onFill?.call(v);
+  }
+
+  void _handleChange(String raw) {
+    final next = _sanitize(raw);
+    if (next == _currentValue) return;
+    if (widget.value == null) {
+      setState(() => _internalValue = next);
     }
+    widget.onChange?.call(next);
+    _maybeFill(next);
+  }
+
+  void _maybeFill(String value) {
+    if (value.length < widget.length) {
+      _fillNotified = false;
+      return;
+    }
+    if (_fillNotified) return;
+    _fillNotified = true;
+    widget.onFill?.call(value);
+  }
+
+  void _showKeyboard() {
+    if (!widget.keyboard || _desktop) return;
+    if (_active) return;
+    setState(() => _active = true);
+    _kb.show(
+      context,
+      AntNumberKeyboard(
+        value: _currentValue,
+        maxLength: widget.length,
+        onChange: _handleChange,
+      ),
+      onDismiss: () {
+        if (!mounted) return;
+        setState(() => _active = false);
+        widget.onBlur?.call();
+      },
+    );
+    widget.onFocus?.call();
+  }
+
+  void _hideKeyboard() {
+    if (_desktop) {
+      _desktopFocus?.unfocus();
+      return;
+    }
+    if (!_active) return;
+    _kb.hide();
   }
 
   void _toggleActive() {
     if (_desktop) {
-      _desktopFocus?.requestFocus();
+      if (_desktopFocus?.hasFocus ?? false) {
+        _desktopFocus?.unfocus();
+      } else {
+        _desktopFocus?.requestFocus();
+      }
       return;
     }
     if (!widget.keyboard) return;
-    setState(() => _active = !_active);
     if (_active) {
-      // TODO(keyboard-form): 弹出形态待参考库接入后完善（见 keyboard_overlay.dart）
-      _kb.show(
-        context,
-        AntNumberKeyboard(
-          value: _currentValue,
-          onChange: _handleChange,
-          maxLength: widget.length,
-        ),
-        onDismiss: () => setState(() => _active = false),
-      );
+      _hideKeyboard();
     } else {
-      _kb.hide();
+      _showKeyboard();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = AntTheme.of(context);
-    final value = _currentValue;
+    final ant = AntTheme.of(context);
+    final cellSize = widget.cellSize ?? 40.w;
+    final gap = widget.cellGap ?? 6.w;
+    final radius = widget.borderRadius ?? 8.w;
+    final danger = ant.colorError;
+    final borderColor = widget.error
+        ? danger
+        : (_active ? ant.colorPrimary : ant.colorBorder);
+    final cells = _buildCells(
+      ant,
+      cellSize: cellSize,
+      gap: gap,
+      radius: radius,
+      borderColor: borderColor,
+      danger: danger,
+    );
 
-    final cells = <Widget>[];
-    for (var i = 0; i < widget.length; i++) {
-      final hasChar = i < value.length;
-      final isCursor = _active && i == value.length;
-      cells.add(_buildCell(t, i, hasChar, isCursor, value));
-    }
+    Widget body = widget.separated
+        ? cells
+        : Container(
+            decoration: BoxDecoration(
+              color: ant.colorBgContainer,
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: borderColor, width: 1.w),
+              boxShadow: _active && !widget.error
+                  ? [
+                      BoxShadow(
+                        color: ant.colorPrimary,
+                        blurRadius: 2.w,
+                      ),
+                    ]
+                  : null,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: cells,
+          );
 
-    final Widget cellsRow;
-    if (widget.separated) {
-      cellsRow = Row(
+    if (_desktop) {
+      body = Stack(
         children: [
-          for (var i = 0; i < cells.length; i++) ...[
-            if (i > 0) SizedBox(width: t.marginXS.w),
-            Expanded(child: cells[i]),
-          ],
+          body,
+          Positioned.fill(
+            child: TextField(
+              controller: _desktopController,
+              focusNode: _desktopFocus,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(widget.length),
+              ],
+              showCursor: false,
+              enableSuggestions: false,
+              autocorrect: false,
+              style: TextStyle(
+                fontSize: 1,
+                color: ant.colorText.withValues(alpha: 0),
+              ),
+              cursorColor: ant.colorPrimary.withValues(alpha: 0),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+                counterText: '',
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
         ],
       );
-    } else {
-      cellsRow = Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: widget.error
-                ? t.colorError
-                : _active
-                    ? t.colorPrimary
-                    : t.colorBorder,
-            width: 1.w,
-          ),
-          borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
-        ),
-        clipBehavior: Clip.antiAlias,
-        // 格子均分铺满宽度
-        child: Row(
-          children: [
-            for (var i = 0; i < cells.length; i++) Expanded(child: cells[i]),
-          ],
-        ),
-      );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: _toggleActive,
-          behavior: HitTestBehavior.opaque,
-          child: _desktop
-              ? Stack(
-                  children: [
-                    cellsRow,
-                    // 桌面端：透明 TextField 覆盖格子区域，走系统键盘输入
-                    Positioned.fill(
-                      child: TextField(
-                        controller: _desktopController,
-                        focusNode: _desktopFocus,
-                        maxLength: widget.length,
-                        obscureText: !widget.plain,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        style: const TextStyle(color: Colors.transparent),
-                        cursorColor: Colors.transparent,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          counterText: '',
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : cellsRow,
-        ),
-      ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _toggleActive,
+      child: AnimatedBuilder(
+        animation: _shake,
+        builder: (context, child) {
+          final dx = _shakeOffset(_shake.value) * 5.w;
+          return Transform.translate(offset: Offset(dx, 0), child: child);
+        },
+        child: body,
+      ),
     );
   }
 
-  Widget _buildCell(
-    AntThemeData t,
-    int index,
-    bool hasChar,
-    bool isCursor,
-    String value,
-  ) {
-    final borderColor = widget.error
-        ? t.colorError
-        : _active
-            ? t.colorPrimary
-            : t.colorBorder;
+  /// antd-mobile shake 关键帧：0 → -4 → 5 → -5 → 4 → 0（px）。
+  double _shakeOffset(double t) {
+    if (t <= 0 || t >= 1) return 0;
+    const frames = [0.0, -0.8, 1.0, -1.0, 0.8, 0.0];
+    final scaled = t * (frames.length - 1);
+    final index = scaled.floor().clamp(0, frames.length - 2);
+    final local = scaled - index;
+    return frames[index] + (frames[index + 1] - frames[index]) * local;
+  }
 
-    Widget content;
-    if (hasChar) {
-      content = widget.plain
-          ? Text(
-              value[index],
-              style: TextStyle(
-                fontSize: t.fontSizeLG.sp,
-                fontWeight: FontWeight.w600,
-                color: t.colorText,
+  Widget _buildCells(
+    AntThemeData ant, {
+    required double cellSize,
+    required double gap,
+    required double radius,
+    required Color borderColor,
+    required Color danger,
+  }) {
+    final chars = _currentValue.characters.toList();
+    final showCaret = _active && chars.length < widget.length;
+    final cells = <Widget>[];
+    for (var i = 0; i < widget.length; i++) {
+      final filled = i < chars.length;
+      final isCaret = showCaret && i == chars.length;
+      cells.add(
+        SizedBox(
+          width: cellSize,
+          height: cellSize,
+          child: Container(
+            key: ValueKey('ant-passcode-cell-$i'),
+            decoration: widget.separated
+                ? BoxDecoration(
+                    color: ant.colorBgContainer,
+                    borderRadius: BorderRadius.circular(radius),
+                    border: Border.all(
+                      color: widget.error
+                          ? danger
+                          : (isCaret ? ant.colorPrimary : ant.colorBorder),
+                      width: 1.w,
+                    ),
+                    boxShadow: isCaret && !widget.error
+                        ? [
+                            BoxShadow(
+                              color: ant.colorPrimary,
+                              blurRadius: 2.w,
+                            ),
+                          ]
+                        : null,
+                  )
+                : BoxDecoration(
+                    border: i == widget.length - 1
+                        ? null
+                        : Border(
+                            right: BorderSide(
+                              color: ant.colorBorder,
+                              width: 1.w,
+                            ),
+                          ),
+                  ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (filled)
+                    widget.plain
+                        ? Text(
+                            chars[i],
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w500,
+                              color: ant.colorText,
+                            ),
+                          )
+                        : Container(
+                            width: widget.dotSize ?? 10.w,
+                            height: widget.dotSize ?? 10.w,
+                            decoration: BoxDecoration(
+                              color: ant.colorText,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                  if (isCaret) ...[
+                    if (filled) SizedBox(width: 2.w),
+                    _AntCaret(
+                      color: ant.colorPrimary,
+                      height: cellSize * 0.55,
+                      width: 1.5.w,
+                    ),
+                  ],
+                ],
               ),
-            )
-          : Container(
-              width: 10.w,
-              height: 10.w,
-              decoration: BoxDecoration(
-                color: t.colorText,
-                shape: BoxShape.circle,
-              ),
-            );
-    } else if (isCursor) {
-      content = Container(
-        width: 2.w,
-        height: 24.w,
-        color: t.colorPrimary,
-      );
-    } else {
-      content = const SizedBox.shrink();
-    }
-
-    final cell = Container(
-      height: 48.w,
-      alignment: Alignment.center,
-      child: content,
-    );
-
-    if (widget.separated) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: borderColor, width: 1.w),
-          borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
-        ),
-        child: cell,
-      );
-    }
-
-    if (index < widget.length - 1) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(color: t.colorSplit, width: 1.w),
+            ),
           ),
         ),
-        child: cell,
       );
+      if (widget.separated && i != widget.length - 1) {
+        cells.add(SizedBox(width: gap));
+      }
     }
-    return cell;
+    return Row(mainAxisSize: MainAxisSize.min, children: cells);
+  }
+}
+
+class _AntCaret extends StatefulWidget {
+  const _AntCaret({
+    required this.color,
+    required this.height,
+    required this.width,
+  });
+
+  final Color color;
+  final double height;
+  final double width;
+
+  @override
+  State<_AntCaret> createState() => _AntCaretState();
+}
+
+class _AntCaretState extends State<_AntCaret>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final visible = _controller.value < 0.5;
+        return Opacity(opacity: visible ? 1 : 0, child: child);
+      },
+      child: Container(
+        key: const ValueKey('ant-passcode-caret'),
+        width: widget.width,
+        height: widget.height,
+        color: widget.color,
+      ),
+    );
   }
 }

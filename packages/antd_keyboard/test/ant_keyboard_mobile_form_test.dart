@@ -174,8 +174,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_keyboardMouseRegions(), findsNothing);
+      // 重写后移动形态键高对齐 antd-mobile（48），不再钳到 44
       expect(_keyHeight(tester, '5'), greaterThanOrEqualTo(44.0));
-      expect(_keyHeight(tester, '5'), lessThan(48.0));
+      expect(_keyHeight(tester, '5'), lessThanOrEqualTo(48.0));
     });
   });
 
