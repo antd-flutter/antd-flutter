@@ -4,7 +4,8 @@
 >
 > 状态：**进行中**（2026-11-21 启动）。C0 对齐矩阵已完成（`docs/plan/tasks/calendar-parity-matrix.md`）；
 > C1 共享核心 + 双端渲染器骨架（`2c50923`）、C2 桌面渲染器（`6cfd378`）、C3 移动渲染器（`090f85f`）已提交。
-> 下一步：C4 兼容收敛与迁移说明、C5 示例与视觉验收、C6 收口。
+> C4 兼容收敛与迁移说明已提交（`e45928c`）；C5 示例页按平台分段与双端截图验收完成（见 §9）。
+> 下一步：C6 收口（全库回归、状态表与 PLAN 更新、最终提交）。
 
 ## 1. 现状
 
@@ -150,3 +151,16 @@ lib/src/calendar/
 8. **扩展能力**：`calendarFormat`(week/twoWeeks)、`multiSelect`、`eventLoader`、`showFormatSwitcher` 保留为非 antd 扩展；使用这些参数时移动端走兼容渲染分支。
 9. **CalendarPicker**：仅移动端；内部复用 `AntCalendarMobile`。
 10. **新增桌面能力**：`showWeek`、`headerRender`、`cellRender info.type/originNode`、`dateCellRender/dateFullCellRender`（deprecated 映射）。
+
+## 9. C5 示例与视觉验收
+
+- `example/lib/pages/calendar_page.dart` 重写为**按平台分段**的演示页：
+  - 顶部「平台分派」可在 `auto / desktop / mobile` 间切换，并显示当前解析结果；
+  - 桌面段：fullscreen 全屏面板（`showWeek` + `onSelectWithInfo` 显示选中来源）、card 迷你面板；
+  - 移动段：单选（`allowClear` + `renderLabel` 价格标签）、范围选择（`rangeValue/onRangeChange`）、自定义格子（`renderDate` + `mobileCellRender` 周一描边）；
+  - 通用段保留 Controller 程序化翻页与受控选中。
+- 视觉核对（widget-test 截图，2x）：
+  - `.temp/calendar_desktop.png`（1400×1000）：周序号列 45–50、周日首列、年/月下拉与月/年分段切换、选中日浅蓝底 + 主色文字、非本月淡化；
+  - `.temp/calendar_mobile.png`（390×844）：四向箭头、居中「2026年11月」+ 下拉、45 高星期行、48 格、19 字号、¥ 标签、选中圆角主色块。
+- 期间修复：`AntCalendarLocale.weekLabelsFor` 周日起始时错误地把周标签左移一位（`['二','三','四','五','六','日','一']`），改为 `[last, ...take(6)]` 得到 `['日','一'..'六']`；`test/calendar_compat_test.dart` 断言改为整行顺序；桌面头部年/月下拉宽度调至 104/88，避免「2026年」「11月」换行。
+- 全包 137 项测试全过、`antd_calendar` 与 root example `flutter analyze` 均无问题。

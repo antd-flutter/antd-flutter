@@ -14,6 +14,17 @@ Widget _wrap(Widget child) {
   );
 }
 
+
+List<String> _weekOrder(WidgetTester tester) {
+  const labels = ['一', '二', '三', '四', '五', '六', '日'];
+  final entries = <(String, double)>[
+    for (final label in labels)
+      (label, tester.getTopLeft(find.text(label).first).dx),
+  ];
+  entries.sort((a, b) => a.$2.compareTo(b.$2));
+  return entries.map((e) => e.$1).toList();
+}
+
 void main() {
   testWidgets('desktop defaults to Sunday week start', (tester) async {
     await tester.pumpWidget(
@@ -24,9 +35,7 @@ void main() {
         ),
       ),
     );
-    final sunday = tester.getTopLeft(find.text('日').first);
-    final monday = tester.getTopLeft(find.text('一').first);
-    expect(sunday.dx, lessThan(monday.dx));
+    expect(_weekOrder(tester), ['日', '一', '二', '三', '四', '五', '六']);
   });
 
   testWidgets('mobile defaults to Sunday week start', (tester) async {
@@ -39,9 +48,7 @@ void main() {
         ),
       ),
     );
-    final sunday = tester.getTopLeft(find.text('日').first);
-    final monday = tester.getTopLeft(find.text('一').first);
-    expect(sunday.dx, lessThan(monday.dx));
+    expect(_weekOrder(tester), ['日', '一', '二', '三', '四', '五', '六']);
   });
 
   testWidgets('explicit monday keeps monday-first header', (tester) async {
@@ -55,9 +62,7 @@ void main() {
         ),
       ),
     );
-    final sunday = tester.getTopLeft(find.text('日').first);
-    final monday = tester.getTopLeft(find.text('一').first);
-    expect(monday.dx, lessThan(sunday.dx));
+    expect(_weekOrder(tester), ['一', '二', '三', '四', '五', '六', '日']);
   });
 
   test('rangeValue is rejected on desktop renderer', () {

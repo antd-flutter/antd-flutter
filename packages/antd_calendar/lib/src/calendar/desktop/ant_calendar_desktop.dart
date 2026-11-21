@@ -131,7 +131,7 @@ class AntCalendarDesktop extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           SizedBox(
-            width: t.s(80),
+            width: t.s(104),
             child: AntSelect<int>(
               key: const Key('ant-calendar-year-select'),
               size: selectSize,
@@ -146,7 +146,7 @@ class AntCalendarDesktop extends StatelessWidget {
           if (core.mode == AntCalendarMode.month) ...[
             SizedBox(width: t.s(8)),
             SizedBox(
-              width: t.s(70),
+              width: t.s(88),
               child: AntSelect<int>(
                 key: const Key('ant-calendar-month-select'),
                 size: selectSize,

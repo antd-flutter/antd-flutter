@@ -370,7 +370,7 @@ class AntCalendarLocale {
   List<String> weekLabelsFor({required bool weekStartsOnMonday}) {
     final labels = effectiveWeekLabels;
     if (weekStartsOnMonday || labels.length < 7) return labels;
-    return [...labels.sublist(1), labels.first];
+    return [labels.last, ...labels.sublist(0, labels.length - 1)];
   }
 
   /// 头部年月标题（模板占位符替换）。
