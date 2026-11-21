@@ -18,7 +18,6 @@ library;
 /// （14 项已验收仍挂待验证 / 16 项未验收被标已验收 / 6 项重复），并去重。
 const kPendingVerify = <String>[
   // 日历族（独立包 antd_calendar，双端一致性打磨中）
-  'calendar',
   // 键盘族（独立包 antd_keyboard）
   'number_keyboard',
   'passcode_input',
@@ -143,6 +142,7 @@ const kMigratedVerified = <String>[
   'jumbo_tabs',
   'steps',
   'calendar_picker',
+  'calendar',
   'tab_bar',
   // 已验收（2026-11-21 用户验收）
   'pagination',
