@@ -1,6 +1,6 @@
 name: antd_floating
 description: Ant Design floating UI for Flutter - anchored popovers, tooltips, popconfirm and dropdowns with flip and shift positioning.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

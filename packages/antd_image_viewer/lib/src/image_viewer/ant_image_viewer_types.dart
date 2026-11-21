@@ -8,7 +8,7 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'network_image_loader.dart';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
@@ -45,8 +45,8 @@ class AntImageViewerDefaults {
   }) {
     final resolvedTheme = theme ?? AntTheme.of(context);
     if (isNetworkSrc(src)) {
-      return CachedNetworkImage(
-        imageUrl: src,
+      return buildAntNetworkImage(
+        url: src,
         fit: fit,
         placeholder: (_, __) => defaultPlaceholder(resolvedTheme),
         errorWidget: (_, __, ___) => defaultError(resolvedTheme),

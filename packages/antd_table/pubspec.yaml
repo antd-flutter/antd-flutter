@@ -1,6 +1,6 @@
 name: antd_table
 description: Ant Design Table for Flutter - sorting, filtering, fixed columns, merged cells, tree data, selection and grouped headers.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

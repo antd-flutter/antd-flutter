@@ -1,6 +1,6 @@
 name: antd_masonry
 description: Ant Design Masonry grid for Flutter - column-balanced waterfall layout with configurable gaps and responsive column counts.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

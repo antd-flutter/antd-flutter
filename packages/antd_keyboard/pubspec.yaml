@@ -1,6 +1,6 @@
 name: antd_keyboard
 description: Ant Design (antd-mobile) virtual keyboard family for Flutter. General keyboard engine plus NumberKeyboard, PasscodeInput and VirtualInput, aligned with antd-mobile API.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

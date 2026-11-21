@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Web support: platform detection no longer imports dart:io (conditional platform_os loader).
+- Republished to refresh pub.dev platform scoring.
+
 ## 1.0.1
 
 - Fix pub.dev static analysis results by aligning internal dependency constraints.

@@ -1,6 +1,6 @@
 name: antd_refresh
 description: Ant Design pull-to-refresh for Flutter - indicator states, drag thresholds and smooth scroll integration.
-version: 1.0.1
+version: 1.0.2
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

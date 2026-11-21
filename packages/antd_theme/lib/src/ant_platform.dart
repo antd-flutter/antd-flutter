@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'platform_os.dart';
 
 import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
@@ -67,8 +67,7 @@ class AntPlatform {
   /// （`kIsWeb` 守卫下），标准 SDK 下恒为 false，零编译错误。
   static bool get isOhos {
     if (kIsWeb) return false;
-    // ignore: avoid_dynamic_calls
-    return Platform.operatingSystem == 'ohos';
+    return operatingSystemName == 'ohos';
   }
 
   // ---- 交互能力开关 ----
