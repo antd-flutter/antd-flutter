@@ -20,6 +20,10 @@ class MenuPage extends StatelessWidget {
           _HorizontalDemo(),
           _Section(title: '暗色主题', description: 'theme=dark'),
           _DarkDemo(),
+          _Section(title: '垂直模式与浮层', description: 'mode=vertical，子菜单以浮层展开'),
+          _VerticalDemo(),
+          _Section(title: '多选与回调', description: 'multiple=true，onSelect / onDeselect 分别回调'),
+          _MultipleDemo(),
           _Section(title: '折叠模式', description: 'inlineCollapsed=true，仅显示图标'),
           _CollapsedDemo(),
           _Section(title: '分组与分割线', description: 'type=group 分组标题，type=divider 分割线'),
@@ -209,6 +213,86 @@ class _GroupDividerDemo extends StatelessWidget {
           ]),
         ],
       ),
+    );
+  }
+}
+// ------------------------------------------------------------
+// 垂直模式与浮层
+// ------------------------------------------------------------
+
+class _VerticalDemo extends StatelessWidget {
+  const _VerticalDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 220,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: AntMenu(
+        mode: AntMenuMode.vertical,
+        defaultSelectedKeys: const ['1-1'],
+        items: const [
+          AntMenuItem(key: '1', label: '导航一'),
+          AntMenuItem(key: 'sub1', label: '子菜单', children: [
+            AntMenuItem(key: '1-1', label: '选项 1-1'),
+            AntMenuItem(key: '1-2', label: '选项 1-2'),
+            AntMenuItem(key: 'nested', label: '二级子菜单', children: [
+              AntMenuItem(key: '1-2-1', label: '选项 1-2-1'),
+            ]),
+          ]),
+          AntMenuItem(key: '2', label: '导航二'),
+        ],
+      ),
+    );
+  }
+}
+
+// ------------------------------------------------------------
+// 多选与回调
+// ------------------------------------------------------------
+
+class _MultipleDemo extends StatefulWidget {
+  const _MultipleDemo();
+
+  @override
+  State<_MultipleDemo> createState() => _MultipleDemoState();
+}
+
+class _MultipleDemoState extends State<_MultipleDemo> {
+  List<String> _selected = const [];
+  String _last = '暂无';
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 220,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: AntMenu(
+            multiple: true,
+            selectedKeys: _selected,
+            onSelectedKeysChange: (keys) => setState(() => _selected = keys),
+            onSelect: (item) => setState(() => _last = 'onSelect: ${item.label}'),
+            onDeselect: (item) => setState(() => _last = 'onDeselect: ${item.label}'),
+            items: const [
+              AntMenuItem(key: 'a', label: '选项 A', icon: Icon(AntIcons.mailOutlined, size: 16)),
+              AntMenuItem(key: 'b', label: '选项 B', icon: Icon(AntIcons.appstoreOutlined, size: 16)),
+              AntMenuItem(key: 'c', label: '选项 C', icon: Icon(AntIcons.settingOutlined, size: 16)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text('已选: ${_selected.isEmpty ? '无' : _selected.join(', ')}'),
+        Text(_last),
+      ],
     );
   }
 }
