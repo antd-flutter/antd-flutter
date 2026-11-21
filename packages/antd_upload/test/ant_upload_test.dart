@@ -5,6 +5,7 @@ import 'package:antd_upload/antd_upload.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -24,7 +25,7 @@ void main() {
         const AntUpload(),
       ),);
       expect(find.text('上传'), findsOneWidget);
-      expect(find.byIcon(Icons.upload_file), findsOneWidget);
+      expect(find.byIcon(AntIcons.uploadOutlined), findsOneWidget);
     });
 
     testWidgets('renders custom button text', (tester) async {
@@ -112,7 +113,7 @@ void main() {
       await tester.tap(find.text('上传'));
       await tester.pumpAndSettle();
       expect(states, [AntUploadStatus.uploading]);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     });
 
     testWidgets('remove button removes file from list', (tester) async {
@@ -129,7 +130,7 @@ void main() {
         ),
       ),);
       expect(find.text('to-remove.txt'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       expect(removedFile?.name, 'to-remove.txt');
       expect(find.text('to-remove.txt'), findsNothing);
@@ -144,7 +145,7 @@ void main() {
           onRemove: (file) async => false,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       expect(find.text('keep-me.txt'), findsOneWidget);
     });
@@ -190,7 +191,7 @@ void main() {
         ),
       ),);
       expect(find.text('locked.txt'), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.byIcon(AntIcons.closeOutlined), findsNothing);
     });
 
     testWidgets('showUploadList false hides file list', (tester) async {
@@ -231,7 +232,7 @@ void main() {
       await tester.pumpWidget(_wrap(
         const AntUpload(listType: AntUploadListType.pictureCard),
       ),);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(AntIcons.plusOutlined), findsOneWidget);
       expect(find.text('上传'), findsNothing);
     });
 

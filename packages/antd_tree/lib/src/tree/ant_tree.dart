@@ -25,6 +25,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'package:antd_tree/src/tree/ant_tree_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_tree/src/tree/ant_tree_types.dart';
 
@@ -462,8 +463,8 @@ class _TreeNodeRow extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           child: Icon(
             tree.showLine
-                ? Icons.subdirectory_arrow_right
-                : Icons.expand_more,
+                ? AntIcons.enterOutlined
+                : AntIcons.downOutlined,
             size: 14.sp,
             color: node.disabled ? t.colorTextDisabled : t.colorTextQuaternary,
           ),
@@ -476,14 +477,14 @@ class _TreeNodeRow extends StatelessWidget {
   Widget _buildCheckbox(AntThemeData t) {
     final color = node.disabled ? t.colorTextDisabled : t.colorPrimary;
     if (_halfChecked) {
-      return Icon(Icons.indeterminate_check_box_outlined,
+      return Icon(AntIcons.minusSquareFilled,
           size: 18.sp, color: color,);
     }
     if (_checked) {
-      return Icon(Icons.check_box_outlined, size: 18.sp, color: color);
+      return Icon(AntIcons.checkSquareOutlined, size: 18.sp, color: color);
     }
     return Icon(
-      Icons.check_box_outline_blank_outlined,
+      AntIcons.borderOutlined,
       size: 18.sp,
       color: node.disabled ? t.colorTextDisabled : t.colorBorder,
     );

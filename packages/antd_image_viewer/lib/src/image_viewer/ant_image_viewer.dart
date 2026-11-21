@@ -36,6 +36,7 @@ import 'package:flutter/services.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 图片查看器 — 全屏浏览多张图片，支持缩放与左右切换。
 ///
@@ -253,7 +254,7 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
                     top: MediaQuery.paddingOf(context).top + 16.w,
                     right: 16.w,
                     child: _buildIconButton(
-                      icon: Icons.close,
+                      icon: AntIcons.closeOutlined,
                       onTap: widget.onClose,
                     ),
                   ),

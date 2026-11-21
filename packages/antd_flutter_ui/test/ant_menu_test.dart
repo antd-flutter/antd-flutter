@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -59,13 +60,13 @@ void main() {
               AntMenuItem(
                 key: '1',
                 label: '首页',
-                icon: Icon(Icons.home),
+                icon: Icon(AntIcons.homeOutlined),
               ),
             ],
           ),
         ),
       );
-      expect(find.byIcon(Icons.home), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeOutlined), findsOneWidget);
       expect(find.text('首页'), findsOneWidget);
     });
 
@@ -597,13 +598,13 @@ void main() {
           const AntMenu(
             inlineCollapsed: true,
             items: [
-              AntMenuItem(key: '1', label: '菜单项', icon: Icon(Icons.home)),
+              AntMenuItem(key: '1', label: '菜单项', icon: Icon(AntIcons.homeOutlined)),
             ],
           ),
         ),
       );
 
-      expect(find.byIcon(Icons.home), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeOutlined), findsOneWidget);
       expect(find.text('菜单项'), findsNothing);
     });
 
@@ -616,7 +617,7 @@ void main() {
               AntMenuItem(
                 key: 'sub1',
                 label: '子菜单',
-                icon: Icon(Icons.settings),
+                icon: Icon(AntIcons.settingOutlined),
                 children: [
                   AntMenuItem(key: '1-1', label: '子项'),
                 ],
@@ -626,9 +627,9 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.settings), findsOneWidget);
+      expect(find.byIcon(AntIcons.settingOutlined), findsOneWidget);
       // 不应出现展开箭头图标
-      expect(find.byIcon(Icons.keyboard_arrow_right), findsNothing);
+      expect(find.byIcon(AntIcons.rightOutlined), findsNothing);
     });
   });
 

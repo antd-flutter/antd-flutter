@@ -26,6 +26,7 @@ import 'ant_cascader_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_cascader_types.dart';
 
@@ -295,7 +296,7 @@ class _AntCascaderState extends State<AntCascader>
                 child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
                   child: Icon(
-                    Icons.cancel,
+                    AntIcons.closeCircleFilled,
                     size: 14.sp,
                     color: t.colorTextQuaternary,
                   ),
@@ -305,7 +306,7 @@ class _AntCascaderState extends State<AntCascader>
               Padding(
                 padding: EdgeInsets.only(left: 4.w),
                 child: Icon(
-                  _open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  _open ? AntIcons.upOutlined : AntIcons.downOutlined,
                   size: 14.sp,
                   color: t.colorTextQuaternary,
                 ),
@@ -544,7 +545,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
               ),
               if (!widget.option.isLeaf)
                 Icon(
-                  Icons.keyboard_arrow_right,
+                  AntIcons.rightOutlined,
                   size: 14.sp,
                   color: widget.colorTextDisabled,
                 ),

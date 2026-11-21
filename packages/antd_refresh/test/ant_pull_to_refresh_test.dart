@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -213,7 +214,7 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, 30));
       await tester.pump();
       expect(find.text('自定义头部'), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_downward), findsNothing);
+      expect(find.byIcon(AntIcons.arrowDownOutlined), findsNothing);
     });
 
     testWidgets('onRefresh error still bounces back', (tester) async {

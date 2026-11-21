@@ -36,6 +36,7 @@ import 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_calendar/src/calendar/ant_calendar_controller.dart';
 export 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
@@ -773,10 +774,10 @@ class _AntCalendarState extends State<AntCalendar>
           if (widget.showYearNavButtons)
             _buildNavIcon(
               t,
-              Icons.keyboard_double_arrow_left,
+              AntIcons.doubleLeftOutlined,
               () => _goToYear(-1),
             ),
-          _buildNavIcon(t, Icons.chevron_left, () => _goToMonth(-1)),
+          _buildNavIcon(t, AntIcons.leftOutlined, () => _goToMonth(-1)),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -802,7 +803,7 @@ class _AntCalendarState extends State<AntCalendar>
                         if (widget.enableYearMonthDropdown) ...[
                           SizedBox(width: 2.w),
                           Icon(
-                            Icons.keyboard_arrow_down,
+                            AntIcons.downOutlined,
                             size: 16.w,
                             color: t.colorTextSecondary,
                           ),
@@ -833,11 +834,11 @@ class _AntCalendarState extends State<AntCalendar>
               ),
             ),
           ),
-          _buildNavIcon(t, Icons.chevron_right, () => _goToMonth(1)),
+          _buildNavIcon(t, AntIcons.rightOutlined, () => _goToMonth(1)),
           if (widget.showYearNavButtons)
             _buildNavIcon(
               t,
-              Icons.keyboard_double_arrow_right,
+              AntIcons.doubleRightOutlined,
               () => _goToYear(1),
             ),
         ],

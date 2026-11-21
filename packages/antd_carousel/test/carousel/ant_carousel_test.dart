@@ -3,6 +3,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -115,13 +116,13 @@ void main() {
 
     testWidgets('arrows rendered and tap flips page', (tester) async {
       await tester.pumpWidget(_wrap(_carousel(arrows: true)));
-      expect(find.byIcon(Icons.chevron_left), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      expect(find.byIcon(AntIcons.leftOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.rightOutlined), findsOneWidget);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pumpAndSettle();
       final pageView = tester.widget<PageView>(find.byType(PageView));
       expect(pageView.controller!.page, 1);
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pumpAndSettle();
       final pageView2 = tester.widget<PageView>(find.byType(PageView));
       expect(pageView2.controller!.page, 0);

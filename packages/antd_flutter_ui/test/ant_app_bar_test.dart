@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -33,13 +34,13 @@ void main() {
         _wrap(
           const AntAppBar(
             title: Text('标题'),
-            actions: [Icon(Icons.search), Icon(Icons.more_horiz)],
+            actions: [Icon(AntIcons.searchOutlined), Icon(AntIcons.moreOutlined)],
           ),
         ),
       );
-      expect(find.byIcon(Icons.search), findsOneWidget);
-      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
-      final more = tester.getRect(find.byIcon(Icons.more_horiz));
+      expect(find.byIcon(AntIcons.searchOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.moreOutlined), findsOneWidget);
+      final more = tester.getRect(find.byIcon(AntIcons.moreOutlined));
       expect(more.center.dx, greaterThan(760));
     });
 
@@ -47,13 +48,13 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           const AntAppBar(
-            leading: Icon(Icons.menu),
+            leading: Icon(AntIcons.menuOutlined),
             title: Text('标题'),
           ),
         ),
       );
-      expect(find.byIcon(Icons.menu), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+      expect(find.byIcon(AntIcons.menuOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsNothing);
     });
 
     testWidgets('shows back arrow when route can pop', (tester) async {
@@ -83,9 +84,9 @@ void main() {
       );
       await tester.tap(find.text('go'));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pumpAndSettle();
       expect(find.text('go'), findsOneWidget);
     });

@@ -26,6 +26,7 @@ import 'package:material_ui/material_ui.dart';
 import 'ant_toast_types.dart';
 import '../loading/ant_loading.dart';
 import '../../engines/overlay_shell.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 export 'ant_toast_types.dart';
 
 // ============================================================
@@ -232,12 +233,12 @@ class _ToastViewState extends State<_ToastView> {
       final size = 36.w;
       return switch (icon) {
         AntToastIconType.success => Icon(
-            Icons.check_circle_outline,
+            AntIcons.checkCircleOutlined,
             size: size,
             color: theme.colorSuccess,
           ),
         AntToastIconType.fail => Icon(
-            Icons.close,
+            AntIcons.closeOutlined,
             size: size,
             color: theme.colorError,
           ),

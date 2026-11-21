@@ -6,6 +6,7 @@ import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -69,7 +70,7 @@ void main() {
     await showToast(
       tester,
       const Row(key: Key('toast-custom'), children: [
-        Icon(Icons.star),
+        Icon(AntIcons.starFilled),
         Text('自定义内容'),
       ],),
     );
@@ -80,13 +81,13 @@ void main() {
   testWidgets('icon success 渲染成功图标', (tester) async {
     await tester.pumpWidget(_wrap(const SizedBox.shrink()));
     await showToast(tester, '上传成功', icon: AntToastIconType.success);
-    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+    expect(find.byIcon(AntIcons.checkCircleOutlined), findsOneWidget);
   });
 
   testWidgets('icon fail 渲染失败图标', (tester) async {
     await tester.pumpWidget(_wrap(const SizedBox.shrink()));
     await showToast(tester, '上传失败', icon: AntToastIconType.fail);
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
   });
 
   testWidgets('icon loading 渲染加载指示器', (tester) async {
@@ -100,7 +101,7 @@ void main() {
     await showToast(
       tester,
       '自定义图标',
-      icon: const Icon(Icons.favorite, key: Key('toast-icon')),
+      icon: const Icon(AntIcons.heartFilled, key: Key('toast-icon')),
     );
     expect(find.byKey(const Key('toast-icon')), findsOneWidget);
   });

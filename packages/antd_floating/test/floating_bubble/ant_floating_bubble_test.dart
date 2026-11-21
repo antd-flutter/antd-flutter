@@ -2,6 +2,7 @@ import 'package:antd_floating/src/floating_bubble/ant_floating_bubble.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const double _canvasW = 300;
 const double _canvasH = 400;
@@ -62,7 +63,7 @@ void main() {
       expect(container.constraints!.maxWidth, 48.w);
       expect(container.constraints!.maxHeight, 48.w);
       // 默认图标
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(AntIcons.plusOutlined), findsOneWidget);
     });
 
     testWidgets('initialPos positions the bubble', (tester) async {
@@ -81,7 +82,7 @@ void main() {
         axis: AntFloatingBubbleAxis.both,
       ),),);
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(29, 19)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(29, 19));
@@ -99,7 +100,7 @@ void main() {
         axis: AntFloatingBubbleAxis.x,
       ),),);
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(29, 39)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(29, 39));
@@ -117,7 +118,7 @@ void main() {
         axis: AntFloatingBubbleAxis.y,
       ),),);
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(59, 29)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(59, 29));
@@ -135,7 +136,7 @@ void main() {
       ),),);
       expect(_bubblePosition(tester).left, 10.w);
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(19, -1)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(19, -1));
@@ -152,7 +153,7 @@ void main() {
         menu: [
           AntFloatingBubbleMenuAction(
             label: '菜单A',
-            icon: const Icon(Icons.home),
+            icon: const Icon(AntIcons.homeOutlined),
             onClick: () => clicked = 'A',
           ),
           AntFloatingBubbleMenuAction(
@@ -162,11 +163,11 @@ void main() {
         ],
       ),),);
       // 收起时菜单文字不可见（透明但仍在树中，断言 IgnorePointer 生效后点击不可达）
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(find.text('菜单A'), findsOneWidget);
       expect(find.text('菜单B'), findsOneWidget);
-      expect(find.byIcon(Icons.home), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeOutlined), findsOneWidget);
       await tester.tap(find.text('菜单A'));
       await tester.pumpAndSettle();
       expect(clicked, 'A');
@@ -177,7 +178,7 @@ void main() {
         initialPos: Offset(10, 300),
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       final panel = tester.widget<AnimatedOpacity>(
         find
@@ -189,7 +190,7 @@ void main() {
       );
       expect(panel.opacity, 1.0);
       // 再点一次收起
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       final collapsed = tester.widget<AnimatedOpacity>(
         find
@@ -207,7 +208,7 @@ void main() {
         initialPos: Offset(10, 300),
         menu: [AntFloatingBubbleMenuAction(label: '菜单A')],
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('菜单A'));
       await tester.pumpAndSettle();
@@ -229,7 +230,7 @@ void main() {
       ),),);
       // 向左上方大幅拖拽，应被钳制在边界内（left/top >= 0）
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(-201, -201)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(-201, -201));
@@ -248,7 +249,7 @@ void main() {
         constraint: false,
       ),),);
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(-151, -151)); // 触发 pan 接受（不产生位移）
       await gesture.moveBy(const Offset(-151, -151));
@@ -262,10 +263,10 @@ void main() {
 
     testWidgets('custom child icon renders', (tester) async {
       await tester.pumpWidget(_wrap(const AntFloatingBubble(
-        child: Icon(Icons.edit),
+        child: Icon(AntIcons.editOutlined),
       ),),);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsNothing);
+      expect(find.byIcon(AntIcons.editOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.plusOutlined), findsNothing);
     });
 
     testWidgets('onClick fires on tap without menu', (tester) async {
@@ -273,7 +274,7 @@ void main() {
       await tester.pumpWidget(_wrap(AntFloatingBubble(
         onClick: () => tapped = true,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(tapped, isTrue);
     });
@@ -430,7 +431,7 @@ void main() {
       expect(closed.left, 10.w);
       expect(closed.top!, closeTo(300.w, 1));
       // 展开态：气泡不动，菜单在其上方。
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       final opened = _bubblePosition(tester);
       expect(opened.left, 10.w);
@@ -446,7 +447,7 @@ void main() {
       ),),);
       await tester.pumpAndSettle();
       final gesture =
-          await tester.startGesture(tester.getCenter(find.byIcon(Icons.add)));
+          await tester.startGesture(tester.getCenter(find.byIcon(AntIcons.plusOutlined)));
       await gesture.moveBy(const Offset(1, 1));
       await gesture.moveBy(const Offset(40, 10)); // 触发 pan 接受
       await gesture.moveBy(const Offset(40, 10));

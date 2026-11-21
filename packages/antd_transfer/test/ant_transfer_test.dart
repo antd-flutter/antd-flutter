@@ -6,6 +6,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const _testData = <AntTransferItem>[
   AntTransferItem(key: 'a', title: '选项A'),
@@ -95,7 +96,7 @@ void main() {
       ),);
       await tester.tap(find.text('选项A'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
       expect(resultKeys, ['a']);
       expect(direction, AntTransferDirection.right);
@@ -119,7 +120,7 @@ void main() {
       await tester.tap(find.text('选项B'));
       await tester.pumpAndSettle();
       // 移回左栏
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.tap(find.byIcon(AntIcons.doubleLeftOutlined));
       await tester.pumpAndSettle();
       expect(resultKeys, isEmpty);
       expect(direction, AntTransferDirection.left);
@@ -161,7 +162,7 @@ void main() {
       final checkboxes = find.byType(AntCheckbox);
       await tester.tap(checkboxes.first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
       expect(resultKeys, ['a', 'b', 'd']);
     });
@@ -174,8 +175,8 @@ void main() {
           defaultTargetKeys: ['b'],
         ),
       ),);
-      expect(find.byIcon(Icons.keyboard_double_arrow_right), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_double_arrow_left), findsNothing);
+      expect(find.byIcon(AntIcons.doubleRightOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.doubleLeftOutlined), findsNothing);
     });
 
     testWidgets('showSearch renders search fields', (tester) async {
@@ -285,14 +286,14 @@ void main() {
       ),);
       expect(find.text('右移'), findsOneWidget);
       expect(find.text('左移'), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_double_arrow_right), findsNothing);
+      expect(find.byIcon(AntIcons.doubleRightOutlined), findsNothing);
     });
 
     testWidgets('move button disabled when nothing selected', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntTransfer(dataSource: _testData),
       ),);
-      final button = find.byIcon(Icons.keyboard_double_arrow_right);
+      final button = find.byIcon(AntIcons.doubleRightOutlined);
       await tester.tap(button);
       await tester.pumpAndSettle();
       // 没有选中项，不应触发移动，计数不变
@@ -372,7 +373,7 @@ void main() {
       expect(find.text('父级1'), findsOneWidget);
       expect(find.text('子节点1'), findsNothing);
       // 点击展开箭头展开子树
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
       expect(find.text('子节点1'), findsOneWidget);
       expect(find.text('子节点2'), findsOneWidget);
@@ -473,7 +474,7 @@ void main() {
       ),);
       await tester.tap(find.text('父级1'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+      await tester.tap(find.byIcon(AntIcons.doubleRightOutlined));
       await tester.pumpAndSettle();
       // 勾选计数含子级：移动 keys 为子叶 c1/c2
       expect(moved, containsAll(['c1', 'c2']));

@@ -34,6 +34,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_table_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_table_types.dart';
 
@@ -1616,13 +1617,13 @@ class _AntTableState extends State<AntTable> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          Icons.arrow_upward,
+          AntIcons.arrowUpOutlined,
           size: 12.w,
           color:
               order == AntTableSortOrder.ascend ? activeColor : inactiveColor,
         ),
         Icon(
-          Icons.arrow_downward,
+          AntIcons.arrowDownOutlined,
           size: 12.w,
           color:
               order == AntTableSortOrder.descend ? activeColor : inactiveColor,
@@ -1643,7 +1644,7 @@ class _AntTableState extends State<AntTable> {
         child: Padding(
           padding: EdgeInsets.only(left: 4.w),
           child: Icon(
-            Icons.filter_alt_outlined,
+            AntIcons.filterOutlined,
             size: 14.w,
             color: active ? theme.colorPrimary : theme.colorTextQuaternary,
           ),
@@ -1687,7 +1688,7 @@ class _AntTableState extends State<AntTable> {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _toggleSelectionOverlay(theme),
                   child: Icon(
-                    Icons.arrow_drop_down,
+                    AntIcons.caretDownOutlined,
                     size: 14.w,
                     color: theme.colorTextSecondary,
                   ),
@@ -1800,7 +1801,7 @@ class _AntTableState extends State<AntTable> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.inbox_outlined,
+            AntIcons.inboxOutlined,
             size: 48.w,
             color: theme.colorTextQuaternary,
           ),
@@ -1882,7 +1883,7 @@ class _AntTableState extends State<AntTable> {
         mainAxisSize: MainAxisSize.min,
         children: [
           arrowButton(
-            Icons.chevron_left,
+            AntIcons.leftOutlined,
             disabled: page <= 1,
             onTap: () {
               setState(() => _currentPage = page - 1);
@@ -1891,7 +1892,7 @@ class _AntTableState extends State<AntTable> {
           ),
           for (var n = 1; n <= pageCount; n++) pageButton(n),
           arrowButton(
-            Icons.chevron_right,
+            AntIcons.rightOutlined,
             disabled: page >= pageCount,
             onTap: () {
               setState(() => _currentPage = page + 1);
@@ -1956,7 +1957,7 @@ class _ExpandIcon extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(right: 6.w),
         child: Icon(
-          expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+          expanded ? AntIcons.downOutlined : AntIcons.rightOutlined,
           size: _kExpandIconSize.w,
           color: theme.colorTextSecondary,
         ),
@@ -2002,7 +2003,7 @@ class _TableCheckbox extends StatelessWidget {
         ),
         child: checked || indeterminate
             ? Icon(
-                indeterminate ? Icons.remove : Icons.check,
+                indeterminate ? AntIcons.minusOutlined : AntIcons.checkOutlined,
                 size: size.w * 0.75,
                 color: Colors.white,
               )
@@ -2079,19 +2080,23 @@ class _FilterPanelState extends State<_FilterPanel> {
                   padding: EdgeInsets.symmetric(horizontal: 12.w),
                   child: Row(
                     children: [
-                      Icon(
-                        widget.multiple
-                            ? (_selected.contains(item.value)
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank)
-                            : (_selected.contains(item.value)
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_off),
-                        size: 16.w,
-                        color: _selected.contains(item.value)
-                            ? theme.colorPrimary
-                            : theme.colorBorder,
-                      ),
+                      if (widget.multiple)
+                        Icon(
+                          _selected.contains(item.value)
+                              ? AntIcons.checkSquareFilled
+                              : AntIcons.borderOutlined,
+                          size: 16.w,
+                          color: _selected.contains(item.value)
+                              ? theme.colorPrimary
+                              : theme.colorBorder,
+                        )
+                      else
+                        _FilterRadio(
+                          selected: _selected.contains(item.value),
+                          size: 16.w,
+                          activeColor: theme.colorPrimary,
+                          inactiveColor: theme.colorBorder,
+                        ),
                       SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
@@ -2156,6 +2161,45 @@ class _FilterPanelState extends State<_FilterPanel> {
           fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
         ),
       ),
+    );
+  }
+}
+
+/// 单选筛选下拉中的圆形单选标记（antd Radio 外观：描边圆 + 选中实心圆点）。
+class _FilterRadio extends StatelessWidget {
+  const _FilterRadio({
+    required this.selected,
+    required this.size,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  final bool selected;
+  final double size;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: selected ? activeColor : inactiveColor),
+      ),
+      child: selected
+          ? Center(
+              child: Container(
+                width: size * 0.5,
+                height: size * 0.5,
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

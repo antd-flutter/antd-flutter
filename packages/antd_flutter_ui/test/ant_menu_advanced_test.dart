@@ -3,6 +3,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child, {AntThemeData? data}) {
   return AntScreenUtilInit(
@@ -209,7 +210,7 @@ void main() {
         _wrap(
           const AntMenu(
             inlineCollapsed: true,
-            items: [AntMenuItem(key: '1', label: '一', icon: Icon(Icons.home))],
+            items: [AntMenuItem(key: '1', label: '一', icon: Icon(AntIcons.homeOutlined))],
           ),
         ),
       );

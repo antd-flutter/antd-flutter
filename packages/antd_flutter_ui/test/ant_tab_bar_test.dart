@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -31,13 +32,13 @@ void main() {
     testWidgets('渲染图标', (tester) async {
       await tester.pumpWidget(_wrap(const AntTabBar(
         items: [
-          AntTabBarItem(key: 'a', title: '首页', icon: Icons.home),
-          AntTabBarItem(key: 'b', title: '我的', icon: Icons.person),
+          AntTabBarItem(key: 'a', title: '首页', icon: AntIcons.homeOutlined),
+          AntTabBarItem(key: 'b', title: '我的', icon: AntIcons.userOutlined),
         ],
       ),),);
 
-      expect(find.byIcon(Icons.home), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.userOutlined), findsOneWidget);
     });
 
     testWidgets('渲染 titleWidget', (tester) async {
@@ -85,7 +86,7 @@ void main() {
     testWidgets('渲染文字角标', (tester) async {
       await tester.pumpWidget(_wrap(const AntTabBar(
         items: [
-          AntTabBarItem(key: 'a', title: '首页', icon: Icons.home, badgeText: '5'),
+          AntTabBarItem(key: 'a', title: '首页', icon: AntIcons.homeOutlined, badgeText: '5'),
         ],
       ),),);
 
@@ -199,14 +200,14 @@ void main() {
           AntTabBarItem(
             key: 'a',
             title: '首页',
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
+            icon: AntIcons.homeOutlined,
+            activeIcon: AntIcons.homeFilled,
           ),
         ],
       ),),);
 
-      expect(find.byIcon(Icons.home), findsOneWidget);
-      expect(find.byIcon(Icons.home_outlined), findsNothing);
+      expect(find.byIcon(AntIcons.homeFilled), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeOutlined), findsNothing);
     });
 
     testWidgets('非激活时显示普通 icon', (tester) async {
@@ -216,15 +217,15 @@ void main() {
           AntTabBarItem(
             key: 'a',
             title: '首页',
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
+            icon: AntIcons.homeOutlined,
+            activeIcon: AntIcons.homeFilled,
           ),
           AntTabBarItem(key: 'b', title: '我的'),
         ],
       ),),);
 
-      expect(find.byIcon(Icons.home_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.home), findsNothing);
+      expect(find.byIcon(AntIcons.homeOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.homeFilled), findsNothing);
     });
 
     testWidgets('无图标时只渲染标题', (tester) async {

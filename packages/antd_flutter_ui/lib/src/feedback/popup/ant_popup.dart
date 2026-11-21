@@ -22,6 +22,7 @@ import 'dart:math' as math;
 
 import '../../engines/overlay_shell.dart';
 import '../../engines/popup_overlay.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 export 'ant_popup_types.dart';
 
 // ============================================================
@@ -376,7 +377,7 @@ class _PopupOverlayState extends State<_PopupOverlay> {
                   child: Padding(
                     padding: EdgeInsets.all(12.w),
                     child: Icon(
-                      Icons.close,
+                      AntIcons.closeOutlined,
                       size: 18.w,
                       color: theme.colorTextSecondary,
                     ),

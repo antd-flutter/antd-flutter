@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/feedback/alert/ant_alert.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -87,12 +88,12 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntAlert(message: '提示', showIcon: true)),
       );
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     });
 
     testWidgets('showIcon false hides icon', (tester) async {
       await tester.pumpWidget(_wrap(const AntAlert(message: '提示')));
-      expect(find.byIcon(Icons.info), findsNothing);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsNothing);
     });
 
     testWidgets('closable shows close icon, tap closes and fires onClose',
@@ -103,8 +104,8 @@ void main() {
         closable: true,
         onClose: () => closed = true,
       ),),);
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close));
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       expect(closed, isTrue);
       expect(find.text('提示'), findsNothing);
@@ -157,10 +158,10 @@ void main() {
       await tester.pumpWidget(_wrap(const AntAlert(
         message: '提示',
         showIcon: true,
-        icon: Icon(Icons.star),
+        icon: Icon(AntIcons.starFilled),
       ),),);
-      expect(find.byIcon(Icons.star), findsOneWidget);
-      expect(find.byIcon(Icons.info), findsNothing);
+      expect(find.byIcon(AntIcons.starFilled), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsNothing);
     });
 
     group('icon 与文字对齐（回归：批次 0-1 验收反馈）', () {
@@ -180,7 +181,7 @@ void main() {
             ),
           ),
         );
-        final icon = iconRect(tester, Icons.info);
+        final icon = iconRect(tester, AntIcons.infoCircleFilled);
         final text = messageRect(tester, '信息提示');
         // 允许半行高误差（基线差异），但必须明显居中而非顶对齐。
         final iconCenter = icon.center.dy;
@@ -201,7 +202,7 @@ void main() {
             ),
           ),
         );
-        final icon = iconRect(tester, Icons.info);
+        final icon = iconRect(tester, AntIcons.infoCircleFilled);
         // 多行且无描述时，antd 语义仍为整体居中：图标中心应在文本块中心附近
         // （文本块远高于图标，居中后图标 top 明显大于文本 top）。
         final text = messageRect(
@@ -223,7 +224,7 @@ void main() {
             ),
           ),
         );
-        final icon = iconRect(tester, Icons.info);
+        final icon = iconRect(tester, AntIcons.infoCircleFilled);
         final message = messageRect(tester, '信息提示');
         // 有描述时图标放大到 20（antd withDescriptionIconSize），
         // 并在首行盒（fontSize*1.5≈21）内居中：icon.top ≈ message.top + 0.5。

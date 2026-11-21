@@ -14,6 +14,7 @@ import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // 内部工具
@@ -357,7 +358,7 @@ class _AntInputState extends State<AntInput> {
           onTap: _clear,
           behavior: HitTestBehavior.opaque,
           child:
-              Icon(Icons.cancel, size: iconSize, color: t.colorTextQuaternary),
+              Icon(AntIcons.closeCircleFilled, size: iconSize, color: t.colorTextQuaternary),
         ),
       if (widget.suffix != null) widget.suffix!,
     ];
@@ -739,7 +740,7 @@ class _AntInputPasswordState extends State<AntInputPassword> {
                   : () => setState(() => _visible = !_visible),
               behavior: HitTestBehavior.opaque,
               child: Icon(
-                _visible ? Icons.visibility : Icons.visibility_off,
+                _visible ? AntIcons.eyeOutlined : AntIcons.eyeInvisibleOutlined,
                 size: iconSize,
                 color: t.colorTextTertiary,
               ),
@@ -890,7 +891,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
                       color: Colors.white,
                     ),
                   )
-                : Icon(Icons.search, size: iconSize, color: Colors.white),
+                : Icon(AntIcons.searchOutlined, size: iconSize, color: Colors.white),
       ),
     );
 
@@ -910,7 +911,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
               onTap: widget.disabled ? null : _doSearch,
               behavior: HitTestBehavior.opaque,
               child: Icon(
-                Icons.search,
+                AntIcons.searchOutlined,
                 size: iconSize,
                 color: t.colorTextTertiary,
               ),

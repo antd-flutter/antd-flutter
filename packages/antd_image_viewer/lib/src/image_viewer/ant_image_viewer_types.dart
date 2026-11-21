@@ -11,6 +11,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// AntImageViewer 默认配置与公共构建器。
 class AntImageViewerDefaults {
@@ -78,7 +79,7 @@ class AntImageViewerDefaults {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          Icons.broken_image_outlined,
+          AntIcons.pictureOutlined,
           size: 48.w,
           color: Colors.white70,
         ),

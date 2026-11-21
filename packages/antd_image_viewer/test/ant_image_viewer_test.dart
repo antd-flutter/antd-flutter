@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 固定失败的资源路径：不依赖真实网络。
 const String kMissingAsset = 'assets/images/not_exist.png';
@@ -171,7 +172,7 @@ void main() {
       ),);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       expect(closed, isTrue);
     });
@@ -259,7 +260,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PageView), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       // 关闭动画中：onClose 已触发，afterClose 尚未触发。
       await tester.pump(const Duration(milliseconds: 100));
       expect(closed, isTrue);
@@ -279,7 +280,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('1 / 2'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       // 受控关闭后浮层移除，页码指示消失。
       expect(find.text('1 / 2'), findsNothing);

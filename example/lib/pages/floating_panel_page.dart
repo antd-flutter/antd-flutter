@@ -43,7 +43,7 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.unfold_more, size: 16.w, color: theme.colorTextQuaternary),
+                    Icon(AntIcons.expandAltOutlined, size: 16.w, color: theme.colorTextQuaternary),
                     SizedBox(width: 4.w),
                     AntText(text: 
                       '拖动调整高度',

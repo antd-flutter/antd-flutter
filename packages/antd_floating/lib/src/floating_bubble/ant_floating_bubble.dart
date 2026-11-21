@@ -9,7 +9,7 @@
 /// - [child] — 自定义图标内容
 ///
 /// ```dart
-/// AntFloatingBubble(axis: AntFloatingBubbleAxis.both, child: Icon(Icons.edit))
+/// AntFloatingBubble(axis: AntFloatingBubbleAxis.both, child: Icon(AntIcons.editOutlined))
 /// AntFloatingBubble(menu: [AntFloatingBubbleMenuAction(label: '菜单', onClick: ...)])
 /// ```
 library;
@@ -19,6 +19,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_floating/src/floating_bubble/ant_floating_bubble_types.dart';
 export 'package:antd_floating/src/floating_bubble/ant_floating_bubble_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 part 'ant_floating_bubble_controller.dart';
 
@@ -267,7 +268,7 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
         child: widget.child ??
             IconTheme.merge(
               data: IconThemeData(size: bubbleSize * 0.45, color: theme.colorWhite),
-              child: const Icon(Icons.add),
+              child: const Icon(AntIcons.plusOutlined),
             ),
       ),
     );

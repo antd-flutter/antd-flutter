@@ -28,6 +28,7 @@ import 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions_types.dart'
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions_types.dart';
 
@@ -396,7 +397,7 @@ class _AntMentionsState extends State<AntMentions>
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
-                  child: Icon(Icons.cancel,
+                  child: Icon(AntIcons.closeCircleFilled,
                       size: 14.sp, color: t.colorTextQuaternary,),
                 ),
               ),

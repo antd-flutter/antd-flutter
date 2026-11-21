@@ -4,6 +4,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -132,7 +133,7 @@ void main() {
         onChange: (v) => changed = v,
       ),),);
       expect(find.text('选项一'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pump();
       expect(changed, null);
       expect(find.text('请选择'), findsOneWidget);
@@ -192,17 +193,17 @@ void main() {
       await tester.tap(find.byType(AntSelect<String>));
       await tester.pumpAndSettle();
       // 初始全部未勾选
-      expect(find.byIcon(Icons.check_box), findsNothing);
+      expect(find.byIcon(AntIcons.checkSquareFilled), findsNothing);
       // 面板内勾选「选项一」→ 面板勾选态刷新（不复选框停留旧值）
       await tester.tap(find.text('选项一').last);
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.check_box), findsOneWidget);
-      expect(find.byIcon(Icons.check_box_outline_blank), findsNWidgets(2));
+      expect(find.byIcon(AntIcons.checkSquareFilled), findsOneWidget);
+      expect(find.byIcon(AntIcons.borderOutlined), findsNWidgets(2));
       // 取消勾选 → 面板同步回未勾选
       await tester.tap(find.text('选项一').last);
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.check_box), findsNothing);
-      expect(find.byIcon(Icons.check_box_outline_blank), findsNWidgets(3));
+      expect(find.byIcon(AntIcons.checkSquareFilled), findsNothing);
+      expect(find.byIcon(AntIcons.borderOutlined), findsNWidgets(3));
     });
 
     testWidgets('移动端键盘唤起：搜索输入不关弹窗，面板上移到键盘上方', (tester) async {

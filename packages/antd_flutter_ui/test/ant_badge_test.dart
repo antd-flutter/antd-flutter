@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/display/badge/ant_badge.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -55,13 +56,13 @@ void main() {
     testWidgets('dot mode with child wraps content', (tester) async {
       await tester.pumpWidget(_wrap(const AntBadge(
         dot: true,
-        child: Icon(Icons.notifications),
+        child: Icon(AntIcons.bellOutlined),
       ),),);
-      expect(find.byIcon(Icons.notifications), findsOneWidget);
+      expect(find.byIcon(AntIcons.bellOutlined), findsOneWidget);
       // badge Stack 应作为 Icon 的祖先存在
       expect(
         find.ancestor(
-          of: find.byIcon(Icons.notifications),
+          of: find.byIcon(AntIcons.bellOutlined),
           matching: find.byType(Stack),
         ),
         findsOneWidget,

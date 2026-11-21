@@ -20,6 +20,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'ant_date_picker_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntDatePicker
@@ -200,7 +201,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
           child: Row(
             children: [
               Icon(
-                Icons.calendar_today_outlined,
+                AntIcons.calendarOutlined,
                 size: 14.w,
                 color: widget.disabled
                     ? theme.colorTextDisabled
@@ -228,14 +229,14 @@ class _AntDatePickerState extends State<AntDatePicker> {
                 GestureDetector(
                   onTap: _handleClear,
                   child: Icon(
-                    Icons.cancel,
+                    AntIcons.closeCircleFilled,
                     size: 14.w,
                     color: theme.colorTextPlaceholder,
                   ),
                 )
               else
                 Icon(
-                  Icons.keyboard_arrow_down,
+                  AntIcons.downOutlined,
                   size: 14.w,
                   color: widget.disabled
                       ? theme.colorTextDisabled
@@ -337,7 +338,7 @@ class _DatePickerOverlay extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _NavButton(
-                  icon: Icons.chevron_left,
+                  icon: AntIcons.leftOutlined,
                   theme: theme,
                   onTap: () => onPanelChange(
                     DateTime(year, month - 1, 1),
@@ -352,7 +353,7 @@ class _DatePickerOverlay extends StatelessWidget {
                   ),
                 ),
                 _NavButton(
-                  icon: Icons.chevron_right,
+                  icon: AntIcons.rightOutlined,
                   theme: theme,
                   onTap: () => onPanelChange(
                     DateTime(year, month + 1, 1),

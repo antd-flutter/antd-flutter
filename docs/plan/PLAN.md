@@ -101,6 +101,7 @@ packages/
   - 以 `AntPlatform.isMobile`（iOS/Android）与桌面（macOS/Windows/Linux）分支，分别定义尺寸、字号、间距、圆角、指示条、交互反馈等差异，并对两端各自断言
   - 首个落地样例 Tab line：桌面字号 14 / 标签间距 32 / 指示条 2px 直角 / 内容 padding 16；移动字号 17 / 间距 24 / 指示条 2px 圆角 / 内容 padding 12；两端激活态均只变色不加粗
   - 已有双端差异的控件（Calendar card 布局、Picker 滚轮/下拉等）按同一原则复核
+- R39 **图标统一使用 antd_icons_flutter（用户指定，适用于所有 UI）**：组件代码、示例与测试中的图标一律使用 `antd_icons_flutter` 的 `AntIcons.*` / `AntdIcon`，不得再使用 Material `Icons.*`；antd 图标集无对应语义时选择最接近的 antd 图标并在提交说明中记录；非图标语义的图形标记（如 Radio 圆点、Checkbox 方块）按 antd 外观自绘，不借 Material 图标凑形状。新增组件同样遵守。
 
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
@@ -228,6 +229,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **全库图标迁移 antd_icons_flutter**：58 个库文件 + 53 个测试文件 + 主示例 4 处 Material `Icons.*` 全部替换为 `AntIcons.*`，Table 单选筛选改为自绘圆点，新增规则 R39；11 个依赖图标包的独立包补充 `antd_icons_flutter` 依赖 |
 | 2026-11-21 | **批次 3 收尾完成并合并 develop**（cc7ef4d）：select-like 核查 / Calendar 双端打磨 / 全量回归 / example 身份 + gen-docs 终态；删除 task/p08-split，当前分支 develop |
 | 2026-11-21 | **交接状态刷新**：快照更新至批次 2 全部完成（16 独立包）；验收清单按状态表归位（`migration_status.dart` 修正 14 误挂/16 误标/6 重复 → 78 ✅ / 29 ⏱）；进行中任务改为批次 3 收尾；标记 R37/自举/README 完成 |
 | 2026-11-18 | **本文件重写为独立交接文档**：现状快照/接手指南/规则汇总（R1-R34 去重）/剩余队列/强制清单/文件索引；P08 进行中状态（calendar2）与剩余队列整理；GitCode 待办取消 |

@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number.dar
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -49,7 +50,7 @@ void main() {
         defaultValue: 3,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(changed, 4);
       expect(find.text('4'), findsOneWidget);
@@ -61,7 +62,7 @@ void main() {
         defaultValue: 3,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pump();
       expect(changed, 2);
       expect(find.text('2'), findsOneWidget);
@@ -74,11 +75,11 @@ void main() {
         max: 10,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(changed, 10);
       // 再点一次，不应超过 max
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(find.text('10'), findsOneWidget);
     });
@@ -90,11 +91,11 @@ void main() {
         min: 0,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pump();
       expect(changed, 0);
       // 再点一次，不应低于 min
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pump();
       expect(find.text('0'), findsOneWidget);
     });
@@ -106,7 +107,7 @@ void main() {
         step: 5,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(changed, 15);
     });
@@ -126,7 +127,7 @@ void main() {
         disabled: true,
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(changed, null);
       expect(find.text('3'), findsOneWidget);
@@ -137,8 +138,8 @@ void main() {
         defaultValue: 3,
         controls: AntInputNumberControls.none,
       ),),);
-      expect(find.byIcon(Icons.add), findsNothing);
-      expect(find.byIcon(Icons.remove), findsNothing);
+      expect(find.byIcon(AntIcons.plusOutlined), findsNothing);
+      expect(find.byIcon(AntIcons.minusOutlined), findsNothing);
     });
 
     testWidgets('keyboard input commits on unfocus', (tester) async {
@@ -168,7 +169,7 @@ void main() {
         defaultValue: 1,
         onStep: (v) => stepped = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(stepped, 2);
     });

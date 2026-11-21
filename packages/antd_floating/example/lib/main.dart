@@ -11,6 +11,7 @@ library;
 import 'package:antd_floating/antd_floating.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart' hide Card;
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdFloatingGalleryApp());
@@ -55,7 +56,7 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
                 actions: [
                   IconButton(
                     onPressed: () => setState(() => _isDark = !_isDark),
-                    icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                    icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                   ),
                 ],
                 bottom: TabBar(
@@ -325,7 +326,7 @@ class _BubbleDemoState extends State<_BubbleDemo> {
             onClick: () => setState(() => _last = DateTime.now()
                 .toIso8601String()
                 .substring(11, 19)),
-            child: const Icon(Icons.touch_app),
+            child: const Icon(AntIcons.aimOutlined),
           ),
           Positioned(
             left: 8.w,
@@ -385,7 +386,7 @@ class _AutoSnapBubbleDemo extends StatelessWidget {
           const AntFloatingBubble(
             initialPos: Offset(120, 180),
             autoSnapToEdge: true,
-            child: Icon(Icons.swipe),
+            child: Icon(AntIcons.dragOutlined),
           ),
         ],
       ),
@@ -436,17 +437,17 @@ class _BubbleMenuDemoState extends State<_BubbleMenuDemo> {
             menu: [
               AntFloatingBubbleMenuAction(
                 label: '新建',
-                icon: const Icon(Icons.add),
+                icon: const Icon(AntIcons.plusOutlined),
                 onClick: () => setState(() => _action = '新建'),
               ),
               AntFloatingBubbleMenuAction(
                 label: '搜索',
-                icon: const Icon(Icons.search),
+                icon: const Icon(AntIcons.searchOutlined),
                 onClick: () => setState(() => _action = '搜索'),
               ),
               AntFloatingBubbleMenuAction(
                 label: '设置',
-                icon: const Icon(Icons.settings),
+                icon: const Icon(AntIcons.settingOutlined),
                 onClick: () => setState(() => _action = '设置'),
               ),
             ],
@@ -522,11 +523,11 @@ class _MultiBubbleDemo extends StatelessWidget {
         );
     return Column(
       children: [
-        card('实例 A（主色）', theme.colorPrimary, Icons.edit, const Offset(180, 100)),
+        card('实例 A（主色）', theme.colorPrimary, AntIcons.editOutlined, const Offset(180, 100)),
         SizedBox(height: 16.w),
-        card('实例 B（金色）', const Color(0xFFFAAD14), Icons.star, const Offset(30, 120)),
+        card('实例 B（金色）', const Color(0xFFFAAD14), AntIcons.starFilled, const Offset(30, 120)),
         SizedBox(height: 16.w),
-        card('实例 C（仅 Y 轴）', const Color(0xFF52C41A), Icons.vertical_align_center,
+        card('实例 C（仅 Y 轴）', const Color(0xFF52C41A), AntIcons.verticalAlignMiddleOutlined,
             const Offset(140, 40)),
       ],
     );

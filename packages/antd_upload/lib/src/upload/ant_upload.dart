@@ -13,6 +13,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_upload_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_upload_types.dart';
 
@@ -234,7 +235,7 @@ class _AntUploadState extends State<AntUpload> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                widget.uploadButtonIcon ?? Icons.add,
+                widget.uploadButtonIcon ?? AntIcons.plusOutlined,
                 size: 24.r,
                 color: widget.disabled ? t.colorTextDisabled : t.colorTextTertiary,
               ),
@@ -270,7 +271,7 @@ class _AntUploadState extends State<AntUpload> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              widget.uploadButtonIcon ?? Icons.upload_file,
+              widget.uploadButtonIcon ?? AntIcons.uploadOutlined,
               size: 16.r,
               color: widget.disabled ? t.colorTextDisabled : t.colorPrimary,
             ),
@@ -366,9 +367,9 @@ class _FileListItem extends StatelessWidget {
               ),
             )
           else if (isError)
-            Icon(Icons.close, size: 16.r, color: t.colorError)
+            Icon(AntIcons.closeOutlined, size: 16.r, color: t.colorError)
           else
-            Icon(Icons.check_circle, size: 16.r, color: t.colorPrimary),
+            Icon(AntIcons.checkCircleFilled, size: 16.r, color: t.colorPrimary),
           SizedBox(width: 8.w),
           // 文件名
           Expanded(
@@ -399,7 +400,7 @@ class _FileListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(left: 8.w),
                 child: Icon(
-                  Icons.close,
+                  AntIcons.closeOutlined,
                   size: 16.r,
                   color: t.colorTextTertiary,
                 ),
@@ -435,7 +436,7 @@ class _FileListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
       ),
       child: Icon(
-        Icons.image,
+        AntIcons.pictureOutlined,
         size: 20.r,
         color: t.colorTextQuaternary,
       ),
@@ -524,7 +525,7 @@ class _PictureCardItem extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
                 ),
-                child: Icon(Icons.error_outline, color: Colors.white, size: 24.r),
+                child: Icon(AntIcons.exclamationCircleOutlined, color: Colors.white, size: 24.r),
               ),
             ),
           // 操作按钮（非上传中且非禁用）
@@ -540,7 +541,7 @@ class _PictureCardItem extends StatelessWidget {
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.close, size: 14.r, color: Colors.white),
+                  child: Icon(AntIcons.closeOutlined, size: 14.r, color: Colors.white),
                 ),
               ),
             ),
@@ -561,7 +562,7 @@ class _PictureCardItem extends StatelessWidget {
     return Container(
       color: t.colorFillSecondary,
       child: Icon(
-        Icons.image,
+        AntIcons.pictureOutlined,
         size: 24.r,
         color: t.colorTextQuaternary,
       ),

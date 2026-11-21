@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/feedback/error_block/ant_error_block.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -102,7 +103,7 @@ void main() {
     testWidgets('image overrides default illustration', (tester) async {
       await tester.pumpWidget(_wrap(const AntErrorBlock(
         status: AntErrorBlockStatus.defaultStatus,
-        image: Icon(Icons.cloud_off, key: Key('my-image')),
+        image: Icon(AntIcons.cloudServerOutlined, key: Key('my-image')),
       ),),);
       expect(find.byKey(const Key('my-image')), findsOneWidget);
       expect(find.byKey(AntErrorBlock.illustrationKey), findsNothing);

@@ -18,6 +18,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/checkbox/ant_checkbox_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // 内部：复选框方框绘制
@@ -61,7 +62,7 @@ class _CheckboxBox extends StatelessWidget {
       ),
       child: checked || indeterminate
           ? Icon(
-              indeterminate ? Icons.remove : Icons.check,
+              indeterminate ? AntIcons.minusOutlined : AntIcons.checkOutlined,
               size: size.w * 0.75,
               color: disabled ? t.colorTextDisabled : Colors.white,
             )

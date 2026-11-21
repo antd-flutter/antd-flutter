@@ -28,6 +28,7 @@ import 'package:antd_flutter_ui/src/data_entry/input/ant_input_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete_types.dart';
 
@@ -347,7 +348,7 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                 child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
                   child: Icon(
-                    Icons.cancel,
+                    AntIcons.closeCircleFilled,
                     size: 14,
                     color: t.colorTextQuaternary,
                   ),
@@ -357,7 +358,7 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
               Padding(
                 padding: EdgeInsets.only(left: 4.w),
                 child: Icon(
-                  Icons.keyboard_arrow_up,
+                  AntIcons.upOutlined,
                   size: 14,
                   color: t.colorTextQuaternary,
                 ),
@@ -366,7 +367,7 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
               Padding(
                 padding: EdgeInsets.only(left: 4.w),
                 child: Icon(
-                  Icons.search,
+                  AntIcons.searchOutlined,
                   size: 14,
                   color: t.colorTextQuaternary,
                 ),

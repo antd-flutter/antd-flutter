@@ -13,6 +13,7 @@ import 'package:antd_form/antd_form.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdFormGalleryApp());
@@ -64,7 +65,7 @@ class _AntdFormGalleryAppState extends State<AntdFormGalleryApp> {
                   actions: [
                     IconButton(
                       onPressed: () => setState(() => _isDark = !_isDark),
-                      icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                      icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                     ),
                   ],
                   bottom: TabBar(

@@ -6,6 +6,7 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdThemeExampleApp());
@@ -64,7 +65,7 @@ class _ExamplePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(
-              isDark ? Icons.light_mode : Icons.dark_mode,
+              isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined,
               color: theme.colorIcon,
             ),
             onPressed: onToggle,

@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  antd_icons_flutter: any
   flutter:
     sdk: flutter
   antd_masonry:
@@ -95,6 +96,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
   antd_masonry:
     path: ../
   antd_theme:

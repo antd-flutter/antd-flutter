@@ -5,6 +5,7 @@ import 'package:antd_tree/antd_tree.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 List<AntTreeSelectOption> _testTreeData() => [
       const AntTreeSelectOption(value: 'zj', label: '浙江', children: [
@@ -93,7 +94,7 @@ void main() {
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       // 点击展开箭头展开
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
       expect(find.text('杭州'), findsOneWidget);
       expect(find.text('宁波'), findsOneWidget);
@@ -106,11 +107,11 @@ void main() {
       await tester.tap(find.byType(AntTreeSelect));
       await tester.pumpAndSettle();
       // 展开
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
       expect(find.text('杭州'), findsOneWidget);
       // 再次点击箭头收起
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down).first);
+      await tester.tap(find.byIcon(AntIcons.downOutlined).first);
       await tester.pumpAndSettle();
       expect(find.text('杭州'), findsNothing);
     });
@@ -224,7 +225,7 @@ void main() {
         ),
       ),);
       expect(find.text('南京'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(selected, isNull);
     });
@@ -241,7 +242,7 @@ void main() {
         ),
       ),);
       expect(find.text('杭州'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(selected, []);
     });
@@ -366,7 +367,7 @@ void main() {
       final heightBefore = panelBox.size.height;
       // 面板内容未超高时无滚动；展开一个节点后面板高度应增长且位置重算
       final topBefore = panelBox.localToGlobal(Offset.zero).dy;
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
 
       final panelAfter = tester.renderObject<RenderBox>(
@@ -411,7 +412,7 @@ void main() {
       expect(offsetBefore, greaterThan(0));
 
       // 展开任一节点 → 原地重建，滚动位置不丢
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_right).first);
+      await tester.tap(find.byIcon(AntIcons.rightOutlined).first);
       await tester.pumpAndSettle();
       final positionAfter =
           tester.state<ScrollableState>(scrollable.first).position;

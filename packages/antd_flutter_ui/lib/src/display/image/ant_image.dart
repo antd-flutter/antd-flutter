@@ -27,6 +27,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntImage
@@ -334,7 +335,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
               top: MediaQuery.paddingOf(context).top + 16.w,
               right: 16.w,
               child: _buildIconButton(
-                icon: Icons.close,
+                icon: AntIcons.closeOutlined,
                 onTap: widget.onClose,
               ),
             ),
@@ -346,7 +347,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
                 left: 12.w,
                 child: Center(
                   child: _buildIconButton(
-                    icon: Icons.chevron_left,
+                    icon: AntIcons.leftOutlined,
                     onTap: _index > 0 ? () => setState(() => _index--) : null,
                   ),
                 ),
@@ -357,7 +358,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
                 right: 12.w,
                 child: Center(
                   child: _buildIconButton(
-                    icon: Icons.chevron_right,
+                    icon: AntIcons.rightOutlined,
                     onTap: _index < widget.sources.length - 1
                         ? () => setState(() => _index++)
                         : null,
@@ -396,7 +397,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
         fit: widget.fit,
         placeholder: (_, __) => AntImageDefaults.defaultPlaceholder(theme),
         errorWidget: (_, __, ___) => Icon(
-          Icons.broken_image_outlined,
+          AntIcons.pictureOutlined,
           size: 48.w,
           color: Colors.white54,
         ),

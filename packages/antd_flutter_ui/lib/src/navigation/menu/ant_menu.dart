@@ -29,6 +29,7 @@ import '../../basic/tooltip/ant_tooltip_types.dart';
 import '../../engines/popup_engine.dart' show AntPopupPlacement;
 import '../../engines/popup_overlay.dart';
 import 'ant_menu_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 水平溢出折叠子菜单的保留 key。
 const String _kOverflowKey = '__ant_menu_overflow__';
@@ -652,7 +653,7 @@ class _AntMenuState extends State<AntMenu> {
           child: Center(
             child: widget.overflowedIndicator ??
                 Icon(
-                  Icons.more_horiz,
+                  AntIcons.moreOutlined,
                   size: 16,
                   color: _textColor,
                 ),
@@ -920,7 +921,7 @@ class _AntMenuState extends State<AntMenu> {
           turns: open ? 0.25 : 0,
           duration: const Duration(milliseconds: 200),
           child: Icon(
-            Icons.keyboard_arrow_right,
+            AntIcons.rightOutlined,
             size: 10,
             color: disabled
                 ? theme.colorTextDisabled

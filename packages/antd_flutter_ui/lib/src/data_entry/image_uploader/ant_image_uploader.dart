@@ -20,6 +20,7 @@ import 'package:antd_theme/antd_theme.dart';
 export 'package:antd_flutter_ui/src/data_entry/image_uploader/ant_image_uploader_types.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 图片上传 — 图片选择、预览与删除的网格组件。
 ///
@@ -40,7 +41,7 @@ class AntImageUploader extends StatefulWidget {
     this.showUpload = true,
     this.preview = true,
     this.imageFit = BoxFit.cover,
-    this.uploadIcon = Icons.add,
+    this.uploadIcon = AntIcons.plusOutlined,
   });
 
   /// 受控图片列表。
@@ -214,7 +215,7 @@ class _AntImageUploaderState extends State<AntImageUploader> {
                 color: t.colorFillSecondary,
                 alignment: Alignment.center,
                 child: Icon(
-                  Icons.broken_image_outlined,
+                  AntIcons.pictureOutlined,
                   size: 24.w,
                   color: t.colorTextQuaternary,
                 ),
@@ -240,7 +241,7 @@ class _AntImageUploaderState extends State<AntImageUploader> {
                 color: Colors.black.withValues(alpha: 0.4),
                 alignment: Alignment.center,
                 child: Icon(
-                  Icons.error_outline,
+                  AntIcons.exclamationCircleOutlined,
                   size: 24.w,
                   color: Colors.white,
                 ),
@@ -260,7 +261,7 @@ class _AntImageUploaderState extends State<AntImageUploader> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.close,
+                    AntIcons.closeOutlined,
                     size: 14.w,
                     color: Colors.white,
                   ),
@@ -312,7 +313,7 @@ class _ImagePreviewPage extends StatelessWidget {
               url,
               fit: fit,
               errorBuilder: (_, __, ___) => const Icon(
-                Icons.broken_image_outlined,
+                AntIcons.pictureOutlined,
                 size: 64,
                 color: Colors.white54,
               ),

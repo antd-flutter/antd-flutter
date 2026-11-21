@@ -21,6 +21,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_tag_types.dart';
 export 'ant_tag_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntTag
@@ -119,7 +120,7 @@ class _AntTagState extends State<AntTag> {
               onTap: _handleClose,
               behavior: HitTestBehavior.opaque,
               child: Icon(
-                Icons.close,
+                AntIcons.closeOutlined,
                 size: 12.w,
                 color: fg,
               ),

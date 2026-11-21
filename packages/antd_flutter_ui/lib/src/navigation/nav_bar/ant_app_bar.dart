@@ -14,7 +14,7 @@ import 'ant_nav_bar.dart';
 /// AntAppBar(
 ///   title: const Text('标题'),
 ///   actions: [
-///     IconButton(onPressed: onSearch, icon: const Icon(Icons.search)),
+///     IconButton(onPressed: onSearch, icon: const Icon(AntIcons.searchOutlined)),
 ///   ],
 /// )
 /// ```

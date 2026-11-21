@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/display/descriptions/ant_descriptions.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -223,13 +224,13 @@ void main() {
             items: [
               AntDescriptionsItem(
                 label: '状态',
-                child: Icon(Icons.check_circle),
+                child: Icon(AntIcons.checkCircleFilled),
               ),
             ],
           ),
         ),
       );
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     });
 
     testWidgets('窄屏不同 label 宽度下 value 起点偏移保持等宽', (tester) async {

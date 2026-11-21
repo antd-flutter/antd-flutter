@@ -21,6 +21,7 @@ dependencies:
     sdk: flutter
   meta: ^1.7.0 # 包内吸收的 qr 引擎源码（engines/qr/）需要，BSD-3-Clause 见 LICENSE-THIRD-PARTY.md
   antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
   material_ui: ^1.11.0
 
 dev_dependencies:

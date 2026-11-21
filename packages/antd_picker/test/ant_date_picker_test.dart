@@ -2,6 +2,7 @@ import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -72,10 +73,10 @@ void main() {
       await tester.tap(find.byType(AntDatePicker));
       await tester.pump();
       expect(find.text('2024年1月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年2月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(find.text('2024年1月'), findsOneWidget);
     });
@@ -88,7 +89,7 @@ void main() {
         onChange: (d) => changed = d,
       ),),);
       expect(find.text('2024-01-01'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pump();
       expect(changed, null);
       expect(find.text('请选择日期'), findsOneWidget);

@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/src/feedback/notification/ant_notification.dart'
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -67,7 +68,7 @@ void main() {
         type: AntNotificationType.info,
       ),
     );
-    expect(find.byIcon(Icons.info), findsOneWidget);
+    expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     // 推进过自动关闭时长，避免结束时残留 pending Timer
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
@@ -82,7 +83,7 @@ void main() {
         type: AntNotificationType.success,
       ),
     );
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     // 推进过自动关闭时长，避免结束时残留 pending Timer
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
@@ -97,7 +98,7 @@ void main() {
         type: AntNotificationType.warning,
       ),
     );
-    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+    expect(find.byIcon(AntIcons.warningFilled), findsOneWidget);
     // 推进过自动关闭时长，避免结束时残留 pending Timer
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
@@ -112,7 +113,7 @@ void main() {
         type: AntNotificationType.error,
       ),
     );
-    expect(find.byIcon(Icons.cancel), findsOneWidget);
+    expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     // 推进过自动关闭时长，避免结束时残留 pending Timer
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();

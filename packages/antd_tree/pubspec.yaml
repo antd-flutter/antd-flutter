@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
   antd_flutter_ui: ^0.1.0-beta.1
   material_ui: ^1.11.0
 

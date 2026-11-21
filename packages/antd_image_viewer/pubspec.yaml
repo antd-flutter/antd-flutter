@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
   material_ui: ^1.11.0
   cached_network_image: ^4.0.7
   # R30.1/R30.3 轮子决策：photo_view（MIT）仅作缩放手势算法参考，

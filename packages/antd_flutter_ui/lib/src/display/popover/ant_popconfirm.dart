@@ -28,6 +28,7 @@ import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // 测试定位 Key 与默认文案
@@ -454,7 +455,7 @@ class _PopconfirmOverlay extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(right: 8.w),
                   child: Icon(
-                    Icons.help_outline,
+                    AntIcons.questionCircleOutlined,
                     size: 16.sp,
                     color: theme.colorPrimary,
                   ),

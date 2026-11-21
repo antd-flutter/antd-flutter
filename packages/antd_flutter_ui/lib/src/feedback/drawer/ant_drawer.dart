@@ -29,6 +29,7 @@ import 'package:material_ui/material_ui.dart';
 import 'ant_drawer_types.dart';
 import '../../engines/overlay_shell.dart';
 import '../../engines/popup_overlay.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // 测试定位 Key 与常量
@@ -303,7 +304,7 @@ class _DrawerOverlay extends StatelessWidget {
                           child: Padding(
                             padding: EdgeInsets.all(4.w),
                             child: Icon(
-                              Icons.close,
+                              AntIcons.closeOutlined,
                               size: 18.sp,
                               color: theme.colorTextSecondary,
                             ),

@@ -23,6 +23,7 @@ import 'package:material_ui/material_ui.dart';
 import 'ant_message_types.dart';
 import '../loading/ant_loading.dart';
 import '../../engines/overlay_shell.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 export 'ant_message_types.dart';
 
 // ============================================================
@@ -268,16 +269,16 @@ class _MessageItemState extends State<_MessageItem>
   ({IconData icon, Color color}) _resolveIndicator(AntThemeData theme) {
     return switch (widget.item.type) {
       AntMessageType.success => (
-          icon: Icons.check_circle,
+          icon: AntIcons.checkCircleFilled,
           color: theme.colorSuccess,
         ),
       AntMessageType.warning => (
-          icon: Icons.warning_amber_rounded,
+          icon: AntIcons.warningFilled,
           color: theme.colorWarning,
         ),
-      AntMessageType.error => (icon: Icons.cancel, color: theme.colorError),
-      AntMessageType.loading => (icon: Icons.sync, color: theme.colorPrimary),
-      AntMessageType.info => (icon: Icons.info, color: theme.colorInfo),
+      AntMessageType.error => (icon: AntIcons.closeCircleFilled, color: theme.colorError),
+      AntMessageType.loading => (icon: AntIcons.syncOutlined, color: theme.colorPrimary),
+      AntMessageType.info => (icon: AntIcons.infoCircleFilled, color: theme.colorInfo),
     };
   }
 
@@ -342,7 +343,7 @@ class _MessageItemState extends State<_MessageItem>
                   height: indicatorBoxHeight,
                   child: Center(
                     child: Icon(
-                      Icons.close,
+                      AntIcons.closeOutlined,
                       size: 14.w,
                       color: theme.colorTextSecondary,
                     ),

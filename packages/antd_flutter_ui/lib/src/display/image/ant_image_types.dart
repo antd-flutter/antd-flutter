@@ -8,6 +8,7 @@ import 'package:antd_theme/antd_theme.dart';
 import '../../feedback/loading/ant_loading.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // 默认配置
@@ -52,7 +53,7 @@ class AntImageDefaults {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.broken_image_outlined,
+            AntIcons.pictureOutlined,
             size: 24.w,
             color: theme.colorTextQuaternary,
           ),

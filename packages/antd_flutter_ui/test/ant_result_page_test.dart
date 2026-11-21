@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/feedback/result_page/ant_result_page.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -23,7 +24,7 @@ void main() {
         status: AntResultPageStatus.success,
         title: '操作成功',
       ),),);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     });
 
     testWidgets('error renders cancel icon', (tester) async {
@@ -31,7 +32,7 @@ void main() {
         status: AntResultPageStatus.error,
         title: '提交失败',
       ),),);
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     });
 
     testWidgets('warning renders warning icon', (tester) async {
@@ -39,12 +40,12 @@ void main() {
         status: AntResultPageStatus.warning,
         title: '操作存在风险',
       ),),);
-      expect(find.byIcon(Icons.warning), findsOneWidget);
+      expect(find.byIcon(AntIcons.warningFilled), findsOneWidget);
     });
 
     testWidgets('info renders info icon (default status)', (tester) async {
       await tester.pumpWidget(_wrap(const AntResultPage(title: '提示')));
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     });
 
     testWidgets('waiting renders schedule icon', (tester) async {
@@ -52,7 +53,7 @@ void main() {
         status: AntResultPageStatus.waiting,
         title: '等待处理',
       ),),);
-      expect(find.byIcon(Icons.schedule), findsOneWidget);
+      expect(find.byIcon(AntIcons.clockCircleOutlined), findsOneWidget);
     });
 
     testWidgets('title and subTitle render', (tester) async {
@@ -112,10 +113,10 @@ void main() {
       await tester.pumpWidget(_wrap(const AntResultPage(
         status: AntResultPageStatus.success,
         title: '自定义图标',
-        icon: Icon(Icons.star, key: Key('my-icon')),
+        icon: Icon(AntIcons.starFilled, key: Key('my-icon')),
       ),),);
       expect(find.byKey(const Key('my-icon')), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle), findsNothing);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsNothing);
     });
 
     testWidgets('layout is vertically centered', (tester) async {
@@ -131,7 +132,7 @@ void main() {
       expect(column.crossAxisAlignment, CrossAxisAlignment.center);
 
       // 图标实际位于容器垂直中点附近（上半个容器内存在内容留白）。
-      final iconCenter = tester.getCenter(find.byIcon(Icons.check_circle));
+      final iconCenter = tester.getCenter(find.byIcon(AntIcons.checkCircleFilled));
       final containerTop =
           tester.getTopLeft(find.byKey(const Key('ant_result_page_layout')));
       expect(iconCenter.dy, greaterThan(containerTop.dy + 100));

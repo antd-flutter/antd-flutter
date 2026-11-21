@@ -12,6 +12,7 @@ library;
 
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntNavBar
@@ -76,7 +77,7 @@ class AntNavBar extends StatelessWidget {
               padding: EdgeInsets.only(right: 4.w),
               child: backArrow ??
                   Icon(
-                    Icons.arrow_back_ios_new,
+                    AntIcons.leftOutlined,
                     size: 18.sp,
                     color: t.colorText,
                   ),

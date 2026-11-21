@@ -22,6 +22,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/rate/ant_rate_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntRate
@@ -119,7 +120,7 @@ class _AntRateState extends State<AntRate> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     final starSize = 20.w;
-    final icon = widget.character ?? Icons.star;
+    final icon = widget.character ?? AntIcons.starFilled;
     final activeColor =
         widget.disabled ? theme.colorTextDisabled : theme.colorWarning;
     final inactiveColor = theme.colorFillSecondary;

@@ -2,6 +2,7 @@ import 'package:antd_calendar/antd_calendar.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -63,8 +64,8 @@ void main() {
           defaultValue: [DateTime(2024, 6, 15)],
         ),
       ),);
-      expect(find.byIcon(Icons.chevron_left), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.rightOutlined), findsOneWidget);
     });
 
     testWidgets('defaultValue sets initial month', (tester) async {
@@ -285,7 +286,7 @@ void main() {
         ),
       ),);
       expect(find.text('2024年6月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(find.text('2024年6月'), findsOneWidget);
     });
@@ -299,7 +300,7 @@ void main() {
         ),
       ),);
       expect(find.text('2024年8月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年8月'), findsOneWidget);
     });
@@ -313,7 +314,7 @@ void main() {
         ),
       ),);
       expect(find.text('2024年6月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年7月'), findsOneWidget);
     });
@@ -325,7 +326,7 @@ void main() {
         ),
       ),);
       expect(find.text('2024年7月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(find.text('2024年6月'), findsOneWidget);
     });

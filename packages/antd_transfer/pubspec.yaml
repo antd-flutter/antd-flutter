@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
   # AntCheckbox（indeterminate 半选状态）为 ui 共享基础组件，留 ui 不迁，
   # 本包经 ui barrel 引用（依赖核对结论：AntCheckbox 依赖无法解除，保留）
   antd_flutter_ui: ^0.1.0-beta.1

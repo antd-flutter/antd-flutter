@@ -2,6 +2,7 @@ import 'package:antd_table/antd_table.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -157,16 +158,16 @@ void main() {
 
       final theme = AntThemeData.light();
       final upIcon =
-          tester.widget<Icon>(find.byIcon(Icons.arrow_upward));
+          tester.widget<Icon>(find.byIcon(AntIcons.arrowUpOutlined));
       expect(upIcon.color, theme.colorTextQuaternary);
 
       await tester.tap(find.text('年龄'));
       await tester.pump();
       final ascIcon =
-          tester.widget<Icon>(find.byIcon(Icons.arrow_upward));
+          tester.widget<Icon>(find.byIcon(AntIcons.arrowUpOutlined));
       expect(ascIcon.color, theme.colorPrimary);
       final downIcon =
-          tester.widget<Icon>(find.byIcon(Icons.arrow_downward));
+          tester.widget<Icon>(find.byIcon(AntIcons.arrowDownOutlined));
       expect(downIcon.color, theme.colorTextQuaternary);
     });
 
@@ -174,8 +175,8 @@ void main() {
         (tester) async {
       await tester.pumpWidget(_wrap(_table()));
       // 基础列没有排序图标
-      expect(find.byIcon(Icons.arrow_upward), findsNothing);
-      expect(find.byIcon(Icons.arrow_downward), findsNothing);
+      expect(find.byIcon(AntIcons.arrowUpOutlined), findsNothing);
+      expect(find.byIcon(AntIcons.arrowDownOutlined), findsNothing);
     });
 
     // ----------------------------------------------------------
@@ -196,7 +197,7 @@ void main() {
           onFilter: (value, record) => record['city'] == value,
         ),
       ],),),);
-      expect(find.byIcon(Icons.filter_alt_outlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.filterOutlined), findsOneWidget);
     });
 
     testWidgets('filter selects items and filters rows', (tester) async {
@@ -218,7 +219,7 @@ void main() {
       ),),);
 
       // 打开筛选面板
-      await tester.tap(find.byIcon(Icons.filter_alt_outlined));
+      await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pump();
 
       // 选择「北京」「上海」
@@ -253,7 +254,7 @@ void main() {
         ],),
       ),),);
 
-      await tester.tap(find.byIcon(Icons.filter_alt_outlined));
+      await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pump();
       await tester.tap(find.text('北京').last);
       await tester.pump();
@@ -262,7 +263,7 @@ void main() {
       expect(find.text('Carol'), findsNothing);
 
       // 重新打开面板并重置
-      await tester.tap(find.byIcon(Icons.filter_alt_outlined));
+      await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pump();
       await tester.tap(find.text('重置'));
       await tester.pump();
@@ -422,12 +423,12 @@ void main() {
       ),),);
 
       // 下一页
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('user 4'), findsOneWidget);
 
       // 上一页
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(find.text('user 0'), findsOneWidget);
     });

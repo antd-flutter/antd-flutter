@@ -4,6 +4,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const _okUrl = 'https://example.com/a.png';
 const _previewUrl = 'https://preview.example.com/preview.png';
@@ -97,7 +98,7 @@ void main() {
       await tester.pump();
       expect(find.byType(InteractiveViewer), findsOneWidget);
       // 关闭按钮存在。
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
     });
 
     testWidgets('close button dismisses overlay', (tester) async {
@@ -106,7 +107,7 @@ void main() {
       await tester.tap(find.byType(AntImage));
       await tester.pump();
       expect(find.byType(InteractiveViewer), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pump();
       expect(find.byType(InteractiveViewer), findsNothing);
     });
@@ -146,8 +147,8 @@ void main() {
       await tester.pump();
       expect(find.byType(InteractiveViewer), findsOneWidget);
       expect(find.text('2 / 2'), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_left), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.rightOutlined), findsOneWidget);
     });
 
     testWidgets('PreviewGroup: arrows switch between images', (tester) async {
@@ -165,7 +166,7 @@ void main() {
       await tester.tap(find.byType(AntImage).at(0));
       await tester.pump();
       expect(find.text('1 / 2'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2 / 2'), findsOneWidget);
     });
@@ -174,7 +175,7 @@ void main() {
   group('AntImage 加载失败', () {
     testWidgets('error shows default fallback placeholder', (tester) async {
       await _pumpErrorPath(tester, const AntImage(src: _badAssetSrc));
-      expect(find.byIcon(Icons.broken_image_outlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.pictureOutlined), findsOneWidget);
       expect(find.text(AntImageDefaults.errorText), findsOneWidget);
     });
 
@@ -187,7 +188,7 @@ void main() {
         ),
       );
       expect(find.text('自定义失败'), findsOneWidget);
-      expect(find.byIcon(Icons.broken_image_outlined), findsNothing);
+      expect(find.byIcon(AntIcons.pictureOutlined), findsNothing);
     });
 
     testWidgets('fallback shows fallback image widget', (tester) async {

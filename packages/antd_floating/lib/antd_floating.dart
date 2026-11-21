@@ -22,7 +22,7 @@
 ///
 /// AntFloatingBubble(
 ///   initialPos: Offset(300, 500),
-///   child: Icon(Icons.edit),
+///   child: Icon(AntIcons.editOutlined),
 /// );
 /// ```
 library;

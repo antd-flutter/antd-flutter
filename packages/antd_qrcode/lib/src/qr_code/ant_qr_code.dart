@@ -25,6 +25,7 @@ export 'ant_qr_code_types.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../engines/qr/ant_qr_engine.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 默认尺寸（对齐 antd v6 默认 160）
 const double _kDefaultSize = 160;
@@ -139,7 +140,7 @@ class AntQRCode extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.w),
       ),
       child: Icon(
-        Icons.qr_code_2,
+        AntIcons.qrcodeOutlined,
         size: (iconSize - 12).w,
         color: Colors.black87,
       ),
@@ -158,7 +159,7 @@ class AntQRCode extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          isExpired ? Icons.refresh : Icons.check_circle_outline,
+          isExpired ? AntIcons.reloadOutlined : AntIcons.checkCircleOutlined,
           size: 24.w,
           color: isExpired ? theme.colorText : theme.colorSuccess,
         ),

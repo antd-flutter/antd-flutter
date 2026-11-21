@@ -7,6 +7,7 @@ environment:
   sdk: ^3.14.0
 
 dependencies:
+  antd_icons_flutter: any
   flutter:
     sdk: flutter
   antd_table:
@@ -18,6 +19,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
   antd_theme:
     path: ../../antd_theme
   antd_table:

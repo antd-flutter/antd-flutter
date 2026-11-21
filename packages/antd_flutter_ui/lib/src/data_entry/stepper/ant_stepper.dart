@@ -19,6 +19,7 @@ import 'package:antd_theme/antd_theme.dart';
 export 'package:antd_flutter_ui/src/data_entry/stepper/ant_stepper_types.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 步进器 — 移动端数值调节组件。
 class AntStepper extends StatefulWidget {
@@ -250,7 +251,7 @@ class _AntStepperState extends State<AntStepper> {
         children: [
           _buildButton(
             theme: theme,
-            icon: Icons.remove,
+            icon: AntIcons.minusOutlined,
             onTap: _minusDisabled ? null : () => _handleOffset(false),
             color: buttonColor,
             disabled: _minusDisabled,
@@ -300,7 +301,7 @@ class _AntStepperState extends State<AntStepper> {
           ),
           _buildButton(
             theme: theme,
-            icon: Icons.add,
+            icon: AntIcons.plusOutlined,
             onTap: _plusDisabled ? null : () => _handleOffset(true),
             color: buttonColor,
             disabled: _plusDisabled,

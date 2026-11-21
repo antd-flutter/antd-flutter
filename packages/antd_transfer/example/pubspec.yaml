@@ -7,6 +7,7 @@ environment:
   sdk: ^3.14.0
 
 dependencies:
+  antd_icons_flutter: any
   flutter:
     sdk: flutter
   antd_transfer:
@@ -18,6 +19,8 @@ dependencies:
   material_ui: ^1.11.0
 
 dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
   antd_theme:
     path: ../../antd_theme
   antd_flutter_ui:

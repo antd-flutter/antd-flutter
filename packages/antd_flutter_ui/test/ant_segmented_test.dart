@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -161,12 +162,12 @@ void main() {
     testWidgets('icon item renders icon and label', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntSegmented(options: [
-          AntSegmentedItem(label: '列表', icon: Icon(Icons.list)),
-          AntSegmentedItem(label: '地图', icon: Icon(Icons.map)),
+          AntSegmentedItem(label: '列表', icon: Icon(AntIcons.unorderedListOutlined)),
+          AntSegmentedItem(label: '地图', icon: Icon(AntIcons.environmentOutlined)),
         ],),),
       );
-      expect(find.byIcon(Icons.list), findsOneWidget);
-      expect(find.byIcon(Icons.map), findsOneWidget);
+      expect(find.byIcon(AntIcons.unorderedListOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.environmentOutlined), findsOneWidget);
       expect(find.text('列表'), findsOneWidget);
     });
 
@@ -175,13 +176,13 @@ void main() {
       await tester.pumpWidget(
         _wrap(AntSegmented(
           options: [
-            const AntSegmentedItem(value: 'list', icon: Icon(Icons.list)),
-            const AntSegmentedItem(value: 'map', icon: Icon(Icons.map)),
+            const AntSegmentedItem(value: 'list', icon: Icon(AntIcons.unorderedListOutlined)),
+            const AntSegmentedItem(value: 'map', icon: Icon(AntIcons.environmentOutlined)),
           ],
           onChange: values.add,
         ),),
       );
-      await tester.tap(find.byIcon(Icons.map));
+      await tester.tap(find.byIcon(AntIcons.environmentOutlined));
       await tester.pumpAndSettle();
       expect(values, ['map']);
     });

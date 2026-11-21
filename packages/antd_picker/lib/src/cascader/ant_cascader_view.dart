@@ -26,6 +26,7 @@ library;
 import 'ant_cascader_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_cascader_types.dart';
 
@@ -306,7 +307,7 @@ class _AntCascaderViewState extends State<AntCascaderView> {
                 SizedBox(width: 8.w),
                 widget.activeIcon ??
                     Icon(
-                      Icons.check,
+                      AntIcons.checkOutlined,
                       size: 18.sp,
                       color: t.colorPrimary,
                     ),

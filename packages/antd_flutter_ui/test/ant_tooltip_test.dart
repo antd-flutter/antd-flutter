@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 气泡内容定位辅助。
 Finder findBubble(String text) => find.descendant(
@@ -80,7 +81,7 @@ void main() {
             defaultOpen: true,
             tooltip: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [Icon(Icons.info), Text('带图标提示')],
+              children: [Icon(AntIcons.infoCircleFilled), Text('带图标提示')],
             ),
             child: Text('触发'),
           ),
@@ -88,7 +89,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(findBubble('带图标提示'), findsOneWidget);
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     });
 
     testWidgets('点击空白处关闭气泡', (tester) async {

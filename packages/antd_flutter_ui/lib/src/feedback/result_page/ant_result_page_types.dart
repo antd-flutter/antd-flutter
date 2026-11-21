@@ -2,6 +2,7 @@
 library;
 
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// ResultPage 结果页状态。
 enum AntResultPageStatus {
@@ -24,15 +25,15 @@ enum AntResultPageStatus {
   IconData get icon {
     switch (this) {
       case AntResultPageStatus.success:
-        return Icons.check_circle;
+        return AntIcons.checkCircleFilled;
       case AntResultPageStatus.error:
-        return Icons.cancel;
+        return AntIcons.closeCircleFilled;
       case AntResultPageStatus.info:
-        return Icons.info;
+        return AntIcons.infoCircleFilled;
       case AntResultPageStatus.warning:
-        return Icons.warning;
+        return AntIcons.warningFilled;
       case AntResultPageStatus.waiting:
-        return Icons.schedule;
+        return AntIcons.clockCircleOutlined;
     }
   }
 

@@ -22,6 +22,7 @@ dependencies:
   flutter:
     sdk: flutter
   antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
   # 滚轮选择引擎（WheelPickerColumn 等）来自共享基础库，
   # 依赖方向约定：antd_calendar → antd_flutter_ui → antd_theme/tokens/color
   antd_flutter_ui:

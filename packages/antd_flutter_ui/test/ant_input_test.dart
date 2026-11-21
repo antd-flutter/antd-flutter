@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/data_entry/input/ant_input.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -58,11 +59,11 @@ void main() {
 
     testWidgets('prefix and suffix render', (tester) async {
       await tester.pumpWidget(_wrap(const AntInput(
-        prefix: Icon(Icons.search),
-        suffix: Icon(Icons.settings),
+        prefix: Icon(AntIcons.searchOutlined),
+        suffix: Icon(AntIcons.settingOutlined),
       ),),);
-      expect(find.byIcon(Icons.search), findsOneWidget);
-      expect(find.byIcon(Icons.settings), findsOneWidget);
+      expect(find.byIcon(AntIcons.searchOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.settingOutlined), findsOneWidget);
     });
 
     testWidgets('addonBefore renders as label', (tester) async {
@@ -78,12 +79,12 @@ void main() {
         allowClear: true,
         defaultValue: 'text',
       ),),);
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     });
 
     testWidgets('allowClear hidden when empty', (tester) async {
       await tester.pumpWidget(_wrap(const AntInput(allowClear: true)));
-      expect(find.byIcon(Icons.cancel), findsNothing);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsNothing);
     });
 
     testWidgets('clear button clears text', (tester) async {
@@ -93,7 +94,7 @@ void main() {
         defaultValue: 'text',
         onChange: (v) => changed = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pump();
       expect(changed, '');
       expect(find.text('text'), findsNothing);
@@ -177,10 +178,10 @@ void main() {
 
     testWidgets('toggle visibility reveals text', (tester) async {
       await tester.pumpWidget(_wrap(const AntInputPassword(defaultValue: 'secret')));
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.visibility_off));
+      expect(find.byIcon(AntIcons.eyeInvisibleOutlined), findsOneWidget);
+      await tester.tap(find.byIcon(AntIcons.eyeInvisibleOutlined));
       await tester.pump();
-      expect(find.byIcon(Icons.visibility), findsOneWidget);
+      expect(find.byIcon(AntIcons.eyeOutlined), findsOneWidget);
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.obscureText, false);
     });
@@ -190,8 +191,8 @@ void main() {
         visibilityToggle: false,
         defaultValue: 'x',
       ),),);
-      expect(find.byIcon(Icons.visibility_off), findsNothing);
-      expect(find.byIcon(Icons.visibility), findsNothing);
+      expect(find.byIcon(AntIcons.eyeInvisibleOutlined), findsNothing);
+      expect(find.byIcon(AntIcons.eyeOutlined), findsNothing);
     });
 
     testWidgets('disabled password cannot toggle', (tester) async {
@@ -199,18 +200,18 @@ void main() {
         disabled: true,
         defaultValue: 'x',
       ),),);
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.visibility_off));
+      expect(find.byIcon(AntIcons.eyeInvisibleOutlined), findsOneWidget);
+      await tester.tap(find.byIcon(AntIcons.eyeInvisibleOutlined));
       await tester.pump();
       // 仍然是密文状态
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+      expect(find.byIcon(AntIcons.eyeInvisibleOutlined), findsOneWidget);
     });
   });
 
   group('AntInputSearch', () {
     testWidgets('renders suffix search icon by default', (tester) async {
       await tester.pumpWidget(_wrap(const AntInputSearch(placeholder: '搜索')));
-      expect(find.byIcon(Icons.search), findsOneWidget);
+      expect(find.byIcon(AntIcons.searchOutlined), findsOneWidget);
     });
 
     testWidgets('onSearch fires via suffix tap', (tester) async {
@@ -219,7 +220,7 @@ void main() {
         defaultValue: 'keyword',
         onSearch: (v) => searched = v,
       ),),);
-      await tester.tap(find.byIcon(Icons.search));
+      await tester.tap(find.byIcon(AntIcons.searchOutlined));
       await tester.pump();
       expect(searched, 'keyword');
     });

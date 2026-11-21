@@ -14,7 +14,7 @@
 /// ```dart
 /// AntSegmented(options: ['日', '周', '月'])
 /// AntSegmented(
-///   options: [AntSegmentedItem(label: '列表', icon: Icon(Icons.list))],
+///   options: [AntSegmentedItem(label: '列表', icon: Icon(AntIcons.unorderedListOutlined))],
 ///   onChange: (v) => print(v),
 /// )
 /// ```

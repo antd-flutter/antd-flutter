@@ -3,6 +3,7 @@ import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -39,7 +40,7 @@ void main() {
         items: [
           AntTimelineItem(
             content: Text('文本'),
-            customDot: Icon(Icons.star),
+            customDot: Icon(AntIcons.starFilled),
           ),
         ],
       ),),);
@@ -124,9 +125,9 @@ void main() {
       await tester.pumpWidget(_wrap(AntTimeline(
         items: _basicItems(),
         pending: true,
-        pendingDot: const Icon(Icons.more_horiz),
+        pendingDot: const Icon(AntIcons.moreOutlined),
       ),),);
-      expect(find.byIcon(Icons.more_horiz), findsOneWidget);
+      expect(find.byIcon(AntIcons.moreOutlined), findsOneWidget);
       expect(find.byType(AntLoading), findsNothing);
     });
 
@@ -166,11 +167,11 @@ void main() {
         items: [
           AntTimelineItem(
             content: Text('自定义'),
-            customDot: Icon(Icons.check_circle),
+            customDot: Icon(AntIcons.checkCircleFilled),
           ),
         ],
       ),),);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     });
 
     testWidgets('dotColor overrides node color', (tester) async {

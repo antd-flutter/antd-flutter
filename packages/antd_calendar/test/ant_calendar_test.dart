@@ -2,6 +2,7 @@ import 'package:antd_calendar/antd_calendar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 DateTime _date(int y, int m, int d) => DateTime(y, m, d);
 
@@ -143,14 +144,14 @@ void main() {
     testWidgets('prev month navigation changes header title', (tester) async {
       await tester.pumpWidget(_wrap(_calendar(value: june2024)));
       expect(find.text('2024年6月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(find.text('2024年5月'), findsOneWidget);
     });
 
     testWidgets('next month navigation changes header title', (tester) async {
       await tester.pumpWidget(_wrap(_calendar(value: june2024)));
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年7月'), findsOneWidget);
     });
@@ -159,7 +160,7 @@ void main() {
         (tester) async {
       final now = DateTime.now();
       await tester.pumpWidget(_wrap(_calendar(value: june2024)));
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年7月'), findsOneWidget);
       await tester.tap(find.text('本月'));
@@ -344,11 +345,11 @@ void main() {
       await tester.pumpWidget(
         _wrap(_calendar(defaultValue: _date(2024, 6, 10))),
       );
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年7月'), findsOneWidget);
       // 导航到 7 月后回到 6 月，选中状态保持高亮。
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pump();
       expect(
         tester.widget<Text>(find.text('10').first).style!.color,

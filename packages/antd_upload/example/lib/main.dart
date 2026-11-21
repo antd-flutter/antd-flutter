@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_upload/antd_upload.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdUploadGalleryApp());
@@ -76,7 +77,7 @@ class _AntdUploadGalleryAppState extends State<AntdUploadGalleryApp> {
                 actions: [
                   IconButton(
                     onPressed: () => setState(() => _isDark = !_isDark),
-                    icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                    icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                   ),
                 ],
                 bottom: TabBar(
@@ -481,7 +482,7 @@ class _CustomItemSection extends StatelessWidget {
         '自定义上传按钮文案与图标',
         AntUpload(
           uploadButtonText: '选择附件',
-          uploadButtonIcon: Icons.attach_file,
+          uploadButtonIcon: AntIcons.paperClipOutlined,
           onSelectFiles: () async => [
             const AntUploadFile(uid: 'ci1', name: '附件.docx', size: 204800),
           ],

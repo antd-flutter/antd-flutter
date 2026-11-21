@@ -28,6 +28,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
 export 'package:antd_carousel/src/carousel/ant_carousel_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntCarousel
@@ -459,8 +460,8 @@ class _AntCarouselState extends State<AntCarousel>
             child: _buildArrow(
               theme,
               icon: widget.vertical
-                  ? Icons.keyboard_arrow_up
-                  : Icons.chevron_left,
+                  ? AntIcons.upOutlined
+                  : AntIcons.leftOutlined,
               onTap: _prev,
             ),
           ),
@@ -477,8 +478,8 @@ class _AntCarouselState extends State<AntCarousel>
             child: _buildArrow(
               theme,
               icon: widget.vertical
-                  ? Icons.keyboard_arrow_down
-                  : Icons.chevron_right,
+                  ? AntIcons.downOutlined
+                  : AntIcons.rightOutlined,
               onTap: _next,
             ),
           ),

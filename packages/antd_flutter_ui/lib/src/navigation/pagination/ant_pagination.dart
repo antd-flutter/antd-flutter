@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import '../../display/popover/ant_dropdown.dart';
 import '../../display/popover/ant_dropdown_types.dart';
 import 'ant_pagination_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntPagination
@@ -183,7 +184,7 @@ class _AntPaginationState extends State<AntPagination> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildNavButton(theme, Icons.chevron_left, _canPrev, () => _goto(_currentPage - 1)),
+        _buildNavButton(theme, AntIcons.leftOutlined, _canPrev, () => _goto(_currentPage - 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
@@ -191,7 +192,7 @@ class _AntPaginationState extends State<AntPagination> {
             style: TextStyle(fontSize: theme.fontSize, color: theme.colorText),
           ),
         ),
-        _buildNavButton(theme, Icons.chevron_right, _canNext, () => _goto(_currentPage + 1)),
+        _buildNavButton(theme, AntIcons.rightOutlined, _canNext, () => _goto(_currentPage + 1)),
       ],
     );
   }
@@ -209,7 +210,7 @@ class _AntPaginationState extends State<AntPagination> {
     }
 
     children.add(
-      _buildNavButton(theme, Icons.chevron_left, _canPrev, () => _goto(_currentPage - 1)),
+      _buildNavButton(theme, AntIcons.leftOutlined, _canPrev, () => _goto(_currentPage - 1)),
     );
 
     final pages = _generatePages(_currentPage, _totalPages);
@@ -222,7 +223,7 @@ class _AntPaginationState extends State<AntPagination> {
     }
 
     children.add(
-      _buildNavButton(theme, Icons.chevron_right, _canNext, () => _goto(_currentPage + 1)),
+      _buildNavButton(theme, AntIcons.rightOutlined, _canNext, () => _goto(_currentPage + 1)),
     );
 
     if (widget.showSizeChanger) {
@@ -293,7 +294,7 @@ class _AntPaginationState extends State<AntPagination> {
       enabled: !widget.disabled,
       onTap: () => _goto((_currentPage + jump).clamp(1, _totalPages)),
       child: Icon(
-        Icons.more_horiz,
+        AntIcons.moreOutlined,
         size: theme.fontSizeIcon,
         color: widget.disabled
             ? theme.colorTextDisabled
@@ -367,7 +368,7 @@ class _AntPaginationState extends State<AntPagination> {
             ),
             const SizedBox(width: 4),
             Icon(
-              Icons.keyboard_arrow_down,
+              AntIcons.downOutlined,
               size: theme.fontSizeIcon,
               color: theme.colorTextTertiary,
             ),

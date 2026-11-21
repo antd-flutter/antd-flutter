@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/data_entry/checkbox/ant_checkbox.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -28,12 +29,12 @@ void main() {
         defaultChecked: true,
         child: Text('A'),
       ),),);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('unchecked shows no check icon', (tester) async {
       await tester.pumpWidget(_wrap(const AntCheckbox(child: Text('A'))));
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
 
     testWidgets('tap toggles checked state', (tester) async {
@@ -45,7 +46,7 @@ void main() {
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, true);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('tap again unchecks', (tester) async {
@@ -55,7 +56,7 @@ void main() {
       ),),);
       await tester.tap(find.text('A'));
       await tester.pump();
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
 
     testWidgets('controlled checked updates', (tester) async {
@@ -67,10 +68,10 @@ void main() {
           return AntCheckbox(checked: val, child: const Text('A'));
         },
       ),),);
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
       setState(() => val = true);
       await tester.pump();
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('disabled prevents toggle', (tester) async {
@@ -83,7 +84,7 @@ void main() {
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, null);
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
 
     testWidgets('indeterminate shows minus icon', (tester) async {
@@ -91,7 +92,7 @@ void main() {
         indeterminate: true,
         child: Text('A'),
       ),),);
-      expect(find.byIcon(Icons.remove), findsOneWidget);
+      expect(find.byIcon(AntIcons.minusOutlined), findsOneWidget);
     });
 
     testWidgets('tapping indeterminate converts to checked and clears it',
@@ -108,8 +109,8 @@ void main() {
       await tester.pump();
       // 半选点击 → 全选（非 false），半选标记清除
       expect(changed, isTrue);
-      expect(find.byIcon(Icons.check), findsOneWidget);
-      expect(find.byIcon(Icons.remove), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.minusOutlined), findsNothing);
     });
   });
 
@@ -179,7 +180,7 @@ void main() {
         ],
       ),),);
       // b 应该选中
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('controlled value updates', (tester) async {
@@ -196,10 +197,10 @@ void main() {
           );
         },
       ),),);
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
       setState(() => val = ['a']);
       await tester.pump();
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('group disabled prevents toggle', (tester) async {
@@ -255,7 +256,7 @@ void main() {
       await tester.tap(find.text('A'));
       await tester.pump();
       expect(changed, ['a']);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('children mode group disabled prevents toggle',

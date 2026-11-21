@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/feedback/result/ant_result.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -23,7 +24,7 @@ void main() {
         status: AntResultStatus.success,
         title: '成功',
       ),),);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     });
 
     testWidgets('error renders cancel icon', (tester) async {
@@ -31,7 +32,7 @@ void main() {
         status: AntResultStatus.error,
         title: '失败',
       ),),);
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     });
 
     testWidgets('info renders info icon', (tester) async {
@@ -39,7 +40,7 @@ void main() {
         status: AntResultStatus.info,
         title: '提示',
       ),),);
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     });
 
     testWidgets('warning renders warning icon', (tester) async {
@@ -47,7 +48,7 @@ void main() {
         status: AntResultStatus.warning,
         title: '警告',
       ),),);
-      expect(find.byIcon(Icons.warning), findsOneWidget);
+      expect(find.byIcon(AntIcons.warningFilled), findsOneWidget);
     });
 
     testWidgets('404 renders numeric label', (tester) async {
@@ -111,15 +112,15 @@ void main() {
       await tester.pumpWidget(_wrap(const AntResult(
         status: AntResultStatus.success,
         title: '自定义图标',
-        icon: Icon(Icons.star, key: Key('my-icon')),
+        icon: Icon(AntIcons.starFilled, key: Key('my-icon')),
       ),),);
       expect(find.byKey(const Key('my-icon')), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle), findsNothing);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsNothing);
     });
 
     testWidgets('default status renders info icon', (tester) async {
       await tester.pumpWidget(_wrap(const AntResult(title: '默认状态')));
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
       expect(find.text('默认状态'), findsOneWidget);
     });
   });

@@ -8,7 +8,7 @@
 ///
 /// ```dart
 /// AntEmpty(description: '暂无数据')
-/// AntEmpty(description: '自定义', imageWidget: Icon(Icons.inbox))
+/// AntEmpty(description: '自定义', imageWidget: Icon(AntIcons.inboxOutlined))
 /// ```
 library;
 
@@ -17,6 +17,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_empty_types.dart';
 export 'ant_empty_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntEmpty
@@ -102,7 +103,7 @@ class AntEmpty extends StatelessWidget {
             borderRadius: BorderRadius.circular(theme.borderRadius),
           ),
           child: Icon(
-            Icons.inbox_outlined,
+            AntIcons.inboxOutlined,
             size: 24.w,
             color: theme.colorTextQuaternary,
           ),

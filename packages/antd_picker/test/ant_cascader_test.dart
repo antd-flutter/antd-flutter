@@ -5,6 +5,7 @@ import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 测试选项树
 List<AntCascaderOption> _testOptions() => [
@@ -194,7 +195,7 @@ void main() {
       ),);
       expect(find.text('浙江 / 杭州 / 西湖'), findsOneWidget);
       // 点击清除图标
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(selectedPath, []);
     });

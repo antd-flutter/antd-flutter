@@ -27,6 +27,7 @@ import '../../basic/button/ant_button_types.dart';
 import '../../engines/overlay_shell.dart';
 import '../../engines/popup_overlay.dart';
 import 'ant_modal_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 export 'ant_modal_types.dart';
 
 // ============================================================
@@ -360,7 +361,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
                     onTap: _handleCancel,
                     behavior: HitTestBehavior.opaque,
                     child: Icon(
-                      Icons.close,
+                      AntIcons.closeOutlined,
                       size: 16.w,
                       color: theme.colorTextSecondary,
                     ),

@@ -9,6 +9,7 @@ library;
 import 'package:antd_image_viewer/antd_image_viewer.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdImageViewerGalleryApp());
@@ -73,7 +74,7 @@ class _AntdImageViewerGalleryAppState extends State<AntdImageViewerGalleryApp> {
                 actions: [
                   IconButton(
                     onPressed: () => setState(() => _isDark = !_isDark),
-                    icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                    icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                   ),
                 ],
                 bottom: TabBar(
@@ -413,7 +414,7 @@ class _ComboDemoState extends State<_ComboDemo> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.photo_library_outlined),
+                const Icon(AntIcons.pictureOutlined),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
@@ -421,7 +422,7 @@ class _ComboDemoState extends State<_ComboDemo> {
                     style: TextStyle(fontSize: 14.sp),
                   ),
                 ),
-                const Icon(Icons.chevron_right),
+                const Icon(AntIcons.rightOutlined),
               ],
             ),
           ),

@@ -10,6 +10,7 @@ import 'package:antd_calendar/antd_calendar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 DateTime _date(int y, int m, int d) => DateTime(y, m, d);
 
@@ -136,7 +137,7 @@ void main() {
         ),
       ),);
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pumpAndSettle();
       expect(panels.last.$1, _date(2024, 7, 1));
       expect(panels.last.$2, AntCalendarMode.month);
@@ -249,10 +250,10 @@ void main() {
         ),
       ),);
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       await tester.pumpAndSettle();
       expect(find.text('2024年6月'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pumpAndSettle();
       expect(find.text('2024年6月'), findsOneWidget);
     });
@@ -268,7 +269,7 @@ void main() {
         ),
       ),);
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.tap(find.byIcon(AntIcons.doubleLeftOutlined));
       await tester.pumpAndSettle();
       expect(find.text('2023年6月'), findsOneWidget);
       expect(pages.last, (2023, 6));
@@ -298,11 +299,11 @@ void main() {
         const AntCalendarPicker(visible: true, showCloseButton: false),
       ),);
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.byIcon(AntIcons.closeOutlined), findsNothing);
 
       await tester.pumpWidget(_wrap(const AntCalendarPicker(visible: true)));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
     });
 
     testWidgets('点击关闭按钮触发 onClose 且不触发 onConfirm', (tester) async {
@@ -316,7 +317,7 @@ void main() {
         ),
       ),);
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pumpAndSettle();
       expect(closed, isTrue);
       expect(confirmed, isFalse);

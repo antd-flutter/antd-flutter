@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -162,7 +163,7 @@ void main() {
                 child: AntSpace(
                   direction: AntSpaceDirection.vertical,
                   align: AntSpaceAlign.center,
-                  children: [Icon(Icons.center_focus_strong, size: 48), Text('居中内容')],
+                  children: [Icon(AntIcons.aimOutlined, size: 48), Text('居中内容')],
                 ),
               ),
             ),

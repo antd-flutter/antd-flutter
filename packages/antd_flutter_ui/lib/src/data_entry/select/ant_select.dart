@@ -31,6 +31,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/select/ant_select_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntSelect
@@ -322,7 +323,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
               behavior: HitTestBehavior.opaque,
               onTap: _handleClear,
               child: Icon(
-                Icons.cancel,
+                AntIcons.closeCircleFilled,
                 size: 14.w,
                 color: theme.colorTextPlaceholder,
               ),
@@ -342,7 +343,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
                 turns: open ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
-                  Icons.keyboard_arrow_down,
+                  AntIcons.downOutlined,
                   size: 14.w,
                   color: widget.disabled
                       ? theme.colorTextDisabled
@@ -401,7 +402,7 @@ class _Tag extends StatelessWidget {
             GestureDetector(
               onTap: onClear,
               child: Icon(
-                Icons.close,
+                AntIcons.closeOutlined,
                 size: 10.w,
                 color: theme.colorTextTertiary,
               ),
@@ -626,7 +627,7 @@ class _OptionItem<T> extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 8.w),
                 child: Icon(
-                  selected ? Icons.check_box : Icons.check_box_outline_blank,
+                  selected ? AntIcons.checkSquareFilled : AntIcons.borderOutlined,
                   size: 16.w,
                   color: selected && !option.disabled
                       ? t.colorPrimary
@@ -644,7 +645,7 @@ class _OptionItem<T> extends StatelessWidget {
             ),
             if (!isMultiple && selected)
               Icon(
-                Icons.check,
+                AntIcons.checkOutlined,
                 size: 14.w,
                 color: t.colorPrimary,
               ),

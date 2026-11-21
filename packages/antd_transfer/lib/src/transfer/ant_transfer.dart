@@ -16,6 +16,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_transfer_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_transfer_types.dart';
 
@@ -513,7 +514,7 @@ class _AntTransferState extends State<AntTransfer> {
                 _OperationButton(
                   icon: widget.operations.isNotEmpty && widget.operations[0].isNotEmpty
                       ? null
-                      : Icons.keyboard_double_arrow_right,
+                      : AntIcons.doubleRightOutlined,
                   label: widget.operations.isNotEmpty && widget.operations[0].isNotEmpty
                       ? widget.operations[0]
                       : null,
@@ -526,7 +527,7 @@ class _AntTransferState extends State<AntTransfer> {
                   _OperationButton(
                     icon: widget.operations.length > 1 && widget.operations[1].isNotEmpty
                         ? null
-                        : Icons.keyboard_double_arrow_left,
+                        : AntIcons.doubleLeftOutlined,
                     label: widget.operations.length > 1 && widget.operations[1].isNotEmpty
                         ? widget.operations[1]
                         : null,
@@ -701,7 +702,7 @@ class _TransferPanel extends StatelessWidget {
                       vertical: 0,
                     ),
                     prefixIcon: Icon(
-                      Icons.search,
+                      AntIcons.searchOutlined,
                       size: 16.r,
                       color: t.colorTextTertiary,
                     ),
@@ -855,8 +856,8 @@ class _TransferRowTile extends StatelessWidget {
                   padding: EdgeInsets.only(right: 4.w),
                   child: Icon(
                     row.expanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_right,
+                        ? AntIcons.downOutlined
+                        : AntIcons.rightOutlined,
                     size: 16.r,
                     color: t.colorTextSecondary,
                   ),

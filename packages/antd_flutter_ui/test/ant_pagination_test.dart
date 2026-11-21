@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -49,14 +50,14 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntPagination),
-          matching: find.byIcon(Icons.chevron_left),
+          matching: find.byIcon(AntIcons.leftOutlined),
         ),
         findsOneWidget,
       );
       expect(
         find.descendant(
           of: find.byType(AntPagination),
-          matching: find.byIcon(Icons.chevron_right),
+          matching: find.byIcon(AntIcons.rightOutlined),
         ),
         findsOneWidget,
       );
@@ -75,7 +76,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntPagination),
-          matching: find.byIcon(Icons.more_horiz),
+          matching: find.byIcon(AntIcons.moreOutlined),
         ),
         findsOneWidget,
       );
@@ -128,7 +129,7 @@ void main() {
           onChange: (p) => changedPage = p,
         ),),
       );
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       expect(changedPage, 2);
     });
 
@@ -141,7 +142,7 @@ void main() {
           onChange: (p) => changedPage = p,
         ),),
       );
-      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       expect(changedPage, 2);
     });
 
@@ -166,7 +167,7 @@ void main() {
         ),),
       );
       // 当前页 1，右侧省略号跳 +5 → 页 6
-      await tester.tap(find.byIcon(Icons.more_horiz));
+      await tester.tap(find.byIcon(AntIcons.moreOutlined));
       expect(changedPage, 6);
     });
 
@@ -177,7 +178,7 @@ void main() {
       // 第一页时左箭头不可点击
       final prevInkWell = tester.widget<InkWell>(
         find.ancestor(
-          of: find.byIcon(Icons.chevron_left),
+          of: find.byIcon(AntIcons.leftOutlined),
           matching: find.byType(InkWell),
         ),
       );
@@ -190,7 +191,7 @@ void main() {
       );
       final nextInkWell = tester.widget<InkWell>(
         find.ancestor(
-          of: find.byIcon(Icons.chevron_right),
+          of: find.byIcon(AntIcons.rightOutlined),
           matching: find.byType(InkWell),
         ),
       );
@@ -355,7 +356,7 @@ void main() {
           onChange: (p) => changedPage = p,
         ),),
       );
-      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.tap(find.byIcon(AntIcons.rightOutlined));
       expect(changedPage, -1);
     });
 
@@ -378,7 +379,7 @@ void main() {
       final prevIcon = tester.widget<Icon>(
         find.descendant(
           of: find.byType(AntPagination),
-          matching: find.byIcon(Icons.chevron_left),
+          matching: find.byIcon(AntIcons.leftOutlined),
         ),
       );
       expect(prevIcon.color, capturedTheme.colorTextDisabled);

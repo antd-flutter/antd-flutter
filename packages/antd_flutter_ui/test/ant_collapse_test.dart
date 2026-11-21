@@ -3,6 +3,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -143,9 +144,9 @@ void main() {
     testWidgets('custom expandIcon is used', (tester) async {
       await tester.pumpWidget(_wrap(AntCollapse(
         items: _panels(),
-        expandIcon: (context, isExpanded) => const Icon(Icons.star),
+        expandIcon: (context, isExpanded) => const Icon(AntIcons.starFilled),
       ),),);
-      expect(find.byIcon(Icons.star), findsWidgets);
+      expect(find.byIcon(AntIcons.starFilled), findsWidgets);
     });
 
     testWidgets('borderless variant has no outer border', (tester) async {
@@ -195,7 +196,7 @@ void main() {
 
       // 669 逻辑宽下 .w 因子约 1.78；箭头应保持 12px 而非被放大到 ~21px。
       expect(
-        tester.getSize(find.byIcon(Icons.arrow_forward_ios).first),
+        tester.getSize(find.byIcon(AntIcons.rightOutlined).first),
         const Size(12, 12),
       );
     });
@@ -215,7 +216,7 @@ void main() {
       await tester.pump();
 
       expect(
-        tester.getSize(find.byIcon(Icons.arrow_forward_ios).first),
+        tester.getSize(find.byIcon(AntIcons.rightOutlined).first),
         const Size(12, 12),
       );
     });

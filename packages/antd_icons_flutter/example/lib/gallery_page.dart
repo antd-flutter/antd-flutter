@@ -119,13 +119,13 @@ class _GalleryPageState extends State<GalleryPage> {
           ValueListenableBuilder<bool>(
             valueListenable: themeModeController,
             builder: (context, isDark, _) => IconButton(
-              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              icon: Icon(isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
               tooltip: isDark ? strings.themeLight : strings.themeDark,
               onPressed: themeModeController.toggle,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.info_outline),
+            icon: const Icon(AntIcons.infoCircleOutlined),
             tooltip: strings.aboutTooltip,
             onPressed: () => _showAboutDialog(context),
           ),
@@ -408,7 +408,7 @@ class _EmptyResult extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.search_off,
+            AntIcons.fileSearchOutlined,
             size: 48,
             color: Theme.of(context).disabledColor,
           ),

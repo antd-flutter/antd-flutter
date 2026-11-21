@@ -16,6 +16,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/search_bar/ant_search_bar_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 搜索栏 — 移动端搜索场景的输入组件。
 class AntSearchBar extends StatefulWidget {
@@ -241,7 +242,7 @@ class _AntSearchBarState extends State<AntSearchBar> {
               children: [
                 widget.searchIcon ??
                     Icon(
-                      Icons.search,
+                      AntIcons.searchOutlined,
                       size: 16.sp,
                       color: t.colorTextTertiary,
                     ),
@@ -269,7 +270,7 @@ class _AntSearchBarState extends State<AntSearchBar> {
                     child: Padding(
                       padding: EdgeInsets.only(left: 4.w),
                       child: Icon(
-                        Icons.cancel,
+                        AntIcons.closeCircleFilled,
                         size: 16.sp,
                         color: t.colorTextQuaternary,
                       ),

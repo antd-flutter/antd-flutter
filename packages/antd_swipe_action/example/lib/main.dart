@@ -8,6 +8,7 @@ library;
 import 'package:antd_swipe_action/antd_swipe_action.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdSwipeActionGalleryApp());
@@ -120,8 +121,8 @@ class _GalleryPageState extends State<_GalleryPage> {
                         tooltip: widget.isDark ? '切换亮色' : '切换暗色',
                         icon: Icon(
                           widget.isDark
-                              ? Icons.light_mode_outlined
-                              : Icons.dark_mode_outlined,
+                              ? AntIcons.sunOutlined
+                              : AntIcons.moonOutlined,
                           color: theme.colorText,
                         ),
                         onPressed: widget.onToggleDark,

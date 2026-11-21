@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/src/data_entry/check_list/ant_check_list.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -64,7 +65,7 @@ void main() {
               AntCheckListItem(
                 value: 'a',
                 child: Text('苹果'),
-                prefix: Icon(Icons.apple),
+                prefix: Icon(AntIcons.appleOutlined),
               ),
             ],
           ),
@@ -72,7 +73,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.apple), findsOneWidget);
+      expect(find.byIcon(AntIcons.appleOutlined), findsOneWidget);
     });
 
     testWidgets('hideCheckMark — no check icon shown', (tester) async {
@@ -87,14 +88,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
 
     testWidgets('custom activeIcon', (tester) async {
       await tester.pumpWidget(
         _wrap(
           AntCheckList<String>(
-            activeIcon: const Icon(Icons.star),
+            activeIcon: const Icon(AntIcons.starFilled),
             defaultValue: ['a'],
             items: _items(),
           ),
@@ -102,7 +103,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byIcon(AntIcons.starFilled), findsOneWidget);
     });
   });
 
@@ -121,7 +122,7 @@ void main() {
         matching: find.byType(Row),
       );
       expect(
-        find.descendant(of: bRow, matching: find.byIcon(Icons.check)),
+        find.descendant(of: bRow, matching: find.byIcon(AntIcons.checkOutlined)),
         findsOneWidget,
       );
     });
@@ -142,7 +143,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(changed, ['a']);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('tap another item switches selection', (tester) async {
@@ -162,7 +163,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(changed, ['b']);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('tap selected item clears selection', (tester) async {
@@ -182,7 +183,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(changed, isEmpty);
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
   });
 
@@ -209,7 +210,7 @@ void main() {
         ['a'],
         ['a', 'c'],
       ]);
-      expect(find.byIcon(Icons.check), findsNWidgets(2));
+      expect(find.byIcon(AntIcons.checkOutlined), findsNWidgets(2));
     });
 
     testWidgets('tap again deselects', (tester) async {
@@ -232,7 +233,7 @@ void main() {
       expect(changed, [
         ['b'],
       ]);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
   });
 
@@ -245,7 +246,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.check), findsNWidgets(2));
+      expect(find.byIcon(AntIcons.checkOutlined), findsNWidgets(2));
     });
 
     testWidgets('internal state not changed when controlled', (tester) async {
@@ -266,7 +267,7 @@ void main() {
 
       // callback fires but UI stays controlled
       expect(changed, ['b']);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
   });
 
@@ -332,7 +333,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(changed, isNull);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
   });
 }

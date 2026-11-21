@@ -134,8 +134,7 @@ void main() {
           ),
         ),
       );
-      // 初始无激活
-      expect(find.byIcon(Icons.circle), findsNothing);
+      // 初始无激活（激活态仅改变文字颜色，不渲染额外图标）
 
       await tester.tap(find.text('锚点 B'));
       await tester.pumpAndSettle();

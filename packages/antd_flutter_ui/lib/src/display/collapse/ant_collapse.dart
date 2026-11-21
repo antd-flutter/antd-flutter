@@ -21,6 +21,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_collapse_types.dart';
 export 'ant_collapse_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntCollapse
@@ -182,7 +183,7 @@ class _AntCollapseState extends State<AntCollapse> {
           // 箭头跟随字号而非屏幕宽度：桌面 12px（antd fontSizeIcon），
           // 移动端随 14px 标题等比，避免宽屏设备上 .w 放大到 21px+。
           child: Icon(
-            Icons.arrow_forward_ios,
+            AntIcons.rightOutlined,
             size: theme.fontSizeIcon,
             color: panel.disabled
                 ? theme.colorTextDisabled

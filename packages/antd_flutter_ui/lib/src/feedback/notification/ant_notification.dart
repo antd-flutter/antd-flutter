@@ -30,6 +30,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'ant_notification_types.dart';
 import '../../engines/overlay_shell.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_notification_types.dart';
 
@@ -435,7 +436,7 @@ class _NotificationCardState extends State<_NotificationCard>
                             child: Padding(
                               padding: EdgeInsets.only(left: 8.w),
                               child: Icon(
-                                Icons.close,
+                                AntIcons.closeOutlined,
                                 size: 14.w,
                                 color: theme.colorTextSecondary,
                               ),
@@ -469,13 +470,13 @@ class _NotificationCardState extends State<_NotificationCard>
   (IconData, Color) _resolveType(AntThemeData theme) {
     switch (widget.item.type) {
       case AntNotificationType.success:
-        return (Icons.check_circle, theme.colorSuccess);
+        return (AntIcons.checkCircleFilled, theme.colorSuccess);
       case AntNotificationType.warning:
-        return (Icons.warning_amber_rounded, theme.colorWarning);
+        return (AntIcons.warningFilled, theme.colorWarning);
       case AntNotificationType.error:
-        return (Icons.cancel, theme.colorError);
+        return (AntIcons.closeCircleFilled, theme.colorError);
       case AntNotificationType.info:
-        return (Icons.info, theme.colorInfo);
+        return (AntIcons.infoCircleFilled, theme.colorInfo);
     }
   }
 }

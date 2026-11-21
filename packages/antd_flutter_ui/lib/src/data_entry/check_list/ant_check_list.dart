@@ -22,6 +22,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_flutter_ui/src/data_entry/check_list/ant_check_list_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 复选列表 — 列表样式的单选/多选组件。
 ///
@@ -208,7 +209,7 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
                 child: isChecked
                     ? (widget.activeIcon ??
                         Icon(
-                          Icons.check,
+                          AntIcons.checkOutlined,
                           size: 18.w,
                           color: t.colorPrimary,
                         ))

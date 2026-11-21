@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -102,7 +103,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntSteps),
-          matching: find.byIcon(Icons.check),
+          matching: find.byIcon(AntIcons.checkOutlined),
         ),
         findsOneWidget,
       );
@@ -162,7 +163,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntSteps),
-          matching: find.byIcon(Icons.close),
+          matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsOneWidget,
       );
@@ -185,7 +186,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntSteps),
-          matching: find.byIcon(Icons.close),
+          matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsOneWidget,
       );
@@ -295,7 +296,7 @@ void main() {
           items: [
             AntStepsItem(
               title: 'Step 1',
-              icon: Icon(Icons.star, size: 16),
+              icon: Icon(AntIcons.starFilled, size: 16),
             ),
             AntStepsItem(title: 'Step 2'),
           ],
@@ -304,7 +305,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntSteps),
-          matching: find.byIcon(Icons.star),
+          matching: find.byIcon(AntIcons.starFilled),
         ),
         findsOneWidget,
       );

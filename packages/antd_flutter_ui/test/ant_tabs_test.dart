@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -219,7 +220,7 @@ void main() {
           )
           .map((c) => c.decoration)
           .whereType<BoxDecoration>()
-          .where((d) => d.border != null && d.border!.top.color == Color(0xFFD9D9D9))
+          .where((d) => d.border != null && d.border!.top.color == const Color(0xFFD9D9D9))
           .toList();
       expect(outer, isNotEmpty);
 
@@ -233,7 +234,7 @@ void main() {
           )
           .map((c) => c.decoration)
           .whereType<BoxDecoration>()
-          .firstWhere((d) => d.border != null && d.border!.top.color == Color(0xFF1677FF));
+          .firstWhere((d) => d.border != null && d.border!.top.color == const Color(0xFF1677FF));
       expect(active.borderRadius, BorderRadius.circular(6));
 
       // 非选中段之间由 1px 分隔线切分
@@ -260,7 +261,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.add),
+          matching: find.byIcon(AntIcons.plusOutlined),
         ),
         findsOneWidget,
       );
@@ -277,7 +278,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.close),
+          matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsNWidgets(3),
       );
@@ -298,7 +299,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.close),
+          matching: find.byIcon(AntIcons.closeOutlined),
         ),
         findsOneWidget,
       );
@@ -311,7 +312,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.add),
+          matching: find.byIcon(AntIcons.plusOutlined),
         ),
         findsNothing,
       );
@@ -335,7 +336,7 @@ void main() {
       // 点击第一个关闭按钮
       final closeButtons = find.descendant(
         of: find.byType(AntTabs),
-        matching: find.byIcon(Icons.close),
+        matching: find.byIcon(AntIcons.closeOutlined),
       );
       await tester.tap(closeButtons.first);
       await tester.pump();
@@ -352,7 +353,7 @@ void main() {
           onEdit: (_, act) => action = act,
         ),),
       );
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pump();
       expect(action, AntTabsEditAction.add);
     });
@@ -445,7 +446,7 @@ void main() {
             AntTabsItem(
               key: '1',
               label: 'Tab 1',
-              icon: Icon(Icons.star),
+              icon: Icon(AntIcons.starFilled),
               child: Text('C1'),
             ),
           ],
@@ -454,7 +455,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.star),
+          matching: find.byIcon(AntIcons.starFilled),
         ),
         findsOneWidget,
       );
@@ -491,14 +492,14 @@ void main() {
         _wrap(AntTabs(
           type: AntTabsType.editableCard,
           items: _sampleItems(),
-          addIcon: const Icon(Icons.add_circle),
+          addIcon: const Icon(AntIcons.plusCircleOutlined),
           onEdit: (_, __) {},
         ),),
       );
       expect(
         find.descendant(
           of: find.byType(AntTabs),
-          matching: find.byIcon(Icons.add_circle),
+          matching: find.byIcon(AntIcons.plusCircleOutlined),
         ),
         findsOneWidget,
       );

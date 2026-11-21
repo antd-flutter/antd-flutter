@@ -2,6 +2,7 @@ import 'package:antd_table/antd_table.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -215,7 +216,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byIcon(Icons.filter_alt_outlined));
+      await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pumpAndSettle();
       await tester
           .tap(find.byKey(const ValueKey('ant_table_filter_option_北京')));
@@ -287,7 +288,7 @@ void main() {
       );
       expect(find.text('Bob'), findsNothing);
 
-      await tester.tap(find.byIcon(Icons.filter_alt_outlined));
+      await tester.tap(find.byIcon(AntIcons.filterOutlined));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('ant_table_filter_reset')));
       await tester.pumpAndSettle();
@@ -443,7 +444,7 @@ void main() {
         ),
       );
       // 表头下拉箭头
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(AntIcons.caretDownOutlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('全选'));
       await tester.pumpAndSettle();

@@ -2,6 +2,7 @@ import 'package:antd_tree/src/tree/ant_tree.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const _treeData = [
   AntTreeNode(
@@ -81,7 +82,7 @@ Future<void> _tapSwitcher(WidgetTester tester, String title) async {
   Icon? switcherIcon;
   void walk(Element element) {
     final widget = element.widget;
-    if (widget is Icon && widget.icon == Icons.expand_more) {
+    if (widget is Icon && widget.icon == AntIcons.downOutlined) {
       switcherIcon = widget;
       return;
     }
@@ -199,7 +200,7 @@ void main() {
     testWidgets('checkable renders checkboxes', (tester) async {
       await _pumpTree(tester, checkable: true, defaultExpandAll: true);
       expect(
-        find.byIcon(Icons.check_box_outline_blank_outlined),
+        find.byIcon(AntIcons.borderOutlined),
         findsWidgets,
       );
     });
@@ -215,12 +216,12 @@ void main() {
       // 勾选父节点 江苏 → 南京 + 苏州 全选
       final checkbox = find.descendant(
         of: find.ancestor(of: find.text('江苏'), matching: find.byType(Row)).first,
-        matching: find.byIcon(Icons.check_box_outline_blank_outlined),
+        matching: find.byIcon(AntIcons.borderOutlined),
       );
       await tester.tap(checkbox.first);
       await tester.pump();
       expect(checked, containsAll(['js', 'nj', 'sz']));
-      expect(find.byIcon(Icons.check_box_outlined), findsNWidgets(3));
+      expect(find.byIcon(AntIcons.checkSquareOutlined), findsNWidgets(3));
     });
 
     testWidgets('checking all children checks parent', (tester) async {
@@ -234,7 +235,7 @@ void main() {
       for (final title in ['南京', '苏州']) {
         final checkbox = find.descendant(
           of: find.ancestor(of: find.text(title), matching: find.byType(Row)).first,
-          matching: find.byIcon(Icons.check_box_outline_blank_outlined),
+          matching: find.byIcon(AntIcons.borderOutlined),
         );
         await tester.tap(checkbox.first);
         await tester.pump();
@@ -252,13 +253,13 @@ void main() {
       // 只勾 南京 → 江苏 半选
       final checkbox = find.descendant(
         of: find.ancestor(of: find.text('南京'), matching: find.byType(Row)).first,
-        matching: find.byIcon(Icons.check_box_outline_blank_outlined),
+        matching: find.byIcon(AntIcons.borderOutlined),
       );
       await tester.tap(checkbox.first);
       await tester.pump();
-      expect(find.byIcon(Icons.indeterminate_check_box_outlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.minusSquareFilled), findsOneWidget);
       // 未选的 苏州 仍是空白框
-      expect(find.byIcon(Icons.check_box_outlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkSquareOutlined), findsOneWidget);
     });
 
     testWidgets('checkStrictly does not cascade', (tester) async {
@@ -272,7 +273,7 @@ void main() {
       );
       final checkbox = find.descendant(
         of: find.ancestor(of: find.text('南京'), matching: find.byType(Row)).first,
-        matching: find.byIcon(Icons.check_box_outline_blank_outlined),
+        matching: find.byIcon(AntIcons.borderOutlined),
       );
       await tester.tap(checkbox.first);
       await tester.pump();
@@ -304,7 +305,7 @@ void main() {
       expect(called, isFalse);
       final checkbox = find.descendant(
         of: find.ancestor(of: find.text('禁用节点'), matching: find.byType(Row)).first,
-        matching: find.byIcon(Icons.check_box_outline_blank_outlined),
+        matching: find.byIcon(AntIcons.borderOutlined),
       );
       await tester.tap(checkbox.first);
       await tester.pump();
@@ -333,7 +334,7 @@ void main() {
         defaultCheckedKeys: const ['nj', 'sz'],
         defaultExpandedKeys: const ['js'],
       );
-      expect(find.byIcon(Icons.check_box_outlined), findsNWidgets(3));
+      expect(find.byIcon(AntIcons.checkSquareOutlined), findsNWidgets(3));
     });
   });
 }

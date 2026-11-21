@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker.dar
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -135,8 +136,8 @@ void main() {
       expect(find.text('#1677ff'), findsOneWidget);
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pumpAndSettle();
-      // 点击清除按钮（Icons.cancel）
-      await tester.tap(find.byIcon(Icons.cancel));
+      // 点击清除按钮（AntIcons.closeCircleFilled）
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(clearedColor, isNull);
     });

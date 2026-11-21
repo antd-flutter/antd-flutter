@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -41,7 +42,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed, 4);
       expect(find.text('4'), findsOneWidget);
@@ -55,7 +56,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pumpAndSettle();
       expect(changed, 2);
       expect(find.text('2'), findsOneWidget);
@@ -70,7 +71,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed, 5);
     });
@@ -84,7 +85,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pumpAndSettle();
       // 在 min 边界按钮已禁用，不会触发 onChange
       expect(changed, isNull);
@@ -100,7 +101,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       // 在 max 边界按钮已禁用，不会触发 onChange
       expect(changed, isNull);
@@ -145,7 +146,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed, isNull);
       expect(find.text('3'), findsOneWidget);
@@ -159,7 +160,7 @@ void main() {
           step: 0.1,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(find.text('3.10'), findsOneWidget);
     });
@@ -208,7 +209,7 @@ void main() {
         const AntStepper(defaultValue: 0, min: 0),
       ),);
       // minus 图标颜色应为禁用色（无法直接断言颜色，验证值不变即可）
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.byIcon(AntIcons.minusOutlined));
       await tester.pumpAndSettle();
       expect(find.text('0'), findsOneWidget);
     });
@@ -217,7 +218,7 @@ void main() {
       await tester.pumpWidget(_wrap(
         const AntStepper(defaultValue: 10, max: 10),
       ),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(find.text('10'), findsOneWidget);
     });

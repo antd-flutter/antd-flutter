@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/src/data_entry/mentions/ant_mentions.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const _testOptions = <AntMentionsOption>[
   AntMentionsOption(value: 'afc163', label: 'afc163'),
@@ -178,7 +179,7 @@ void main() {
         ),
       ),);
       expect(find.text('hello'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(changedText, '');
     });

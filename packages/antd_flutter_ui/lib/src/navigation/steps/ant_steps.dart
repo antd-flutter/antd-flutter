@@ -15,6 +15,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_steps_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntSteps
@@ -326,12 +327,12 @@ class AntSteps extends StatelessWidget {
 
     return switch (stepStatus) {
       AntStepsStatus.finish => Icon(
-          Icons.check,
+          AntIcons.checkOutlined,
           size: iconSize,
           color: theme.colorPrimary,
         ),
       AntStepsStatus.error => Icon(
-          Icons.close,
+          AntIcons.closeOutlined,
           size: iconSize,
           color: theme.colorError,
         ),

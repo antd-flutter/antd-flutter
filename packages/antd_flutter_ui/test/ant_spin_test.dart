@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/feedback/spin/ant_spin.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -112,7 +113,7 @@ void main() {
 
     testWidgets('custom indicator replaces default ring', (tester) async {
       await tester.pumpWidget(_wrap(const AntSpin(
-        indicator: Icon(Icons.autorenew, key: Key('my-indicator')),
+        indicator: Icon(AntIcons.syncOutlined, key: Key('my-indicator')),
       ),),);
       await tester.pump();
       expect(find.byKey(const Key('my-indicator')), findsOneWidget);

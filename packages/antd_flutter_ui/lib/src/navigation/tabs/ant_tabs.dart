@@ -18,6 +18,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_tabs_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntTabs
@@ -511,7 +512,7 @@ class _AntTabsState extends State<AntTabs> {
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             child: Icon(
-              Icons.close,
+              AntIcons.closeOutlined,
               size: _fontSize * 0.8,
               color: theme.colorTextTertiary,
             ),
@@ -673,7 +674,7 @@ class _AntTabsState extends State<AntTabs> {
           child: Center(
             child: widget.addIcon ??
                 Icon(
-                  Icons.add,
+                  AntIcons.plusOutlined,
                   size: _fontSize + 2,
                   color: theme.colorTextTertiary,
                 ),

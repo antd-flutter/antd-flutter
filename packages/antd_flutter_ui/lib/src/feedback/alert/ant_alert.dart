@@ -23,6 +23,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_alert_types.dart';
 export 'ant_alert_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntAlert
@@ -178,7 +179,7 @@ class _AntAlertState extends State<AntAlert>
                 child: Padding(
                   padding: EdgeInsets.only(left: 8.w),
                   child: Icon(
-                    Icons.close,
+                    AntIcons.closeOutlined,
                     size: 14.w,
                     color: theme.colorTextSecondary,
                   ),
@@ -283,13 +284,13 @@ class _AntAlertState extends State<AntAlert>
   IconData _defaultIcon(AntAlertType type) {
     switch (type) {
       case AntAlertType.success:
-        return Icons.check_circle;
+        return AntIcons.checkCircleFilled;
       case AntAlertType.info:
-        return Icons.info;
+        return AntIcons.infoCircleFilled;
       case AntAlertType.warning:
-        return Icons.warning_amber_rounded;
+        return AntIcons.warningFilled;
       case AntAlertType.error:
-        return Icons.cancel;
+        return AntIcons.closeCircleFilled;
     }
   }
 }

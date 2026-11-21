@@ -15,6 +15,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:antd_flutter_ui/src/engines/popup_engine.dart';
 import 'package:antd_flutter_ui/src/engines/popup_overlay.dart';
 import 'package:antd_flutter_ui/src/data_entry/color_picker/ant_color_picker_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'ant_color_picker_types.dart';
 
@@ -477,7 +478,7 @@ class _ColorPickerOverlayState extends State<_ColorPickerOverlay> {
               GestureDetector(
                 onTap: widget.onClear,
                 child: Icon(
-                  Icons.cancel,
+                  AntIcons.closeCircleFilled,
                   size: 16.r,
                   color: t.colorTextTertiary,
                 ),

@@ -12,6 +12,7 @@ library;
 import 'package:antd_masonry/antd_masonry.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart' hide Card;
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdMasonryGalleryApp());
@@ -62,7 +63,7 @@ class _AntdMasonryGalleryAppState extends State<AntdMasonryGalleryApp> {
                 actions: [
                   IconButton(
                     onPressed: () => setState(() => _isDark = !_isDark),
-                    icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                    icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                   ),
                 ],
                 bottom: TabBar(

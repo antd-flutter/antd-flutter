@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) => AntScreenUtilInit(
       builder: (context, _) => MaterialApp(
@@ -24,7 +25,7 @@ void main() {
         const AntSearchBar(placeholder: '搜索商品'),
       ),);
       expect(find.text('搜索商品'), findsOneWidget);
-      expect(find.byIcon(Icons.search), findsOneWidget);
+      expect(find.byIcon(AntIcons.searchOutlined), findsOneWidget);
     });
 
     testWidgets('defaultValue displays in input', (tester) async {
@@ -66,21 +67,21 @@ void main() {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(defaultValue: 'hello'),
       ),);
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     });
 
     testWidgets('clear button hidden when no text', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(),
       ),);
-      expect(find.byIcon(Icons.cancel), findsNothing);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsNothing);
     });
 
     testWidgets('clearable=false hides clear button', (tester) async {
       await tester.pumpWidget(_wrap(
         const AntSearchBar(defaultValue: 'hello', clearable: false),
       ),);
-      expect(find.byIcon(Icons.cancel), findsNothing);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsNothing);
     });
 
     testWidgets('onlyShowClearWhenFocus shows clear on focus only',
@@ -92,12 +93,12 @@ void main() {
         ),
       ),);
       // Not focused initially — no clear icon
-      expect(find.byIcon(Icons.cancel), findsNothing);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsNothing);
 
       // Focus the input
       await tester.tap(find.byType(TextField));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     });
 
     testWidgets('clear button clears text and calls onClear',
@@ -111,7 +112,7 @@ void main() {
           onChange: (v) => changed = v,
         ),
       ),);
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       expect(cleared, isTrue);
       expect(changed, '');
@@ -238,10 +239,10 @@ void main() {
 
     testWidgets('custom searchIcon displays', (tester) async {
       await tester.pumpWidget(_wrap(
-        const AntSearchBar(searchIcon: Icon(Icons.person)),
+        const AntSearchBar(searchIcon: Icon(AntIcons.userOutlined)),
       ),);
-      expect(find.byIcon(Icons.person), findsOneWidget);
-      expect(find.byIcon(Icons.search), findsNothing);
+      expect(find.byIcon(AntIcons.userOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.searchOutlined), findsNothing);
     });
   });
 }

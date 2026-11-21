@@ -9,6 +9,7 @@ library;
 import 'package:antd_splitter/antd_splitter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdSplitterGalleryApp());
@@ -87,7 +88,7 @@ class _GalleryPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: onToggleDark,
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            icon: Icon(isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
           ),
         ],
       ),

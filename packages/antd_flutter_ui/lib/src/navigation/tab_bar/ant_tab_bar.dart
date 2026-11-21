@@ -26,8 +26,8 @@ import 'ant_tab_bar_types.dart';
 /// ```dart
 /// AntTabBar(
 ///   items: [
-///     AntTabBarItem(key: 'home', title: '首页', icon: Icons.home),
-///     AntTabBarItem(key: 'me', title: '我的', icon: Icons.person),
+///     AntTabBarItem(key: 'home', title: '首页', icon: AntIcons.homeOutlined),
+///     AntTabBarItem(key: 'me', title: '我的', icon: AntIcons.userOutlined),
 ///   ],
 ///   onChange: (key) => print(key),
 /// )

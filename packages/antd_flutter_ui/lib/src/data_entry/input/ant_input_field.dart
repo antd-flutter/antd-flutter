@@ -260,7 +260,7 @@ class _AntInputFieldState extends State<AntInputField> {
         ),
         contentPadding: multiline
             ? EdgeInsets.symmetric(
-                horizontal: t.marginSM.w, vertical: t.marginSM.w)
+                horizontal: t.marginSM.w, vertical: t.marginSM.w,)
             // standalone 单行：上下对称内边距撑满高度锁定块
             // （textAlignVertical.center 需对称余量执行居中；isCollapsed
             // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）

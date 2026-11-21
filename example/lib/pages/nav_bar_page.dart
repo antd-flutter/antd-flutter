@@ -175,16 +175,16 @@ class _AppBarDemo extends StatelessWidget {
     return AntAppBar(
       title: const Text('AppBar 标题'),
       leading: IconButton(
-        icon: const Icon(Icons.menu),
+        icon: const Icon(AntIcons.menuOutlined),
         onPressed: () => _showSnackbar(context, '点击了左侧菜单'),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search),
+          icon: const Icon(AntIcons.searchOutlined),
           onPressed: () => _showSnackbar(context, '点击了搜索'),
         ),
         IconButton(
-          icon: const Icon(Icons.more_horiz),
+          icon: const Icon(AntIcons.moreOutlined),
           onPressed: () => _showSnackbar(context, '点击了更多'),
         ),
       ],

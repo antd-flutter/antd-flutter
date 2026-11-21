@@ -22,6 +22,7 @@ import 'package:antd_theme/antd_theme.dart';
 
 export 'ant_time_picker_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntTimePicker
@@ -205,7 +206,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
           child: Row(
             children: [
               Icon(
-                Icons.access_time,
+                AntIcons.clockCircleOutlined,
                 size: 14.w,
                 color: widget.disabled
                     ? theme.colorTextDisabled
@@ -233,14 +234,14 @@ class _AntTimePickerState extends State<AntTimePicker> {
                 GestureDetector(
                   onTap: _handleClear,
                   child: Icon(
-                    Icons.cancel,
+                    AntIcons.closeCircleFilled,
                     size: 14.w,
                     color: theme.colorTextPlaceholder,
                   ),
                 )
               else
                 Icon(
-                  Icons.keyboard_arrow_down,
+                  AntIcons.downOutlined,
                   size: 14.w,
                   color: widget.disabled
                       ? theme.colorTextDisabled

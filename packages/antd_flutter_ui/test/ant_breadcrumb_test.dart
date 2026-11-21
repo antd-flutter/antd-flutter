@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -75,7 +76,7 @@ void main() {
     testWidgets('renders custom separatorWidget', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntBreadcrumb(
-          separatorWidget: Icon(Icons.arrow_forward, size: 12),
+          separatorWidget: Icon(AntIcons.arrowRightOutlined, size: 12),
           items: [
             AntBreadcrumbItem(title: 'Home'),
             AntBreadcrumbItem(title: 'App'),
@@ -85,7 +86,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntBreadcrumb),
-          matching: find.byIcon(Icons.arrow_forward),
+          matching: find.byIcon(AntIcons.arrowRightOutlined),
         ),
         findsOneWidget,
       );
@@ -167,7 +168,7 @@ void main() {
         _wrap(const AntBreadcrumb(items: [
           AntBreadcrumbItem(
             title: 'Home',
-            icon: Icon(Icons.home, size: 14),
+            icon: Icon(AntIcons.homeOutlined, size: 14),
           ),
           AntBreadcrumbItem(title: 'App'),
         ],),),
@@ -175,7 +176,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AntBreadcrumb),
-          matching: find.byIcon(Icons.home),
+          matching: find.byIcon(AntIcons.homeOutlined),
         ),
         findsOneWidget,
       );

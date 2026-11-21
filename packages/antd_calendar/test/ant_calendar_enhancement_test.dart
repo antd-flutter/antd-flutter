@@ -5,6 +5,7 @@ import 'package:antd_calendar/antd_calendar.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 DateTime _date(int y, int m, int d) => DateTime(y, m, d);
 
@@ -219,7 +220,7 @@ void main() {
           enableYearMonthDropdown: false,
         ),
       ),);
-      expect(find.byIcon(Icons.keyboard_arrow_down), findsNothing);
+      expect(find.byIcon(AntIcons.downOutlined), findsNothing);
     });
   });
 

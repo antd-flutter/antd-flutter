@@ -11,6 +11,7 @@ library;
 import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdPickerGalleryApp());
@@ -72,7 +73,7 @@ class _AntdPickerGalleryAppState extends State<AntdPickerGalleryApp> {
                   actions: [
                     IconButton(
                       onPressed: () => setState(() => _isDark = !_isDark),
-                      icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                      icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
                     ),
                   ],
                   bottom: TabBar(

@@ -5,6 +5,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -28,27 +29,27 @@ void main() {
 
     testWidgets('默认显示返回箭头', (tester) async {
       await tester.pumpWidget(_wrap(const AntNavBar(child: Text('标题'))));
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsOneWidget);
     });
 
     testWidgets('back=false 不显示返回箭头', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntNavBar(back: false, child: Text('标题'))),
       );
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+      expect(find.byIcon(AntIcons.leftOutlined), findsNothing);
     });
 
     testWidgets('自定义返回箭头', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const AntNavBar(
-            backArrow: Icon(Icons.close),
+            backArrow: Icon(AntIcons.closeOutlined),
             child: Text('标题'),
           ),
         ),
       );
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
+      expect(find.byIcon(AntIcons.leftOutlined), findsNothing);
     });
 
     testWidgets('右侧内容渲染', (tester) async {
@@ -113,13 +114,13 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       expect(backCount, 1);
     });
 
     testWidgets('无 onBack 时不崩溃', (tester) async {
       await tester.pumpWidget(_wrap(const AntNavBar(child: Text('标题'))));
-      await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
+      await tester.tap(find.byIcon(AntIcons.leftOutlined));
       expect(find.text('标题'), findsOneWidget);
     });
   });

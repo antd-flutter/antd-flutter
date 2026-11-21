@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -20,7 +21,7 @@ void main() {
   group('AntImageUploader — rendering', () {
     testWidgets('renders upload button when empty', (tester) async {
       await tester.pumpWidget(_wrap(const AntImageUploader()));
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(AntIcons.plusOutlined), findsOneWidget);
     });
 
     testWidgets('renders image items from defaultValue', (tester) async {
@@ -32,16 +33,16 @@ void main() {
       ),),);
       await tester.pump();
       // 两项各有删除按钮
-      expect(find.byIcon(Icons.close), findsNWidgets(2));
+      expect(find.byIcon(AntIcons.closeOutlined), findsNWidgets(2));
       // 加上上传按钮
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(AntIcons.plusOutlined), findsOneWidget);
     });
 
     testWidgets('hide upload button when showUpload false', (tester) async {
       await tester.pumpWidget(_wrap(const AntImageUploader(
         showUpload: false,
       ),),);
-      expect(find.byIcon(Icons.add), findsNothing);
+      expect(find.byIcon(AntIcons.plusOutlined), findsNothing);
     });
 
     testWidgets('hide upload button when maxCount reached',
@@ -51,7 +52,7 @@ void main() {
         defaultValue: [AntImageUploadItem(url: 'https://a.com/1.png')],
       ),),);
       await tester.pump();
-      expect(find.byIcon(Icons.add), findsNothing);
+      expect(find.byIcon(AntIcons.plusOutlined), findsNothing);
     });
 
     testWidgets('no delete button when deletable false', (tester) async {
@@ -60,7 +61,7 @@ void main() {
         defaultValue: [AntImageUploadItem(url: 'https://a.com/1.png')],
       ),),);
       await tester.pump();
-      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.byIcon(AntIcons.closeOutlined), findsNothing);
     });
 
     testWidgets('shows uploading indicator for uploading status',
@@ -85,7 +86,7 @@ void main() {
           ),
         ],
       ),),);
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.byIcon(AntIcons.exclamationCircleOutlined), findsOneWidget);
     });
   });
 
@@ -97,12 +98,12 @@ void main() {
             [const AntImageUploadItem(url: 'https://a.com/new.png')],
         onChange: (items) => changed = items,
       ),),);
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed.length, 1);
       expect(changed.first.url, 'https://a.com/new.png');
       // 新增项显示删除按钮
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
     });
 
     testWidgets('tap delete removes item via onChange', (tester) async {
@@ -115,7 +116,7 @@ void main() {
         onChange: (items) => changed = items,
       ),),);
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.close).first);
+      await tester.tap(find.byIcon(AntIcons.closeOutlined).first);
       await tester.pump();
       expect(changed.length, 1);
     });
@@ -131,7 +132,7 @@ void main() {
         onChange: (items) => changed = items,
       ),),);
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.close).first);
+      await tester.tap(find.byIcon(AntIcons.closeOutlined).first);
       await tester.pump();
       expect(changed, isEmpty);
     });
@@ -152,7 +153,7 @@ void main() {
         onChange: (items) => changed = items,
       ),),);
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed.length, 2);
       expect(exceed, 2);
@@ -160,10 +161,10 @@ void main() {
 
     testWidgets('null onPickImage does nothing on tap', (tester) async {
       await tester.pumpWidget(_wrap(const AntImageUploader()));
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       // 仍只有上传按钮，无图片项
-      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.byIcon(AntIcons.closeOutlined), findsNothing);
     });
 
     testWidgets('tap image opens preview page', (tester) async {
@@ -191,7 +192,7 @@ void main() {
         ],
       ),),);
       await tester.pump();
-      expect(find.byIcon(Icons.close), findsNWidgets(3));
+      expect(find.byIcon(AntIcons.closeOutlined), findsNWidgets(3));
     });
 
     testWidgets('controlled upload fires onChange only', (tester) async {
@@ -203,11 +204,11 @@ void main() {
         onChange: (items) => changed = items,
       ),),);
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(AntIcons.plusOutlined));
       await tester.pumpAndSettle();
       expect(changed.length, 2);
       // 受控模式内部值不变，仍只有 1 个删除按钮
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
     });
   });
 }

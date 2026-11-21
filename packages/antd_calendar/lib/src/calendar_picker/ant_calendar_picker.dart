@@ -17,6 +17,7 @@ import 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_calendar/src/calendar/ant_calendar_locale.dart';
 export 'package:antd_calendar/src/calendar/ant_calendar_types.dart'
@@ -239,7 +240,7 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
           padding: EdgeInsets.symmetric(vertical: 8.h),
           child: Row(
             children: [
-              _buildNavButton(t, canGoPrev, () => _goToMonth(-1), Icons.chevron_left),
+              _buildNavButton(t, canGoPrev, () => _goToMonth(-1), AntIcons.leftOutlined),
               Expanded(
                 child: Center(
                   child: Text(
@@ -252,7 +253,7 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
                   ),
                 ),
               ),
-              _buildNavButton(t, canGoNext, () => _goToMonth(1), Icons.chevron_right),
+              _buildNavButton(t, canGoNext, () => _goToMonth(1), AntIcons.rightOutlined),
             ],
           ),
         ),
@@ -680,7 +681,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                   child: Padding(
                     padding: EdgeInsets.only(left: 12.w),
                     child: Icon(
-                      Icons.close,
+                      AntIcons.closeOutlined,
                       size: 20.w,
                       color: t.colorTextSecondary,
                     ),

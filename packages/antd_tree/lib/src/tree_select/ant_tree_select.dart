@@ -30,6 +30,7 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 export 'package:antd_tree/src/tree_select/ant_tree_select_types.dart';
 
@@ -367,14 +368,14 @@ class _AntTreeSelectState extends State<AntTreeSelect>
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: Icon(Icons.cancel, size: 14.sp, color: t.colorTextQuaternary),
+                    child: Icon(AntIcons.closeCircleFilled, size: 14.sp, color: t.colorTextQuaternary),
                   ),
                 )
               else
                 Padding(
                   padding: EdgeInsets.only(left: 4.w),
                   child: Icon(
-                    _open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    _open ? AntIcons.upOutlined : AntIcons.downOutlined,
                     size: 14.sp,
                     color: t.colorTextQuaternary,
                   ),
@@ -593,8 +594,8 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
                     padding: EdgeInsets.only(right: 4.w),
                     child: Icon(
                       widget.isExpanded
-                          ? Icons.keyboard_arrow_down
-                          : Icons.keyboard_arrow_right,
+                          ? AntIcons.downOutlined
+                          : AntIcons.rightOutlined,
                       size: 14.sp,
                       color: widget.colorTextDisabled,
                     ),
@@ -606,8 +607,8 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
                   padding: EdgeInsets.only(right: 6.w),
                   child: Icon(
                     widget.isSelected
-                        ? Icons.check_box
-                        : Icons.check_box_outline_blank,
+                        ? AntIcons.checkSquareFilled
+                        : AntIcons.borderOutlined,
                     size: 14.sp,
                     color: widget.isSelected
                         ? widget.colorPrimary

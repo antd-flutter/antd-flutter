@@ -8,6 +8,7 @@ library;
 import 'package:antd_refresh/antd_refresh.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdRefreshGalleryApp());
@@ -118,8 +119,8 @@ class _GalleryPageState extends State<_GalleryPage> {
                         tooltip: widget.isDark ? '切换亮色' : '切换暗色',
                         icon: Icon(
                           widget.isDark
-                              ? Icons.light_mode_outlined
-                              : Icons.dark_mode_outlined,
+                              ? AntIcons.sunOutlined
+                              : AntIcons.moonOutlined,
                           color: theme.colorText,
                         ),
                         onPressed: widget.onToggleDark,
@@ -303,7 +304,7 @@ class _ItemTile extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text('列表条目 ${index + 1}')),
-          Icon(Icons.chevron_right, size: 18, color: theme.colorTextQuaternary),
+          Icon(AntIcons.rightOutlined, size: 18, color: theme.colorTextQuaternary),
         ],
       ),
     );
@@ -511,8 +512,8 @@ class _CustomHeaderDemoState extends State<_CustomHeaderDemo> {
                 else
                   Icon(
                     _status == AntPullToRefreshStatus.canRelease
-                        ? Icons.publish
-                        : Icons.arrow_downward,
+                        ? AntIcons.uploadOutlined
+                        : AntIcons.arrowDownOutlined,
                     size: 18,
                     color: theme.colorPrimary,
                   ),

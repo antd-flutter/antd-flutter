@@ -30,6 +30,7 @@ import 'ant_avatar_types.dart';
 import '../../feedback/loading/ant_loading.dart';
 export 'ant_avatar_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntAvatar
@@ -179,7 +180,7 @@ class AntAvatar extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Icon(
-        Icons.person,
+        AntIcons.userOutlined,
         color: theme.colorPrimary,
         size: px * 0.5,
       ),

@@ -6,6 +6,7 @@ import 'package:antd_flutter_ui/src/feedback/loading/ant_loading.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -47,10 +48,10 @@ void main() {
   testWidgets('info 类型渲染默认图标与内容', (tester) async {
     await showMessage(tester, const Text('信息提示'));
     expect(find.text('信息提示'), findsOneWidget);
-    expect(find.byIcon(Icons.info), findsOneWidget);
+    expect(find.byIcon(AntIcons.infoCircleFilled), findsOneWidget);
     final theme = AntThemeData.light();
     expect(
-      tester.widget<Icon>(find.byIcon(Icons.info)).color,
+      tester.widget<Icon>(find.byIcon(AntIcons.infoCircleFilled)).color,
       theme.colorInfo,
     );
   });
@@ -58,10 +59,10 @@ void main() {
   testWidgets('success 类型渲染成功图标与主题色', (tester) async {
     await showMessage(tester, const Text('成功提示'), type: AntMessageType.success);
     expect(find.text('成功提示'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
     final theme = AntThemeData.light();
     expect(
-      tester.widget<Icon>(find.byIcon(Icons.check_circle)).color,
+      tester.widget<Icon>(find.byIcon(AntIcons.checkCircleFilled)).color,
       theme.colorSuccess,
     );
   });
@@ -72,20 +73,20 @@ void main() {
       const Text('警告提示'),
       type: AntMessageType.warning,
     );
-    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+    expect(find.byIcon(AntIcons.warningFilled), findsOneWidget);
     final theme = AntThemeData.light();
     expect(
-      tester.widget<Icon>(find.byIcon(Icons.warning_amber_rounded)).color,
+      tester.widget<Icon>(find.byIcon(AntIcons.warningFilled)).color,
       theme.colorWarning,
     );
   });
 
   testWidgets('error 类型渲染错误图标与主题色', (tester) async {
     await showMessage(tester, const Text('错误提示'), type: AntMessageType.error);
-    expect(find.byIcon(Icons.cancel), findsOneWidget);
+    expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
     final theme = AntThemeData.light();
     expect(
-      tester.widget<Icon>(find.byIcon(Icons.cancel)).color,
+      tester.widget<Icon>(find.byIcon(AntIcons.closeCircleFilled)).color,
       theme.colorError,
     );
   });
@@ -94,7 +95,7 @@ void main() {
     await showMessage(tester, const Text('加载中...'), type: AntMessageType.loading);
     expect(find.text('加载中...'), findsOneWidget);
     expect(find.byType(AntLoading), findsOneWidget);
-    expect(find.byIcon(Icons.info), findsNothing);
+    expect(find.byIcon(AntIcons.infoCircleFilled), findsNothing);
   });
 
   testWidgets('默认 3 秒后自动消失（含出场动画）', (tester) async {
@@ -160,7 +161,7 @@ void main() {
       const Row(
         key: Key('custom-content'),
         children: [
-          Icon(Icons.star),
+          Icon(AntIcons.starFilled),
           Text('自定义内容'),
         ],
       ),

@@ -287,7 +287,7 @@ void main() {
                 Container(
                     height: 200,
                     alignment: Alignment.center,
-                    child: const Text('头部')),
+                    child: const Text('头部'),),
                 // 文档序在前的 B 先钉：top=50
                 AntAffix(
                   offsetTop: 50,
@@ -295,7 +295,7 @@ void main() {
                       key: const ValueKey('pinB'),
                       height: 60,
                       alignment: Alignment.center,
-                      child: const Text('钉B')),
+                      child: const Text('钉B'),),
                 ),
                 Container(height: 400),
                 // A 后钉：同线堆叠 top = 50 + B高度60 = 110
@@ -305,13 +305,13 @@ void main() {
                       key: const ValueKey('pinA'),
                       height: 60,
                       alignment: Alignment.center,
-                      child: const Text('钉A')),
+                      child: const Text('钉A'),),
                 ),
                 for (var i = 0; i < 30; i++)
                   Container(
                       height: 100,
                       alignment: Alignment.center,
-                      child: Text('内容 $i')),
+                      child: Text('内容 $i'),),
               ],
             ),
           ),
@@ -322,23 +322,23 @@ void main() {
       // 滚 260：B 钉住（top=50），A 未钉
       await _scrollTo(tester, 260);
       expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top,
-          closeTo(50, 1.0));
+          closeTo(50, 1.0),);
       expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top,
-          closeTo(400, 1.0)); // 原位 660-260
+          closeTo(400, 1.0),); // 原位 660-260
 
       // 滚 660：A 也钉住，同线堆叠 top=110，与 B 错开不重叠
       await _scrollTo(tester, 660);
       expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top,
-          closeTo(50, 1.0));
+          closeTo(50, 1.0),);
       expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top,
-          closeTo(110, 1.0));
+          closeTo(110, 1.0),);
 
       // 滚回 260：A 解除，B 上移补位回到 top=50
       await _scrollTo(tester, 260);
       expect(tester.getRect(find.byKey(const ValueKey('pinB'))).top,
-          closeTo(50, 1.0));
+          closeTo(50, 1.0),);
       expect(tester.getRect(find.byKey(const ValueKey('pinA'))).top,
-          closeTo(400, 1.0)); // 回到原位
+          closeTo(400, 1.0),); // 回到原位
     });
 
     testWidgets('同线三个 Affix 连续钉住仍顺序错开（滚动后不叠在一起，回归）', (tester) async {
@@ -364,7 +364,7 @@ void main() {
               Container(height: 800),
             ],
           ),
-        )),
+        ),),
       );
       await tester.pumpAndSettle();
 
@@ -379,9 +379,9 @@ void main() {
       final c = tester.getRect(find.byKey(const ValueKey('C')));
       expect(a.top, closeTo(0, 1.0));
       expect(b.top, greaterThanOrEqualTo(a.bottom - 0.5),
-          reason: 'B($b) 与 A($a) 重叠');
+          reason: 'B($b) 与 A($a) 重叠',);
       expect(c.top, greaterThanOrEqualTo(b.bottom - 0.5),
-          reason: 'C($c) 与 B($b) 重叠');
+          reason: 'C($c) 与 B($b) 重叠',);
     });
 
     testWidgets('bottom 模式不被默认 offsetTop=0 顶部规则劫持：钉底/解除/再钉底（回归）',
@@ -397,7 +397,7 @@ void main() {
                 Container(
                     height: 460,
                     alignment: Alignment.center,
-                    child: const Text('头部')),
+                    child: const Text('头部'),),
                 AntAffix(
                   offsetBottom: 100,
                   child: Container(
@@ -411,7 +411,7 @@ void main() {
                   Container(
                       height: 100,
                       alignment: Alignment.center,
-                      child: Text('内容 $i')),
+                      child: Text('内容 $i'),),
               ],
             ),
           ),
@@ -421,20 +421,20 @@ void main() {
       // 视口 600，阈值线 = 600-100 = 500；初始 originalBottom=520 > 500 → 钉底
       // （钉在 bottom=100：top=440，而不是被 offsetTop=0 劫持钉到 top=0）
       expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).bottom,
-          closeTo(500, 1.0));
+          closeTo(500, 1.0),);
       expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).top,
-          closeTo(440, 1.0));
+          closeTo(440, 1.0),);
 
       // 向下滚 500：originalTop=-40（<0），不得钉顶；originalBottom=20<500 → 解除
       await _scrollTo(tester, 500);
       expect(find.byKey(kAntAffixShiftKey), findsNothing);
       expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).top,
-          closeTo(-40, 1.0));
+          closeTo(-40, 1.0),);
 
       // 向上滚回：重新钉在底部
       await _scrollTo(tester, 0);
       expect(tester.getRect(find.byKey(const ValueKey('pinBottom'))).bottom,
-          closeTo(500, 1.0));
+          closeTo(500, 1.0),);
     });
 
     testWidgets('不同 offset 但视觉重叠的同向固钉顺序错开不重叠（回归）', (tester) async {
@@ -449,14 +449,14 @@ void main() {
                 Container(
                     height: 200,
                     alignment: Alignment.center,
-                    child: const Text('头部')),
+                    child: const Text('头部'),),
                 AntAffix(
                   offsetTop: 0,
                   child: Container(
                       key: const ValueKey('pinTopA'),
                       height: 60,
                       alignment: Alignment.center,
-                      child: const Text('钉上')),
+                      child: const Text('钉上'),),
                 ),
                 Container(height: 400),
                 AntAffix(
@@ -465,13 +465,13 @@ void main() {
                       key: const ValueKey('pinTopB'),
                       height: 60,
                       alignment: Alignment.center,
-                      child: const Text('钉下')),
+                      child: const Text('钉下'),),
                 ),
                 for (var i = 0; i < 30; i++)
                   Container(
                       height: 100,
                       alignment: Alignment.center,
-                      child: Text('内容 $i')),
+                      child: Text('内容 $i'),),
               ],
             ),
           ),
@@ -482,9 +482,9 @@ void main() {
       // 滚 660：两钉都钉住（均越过阈值），后者槽位 = max(30, 0+60) = 60，与前者错开
       await _scrollTo(tester, 660);
       expect(tester.getRect(find.byKey(const ValueKey('pinTopA'))).top,
-          closeTo(0, 1.0));
+          closeTo(0, 1.0),);
       expect(tester.getRect(find.byKey(const ValueKey('pinTopB'))).top,
-          closeTo(60, 1.0));
+          closeTo(60, 1.0),);
       // 不重叠：前者下缘 == 后者上缘
       expect(
         tester.getRect(find.byKey(const ValueKey('pinTopA'))).bottom,

@@ -22,6 +22,7 @@ export 'package:antd_flutter_ui/src/data_entry/input_number/ant_input_number_typ
 // 项目约定：material 系组件统一经 material_ui 引入
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 数字输入框 — 支持步进按钮、上下限、精度控制。
 class AntInputNumber extends StatefulWidget {
@@ -250,11 +251,11 @@ class _AntInputNumberState extends State<AntInputNumber> {
             children: [
               if (showDown) ...[
                 SizedBox(width: 4.w),
-                _buildStepButton(t, iconSize, Icons.remove, _canDown, () => _step(false)),
+                _buildStepButton(t, iconSize, AntIcons.minusOutlined, _canDown, () => _step(false)),
               ],
               if (showUp) ...[
                 SizedBox(width: 4.w),
-                _buildStepButton(t, iconSize, Icons.add, _canUp, () => _step(true)),
+                _buildStepButton(t, iconSize, AntIcons.plusOutlined, _canUp, () => _step(true)),
               ],
             ],
           );

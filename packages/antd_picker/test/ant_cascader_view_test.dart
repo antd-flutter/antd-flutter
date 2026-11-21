@@ -5,6 +5,7 @@ import 'package:antd_picker/antd_picker.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 const _options = <AntCascaderOption>[
   AntCascaderOption(value: 'zj', label: '浙江', children: [
@@ -221,7 +222,7 @@ void main() {
     testWidgets('custom activeIcon shows when selected', (tester) async {
       await tester.pumpWidget(_wrap(const AntCascaderView(
         options: _options,
-        activeIcon: Icon(Icons.star),
+        activeIcon: Icon(AntIcons.starFilled),
       ),),);
 
       await tester.tap(find.text('浙江'));
@@ -230,8 +231,8 @@ void main() {
       await tester.tap(find.text('浙江'));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.star), findsOneWidget);
-      expect(find.byIcon(Icons.check), findsNothing);
+      expect(find.byIcon(AntIcons.starFilled), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsNothing);
     });
 
     testWidgets('default check icon shows when selected', (tester) async {
@@ -242,7 +243,7 @@ void main() {
       await tester.tap(find.text('浙江'));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkOutlined), findsOneWidget);
     });
 
     testWidgets('custom height applies to content area', (tester) async {

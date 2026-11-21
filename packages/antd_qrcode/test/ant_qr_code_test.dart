@@ -3,6 +3,7 @@ import 'package:antd_qrcode/src/engines/qr/ant_qr_engine.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -170,7 +171,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(const AntQRCode(value: 'a', icon: true, iconSize: 50)),
       );
-      expect(find.byIcon(Icons.qr_code_2), findsOneWidget);
+      expect(find.byIcon(AntIcons.qrcodeOutlined), findsOneWidget);
     });
 
     testWidgets('icon hidden in non-active status', (tester) async {
@@ -181,7 +182,7 @@ void main() {
           status: AntQRCodeStatus.expired,
         ),),
       );
-      expect(find.byIcon(Icons.qr_code_2), findsNothing);
+      expect(find.byIcon(AntIcons.qrcodeOutlined), findsNothing);
       expect(find.text('二维码过期'), findsOneWidget);
     });
 

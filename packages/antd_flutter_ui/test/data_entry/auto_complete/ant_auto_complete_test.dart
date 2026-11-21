@@ -2,6 +2,7 @@ import 'package:antd_flutter_ui/src/data_entry/auto_complete/ant_auto_complete.d
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
   return AntScreenUtilInit(
@@ -163,8 +164,8 @@ void main() {
         allowClear: true,
       ),),);
       // Clear icon visible
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      expect(find.byIcon(AntIcons.closeCircleFilled), findsOneWidget);
+      await tester.tap(find.byIcon(AntIcons.closeCircleFilled));
       await tester.pumpAndSettle();
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.controller!.text, '');

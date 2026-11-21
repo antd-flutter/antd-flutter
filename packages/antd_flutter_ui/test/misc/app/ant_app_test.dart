@@ -3,6 +3,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_flutter_ui/src/feedback/notification/ant_notification.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(
   Widget child, {
@@ -88,7 +89,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('可关闭提示'), findsOneWidget);
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
   });
 
   testWidgets('messageShow success type renders', (tester) async {

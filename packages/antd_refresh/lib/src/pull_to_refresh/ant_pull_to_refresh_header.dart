@@ -2,6 +2,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_pull_to_refresh.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// AntPullToRefresh 默认头部指示器。
 ///
@@ -76,7 +77,7 @@ class AntPullToRefreshHeader extends StatelessWidget {
   Widget _buildIndicator(AntThemeData theme) {
     return switch (status) {
       AntPullToRefreshStatus.canRelease => Icon(
-          Icons.arrow_upward,
+          AntIcons.arrowUpOutlined,
           size: indicatorSize,
           color: theme.colorTextSecondary,
         ),
@@ -86,12 +87,12 @@ class AntPullToRefreshHeader extends StatelessWidget {
           child: const CircularProgressIndicator(strokeWidth: 2),
         ),
       AntPullToRefreshStatus.complete => Icon(
-          Icons.check,
+          AntIcons.checkOutlined,
           size: indicatorSize,
           color: theme.colorSuccess,
         ),
       _ => Icon(
-          Icons.arrow_downward,
+          AntIcons.arrowDownOutlined,
           size: indicatorSize,
           color: theme.colorTextSecondary,
         ),
