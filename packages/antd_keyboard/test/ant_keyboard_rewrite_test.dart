@@ -576,17 +576,32 @@ void main() {
       expect(find.text('12'), findsOneWidget);
     });
 
-    testWidgets('桌面端默认走系统输入（无软键盘）', (tester) async {
+    testWidgets('桌面端唤起软键盘且可同时物理键盘输入', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       addTearDown(() => debugDefaultTargetPlatformOverride = null);
-      _device(tester, const Size(375, 812), 3);
+      _device(tester, const Size(864, 486), 2);
+      var value = '';
       await tester.pumpWidget(
-        _wrap(const AntVirtualInput(autoFocus: true)),
+        _wrap(
+          AntVirtualInput(autoFocus: true, onChange: (v) => value = v),
+          design: const Size(864, 486),
+        ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(EditableText), findsOneWidget);
-      expect(find.byType(AntKeyboard), findsNothing);
+      // 桌面端默认唤起 QWERTY 软键盘。
+      expect(find.byType(AntKeyboard), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
+
+      // 软键盘输入。
+      await tester.tap(find.text('q'));
+      await tester.pump();
+      expect(value, 'q');
+
+      // 物理键盘（TextField）输入同样生效。
+      await tester.enterText(find.byType(EditableText), 'abc');
+      await tester.pump();
+      expect(value, 'abc');
     });
 
     testWidgets('桌面端 keyboardDesktop:true 弹出 QWERTY 并可输入', (tester) async {

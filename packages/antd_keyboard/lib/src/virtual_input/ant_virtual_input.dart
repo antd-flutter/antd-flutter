@@ -4,8 +4,8 @@
 /// - [AntVirtualInput] — 虚拟输入（value/placeholder/clearable/内置数字键盘）
 ///
 /// 移动端：无边框文本 + 闪烁光标（antd-mobile `virtual-input.less`），
-/// 点击展开底部键盘；桌面端：antd v6 Input 形态，默认走系统键盘，
-/// 传 `keyboardDesktop: true` 时额外弹出 QWERTY 软键盘（绑定同一 controller）。
+/// 点击展开底部键盘；桌面端：antd v6 Input 形态，聚焦后同时弹出 QWERTY
+/// 软键盘（绑定同一 controller），物理键盘输入仍然有效。
 ///
 /// ```dart
 /// AntVirtualInput(
@@ -102,7 +102,7 @@ class AntVirtualInput extends StatefulWidget {
   /// 键盘主题覆盖。
   final AntKeyboardThemeData? keyboardTheme;
 
-  /// 桌面形态：是否额外弹出 QWERTY 软键盘（默认走系统键盘）。
+  /// 兼容参数：桌面端现已默认弹出 QWERTY 软键盘，此字段仅保留签名兼容。
   final bool keyboardDesktop;
 
   /// 是否自动聚焦。
@@ -144,7 +144,8 @@ class _AntVirtualInputState extends State<AntVirtualInput>
   String get _initialText => widget.value ?? widget.defaultValue;
 
   /// 是否使用自定义软键盘（移动端恒为 true；桌面端需显式开启）。
-  bool get _useCustomKeyboard => !_desktop || widget.keyboardDesktop;
+  // 双端都使用库内键盘：桌面端唤起 QWERTY 软键盘，同时保留物理键盘输入。
+  bool get _useCustomKeyboard => true;
 
   @override
   void initState() {
@@ -252,7 +253,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             : AntKeyboardLayouts.of(widget.keyboardPreset!));
     // 显式指定布局/预设，或桌面形态开启软键盘时，使用通用键盘引擎；
     // 否则移动端默认数字键盘（AntNumberKeyboard）。
-    final useEngine = layout != null || widget.keyboardDesktop;
+    final useEngine = layout != null || _desktop;
     final keyboard = useEngine
         ? AntKeyboard(
             layout: layout ??
@@ -261,7 +262,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                     : AntKeyboardLayout.numeric()),
             controller: _keyboardController,
             theme: widget.keyboardTheme ??
-                AntKeyboardThemeData(desktop: widget.keyboardDesktop),
+                AntKeyboardThemeData(desktop: _desktop),
             confirmText: widget.confirmText,
             onConfirm: _handleConfirm,
             onHide: _blur,
@@ -278,7 +279,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             randomOrder: widget.randomOrder,
             customKey: widget.customKey,
             theme: widget.keyboardTheme,
-            desktop: widget.keyboardDesktop,
+            desktop: _desktop,
             onClose: _hideKeyboard,
           );
     if (useEngine) {
