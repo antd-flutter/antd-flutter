@@ -147,7 +147,10 @@ class _AntAffixState extends State<AntAffix> {
   /// 钉住层尺寸守卫：宽度必须落在 (0, 视口宽] 内，否则回退视口宽度约束。
   void _sanitizeMetrics() {
     final viewportWidth = MediaQuery.sizeOf(context).width;
-    if (_width <= 0 || _width > viewportWidth || _left < 0 || _left >= viewportWidth) {
+    if (_width <= 0 ||
+        _width > viewportWidth ||
+        _left < 0 ||
+        _left >= viewportWidth) {
       _left = 0;
       _width = viewportWidth;
     }
@@ -197,8 +200,11 @@ class _AntAffixState extends State<AntAffix> {
 
     final newAffixed = pinnedTop != null;
     if (newAffixed == _affixed) {
-      if (pinnedTop != null) {
-        _pinnedTop = pinnedTop;
+      if (_affixed) {
+        // 不要用原始 offset 覆盖钉住位置：同线多个固钉时 _pinnedTop 里
+        // 含顺序堆叠槽位，覆盖成 offset 会让后续新钉住的元素算错槽位，
+        // 出现「叠到一起」。这里只按当前注册顺序重算槽位。
+        _computeSlot();
         _fallbackShift = _pinnedTop - _originalTop;
       }
       return;
@@ -239,7 +245,8 @@ class _AntAffixState extends State<AntAffix> {
   }
 
   /// 本元素当前固定线的 offset 值（钉住状态下必有对应 offset）。
-  double get _lineOffset => _pinToBottom ? (widget.offsetBottom ?? 0) : (widget.offsetTop ?? 0);
+  double get _lineOffset =>
+      _pinToBottom ? (widget.offsetBottom ?? 0) : (widget.offsetTop ?? 0);
 
   /// 依据钉住注册序计算本元素在同向钉住序列中的堆叠槽位。
   ///
