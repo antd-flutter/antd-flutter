@@ -19,14 +19,11 @@ library;
 const kPendingVerify = <String>[
   // 日历族（独立包 antd_calendar，双端一致性打磨中）
   // 键盘族（独立包 antd_keyboard）
-  'passcode_input',
-  'virtual_input',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
   // 批次 0-5 数据展示残余
   // 批次 0-6 导航族
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
-  'table',
 ];
 
 const kMigratedVerified = <String>[
@@ -148,6 +145,9 @@ const kMigratedVerified = <String>[
   'pagination',
   // 已验收（2026-11-21 用户验收）
   'list',
+  'passcode_input',
+  'virtual_input',
+  'table',
 ];
 
 /// 迁移状态
