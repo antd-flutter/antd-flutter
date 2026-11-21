@@ -20,8 +20,6 @@ const kPendingVerify = <String>[
   // 日历族（独立包 antd_calendar，双端一致性打磨中）
   'calendar',
   'calendar_picker',
-  // 批次 0-3 录入简单族
-  'checkbox',
   // 键盘族（独立包 antd_keyboard）
   'number_keyboard',
   'passcode_input',
@@ -145,6 +143,8 @@ const kMigratedVerified = <String>[
   'upload',
   // antd_form 独立包（ui 本体 Form 已验收；包级 example 验收另记状态表）
   'form',
+  // 已验收（2026-11-21 用户验收）
+  'checkbox',
 ];
 
 /// 迁移状态
