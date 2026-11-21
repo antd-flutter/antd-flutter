@@ -6,7 +6,8 @@
 /// - [separatorWidget] — 自定义分隔符 Widget（优先于 [separator]）
 ///
 /// 每项（AntBreadcrumbItem）支持 title / titleWidget / icon / onClick。
-/// 有 onClick 的项可点击（hover 变色），最后一项为当前页面（不可点击样式）。
+/// 有 onClick 的项可点击，hover 时文字变主色（对齐 antd），最后一项为当前
+/// 页面（不可点击，使用正文色）。
 library;
 
 import 'package:antd_theme/antd_theme.dart';
@@ -73,52 +74,54 @@ class AntBreadcrumb extends StatelessWidget {
     AntBreadcrumbItem item,
     bool isLast,
   ) {
-    final titleContent = item.titleWidget ??
-        Text(
-          item.title ?? '',
-          style: TextStyle(
-            fontSize: theme.fontSize,
-            color: isLast
-                ? theme.colorText
-                : (item.onClick != null
-                    ? theme.colorTextSecondary
-                    : theme.colorTextTertiary),
-          ),
-        );
+    final isLink = item.onClick != null && !isLast;
 
-    final content = item.icon != null
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconTheme.merge(
-                data: IconThemeData(
-                  size: theme.fontSize,
-                  color: isLast
-                      ? theme.colorText
-                      : theme.colorTextSecondary,
-                ),
-                child: item.icon!,
-              ),
-              const SizedBox(width: 4),
-              titleContent,
-            ],
-          )
-        : titleContent;
-
-    if (item.onClick != null && !isLast) {
-      return InkWell(
-        onTap: item.onClick,
-        borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: content,
-        ),
+    if (!isLink) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: _buildContent(theme, item, isLast: isLast, hovered: false),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: content,
+    return _BreadcrumbLink(
+      onTap: item.onClick!,
+      builder: (hovered) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: _buildContent(theme, item, isLast: false, hovered: hovered),
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    AntThemeData theme,
+    AntBreadcrumbItem item, {
+    required bool isLast,
+    required bool hovered,
+  }) {
+    final color = isLast
+        ? theme.colorText
+        : (item.onClick != null
+            ? (hovered ? theme.colorPrimary : theme.colorTextDescription)
+            : theme.colorTextTertiary);
+
+    final titleContent = item.titleWidget ??
+        Text(
+          item.title ?? '',
+          style: TextStyle(fontSize: theme.fontSize, color: color),
+        );
+
+    if (item.icon == null) return titleContent;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconTheme.merge(
+          data: IconThemeData(size: theme.fontSize, color: color),
+          child: item.icon!,
+        ),
+        const SizedBox(width: 4),
+        titleContent,
+      ],
     );
   }
 
@@ -133,6 +136,34 @@ class AntBreadcrumb extends StatelessWidget {
               color: theme.colorTextTertiary,
             ),
           ),
+    );
+  }
+}
+/// 可点击的面包屑项：hover 时切换主色。
+class _BreadcrumbLink extends StatefulWidget {
+  const _BreadcrumbLink({required this.onTap, required this.builder});
+
+  final VoidCallback onTap;
+  final Widget Function(bool hovered) builder;
+
+  @override
+  State<_BreadcrumbLink> createState() => _BreadcrumbLinkState();
+}
+
+class _BreadcrumbLinkState extends State<_BreadcrumbLink> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
+        child: widget.builder(_hovered),
+      ),
     );
   }
 }

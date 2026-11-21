@@ -22,7 +22,12 @@ class BreadcrumbPage extends StatelessWidget {
           _IconSeparatorDemo(),
           _Section(title: '带图标', description: '每项可设置 icon'),
           _IconDemo(),
-          _Section(title: '可点击', description: '设置 onClick 的项可点击跳转'),
+          _Section(
+            title: '联动导航',
+            description: '常见用法：面包屑由当前页面栈生成，点击上级项回退到对应页面',
+          ),
+          _LinkedDemo(),
+          _Section(title: '可点击', description: '设置 onClick 的项可点击跳转，hover 变主色'),
           _ClickableDemo(),
         ],
       ),
@@ -124,6 +129,88 @@ class _IconDemo extends StatelessWidget {
         icon: Icon(AntIcons.fileOutlined, size: 14),
       ),
     ]);
+  }
+}
+
+class _LinkedDemo extends StatefulWidget {
+  const _LinkedDemo();
+
+  @override
+  State<_LinkedDemo> createState() => _LinkedDemoState();
+}
+
+class _LinkedDemoState extends State<_LinkedDemo> {
+  static const _pages = [
+    ('首页', '欢迎页：展示概览数据与快捷入口。'),
+    ('商品管理', '列表页：管理商品上下架、价格与库存。'),
+    ('商品详情', '详情页：编辑单个商品的名称、规格与描述。'),
+  ];
+
+  int _level = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AntBreadcrumb(
+          items: [
+            for (var i = 0; i <= _level; i++)
+              AntBreadcrumbItem(
+                title: _pages[i].$1,
+                onClick: i < _level ? () => setState(() => _level = i) : null,
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorFillAlter,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _pages[_level].$1,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorText,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _pages[_level].$2,
+                style: TextStyle(fontSize: 13, color: theme.colorTextSecondary),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                children: [
+                  if (_level > 0)
+                    AntButton(
+                      size: AntButtonSize.small,
+                      onTap: () => setState(() => _level -= 1),
+                      child: const Text('返回上一级'),
+                    ),
+                  if (_level < _pages.length - 1)
+                    AntButton(
+                      type: AntButtonType.primary,
+                      size: AntButtonSize.small,
+                      onTap: () => setState(() => _level += 1),
+                      child: const Text('进入下一级'),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

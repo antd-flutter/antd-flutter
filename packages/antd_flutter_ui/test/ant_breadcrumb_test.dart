@@ -4,6 +4,8 @@ library;
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'dart:ui' as ui;
+
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -130,6 +132,34 @@ void main() {
         ),
         findsNothing,
       );
+    });
+
+    testWidgets('clickable item hover turns primary', (tester) async {
+      final theme = AntThemeData.light();
+      await tester.pumpWidget(
+        _wrap(AntBreadcrumb(items: [
+          AntBreadcrumbItem(title: 'Home', onClick: () {}),
+          const AntBreadcrumbItem(title: 'App'),
+        ],),),
+      );
+
+      // 默认可点击项使用 colorTextDescription（antd breadcrumb link 色）。
+      expect(
+        tester.widget<Text>(find.text('Home')).style?.color,
+        theme.colorTextDescription,
+      );
+
+      final gesture = await tester.createGesture(kind: ui.PointerDeviceKind.mouse);
+      await gesture.addPointer(location: Offset.zero);
+      await gesture.moveTo(tester.getCenter(find.text('Home')));
+      await tester.pump();
+
+      expect(
+        tester.widget<Text>(find.text('Home')).style?.color,
+        theme.colorPrimary,
+      );
+
+      await gesture.removePointer();
     });
 
     testWidgets('renders icon', (tester) async {
