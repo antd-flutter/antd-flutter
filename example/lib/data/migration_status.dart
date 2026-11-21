@@ -19,7 +19,6 @@ library;
 const kPendingVerify = <String>[
   // 日历族（独立包 antd_calendar，双端一致性打磨中）
   // 键盘族（独立包 antd_keyboard）
-  'number_keyboard',
   'passcode_input',
   'virtual_input',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
@@ -31,6 +30,7 @@ const kPendingVerify = <String>[
 ];
 
 const kMigratedVerified = <String>[
+  'number_keyboard',
   'mentions',
   'transfer',
   'affix',
