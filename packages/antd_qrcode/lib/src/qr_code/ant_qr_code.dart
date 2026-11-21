@@ -58,7 +58,7 @@ class AntQRCode extends StatelessWidget {
   /// 二维码内容。
   final String value;
 
-  /// 尺寸（逻辑像素，内部按 .w 缩放）。
+  /// 尺寸（设计逻辑像素，内部按 theme.s 统一因子缩放）。
   final double size;
 
   /// 纠错等级。
@@ -92,9 +92,9 @@ class AntQRCode extends StatelessWidget {
     final resolvedColor = color ?? theme.colorText;
 
     return Container(
-      width: size.w,
-      height: size.w,
-      padding: EdgeInsets.all(12.w),
+      width: theme.s(size),
+      height: theme.s(size),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: resolvedBg,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -105,9 +105,9 @@ class AntQRCode extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _buildQRView(resolvedColor, resolvedBg),
+          _buildQRView(resolvedColor, resolvedBg, theme),
           if (icon && status == AntQRCodeStatus.active)
-            _buildCenterIcon(resolvedBg),
+            _buildCenterIcon(resolvedBg, theme),
           if (status != AntQRCodeStatus.active)
             _buildStatusOverlay(context, theme, resolvedBg),
         ],
@@ -116,10 +116,14 @@ class AntQRCode extends StatelessWidget {
   }
 
   /// 渲染二维码（引擎矩阵经本中间层获取，CustomPaint 自绘模块方块）。
-  Widget _buildQRView(Color foreground, Color background) {
+  Widget _buildQRView(
+    Color foreground,
+    Color background,
+    AntThemeData theme,
+  ) {
     return CustomPaint(
       key: ValueKey<String>(value),
-      size: Size.square(size.w),
+      size: Size.square(theme.s(size)),
       painter: AntQrPainter(
         value: value,
         errorLevel: errorLevel,
@@ -130,18 +134,18 @@ class AntQRCode extends StatelessWidget {
   }
 
   /// 中间图标：白底圆形遮罩 + 图标。
-  Widget _buildCenterIcon(Color background) {
+  Widget _buildCenterIcon(Color background, AntThemeData theme) {
     return Container(
-      width: iconSize.w,
-      height: iconSize.w,
-      padding: EdgeInsets.all(6.w),
+      width: theme.s(iconSize),
+      height: theme.s(iconSize),
+      padding: EdgeInsets.all(theme.s(6)),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(8.w),
+        borderRadius: BorderRadius.circular(theme.s(8)),
       ),
       child: Icon(
         AntIcons.qrcodeOutlined,
-        size: (iconSize - 12).w,
+        size: theme.s(iconSize - 12),
         color: Colors.black87,
       ),
     );
@@ -160,10 +164,10 @@ class AntQRCode extends StatelessWidget {
       children: [
         Icon(
           isExpired ? AntIcons.reloadOutlined : AntIcons.checkCircleOutlined,
-          size: 24.w,
+          size: theme.s(24),
           color: isExpired ? theme.colorText : theme.colorSuccess,
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           isExpired ? '二维码过期' : '已扫描',
           style: TextStyle(

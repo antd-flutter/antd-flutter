@@ -146,7 +146,7 @@ class _AntSegmentedState<T> extends State<AntSegmented<T>> {
     final theme = AntTheme.of(context);
 
     Widget track = widget.block ? _buildBlock(theme) : _buildInline(theme);
-    // 水平：轨道定高（32.w）；垂直 inline / block：宽度取最宽项（IntrinsicWidth，
+    // 水平：轨道定高（theme.s(32)）；垂直 inline / block：宽度取最宽项（IntrinsicWidth，
     // hug 内容；父级给出有界宽度时仍遵父级，外部 SizedBox 可控宽），
     // 垂直 block：高度 = 项数 × 单项轨道高（紧约束）。
     // 注意不能用 IntrinsicHeight：block 的选项层为 Expanded 填充，
@@ -159,10 +159,10 @@ class _AntSegmentedState<T> extends State<AntSegmented<T>> {
     return Container(
       constraints: _isVertical
           ? (widget.block
-              ? BoxConstraints.tightFor(height: _items.length * _trackHeight.w)
+              ? BoxConstraints.tightFor(height: _items.length * theme.s(_trackHeight))
               : null)
-          : BoxConstraints.tightFor(height: _trackHeight.w),
-      padding: EdgeInsets.all(2.w),
+          : BoxConstraints.tightFor(height: theme.s(_trackHeight)),
+      padding: EdgeInsets.all(theme.s(2)),
       decoration: BoxDecoration(
         color: theme.colorFillQuaternary,
         borderRadius: _trackBorderRadius(theme),
@@ -272,7 +272,7 @@ class _AntSegmentedState<T> extends State<AntSegmented<T>> {
     final radius = widget.shape == AntSegmentedShape.round
         ? _trackHeight / 2
         : theme.borderRadiusSM;
-    return BorderRadius.circular(radius.w);
+    return BorderRadius.circular(theme.s(radius));
   }
 
   BorderRadius _sliderBorderRadius(AntThemeData theme) {
@@ -280,7 +280,7 @@ class _AntSegmentedState<T> extends State<AntSegmented<T>> {
     final radius = widget.shape == AntSegmentedShape.round
         ? inner / 2
         : theme.borderRadiusSM - 2;
-    return BorderRadius.circular(radius.clamp(0.0, double.infinity).w);
+    return BorderRadius.circular(theme.s(radius.clamp(0.0, double.infinity)));
   }
 }
 
@@ -324,8 +324,8 @@ class _Slider extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 4.w,
-                offset: Offset(0, 2.w),
+                blurRadius: theme.s(4),
+                offset: Offset(0, theme.s(2)),
               ),
             ],
           ),
@@ -391,7 +391,7 @@ class _SegmentItem<T> extends StatelessWidget {
                 data: IconThemeData(color: fg, size: _iconSize()),
                 child: icon,
               ),
-              if (hasLabel) SizedBox(width: 4.w),
+              if (hasLabel) SizedBox(width: theme.s(4)),
             ],
             if (hasLabel)
               // Flexible：外部宽度小于内容宽时省略号截断，避免 Row 溢出异常；
@@ -401,7 +401,7 @@ class _SegmentItem<T> extends StatelessWidget {
                     Text(
                       labelText,
                       style: TextStyle(
-                        fontSize: fontSize.sp,
+                        fontSize: theme.s(fontSize),
                         color: fg,
                         fontWeight: selected && !disabled
                             ? FontWeight.w500
@@ -425,19 +425,19 @@ class _SegmentItem<T> extends StatelessWidget {
             alignment: vertical ? null : Alignment.center,
             padding: vertical
                 ? EdgeInsets.symmetric(
-                    horizontal: _horizontalPadding().w,
-                    vertical: _verticalPadding().w,
+                    horizontal: theme.s(_horizontalPadding()),
+                    vertical: theme.s(_verticalPadding()),
                   )
-                : EdgeInsets.symmetric(horizontal: _horizontalPadding().w),
+                : EdgeInsets.symmetric(horizontal: theme.s(_horizontalPadding())),
             decoration: BoxDecoration(
               color: selected && !disabled ? theme.colorBgContainer : null,
-              borderRadius: BorderRadius.circular((theme.borderRadiusSM - 2).w),
+              borderRadius: BorderRadius.circular(theme.s((theme.borderRadiusSM - 2))),
               boxShadow: selected && !disabled
                   ? [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 4.w,
-                        offset: Offset(0, 2.w),
+                        blurRadius: theme.s(4),
+                        offset: Offset(0, theme.s(2)),
                       ),
                     ]
                   : null,
@@ -446,7 +446,7 @@ class _SegmentItem<T> extends StatelessWidget {
           )
         : Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              padding: EdgeInsets.symmetric(horizontal: theme.s(4)),
               child: content,
             ),
           );
@@ -491,7 +491,7 @@ class _SegmentItem<T> extends StatelessWidget {
     }
   }
 
-  /// 垂直模式的纵向内边距（水平加大、垂直缩小，撑出 32.w 等效项高）。
+  /// 垂直模式的纵向内边距（水平加大、垂直缩小，撑出 theme.s(32) 等效项高）。
   double _verticalPadding() {
     switch (size) {
       case AntSegmentedSize.small:

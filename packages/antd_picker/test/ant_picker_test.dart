@@ -50,13 +50,11 @@ AntPickerColumn<_Fruit> _fruitColumn() => AntPickerColumn<_Fruit>(
       labelBuilder: (context, fruit) => Text(fruit.label),
     );
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap(Widget child) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );

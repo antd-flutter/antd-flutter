@@ -5,16 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Center(child: Material(child: child)),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 读取 block 模式下滑块（AnimatedAlign）的对齐位置。

@@ -189,11 +189,11 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
         final Widget handleNode = widget.handle ??
             Center(
               child: Container(
-                width: _kHandleBarWidth.w,
-                height: _kHandleBarHeight.w,
+                width: theme.s(_kHandleBarWidth),
+                height: theme.s(_kHandleBarHeight),
                 decoration: BoxDecoration(
                   color: theme.colorBorder,
-                  borderRadius: BorderRadius.circular(_kHandleBarHeight.w / 2),
+                  borderRadius: BorderRadius.circular(theme.s(_kHandleBarHeight) / 2),
                 ),
               ),
             );
@@ -216,13 +216,13 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
                   decoration: BoxDecoration(
                     color: theme.colorBgContainer,
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(_kPanelBorderRadius.r),
+                      top: Radius.circular(theme.s(_kPanelBorderRadius)),
                     ),
                     boxShadow: theme.boxShadow,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(_kPanelBorderRadius.r),
+                      top: Radius.circular(theme.s(_kPanelBorderRadius)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -248,7 +248,7 @@ class _AntFloatingPanelState extends State<AntFloatingPanel> {
                             setState(() => _dragging = false);
                           },
                           child: SizedBox(
-                            height: widget.handleHeight.w,
+                            height: theme.s(widget.handleHeight),
                             width: double.infinity,
                             child: handleNode,
                           ),

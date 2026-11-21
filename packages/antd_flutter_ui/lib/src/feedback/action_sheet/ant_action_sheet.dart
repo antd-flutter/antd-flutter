@@ -274,12 +274,12 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
             if (sheet.extraDescription != null)
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+                padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
                 child: Text(
                   sheet.extraDescription!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: theme.s(13),
                     color: theme.colorTextSecondary,
                   ),
                 ),
@@ -288,10 +288,10 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
             ..._buildActions(theme),
             // 取消按钮（独立灰色区域）
             if (sheet.cancelText != null) ...[
-              SizedBox(height: 8.w),
+              SizedBox(height: theme.s(8)),
               Container(
                 color: theme.colorFillQuaternary,
-                padding: EdgeInsets.symmetric(vertical: 4.w),
+                padding: EdgeInsets.symmetric(vertical: theme.s(4)),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
@@ -300,12 +300,12 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
                     behavior: HitTestBehavior.opaque,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 14.w),
+                      padding: EdgeInsets.symmetric(vertical: theme.s(14)),
                       alignment: Alignment.center,
                       child: Text(
                         sheet.cancelText!,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: theme.s(16),
                           color: theme.colorText,
                         ),
                       ),
@@ -339,7 +339,7 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
             onTap: action.disabled ? null : () => _handleAction(action),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.w),
+              padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(14)),
               decoration: BoxDecoration(
                 border: i > 0
                     ? Border(
@@ -353,18 +353,18 @@ class _ActionSheetOverlayState extends State<_ActionSheetOverlay> {
                     action.text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: theme.s(16),
                       fontWeight: FontWeight.w500,
                       color: textColor,
                     ),
                   ),
                   if (action.description != null) ...[
-                    SizedBox(height: 2.w),
+                    SizedBox(height: theme.s(2)),
                     Text(
                       action.description!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: theme.s(12),
                         color: action.disabled
                             ? theme.colorTextQuaternary
                             : theme.colorTextTertiary,

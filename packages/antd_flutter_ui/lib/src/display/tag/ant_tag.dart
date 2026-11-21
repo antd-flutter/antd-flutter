@@ -88,7 +88,7 @@ class _AntTagState extends State<AntTag> {
 
     return Container(
       padding: widget.padding ??
-          EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.w),
+          EdgeInsets.symmetric(horizontal: theme.s(8), vertical: theme.s(2)),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(theme.borderRadiusXS),
@@ -101,10 +101,10 @@ class _AntTagState extends State<AntTag> {
         children: [
           if (widget.icon != null) ...[
             IconTheme.merge(
-              data: IconThemeData(color: fg, size: 14.w),
+              data: IconThemeData(color: fg, size: theme.s(14)),
               child: widget.icon!,
             ),
-            SizedBox(width: 4.w),
+            SizedBox(width: theme.s(4)),
           ],
           Text(
             widget.child,
@@ -115,13 +115,13 @@ class _AntTagState extends State<AntTag> {
             ),
           ),
           if (widget.closable) ...[
-            SizedBox(width: 4.w),
+            SizedBox(width: theme.s(4)),
             GestureDetector(
               onTap: _handleClose,
               behavior: HitTestBehavior.opaque,
               child: Icon(
                 AntIcons.closeOutlined,
-                size: 12.w,
+                size: theme.s(12),
                 color: fg,
               ),
             ),

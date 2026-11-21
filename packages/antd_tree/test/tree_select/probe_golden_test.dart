@@ -46,14 +46,11 @@ List<_Option> _options() => const [
       _Option(9, '广东'),
     ];
 
-Widget _wrap({required bool dark, required Widget child}) => AntScreenUtilInit(
-      designSize: const Size(375, 812),
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: dark ? AntThemeData.dark() : AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap({required bool dark, required Widget child}) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: dark ? AntThemeData.dark() : AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );

@@ -10,7 +10,7 @@ import 'package:material_ui/material_ui.dart';
 /// - 桌面端：对齐 antd v6（`colorBgElevated` 浮层、`colorFillSecondary` 键面、
 ///   6 圆角、`boxShadowSecondary` 阴影、hover 反馈）。
 ///
-/// 尺寸一律走仓库约定 `.w`（宽高/间距/描边）、`.sp`（字号）、`.r`（圆角），
+/// 尺寸一律走仓库约定 `theme.s(...)`（宽高/间距/描边/字号/圆角统一缩放因子），
 /// 颜色一律取自 [AntThemeData] 令牌，不硬编码。
 @immutable
 class AntKeyboardThemeData {
@@ -216,22 +216,22 @@ class AntKeyboardThemeData {
         actionKeyPressedBackgroundColor: t.colorFillSecondary,
         confirmBackgroundColor: t.colorPrimary,
         confirmForegroundColor: t.colorTextLightSolid,
-        keyBorderRadius: t.borderRadius.r,
-        keyHeight: 56.w,
-        keySpacing: 6.w,
-        sectionPadding: 12.w,
-        fontSize: t.fontSizeLG.sp,
-        iconSize: 20.w,
+        keyBorderRadius: t.borderRadius,
+        keyHeight: t.s(56),
+        keySpacing: t.s(6),
+        sectionPadding: t.s(12),
+        fontSize: t.fontSizeLG,
+        iconSize: t.s(20),
         keyBorderColor: t.colorBorder,
-        keyBorderWidth: 1.w,
+        keyBorderWidth: t.s(1),
         boxShadow: t.boxShadowSecondary,
         surfaceBorderColor: t.colorBorderSecondary,
-        surfaceBorderRadius: t.borderRadiusLG.r,
-        headerHeight: 40.w,
+        surfaceBorderRadius: t.borderRadiusLG,
+        headerHeight: t.s(40),
         headerBackgroundColor: t.colorBgElevated,
         titleColor: t.colorTextSecondary,
-        titleFontSize: t.fontSizeSM.sp,
-        confirmFontSize: t.fontSizeLG.sp,
+        titleFontSize: t.fontSizeSM,
+        confirmFontSize: t.fontSizeLG,
         desktop: true,
       );
     }
@@ -250,21 +250,21 @@ class AntKeyboardThemeData {
           t.isDark ? t.colorFillTertiary : t.colorFill,
       confirmBackgroundColor: t.colorPrimary,
       confirmForegroundColor: t.colorTextLightSolid,
-      keyBorderRadius: t.borderRadiusSM.r,
-      keyHeight: 48.w,
-      keySpacing: 6.w,
-      sectionPadding: 8.w,
-      fontSize: t.fontSizeLG.sp,
-      iconSize: 22.w,
+      keyBorderRadius: t.borderRadiusSM,
+      keyHeight: t.s(48),
+      keySpacing: t.s(6),
+      sectionPadding: t.s(8),
+      fontSize: t.fontSizeLG,
+      iconSize: t.s(22),
       keyBorderColor: t.colorBorder,
-      keyBorderWidth: 1.w,
+      keyBorderWidth: t.s(1),
       surfaceBorderColor: t.colorBorder,
       surfaceBorderRadius: 0,
-      headerHeight: 34.w,
+      headerHeight: t.s(34),
       headerBackgroundColor: t.colorBgContainer,
       titleColor: t.colorTextSecondary,
-      titleFontSize: t.fontSizeSM.sp,
-      confirmFontSize: t.fontSizeLG.sp,
+      titleFontSize: t.fontSizeSM,
+      confirmFontSize: t.fontSizeLG,
       desktop: false,
     );
   }

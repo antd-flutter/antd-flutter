@@ -8,16 +8,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: child,
         ),
       ),
-    ),
-  );
+    );
 }
 
 final GlobalKey _wrapContextKey = GlobalKey();

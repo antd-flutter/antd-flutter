@@ -4,12 +4,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child, {AntThemeData? theme}) {
-  return AntScreenUtilInit(
-    builder: (context, _) => AntConfigProvider(
+  return AntConfigProvider(
       antdTheme: theme,
       child: MaterialApp(home: Scaffold(body: Material(child: child))),
-    ),
-  );
+    );
 }
 
 void main() {

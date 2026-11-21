@@ -53,18 +53,18 @@ class _RadioDot extends StatelessWidget {
     final bgColor = disabled ? t.colorBgContainerDisabled : t.colorBgContainer;
 
     return Container(
-      width: size.w,
-      height: size.w,
+      width: t.s(size),
+      height: t.s(size),
       decoration: BoxDecoration(
         color: bgColor,
         shape: BoxShape.circle,
-        border: Border.all(color: borderColor, width: 1.w),
+        border: Border.all(color: borderColor, width: t.s(1)),
       ),
       alignment: Alignment.center,
       child: checked
           ? Container(
-              width: size.w * 0.5,
-              height: size.w * 0.5,
+              width: t.s(size) * 0.5,
+              height: t.s(size) * 0.5,
               decoration: BoxDecoration(
                 color: disabled ? t.colorTextDisabled : t.colorPrimary,
                 shape: BoxShape.circle,
@@ -175,11 +175,11 @@ class _AntRadioState extends State<AntRadio> {
             size: 16,
             theme: t,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: t.s(8)),
           Flexible(
             child: DefaultTextStyle(
               style: TextStyle(
-                fontSize: t.fontSize.sp,
+                fontSize: t.fontSize,
                 color: isDisabled ? t.colorTextDisabled : t.colorText,
               ),
               child: widget.child,
@@ -260,19 +260,19 @@ class AntRadioButton extends StatelessWidget {
       onTap: isDisabled ? null : () => group?.onSelect(value),
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.w),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(4)),
         decoration: BoxDecoration(
           color: isChecked
               ? (isDisabled ? t.colorBgContainerDisabled : t.colorPrimary)
               : (isDisabled ? t.colorBgContainerDisabled : t.colorBgContainer),
           border: Border.all(
             color: isChecked && !isDisabled ? t.colorPrimary : t.colorBorder,
-            width: 1.w,
+            width: t.s(1),
           ),
         ),
         child: DefaultTextStyle(
           style: TextStyle(
-            fontSize: t.fontSize.sp,
+            fontSize: t.fontSize,
             color: isChecked
                 ? (isDisabled ? t.colorTextDisabled : Colors.white)
                 : (isDisabled ? t.colorTextDisabled : t.colorText),
@@ -451,7 +451,7 @@ class _AntRadioGroupState<T> extends State<AntRadioGroup<T>> {
     if (widget.optionType == AntRadioGroupOptionType.button) {
       return Wrap(
         spacing: 0,
-        runSpacing: 8.w,
+        runSpacing: t.s(8),
         children: items,
       );
     }
@@ -462,15 +462,15 @@ class _AntRadioGroupState<T> extends State<AntRadioGroup<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < items.length; i++) ...[
-            if (i > 0) SizedBox(height: 8.w),
+            if (i > 0) SizedBox(height: t.s(8)),
             items[i],
           ],
         ],
       );
     }
     return Wrap(
-      spacing: 12.w,
-      runSpacing: 8.w,
+      spacing: t.s(12),
+      runSpacing: t.s(8),
       children: items,
     );
   }
@@ -483,15 +483,15 @@ class _AntRadioGroupState<T> extends State<AntRadioGroup<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < widget.children!.length; i++) ...[
-            if (i > 0) SizedBox(height: 8.w),
+            if (i > 0) SizedBox(height: t.s(8)),
             widget.children![i],
           ],
         ],
       );
     }
     return Wrap(
-      spacing: 12.w,
-      runSpacing: 8.w,
+      spacing: t.s(12),
+      runSpacing: t.s(8),
       children: widget.children!,
     );
   }
@@ -534,11 +534,11 @@ class _GroupRadioItem<T> extends StatelessWidget {
             size: 16,
             theme: t,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: t.s(8)),
           Flexible(
             child: DefaultTextStyle(
               style: TextStyle(
-                fontSize: t.fontSize.sp,
+                fontSize: t.fontSize,
                 color: disabled ? t.colorTextDisabled : t.colorText,
               ),
               child: child,
@@ -583,7 +583,7 @@ class _GroupButtonItem<T> extends StatelessWidget {
             },
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.w),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(4)),
         decoration: BoxDecoration(
           color: checked
               ? (isSolid
@@ -594,12 +594,12 @@ class _GroupButtonItem<T> extends StatelessWidget {
               : (disabled ? t.colorBgContainerDisabled : t.colorBgContainer),
           border: Border.all(
             color: checked && !disabled ? t.colorPrimary : t.colorBorder,
-            width: 1.w,
+            width: t.s(1),
           ),
         ),
         child: DefaultTextStyle(
           style: TextStyle(
-            fontSize: t.fontSize.sp,
+            fontSize: t.fontSize,
             color: checked
                 ? (isSolid
                     ? (disabled ? t.colorTextDisabled : Colors.white)

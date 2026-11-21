@@ -57,9 +57,7 @@ class _AntdImageViewerGalleryAppState extends State<AntdImageViewerGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'AntdImageViewer Demo',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -92,7 +90,6 @@ class _AntdImageViewerGalleryAppState extends State<AntdImageViewerGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -102,8 +99,8 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
-    margin: EdgeInsets.only(bottom: 16.w),
+    padding: EdgeInsets.all(theme.s(16)),
+    margin: EdgeInsets.only(bottom: theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -112,18 +109,21 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
-        SizedBox(height: 12.w),
+        Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15))),
+        SizedBox(height: theme.s(12)),
         child,
       ],
     ),
   );
 }
 
-Widget _page(BuildContext context, List<Widget> children) => SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
-      child: Column(children: children),
-    );
+Widget _page(BuildContext context, List<Widget> children) {
+  final theme = AntTheme.of(context);
+  return SingleChildScrollView(
+    padding: EdgeInsets.all(theme.s(16)),
+    child: Column(children: children),
+  );
+}
 
 // ── 单图预览 ─────────────────────────────────────────────
 class _SingleDemo extends StatefulWidget {
@@ -175,19 +175,20 @@ class _MultiDemoState extends State<_MultiDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       children: [
         Wrap(
-          spacing: 8.w,
+          spacing: theme.s(8),
           children: [
             for (final src in kDemoImages)
               GestureDetector(
                 onTap: () => setState(() => _open = true),
                 child: Container(
-                  width: 96.w,
-                  height: 64.w,
+                  width: theme.s(96),
+                  height: theme.s(64),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.w),
+                    borderRadius: BorderRadius.circular(theme.s(8)),
                     color: AntTheme.of(context).colorFillSecondary,
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -228,12 +229,13 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             FilledButton.tonal(
               onPressed: () => setState(() => _open = !_open),
@@ -241,8 +243,8 @@ class _ControlledDemoState extends State<_ControlledDemo> {
             ),
           ],
         ),
-        SizedBox(height: 8.w),
-        Text('回调日志：$_log', style: TextStyle(fontSize: 13.sp)),
+        SizedBox(height: theme.s(8)),
+        Text('回调日志：$_log', style: TextStyle(fontSize: theme.s(13))),
         AntImageViewer(
           images: kDemoImages,
           open: _open,
@@ -279,20 +281,21 @@ class _DefaultIndexDemoState extends State<_DefaultIndexDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('初始页下标：$_index', style: TextStyle(fontSize: 14.sp)),
-            SizedBox(width: 12.w),
+            Text('初始页下标：$_index', style: TextStyle(fontSize: theme.s(14))),
+            SizedBox(width: theme.s(12)),
             FilledButton(
               onPressed: () => setState(() => _open = true),
               child: const Text('预览'),
             ),
           ],
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Slider(
           value: _index.toDouble(),
           min: 0,
@@ -335,6 +338,7 @@ class _CustomZoomDemoState extends State<_CustomZoomDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -344,9 +348,9 @@ class _CustomZoomDemoState extends State<_CustomZoomDemo> {
               onPressed: () => setState(() => _open = true),
               child: const Text('预览'),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: theme.s(16)),
             Text('maxZoomRatio: ${_maxZoom.toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 14.sp)),
+                style: TextStyle(fontSize: theme.s(14))),
           ],
         ),
         Slider(
@@ -363,7 +367,7 @@ class _CustomZoomDemoState extends State<_CustomZoomDemo> {
               value: _doubleTap,
               onChanged: (v) => setState(() => _doubleTap = v),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
             const Text('开启双击缩放'),
           ],
         ),
@@ -407,7 +411,7 @@ class _ComboDemoState extends State<_ComboDemo> {
           onTap: () => setState(() => _open = true),
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(theme.s(16)),
             decoration: BoxDecoration(
               color: theme.colorFillQuaternary,
               borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -415,11 +419,11 @@ class _ComboDemoState extends State<_ComboDemo> {
             child: Row(
               children: [
                 const Icon(AntIcons.pictureOutlined),
-                SizedBox(width: 12.w),
+                SizedBox(width: theme.s(12)),
                 Expanded(
                   child: Text(
                     '带图卡片（点击整卡预览大图）',
-                    style: TextStyle(fontSize: 14.sp),
+                    style: TextStyle(fontSize: theme.s(14)),
                   ),
                 ),
                 const Icon(AntIcons.rightOutlined),

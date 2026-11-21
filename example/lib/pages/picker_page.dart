@@ -45,7 +45,7 @@ class PickerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -60,7 +60,7 @@ class PickerPage extends StatelessWidget {
               child: _trigger(t, '选择季节', _seasons[0]),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '带标题',
             child: AntPicker<_PickerOption>(
@@ -72,7 +72,7 @@ class PickerPage extends StatelessWidget {
               child: _trigger(t, '选择季节', null),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '多列选择',
             child: AntPicker<_PickerOption>(
@@ -84,7 +84,7 @@ class PickerPage extends StatelessWidget {
               child: _trigger(t, '选择日期时段', null),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '自定义按钮文本',
             child: AntPicker<_PickerOption>(
@@ -97,7 +97,7 @@ class PickerPage extends StatelessWidget {
               child: _trigger(t, '选择季节', null),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '默认值（直接传模型 / key）',
             child: AntPicker<_PickerOption>(
@@ -109,9 +109,9 @@ class PickerPage extends StatelessWidget {
               child: _trigger(t, '选择季节', _seasons[2]),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(title: '受控模式', child: const _ControlledPicker()),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '内嵌选择器（AntPickerView）',
             child: AntPickerView<_PickerOption>(
@@ -121,7 +121,7 @@ class PickerPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '内嵌多列选择器',
             child: AntPickerView<_PickerOption>(
@@ -138,7 +138,7 @@ class PickerPage extends StatelessWidget {
 
   Widget _trigger(AntThemeData t, String label, _PickerOption? value) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(10)),
       decoration: BoxDecoration(
         color: t.colorFillSecondary,
         borderRadius: BorderRadius.circular(t.borderRadius),
@@ -148,17 +148,17 @@ class PickerPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 14.sp, color: t.colorText),
+            style: TextStyle(fontSize: t.s(14), color: t.colorText),
           ),
           if (value != null)
             Text(
               value.name,
-              style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
+              style: TextStyle(fontSize: t.s(14), color: t.colorPrimary),
             )
           else
             Icon(
               AntIcons.rightOutlined,
-              size: 18.sp,
+              size: t.s(18),
               color: t.colorTextTertiary,
             ),
         ],
@@ -185,7 +185,7 @@ class _ControlledPickerState extends State<_ControlledPicker> {
       value: _value,
       onConfirm: (options) => setState(() => _value = options),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(10)),
         decoration: BoxDecoration(
           color: t.colorFillSecondary,
           borderRadius: BorderRadius.circular(t.borderRadius),
@@ -195,11 +195,11 @@ class _ControlledPickerState extends State<_ControlledPicker> {
           children: [
             Text(
               '当前选择',
-              style: TextStyle(fontSize: 14.sp, color: t.colorText),
+              style: TextStyle(fontSize: t.s(14), color: t.colorText),
             ),
             Text(
               _value.first.name,
-              style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
+              style: TextStyle(fontSize: t.s(14), color: t.colorPrimary),
             ),
           ],
         ),
@@ -218,7 +218,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -230,12 +230,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: t.s(14),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

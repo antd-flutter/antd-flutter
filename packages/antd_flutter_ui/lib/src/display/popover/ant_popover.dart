@@ -419,7 +419,7 @@ class _PopoverOverlay extends StatelessWidget {
       arrow: arrow,
       arrowColor: bubbleColor,
       arrowKey: arrow ? kAntPopoverArrowKey : null,
-      gap: 8.w,
+      gap: themeData.s(8),
       onDismiss: onDismiss,
       onBubbleHoverEnter: onBubbleHoverEnter,
       onBubbleHoverExit: onBubbleHoverExit,
@@ -437,18 +437,18 @@ class _PopoverOverlay extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.75)
         : theme.colorTextSecondary;
     final radius = overlayStyle?.borderRadius ??
-        BorderRadius.circular(theme.borderRadiusLG.r);
+        BorderRadius.circular(theme.borderRadiusLG);
     final padding = overlayStyle?.padding ??
-        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w);
+        EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12));
 
     final children = <Widget>[];
     if (title != null) {
       children.add(
         Padding(
-          padding: EdgeInsets.only(bottom: 4.w),
+          padding: EdgeInsets.only(bottom: theme.s(4)),
           child: DefaultTextStyle(
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w500,
               color: fgColor,
             ),
@@ -459,7 +459,7 @@ class _PopoverOverlay extends StatelessWidget {
     }
     children.add(
       DefaultTextStyle(
-        style: TextStyle(fontSize: 14.sp, color: fgSecondary),
+        style: TextStyle(fontSize: theme.s(14), color: fgSecondary),
         child: content,
       ),
     );
@@ -472,7 +472,7 @@ class _PopoverOverlay extends StatelessWidget {
           [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 12.r,
+              blurRadius: theme.s(12),
               offset: const Offset(0, 4),
             ),
           ],
@@ -481,7 +481,7 @@ class _PopoverOverlay extends StatelessWidget {
     return KeyedSubtree(
       key: kAntPopoverBubbleKey,
       child: Container(
-        width: 240.w,
+        width: theme.s(240),
         padding: padding,
         decoration: bubbleDecoration,
         child: Column(

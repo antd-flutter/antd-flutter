@@ -23,7 +23,7 @@ class _DialogPageState extends State<DialogPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,7 +44,7 @@ class _DialogPageState extends State<DialogPage> {
               child: const AntText(text: '显示 alert 对话框'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'confirm 双按钮（函数式）',
             theme: theme,
@@ -61,7 +61,7 @@ class _DialogPageState extends State<DialogPage> {
               child: const AntText(text: '显示 confirm 对话框'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 actions 按钮区',
             theme: theme,
@@ -85,13 +85,13 @@ class _DialogPageState extends State<DialogPage> {
               child: const AntText(text: '显示自定义 actions'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '遮罩点击配置（受控 visible）',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () => setState(() => _controlledVisible = true),
@@ -120,23 +120,23 @@ class _DialogPageState extends State<DialogPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '回调结果展示',
             theme: theme,
             child: Container(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(theme.s(12)),
               decoration: BoxDecoration(
                 color: theme.colorFillQuaternary,
-                borderRadius: BorderRadius.circular(theme.borderRadius.r),
+                borderRadius: BorderRadius.circular(theme.borderRadius),
               ),
               child: AntText(
                 text: '最近结果：$_lastResult',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义内容',
             theme: theme,
@@ -185,12 +185,12 @@ class _Section extends StatelessWidget {
         AntText(
           text: title,
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: theme.s(15),
             fontWeight: FontWeight.w600,
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

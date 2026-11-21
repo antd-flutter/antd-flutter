@@ -270,7 +270,7 @@ class AntTableColumn<T> {
   /// 列头文本。
   final String title;
 
-  /// 列宽（设计稿逻辑像素，内部按 `.w` 缩放；不传则弹性分配）。
+  /// 列宽（设计稿逻辑像素，内部按 `theme.s` 统一因子缩放；不传则弹性分配）。
   final double? width;
 
   /// 固定列方向。

@@ -20,9 +20,8 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    return AntScreenUtilInit(
-      builder: (context, _) => SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+    return SingleChildScrollView(
+        padding: EdgeInsets.all(theme.s(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -36,7 +35,7 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 child: const AntButton(child: Text('Delete')),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '带描述',
               theme: theme,
@@ -48,7 +47,7 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 child: const AntButton(child: Text('删除任务')),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '自定义按钮文案',
               theme: theme,
@@ -64,13 +63,13 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 ),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '九方向弹出位置',
               theme: theme,
               child: Wrap(
-                spacing: 8.w,
-                runSpacing: 8.w,
+                spacing: theme.s(8),
+                runSpacing: theme.s(8),
                 children: [
                   _placementDemo('上左', AntPopconfirmPlacement.topLeft),
                   _placementDemo('上中', AntPopconfirmPlacement.topCenter),
@@ -84,7 +83,7 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 ],
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '禁用',
               theme: theme,
@@ -94,7 +93,7 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 child: const AntButton(disabled: true, child: Text('Disabled')),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '受控模式 + 回调结果',
               theme: theme,
@@ -113,18 +112,18 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                       child: const Text('受控打开'),
                     ),
                   ),
-                  SizedBox(height: 12.w),
+                  SizedBox(height: theme.s(12)),
                   Text(
                     '最近操作：$_lastResult',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: theme.s(13),
                       color: theme.colorTextSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: 'Controller 模式',
               theme: theme,
@@ -132,7 +131,6 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -163,6 +161,7 @@ class _ControllerPopconfirmDemoState extends State<_ControllerPopconfirmDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -173,9 +172,9 @@ class _ControllerPopconfirmDemoState extends State<_ControllerPopconfirmDemo> {
           onCancel: () => widget.record('Controller 取消'),
           child: const Text('Controller 触发'),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: theme.s(12)),
         AntButton(onTap: () => _controller.show(), child: const Text('show')),
-        SizedBox(width: 12.w),
+        SizedBox(width: theme.s(12)),
         AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
       ],
     );
@@ -201,12 +200,12 @@ class _Section extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             fontWeight: FontWeight.w600,
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

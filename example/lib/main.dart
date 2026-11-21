@@ -28,36 +28,32 @@ class AntdFlutterExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntScreenUtilInit(
-      builder: (context, child) {
-        return AntResponsiveInit(
-          // OHOS 折叠态经 AntOhosChannel 透出；其他平台自动从
-          // displayFeatures 推导，无法获取时为 unknown/flat。
-          foldStateProvider: AntPlatform.isOhos
-              ? () => AntOhosChannelRegistry.channel.getFoldStateSync()
-              : null,
-          builder: (context, data, child) {
-            return ValueListenableBuilder<bool>(
-              valueListenable: themeModeController,
-              builder: (context, isDark, _) {
-                return AntTheme(
-                  data: isDark ? AntThemeData.dark() : AntThemeData.light(),
-                  // device_preview 一行接入（3.0 绑定层模拟，透传即可）。
-                  child: AntDevicePreview.wrap(
-                    context,
-                    MaterialApp(
-                      title: 'antd-flutter',
-                      debugShowCheckedModeBanner: false,
-                      locale: AntDevicePreview.localeOf(context),
-                      builder: AntDevicePreview.appBuilder,
-                      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                      theme: AntThemeData.light().toThemeData(),
-                      darkTheme: AntThemeData.dark().toThemeData(),
-                      home: const HomePage(),
-                    ),
-                  ),
-                );
-              },
+    return AntResponsiveInit(
+      // OHOS 折叠态经 AntOhosChannel 透出；其他平台自动从
+      // displayFeatures 推导，无法获取时为 unknown/flat。
+      foldStateProvider: AntPlatform.isOhos
+          ? () => AntOhosChannelRegistry.channel.getFoldStateSync()
+          : null,
+      builder: (context, data, child) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: themeModeController,
+          builder: (context, isDark, _) {
+            return AntTheme(
+              data: isDark ? AntThemeData.dark() : AntThemeData.light(),
+              // device_preview 一行接入（3.0 绑定层模拟，透传即可）。
+              child: AntDevicePreview.wrap(
+                context,
+                MaterialApp(
+                  title: 'antd-flutter',
+                  debugShowCheckedModeBanner: false,
+                  locale: AntDevicePreview.localeOf(context),
+                  builder: AntDevicePreview.appBuilder,
+                  themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                  theme: AntThemeData.light().toThemeData(),
+                  darkTheme: AntThemeData.dark().toThemeData(),
+                  home: const HomePage(),
+                ),
+              ),
             );
           },
         );

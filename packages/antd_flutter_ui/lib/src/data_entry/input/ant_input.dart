@@ -247,7 +247,7 @@ class _AntInputState extends State<AntInput> {
     final t = AntTheme.of(context);
     final height = _heightOf(t, widget.size);
     final fontSize = _fontSizeOf(t, widget.size);
-    final iconSize = widget.size == AntInputSize.small ? 12.sp : 14.sp;
+    final iconSize = widget.size == AntInputSize.small ? t.s(12) : t.s(14);
 
     final inputField = _buildInputBody(t, height, fontSize, iconSize);
 
@@ -272,7 +272,7 @@ class _AntInputState extends State<AntInput> {
             child: Padding(
               // embedded 装饰器无固有偏移：marginSM+4 → 字形内缩 17.3 与
               // standalone（marginSM+4.33 固有）字形对齐
-              padding: EdgeInsets.symmetric(horizontal: t.marginSM.w + 4),
+              padding: EdgeInsets.symmetric(horizontal: t.marginSM + 4),
               child: AntInputField(
                 size: widget.size,
                 controller: _controller,
@@ -301,18 +301,18 @@ class _AntInputState extends State<AntInput> {
     );
     final body = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      height: height.w,
+      height: t.s(height),
       decoration: BoxDecoration(
         color:
             widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-        borderRadius: BorderRadius.circular(t.borderRadius.w),
+        borderRadius: BorderRadius.circular(t.borderRadius),
         border:
-            widget.bordered ? Border.all(color: borderColor, width: 1.w) : null,
+            widget.bordered ? Border.all(color: borderColor, width: t.s(1)) : null,
         boxShadow: widget.bordered && _focused && !widget.disabled
             ? [
                 BoxShadow(
                   color: t.controlOutline.withValues(alpha: 0.8),
-                  blurRadius: t.controlOutlineWidth.w,
+                  blurRadius: t.controlOutlineWidth,
                 ),
               ]
             : null,
@@ -332,7 +332,7 @@ class _AntInputState extends State<AntInput> {
       children: [
         child,
         Padding(
-          padding: EdgeInsets.only(top: 2.w),
+          padding: EdgeInsets.only(top: t.s(2)),
           child: Text(
             '${_controller.text.length} / ${widget.maxLength}',
             style: TextStyle(
@@ -388,7 +388,7 @@ class _AntInputState extends State<AntInput> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   for (var i = 0; i < suffixWidgets.length; i++) ...[
-                    if (i > 0) SizedBox(width: 4.w),
+                    if (i > 0) SizedBox(width: t.s(4)),
                     suffixWidgets[i],
                   ],
                 ],
@@ -415,22 +415,22 @@ class _AntInputState extends State<AntInput> {
     bool before,
   ) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
+      padding: EdgeInsets.symmetric(horizontal: t.marginSM),
       decoration: BoxDecoration(
         color: t.colorFillQuaternary,
         border: Border(
           right: before
-              ? BorderSide(color: t.colorBorder, width: 1.w)
+              ? BorderSide(color: t.colorBorder, width: t.s(1))
               : BorderSide.none,
           left: !before
-              ? BorderSide(color: t.colorBorder, width: 1.w)
+              ? BorderSide(color: t.colorBorder, width: t.s(1))
               : BorderSide.none,
         ),
       ),
       alignment: Alignment.center,
       child: DefaultTextStyle(
         style: TextStyle(
-          fontSize: fontSize.sp,
+          fontSize: t.s(fontSize),
           color: t.colorTextSecondary,
         ),
         child: child,
@@ -608,8 +608,8 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
       autofocus: widget.autofocus,
       // 左右内边距统一基座单点（marginSM），与单行形态一致
       contentPadding: EdgeInsets.symmetric(
-        horizontal: t.marginSM.w,
-        vertical: 8.w,
+        horizontal: t.marginSM,
+        vertical: t.s(8),
       ),
       onChanged: (_) => widget.onChange?.call(_controller.text),
       onSubmitted:
@@ -625,7 +625,7 @@ class _AntInputTextAreaState extends State<AntInputTextArea> {
       children: [
         body,
         Padding(
-          padding: EdgeInsets.only(top: 2.w),
+          padding: EdgeInsets.only(top: t.s(2)),
           child: Text(
             '${_controller.text.length} / ${widget.maxLength}',
             style: TextStyle(
@@ -717,7 +717,7 @@ class _AntInputPasswordState extends State<AntInputPassword> {
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final iconSize = widget.size == AntInputSize.small ? 12.sp : 14.sp;
+    final iconSize = widget.size == AntInputSize.small ? t.s(12) : t.s(14);
 
     return AntInput(
       value: widget.value,
@@ -857,7 +857,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
     final t = AntTheme.of(context);
     final height = _heightOf(t, widget.size);
     final fontSize = _fontSizeOf(t, widget.size);
-    final iconSize = widget.size == AntInputSize.small ? 12.sp : 14.sp;
+    final iconSize = widget.size == AntInputSize.small ? t.s(12) : t.s(14);
 
     // 搜索按钮
     final isTextButton =
@@ -869,12 +869,12 @@ class _AntInputSearchState extends State<AntInputSearch> {
       onTap: widget.disabled ? null : _doSearch,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: height.w,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        height: t.s(height),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12)),
         decoration: BoxDecoration(
           color: t.colorPrimary,
           borderRadius: BorderRadius.horizontal(
-            right: Radius.circular(t.borderRadius.w),
+            right: Radius.circular(t.borderRadius),
           ),
         ),
         alignment: Alignment.center,
@@ -887,7 +887,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
                 ? Text(
                     buttonText,
                     style: TextStyle(
-                      fontSize: fontSize.sp,
+                      fontSize: t.s(fontSize),
                       color: Colors.white,
                     ),
                   )
@@ -924,7 +924,7 @@ class _AntInputSearchState extends State<AntInputSearch> {
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(t.borderRadius.w),
+      borderRadius: BorderRadius.circular(t.borderRadius),
       child: IntrinsicHeight(
         child: Row(
           children: [
@@ -969,21 +969,21 @@ class AntInputGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     if (!compact) {
       return Wrap(
-        spacing: 8.w,
-        runSpacing: 8.w,
+        spacing: t.s(8),
+        runSpacing: t.s(8),
         children: children,
       );
     }
 
     // 紧凑模式：相邻边框合并（负 margin 效果通过 Stack/Transform 不便实现，
     // 改用去重边框法：每个子项左侧边框在非首项时由前一项右侧覆盖）
-    final t = AntTheme.of(context);
     final separator = Container(
-      width: 1.w,
+      width: t.s(1),
       color: t.colorBorder,
-      height: _heightOf(t, AntInputSize.middle).w,
+      height: t.s(_heightOf(t, AntInputSize.middle)),
     );
 
     final items = <Widget>[];

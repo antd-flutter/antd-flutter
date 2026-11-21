@@ -101,9 +101,9 @@ class _AntCardState<T> extends State<AntCard<T>> {
     final theme = AntTheme.of(context);
     final isSmall = widget.size == AntCardSize.small;
     final headerPadding = isSmall
-        ? EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w)
-        : EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w);
-    final bodyPadding = isSmall ? EdgeInsets.all(12.w) : EdgeInsets.all(24.w);
+        ? EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(8))
+        : EdgeInsets.symmetric(horizontal: theme.s(24), vertical: theme.s(16));
+    final bodyPadding = isSmall ? EdgeInsets.all(theme.s(12)) : EdgeInsets.all(theme.s(24));
 
     final hasHeader = widget.title != null || widget.extra != null;
 
@@ -185,11 +185,11 @@ class _AntCardState<T> extends State<AntCard<T>> {
           if (widget.actions != null && widget.actions!.isNotEmpty) ...[
             Divider(height: 1, thickness: 1, color: theme.colorSplit),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.w),
+              padding: EdgeInsets.symmetric(horizontal: theme.s(8), vertical: theme.s(4)),
               child: Row(
                 children: [
                   for (var i = 0; i < widget.actions!.length; i++) ...[
-                    if (i > 0) SizedBox(width: 8.w),
+                    if (i > 0) SizedBox(width: theme.s(8)),
                     Expanded(
                       child: InkWell(
                         onTap: widget.onActionTap == null
@@ -198,7 +198,7 @@ class _AntCardState<T> extends State<AntCard<T>> {
                         borderRadius:
                             BorderRadius.circular(theme.borderRadiusSM),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.w),
+                          padding: EdgeInsets.symmetric(vertical: theme.s(8)),
                           child: DefaultTextStyle.merge(
                             style: TextStyle(
                               fontSize: theme.fontSizeSM,
@@ -248,26 +248,26 @@ class _AntCardState<T> extends State<AntCard<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 120.w,
-          height: 16.w,
+          width: theme.s(120),
+          height: theme.s(16),
           decoration: BoxDecoration(
             color: theme.colorFillSecondary,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         Container(
           width: double.infinity,
-          height: 14.w,
+          height: theme.s(14),
           decoration: BoxDecoration(
             color: theme.colorFillSecondary,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Container(
-          width: 200.w,
-          height: 14.w,
+          width: theme.s(200),
+          height: theme.s(14),
           decoration: BoxDecoration(
             color: theme.colorFillSecondary,
             borderRadius: BorderRadius.circular(4),

@@ -102,7 +102,7 @@ class AntDescriptions<T> extends StatelessWidget {
         // 标题栏
         if (title != null || extra != null)
           Padding(
-            padding: EdgeInsets.only(bottom: 12.w),
+            padding: EdgeInsets.only(bottom: theme.s(12)),
             child: Row(
               children: [
                 if (title != null)
@@ -153,27 +153,27 @@ class AntDescriptions<T> extends StatelessWidget {
     switch (size) {
       case AntDescriptionsSize.large:
         return _DescriptionsMetrics(
-          cellPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w),
+          cellPadding: EdgeInsets.symmetric(horizontal: theme.s(24), vertical: theme.s(16)),
           labelFontSize: theme.fontSize,
           contentFontSize: theme.fontSize,
-          itemPaddingBottom: 16.w,
-          itemPaddingEnd: 16.w,
+          itemPaddingBottom: theme.s(16),
+          itemPaddingEnd: theme.s(16),
         );
       case AntDescriptionsSize.small:
         return _DescriptionsMetrics(
-          cellPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
+          cellPadding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(8)),
           labelFontSize: theme.fontSizeSM,
           contentFontSize: theme.fontSizeSM,
-          itemPaddingBottom: 8.w,
-          itemPaddingEnd: 16.w,
+          itemPaddingBottom: theme.s(8),
+          itemPaddingEnd: theme.s(16),
         );
       case AntDescriptionsSize.middle:
         return _DescriptionsMetrics(
-          cellPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.w),
+          cellPadding: EdgeInsets.symmetric(horizontal: theme.s(24), vertical: theme.s(12)),
           labelFontSize: theme.fontSize,
           contentFontSize: theme.fontSize,
-          itemPaddingBottom: 12.w,
-          itemPaddingEnd: 16.w,
+          itemPaddingBottom: theme.s(12),
+          itemPaddingEnd: theme.s(16),
         );
     }
   }
@@ -442,7 +442,7 @@ class AntDescriptions<T> extends StatelessWidget {
               : Padding(
                   padding: EdgeInsets.only(
                     right: metrics.itemPaddingEnd,
-                    bottom: 8.w,
+                    bottom: theme.s(8),
                   ),
                   child: _buildLabel(
                     context,

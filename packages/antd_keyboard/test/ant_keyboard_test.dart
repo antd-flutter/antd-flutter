@@ -12,13 +12,11 @@ Widget _wrap(
   Widget child, {
   bool dark = false,
 }) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: dark ? AntThemeData.dark() : AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: dark ? AntThemeData.dark() : AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );

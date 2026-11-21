@@ -28,8 +28,9 @@ class CheckListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,7 +42,7 @@ class CheckListPage extends StatelessWidget {
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '多选',
             child: AntCheckList<String>(
@@ -52,7 +53,7 @@ class CheckListPage extends StatelessWidget {
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '带描述（自定义模型）',
             child: AntCheckList<Payment>(
@@ -64,7 +65,7 @@ class CheckListPage extends StatelessWidget {
                   _showSnackbar(context, '选中: ${v.map((p) => p.id)}'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '带前缀',
             child: AntCheckList<String>(
@@ -77,7 +78,7 @@ class CheckListPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '禁用',
             child: AntCheckList<String>(
@@ -87,7 +88,7 @@ class CheckListPage extends StatelessWidget {
               disabledOf: (value) => value == 'b',
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '只读',
             child: AntCheckList<String>(
@@ -97,7 +98,7 @@ class CheckListPage extends StatelessWidget {
               labelOf: (value) => _optionNames[value] ?? value,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '单项只读',
             child: AntCheckList<String>(
@@ -107,7 +108,7 @@ class CheckListPage extends StatelessWidget {
               readOnlyOf: (value) => value == 'b',
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '隐藏勾选标记',
             child: AntCheckList<String>(
@@ -118,9 +119,9 @@ class CheckListPage extends StatelessWidget {
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           const _ControlledDemo(),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '整行自定义（itemBuilder）',
             child: AntCheckList<Payment>(
@@ -129,12 +130,12 @@ class CheckListPage extends StatelessWidget {
                 children: [
                   Icon(
                     AntIcons.creditCardOutlined,
-                    size: 18.w,
+                    size: theme.s(18),
                     color: payment.disabled
                         ? AntTheme.of(context).colorTextDisabled
                         : AntTheme.of(context).colorPrimary,
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: theme.s(8)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +144,7 @@ class CheckListPage extends StatelessWidget {
                         Text(
                           payment.description,
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: theme.s(12),
                             color: AntTheme.of(context).colorTextSecondary,
                           ),
                         ),
@@ -184,7 +185,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               '当前值: $_value',
               style: TextStyle(
@@ -216,7 +217,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -226,7 +227,7 @@ class _Section extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               title,
               style: TextStyle(

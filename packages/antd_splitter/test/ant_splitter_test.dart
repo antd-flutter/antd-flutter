@@ -6,15 +6,12 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -73,10 +70,14 @@ void main() {
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('ant_splitter_dragger_0')),
-          findsOneWidget,);
-      expect(find.byKey(const ValueKey('ant_splitter_dragger_1')),
-          findsOneWidget,);
+      expect(
+        find.byKey(const ValueKey('ant_splitter_dragger_0')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('ant_splitter_dragger_1')),
+        findsOneWidget,
+      );
       expect(find.text('P1'), findsOneWidget);
       expect(find.text('P2'), findsOneWidget);
       expect(find.text('P3'), findsOneWidget);
@@ -168,7 +169,9 @@ void main() {
       );
       expect(
         find.descendant(
-            of: find.byType(AntSplitter), matching: find.byType(Column),),
+          of: find.byType(AntSplitter),
+          matching: find.byType(Column),
+        ),
         findsOneWidget,
       );
       // 600 - 20 = 580, 每面板 290
@@ -177,8 +180,7 @@ void main() {
   });
 
   group('AntSplitter — 拖拽', () {
-    testWidgets('drag updates panel sizes and calls onResize',
-        (tester) async {
+    testWidgets('drag updates panel sizes and calls onResize', (tester) async {
       var resizeCalled = false;
       List<double>? resizeSizes;
       await tester.pumpWidget(
@@ -262,8 +264,7 @@ void main() {
       expect(_panelWidths(tester), closeToList([390, 390]));
     });
 
-    testWidgets('onResizeStart and onResizeEnd are called',
-        (tester) async {
+    testWidgets('onResizeStart and onResizeEnd are called', (tester) async {
       var startCalled = false;
       var endCalled = false;
       await tester.pumpWidget(
@@ -298,10 +299,14 @@ void main() {
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
-          findsOneWidget,);
-      expect(find.byKey(const ValueKey('ant_splitter_collapse_0_1')),
-          findsOneWidget,);
+      expect(
+        find.byKey(const ValueKey('ant_splitter_collapse_0_0')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('ant_splitter_collapse_0_1')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('collapse button renders fully with >=44x44 hit area',
@@ -391,8 +396,7 @@ void main() {
       expect(collapsedStates?[0], isTrue);
     });
 
-    testWidgets('tap collapsed button again expands panel',
-        (tester) async {
+    testWidgets('tap collapsed button again expands panel', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const AntSplitter(
@@ -478,7 +482,10 @@ void main() {
               setState = setState_;
               return AntSplitter(
                 children: [
-                  AntSplitterPanel(size: controlledSize, child: const Text('A')),
+                  AntSplitterPanel(
+                    size: controlledSize,
+                    child: const Text('A'),
+                  ),
                   const AntSplitterPanel(child: Text('B')),
                 ],
               );
@@ -497,8 +504,7 @@ void main() {
   });
 
   group('AntSplitter — 双击重置', () {
-    testWidgets('double tap dragger resets to defaultSize',
-        (tester) async {
+    testWidgets('double tap dragger resets to defaultSize', (tester) async {
       var doubleTapCalled = false;
       await tester.pumpWidget(
         _wrap(
@@ -530,8 +536,7 @@ void main() {
   });
 
   group('AntSplitter — lazy 模式', () {
-    testWidgets('lazy mode defers size update until drag ends',
-        (tester) async {
+    testWidgets('lazy mode defers size update until drag ends', (tester) async {
       await tester.pumpWidget(
         _wrap(
           const AntSplitter(
@@ -590,7 +595,11 @@ class _CloseToListMatcher extends Matcher {
 
   @override
   Description describeMismatch(
-      Object? item, Description mismatchDescription, Map matchState, bool verbose,) {
+    Object? item,
+    Description mismatchDescription,
+    Map matchState,
+    bool verbose,
+  ) {
     if (item is List<double>) {
       return mismatchDescription.add('was $item');
     }

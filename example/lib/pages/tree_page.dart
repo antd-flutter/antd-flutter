@@ -102,7 +102,7 @@ class _TreePageState extends State<TreePage> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -110,14 +110,14 @@ class _TreePageState extends State<TreePage> {
             title: '基础用法',
             child: _tree(onExpand: (_) => _toast(context, '展开状态变化')),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '默认展开',
             child: _tree(initialExpandedKeys: const {'zj'}),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(title: '默认展开全部', child: _tree(defaultExpandAll: true)),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '受控展开',
             child: Column(
@@ -127,9 +127,9 @@ class _TreePageState extends State<TreePage> {
                   expandedKeys: _expandedKeys,
                   onExpand: (keys) => setState(() => _expandedKeys = keys),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: t.s(8)),
                 Wrap(
-                  spacing: 8.w,
+                  spacing: t.s(8),
                   children: [
                     AntButton(
                       onTap: () => setState(() => _expandedKeys = const {'zj'}),
@@ -148,7 +148,7 @@ class _TreePageState extends State<TreePage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '可选中',
             child: _tree(
@@ -158,7 +158,7 @@ class _TreePageState extends State<TreePage> {
                   _toast(context, '选中：${keys.isEmpty ? '无' : keys.join(', ')}'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '可勾选（父子联动）',
             child: _tree(
@@ -173,15 +173,15 @@ class _TreePageState extends State<TreePage> {
               }),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '当前勾选',
             child: Text(
               _checkedKeys.isEmpty ? '未勾选任何节点' : _checkedKeys.join('、'),
-              style: TextStyle(fontSize: t.fontSizeSM.sp, color: t.colorText),
+              style: TextStyle(fontSize: t.fontSizeSM, color: t.colorText),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: 'checkStrictly 严格模式（父子不联动）',
             child: _tree(
@@ -194,7 +194,7 @@ class _TreePageState extends State<TreePage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '连接线与禁用',
             child: _tree(
@@ -221,7 +221,7 @@ class _Section extends StatelessWidget {
     final t = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -233,12 +233,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: t.fontSize.sp,
+              fontSize: t.fontSize,
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: t.s(8)),
           child,
         ],
       ),

@@ -4,16 +4,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 AnimatedContainer _dot(WidgetTester tester, int index) {
@@ -138,11 +136,11 @@ void main() {
       ),),);
       final normal = _dot(tester, 1);
       final active = _dot(tester, 0);
-      expect(normal.constraints!.maxWidth, 8.w);
-      expect(active.constraints!.maxWidth, 20.w);
+      expect(normal.constraints!.maxWidth, 8);
+      expect(active.constraints!.maxWidth, 20);
       // 间距体现在 margin 上（首个点之后的点）
       final midMargin = _dot(tester, 1).margin! as EdgeInsets;
-      expect(midMargin.right, 6.w);
+      expect(midMargin.right, 6);
     });
 
     testWidgets('white preset uses white active color', (tester) async {

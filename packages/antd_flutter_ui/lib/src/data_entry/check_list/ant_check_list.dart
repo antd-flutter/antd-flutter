@@ -178,7 +178,7 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
     return Container(
       decoration: BoxDecoration(
         color: t.colorBgContainer,
-        borderRadius: BorderRadius.circular(t.borderRadiusLG.w),
+        borderRadius: BorderRadius.circular(t.borderRadiusLG),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -186,7 +186,7 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
         children: [
           for (var i = 0; i < widget.items.length; i++) ...[
             if (i > 0)
-              Divider(height: 1.w, thickness: 1.w, color: t.colorSplit),
+              Divider(height: t.s(1), thickness: t.s(1), color: t.colorSplit),
             _buildItem(context, t, widget.items[i], i, current),
           ],
         ],
@@ -227,14 +227,14 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
       onTap: canTap ? () => _handleTap(item) : null,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: t.margin.w,
-          vertical: t.marginSM.w,
+          horizontal: t.margin,
+          vertical: t.marginSM,
         ),
         child: Row(
           children: [
             if (prefix != null) ...[
               prefix,
-              SizedBox(width: t.marginSM.w),
+              SizedBox(width: t.marginSM),
             ],
             Expanded(
               child: Column(
@@ -243,16 +243,16 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
                 children: [
                   DefaultTextStyle(
                     style: TextStyle(
-                      fontSize: t.fontSize.sp,
+                      fontSize: t.fontSize,
                       color: isDisabled ? t.colorTextDisabled : t.colorText,
                     ),
                     child: label,
                   ),
                   if (description != null || descriptionText != null) ...[
-                    SizedBox(height: 2.w),
+                    SizedBox(height: t.s(2)),
                     DefaultTextStyle(
                       style: TextStyle(
-                        fontSize: t.fontSizeSM.sp,
+                        fontSize: t.fontSizeSM,
                         color: isDisabled
                             ? t.colorTextQuaternary
                             : t.colorTextSecondary,
@@ -270,15 +270,15 @@ class _AntCheckListState<T> extends State<AntCheckList<T>> {
             ),
             if (widget.showCheckMark)
               Padding(
-                padding: EdgeInsets.only(left: t.marginSM.w),
+                padding: EdgeInsets.only(left: t.marginSM),
                 child: isChecked
                     ? (widget.activeIcon ??
                         Icon(
                           AntIcons.checkOutlined,
-                          size: 18.w,
+                          size: t.s(18),
                           color: t.colorPrimary,
                         ))
-                    : SizedBox(width: 18.w),
+                    : SizedBox(width: t.s(18)),
               ),
           ],
         ),

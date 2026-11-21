@@ -62,7 +62,7 @@ class DescriptionsPage extends StatelessWidget {
       ),
     ];
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -71,13 +71,13 @@ class DescriptionsPage extends StatelessWidget {
             theme: theme,
             child: _descriptions(items: items, column: column),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带边框',
             theme: theme,
             child: _descriptions(items: items, column: column, bordered: true),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '尺寸',
             theme: theme,
@@ -93,7 +93,7 @@ class DescriptionsPage extends StatelessWidget {
                   size: AntDescriptionsSize.large,
                   bordered: true,
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 _descriptions(
                   items: [
                     _DescData(
@@ -104,7 +104,7 @@ class DescriptionsPage extends StatelessWidget {
                   size: AntDescriptionsSize.middle,
                   bordered: true,
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 _descriptions(
                   items: [
                     _DescData(
@@ -118,7 +118,7 @@ class DescriptionsPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '跨列 span',
             theme: theme,
@@ -148,7 +148,7 @@ class DescriptionsPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '垂直布局',
             theme: theme,
@@ -159,7 +159,7 @@ class DescriptionsPage extends StatelessWidget {
               bordered: true,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '标题 + 操作区',
             theme: theme,
@@ -218,7 +218,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -230,12 +230,12 @@ class _Section extends StatelessWidget {
           AntText(
             text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

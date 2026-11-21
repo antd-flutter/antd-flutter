@@ -83,18 +83,18 @@ class _NoticeBarMetrics {
   factory _NoticeBarMetrics.of(AntThemeData t) {
     final rawHeight = t.controlHeightLG;
     return _NoticeBarMetrics(
-      height: rawHeight.w,
-      fontSize: t.fontSize.sp,
-      iconSize: (t.fontSizeIcon * 1.5).sp,
-      closeIconSize: (t.fontSizeIcon * 1.5).sp,
-      closeHitSize: (t.fontSizeIcon * 2).w,
-      horizontalPadding: t.paddingSM.w,
-      wrapVerticalPadding: t.paddingXS.w,
-      iconGap: t.paddingXS.w,
-      rightGap: t.paddingSM.w,
-      borderWidth: t.lineWidth.w,
-      neutralRadius: t.borderRadiusSM.r,
-      roundedRadius: rawHeight.w / 2,
+      height: t.s(rawHeight),
+      fontSize: t.fontSize,
+      iconSize: t.s((t.fontSizeIcon * 1.5)),
+      closeIconSize: t.s((t.fontSizeIcon * 1.5)),
+      closeHitSize: t.s((t.fontSizeIcon * 2)),
+      horizontalPadding: t.paddingSM,
+      wrapVerticalPadding: t.paddingXS,
+      iconGap: t.paddingXS,
+      rightGap: t.paddingSM,
+      borderWidth: t.lineWidth,
+      neutralRadius: t.borderRadiusSM,
+      roundedRadius: t.s(rawHeight) / 2,
     );
   }
 }

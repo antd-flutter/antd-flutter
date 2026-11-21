@@ -79,26 +79,18 @@ class _GalleryPageState extends State<GalleryPage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: AntSegmented(
+          child: AntSegmented<String>(
             value: switch (_tabIndex) {
               1 => 'filled',
               2 => 'twotone',
               _ => 'outlined',
             },
-            options: [
-              AntSegmentedItem(
-                value: 'outlined',
-                label: strings.tabOutlined(AntIcons.outlinedIcons.length),
-              ),
-              AntSegmentedItem(
-                value: 'filled',
-                label: strings.tabFilled(AntIcons.filledIcons.length),
-              ),
-              AntSegmentedItem(
-                value: 'twotone',
-                label: strings.tabTwoTone(AntIconsTwotone.twotoneIcons.length),
-              ),
-            ],
+            options: const ['outlined', 'filled', 'twotone'],
+            labelOf: (value) => switch (value) {
+              'filled' => strings.tabFilled(AntIcons.filledIcons.length),
+              'twotone' => strings.tabTwoTone(AntIconsTwotone.twotoneIcons.length),
+              _ => strings.tabOutlined(AntIcons.outlinedIcons.length),
+            },
             onChange: _onTabChanged,
           ),
         ),

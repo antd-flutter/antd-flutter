@@ -6,23 +6,20 @@ import 'package:flutter_test/flutter_test.dart';
 ScrollController? _controller;
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 无 Overlay 祖先的极简包裹（不用 MaterialApp/Navigator），
 /// 用于验证 Affix 找不到 Overlay 时的降级行为不崩溃。
 Widget _wrapNoOverlay(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => Directionality(
+  return Directionality(
       textDirection: TextDirection.ltr,
       child: MediaQuery(
         data: const MediaQueryData(size: Size(600, 600)),
@@ -31,8 +28,7 @@ Widget _wrapNoOverlay(Widget child) {
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 可滚动页面：头部 [headHeight]，随后是 AntAffix（高 60），下方为占位内容。

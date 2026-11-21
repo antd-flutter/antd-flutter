@@ -368,24 +368,24 @@ class _DialogOverlayState extends State<_DialogOverlay> {
       ),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         boxShadow: [
           BoxShadow(
             color: theme.colorShadow.withValues(alpha: 0.2),
-            blurRadius: 24.r,
+            blurRadius: theme.s(24),
             offset: const Offset(0, 8),
           ),
         ],
       ),
       // 按钮区/divider 贯穿卡片全宽（antd-mobile 语义），仅内容区留 20 内边距
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.all(theme.s(20)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -395,12 +395,12 @@ class _DialogOverlayState extends State<_DialogOverlay> {
                       config.title!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: theme.s(16),
                         fontWeight: FontWeight.w600,
                         color: theme.colorTextHeading,
                       ),
                     ),
-                    SizedBox(height: 12.w),
+                    SizedBox(height: theme.s(12)),
                   ],
                   if (config.content != null)
                     DefaultTextStyle(
@@ -412,7 +412,7 @@ class _DialogOverlayState extends State<_DialogOverlay> {
                       child: config.content!,
                     ),
                   if (config.title != null || config.content != null)
-                    SizedBox(height: 24.w),
+                    SizedBox(height: theme.s(24)),
                 ],
               ),
             ),
@@ -489,7 +489,7 @@ class _DialogOverlayState extends State<_DialogOverlay> {
         children: [
           for (var i = 0; i < buttons.length; i++) ...[
             if (i > 0)
-              Container(width: 0.5, height: 44.w, color: theme.colorBorder),
+              Container(width: 0.5, height: theme.s(44), color: theme.colorBorder),
             Expanded(child: buttons[i]),
           ],
         ],
@@ -527,13 +527,13 @@ class _ActionButton extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          height: 44.w,
+          height: themeData.s(44),
           alignment: Alignment.center,
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: themeData.s(16),
               fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
               color: primary ? themeData.colorPrimary : themeData.colorText,
             ),

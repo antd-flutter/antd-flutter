@@ -382,16 +382,16 @@ class _AntCarouselState extends State<AntCarousel>
     }
   }
 
-  EdgeInsets get _dotsPadding {
+  EdgeInsets _dotsPadding(AntThemeData theme) {
     switch (widget.dotPosition) {
       case AntCarouselDotPosition.top:
-        return EdgeInsets.only(top: 10.w);
+        return EdgeInsets.only(top: theme.s(10));
       case AntCarouselDotPosition.bottom:
-        return EdgeInsets.only(bottom: 10.w);
+        return EdgeInsets.only(bottom: theme.s(10));
       case AntCarouselDotPosition.left:
-        return EdgeInsets.only(left: 10.w);
+        return EdgeInsets.only(left: theme.s(10));
       case AntCarouselDotPosition.right:
-        return EdgeInsets.only(right: 10.w);
+        return EdgeInsets.only(right: theme.s(10));
     }
   }
 
@@ -401,7 +401,7 @@ class _AntCarouselState extends State<AntCarousel>
       child: Align(
         alignment: _dotsAlignment,
         child: Padding(
-          padding: _dotsPadding,
+          padding: _dotsPadding(theme),
           child: _dotsVertical
               ? Column(
                   mainAxisSize: MainAxisSize.min,
@@ -426,14 +426,14 @@ class _AntCarouselState extends State<AntCarousel>
     final active = index == _current;
     return Padding(
       padding: vertical
-          ? EdgeInsets.symmetric(vertical: 3.w)
-          : EdgeInsets.symmetric(horizontal: 3.w),
+          ? EdgeInsets.symmetric(vertical: theme.s(3))
+          : EdgeInsets.symmetric(horizontal: theme.s(3)),
       child: GestureDetector(
         onTap: () => _goTo(index),
         behavior: HitTestBehavior.opaque,
         child: Container(
-          width: vertical ? 6.w : (active ? 20.w : 6.w),
-          height: vertical ? (active ? 20.w : 6.w) : 6.w,
+          width: vertical ? theme.s(6) : (active ? theme.s(20) : theme.s(6)),
+          height: vertical ? (active ? theme.s(20) : theme.s(6)) : theme.s(6),
           decoration: BoxDecoration(
             color: active
                 ? theme.colorPrimary
@@ -455,8 +455,8 @@ class _AntCarouselState extends State<AntCarousel>
               widget.vertical ? Alignment.topCenter : Alignment.centerLeft,
           child: Padding(
             padding: widget.vertical
-                ? EdgeInsets.only(top: 12.w)
-                : EdgeInsets.only(left: 12.w),
+                ? EdgeInsets.only(top: theme.s(12))
+                : EdgeInsets.only(left: theme.s(12)),
             child: _buildArrow(
               theme,
               icon: widget.vertical
@@ -473,8 +473,8 @@ class _AntCarouselState extends State<AntCarousel>
               widget.vertical ? Alignment.bottomCenter : Alignment.centerRight,
           child: Padding(
             padding: widget.vertical
-                ? EdgeInsets.only(bottom: 12.w)
-                : EdgeInsets.only(right: 12.w),
+                ? EdgeInsets.only(bottom: theme.s(12))
+                : EdgeInsets.only(right: theme.s(12)),
             child: _buildArrow(
               theme,
               icon: widget.vertical
@@ -499,13 +499,13 @@ class _AntCarouselState extends State<AntCarousel>
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          width: 32.w,
-          height: 32.w,
+          width: theme.s(32),
+          height: theme.s(32),
           decoration: BoxDecoration(
             color: theme.colorBgMask.withValues(alpha: 0.6),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 20.sp, color: theme.colorWhite),
+          child: Icon(icon, size: theme.s(20), color: theme.colorWhite),
         ),
       ),
     );

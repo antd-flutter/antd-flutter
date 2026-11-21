@@ -8,7 +8,7 @@ class ResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -21,7 +21,7 @@ class ResultPage extends StatelessWidget {
               subTitle: '申请提交成功，预计 1-3 个工作日内完成审核',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Error 错误',
             theme: theme,
@@ -31,7 +31,7 @@ class ResultPage extends StatelessWidget {
               subTitle: '请检查网络后重试',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Warning 警告',
             theme: theme,
@@ -41,7 +41,7 @@ class ResultPage extends StatelessWidget {
               subTitle: '当前操作可能影响线上数据，请谨慎操作',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Info 信息',
             theme: theme,
@@ -51,7 +51,7 @@ class ResultPage extends StatelessWidget {
               subTitle: '到期后部分功能将不可用',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '404 页面不存在',
             theme: theme,
@@ -61,7 +61,7 @@ class ResultPage extends StatelessWidget {
               subTitle: '抱歉，您访问的页面不存在',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 extra 操作区',
             theme: theme,
@@ -70,7 +70,7 @@ class ResultPage extends StatelessWidget {
               title: '无权访问',
               subTitle: '请联系管理员开通权限',
               extra: Wrap(
-                spacing: 8.w,
+                spacing: theme.s(8),
                 children: [
                   AntButton(child: const Text('返回首页'), onTap: () {}),
                   AntButton(
@@ -103,7 +103,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -115,12 +115,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           Center(child: child),
         ],
       ),

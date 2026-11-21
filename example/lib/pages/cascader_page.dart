@@ -88,12 +88,12 @@ class CascaderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(title: '基础用法', theme: t, child: const _BasicDemo()),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '默认值（key 数组）',
             theme: t,
@@ -106,13 +106,13 @@ class CascaderPage extends StatelessWidget {
               placeholder: '请选择',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '选择即改变 (changeOnSelect)',
             theme: t,
             child: const _ChangeOnSelectDemo(),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '禁用选项',
             theme: t,
@@ -125,7 +125,7 @@ class CascaderPage extends StatelessWidget {
               placeholder: '请选择',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '三种尺寸',
             theme: t,
@@ -139,7 +139,7 @@ class CascaderPage extends StatelessWidget {
                   size: AntCascaderSize.large,
                   placeholder: '大号',
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 AntCascader<_Region>(
                   dataSource: _regions,
                   keyOf: _keyOf,
@@ -148,7 +148,7 @@ class CascaderPage extends StatelessWidget {
                   size: AntCascaderSize.middle,
                   placeholder: '中号',
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 AntCascader<_Region>(
                   dataSource: _regions,
                   keyOf: _keyOf,
@@ -160,7 +160,7 @@ class CascaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '允许清除',
             theme: t,
@@ -174,7 +174,7 @@ class CascaderPage extends StatelessWidget {
               placeholder: '请选择',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '禁用状态',
             theme: t,
@@ -188,7 +188,7 @@ class CascaderPage extends StatelessWidget {
               placeholder: '禁用',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(title: '受控用法', theme: t, child: const _ControlledDemo()),
         ],
       ),
@@ -212,6 +212,7 @@ class _BasicDemoState extends State<_BasicDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -227,7 +228,7 @@ class _BasicDemoState extends State<_BasicDemo> {
         ),
         if (_selected.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: 8.h),
+            padding: EdgeInsets.only(top: theme.s(8)),
             child: Text('已选：$_selected'),
           ),
       ],
@@ -251,6 +252,7 @@ class _ChangeOnSelectDemoState extends State<_ChangeOnSelectDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,7 +269,7 @@ class _ChangeOnSelectDemoState extends State<_ChangeOnSelectDemo> {
         ),
         if (_selected.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: 8.h),
+            padding: EdgeInsets.only(top: theme.s(8)),
             child: Text('已选：$_selected'),
           ),
       ],
@@ -291,6 +293,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -303,13 +306,13 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           placeholder: '受控选择',
           onChange: (path) => setState(() => _value = path),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: theme.s(8)),
         AntButton(
           size: AntButtonSize.small,
           onTap: () => setState(() => _value = const ['gd', 'gz', 'th']),
           child: const Text('设置为广州天河'),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: theme.s(8)),
         AntButton(
           size: AntButtonSize.small,
           onTap: () => setState(() => _value = const []),
@@ -340,7 +343,7 @@ class _Section extends StatelessWidget {
     final t = theme;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -352,11 +355,11 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: t.fontSizeLG.sp,
+              fontSize: theme.fontSizeLG,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

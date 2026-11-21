@@ -51,9 +51,7 @@ class _AntdSwipeActionGalleryAppState extends State<AntdSwipeActionGalleryApp> {
     final theme = _isDark ? AntThemeData.dark() : AntThemeData.light();
     return AntTheme(
       data: theme,
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'Ant Design SwipeAction',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -65,7 +63,6 @@ class _AntdSwipeActionGalleryAppState extends State<AntdSwipeActionGalleryApp> {
             onToggleDark: () => setState(() => _isDark = !_isDark),
           ),
         ),
-      ),
     );
   }
 }

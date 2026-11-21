@@ -42,10 +42,10 @@ const Color _defaultTooltipBg = Color(0xE6141414);
 const double _tooltipRadius = 8;
 
 /// 箭头边长。
-double get _arrowSize => 8.r;
+double _arrowSizeOf(AntThemeData theme) => theme.s(8);
 
 /// 气泡与触发元素的间距。
-double get _tooltipGap => 6.r;
+double _tooltipGapOf(AntThemeData theme) => theme.s(6);
 
 /// 气泡内容 Key（供测试定位）。
 const Key _tooltipContentKey = Key('ant_tooltip_content');
@@ -543,7 +543,7 @@ class _TooltipOverlay extends StatelessWidget {
     final decoration = overlayStyle ??
         BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(_tooltipRadius.r),
+          borderRadius: BorderRadius.circular(themeData.s(_tooltipRadius)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
@@ -559,8 +559,8 @@ class _TooltipOverlay extends StatelessWidget {
       arrow: arrow,
       arrowColor: overlayStyle?.color ?? bgColor,
       arrowKey: arrow ? _tooltipArrowKey : null,
-      gap: _tooltipGap,
-      arrowSize: _arrowSize,
+      gap: _tooltipGapOf(themeData),
+      arrowSize: _arrowSizeOf(themeData),
       onDismiss: onDismiss,
       onBubbleHoverEnter: onBubbleHoverEnter,
       onBubbleHoverExit: onBubbleHoverExit,
@@ -571,9 +571,9 @@ class _TooltipOverlay extends StatelessWidget {
     return Container(
       key: _tooltipContentKey,
       decoration: decoration,
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.w),
+      padding: EdgeInsets.symmetric(horizontal: themeData.s(8), vertical: themeData.s(6)),
       child: Container(
-        constraints: BoxConstraints(maxWidth: 250.w),
+        constraints: BoxConstraints(maxWidth: themeData.s(250)),
         child: DefaultTextStyle(
           style: TextStyle(
             fontSize: themeData.fontSize,

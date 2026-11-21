@@ -267,7 +267,7 @@ class _PopupOverlayState extends State<_PopupOverlay> {
 
   /// 各方向默认圆角（朝向屏幕内容的边）。
   BorderRadius get _defaultBorderRadius {
-    final radius = (widget.borderRadius ?? widget.themeData.borderRadiusLG).r;
+    final radius = widget.borderRadius ?? widget.themeData.borderRadiusLG;
     switch (widget.position) {
       case AntPopupPosition.bottom:
         return BorderRadius.vertical(top: Radius.circular(radius));
@@ -353,14 +353,14 @@ class _PopupOverlayState extends State<_PopupOverlay> {
         children: [
           if (widget.handle)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.w),
+              padding: EdgeInsets.symmetric(vertical: theme.s(8)),
               child: Center(
                 child: Container(
-                  width: 36.w,
-                  height: 4.w,
+                  width: theme.s(36),
+                  height: theme.s(4),
                   decoration: BoxDecoration(
                     color: theme.colorBorder,
-                    borderRadius: BorderRadius.circular(2.r),
+                    borderRadius: BorderRadius.circular(theme.s(2)),
                   ),
                 ),
               ),
@@ -375,10 +375,10 @@ class _PopupOverlayState extends State<_PopupOverlay> {
                   onTap: _handleClose,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.all(12.w),
+                    padding: EdgeInsets.all(theme.s(12)),
                     child: Icon(
                       AntIcons.closeOutlined,
-                      size: 18.w,
+                      size: theme.s(18),
                       color: theme.colorTextSecondary,
                     ),
                   ),

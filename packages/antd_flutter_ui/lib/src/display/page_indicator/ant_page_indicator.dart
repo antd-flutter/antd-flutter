@@ -110,9 +110,9 @@ class _AntPageIndicatorState extends State<AntPageIndicator> {
     final (defaultDotColor, defaultActiveColor) = _resolveColors(theme);
     final dotColor = widget.dotColor ?? defaultDotColor;
     final activeColor = widget.activeDotColor ?? defaultActiveColor;
-    final dotSize = (widget.dotSize ?? _kDotSize).w;
-    final activeDotSize = (widget.activeDotSize ?? _kActiveDotSize).w;
-    final spacing = (widget.dotSpacing ?? _kDotSpacing).w;
+    final dotSize = theme.s((widget.dotSize ?? _kDotSize));
+    final activeDotSize = theme.s((widget.activeDotSize ?? _kActiveDotSize));
+    final spacing = theme.s((widget.dotSpacing ?? _kDotSpacing));
     final isHorizontal = widget.direction == AntPageIndicatorDirection.horizontal;
     final current = _current;
 
@@ -135,7 +135,7 @@ class _AntPageIndicatorState extends State<AntPageIndicator> {
           ),
           decoration: BoxDecoration(
             color: active ? activeColor : dotColor,
-            borderRadius: BorderRadius.circular(_kDotBorderRadius.r),
+            borderRadius: BorderRadius.circular(theme.s(_kDotBorderRadius)),
           ),
         ),
       );

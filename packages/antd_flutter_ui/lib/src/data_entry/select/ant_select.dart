@@ -303,7 +303,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final height = _controlHeight.w;
+    final height = theme.s(_controlHeight);
     final open = _currentOpen;
 
     final selectedLabels = <Widget>[];
@@ -315,7 +315,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
               context,
               v,
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color:
                     widget.disabled ? theme.colorTextDisabled : theme.colorText,
               ),
@@ -337,7 +337,7 @@ class _AntSelectState<T> extends State<AntSelect<T>>
               context,
               v,
               style: TextStyle(
-                fontSize: theme.fontSize.sp,
+                fontSize: theme.fontSize,
                 color: theme.colorText,
               ),
             ),
@@ -355,19 +355,19 @@ class _AntSelectState<T> extends State<AntSelect<T>>
       key: _fieldKey,
       constraints: BoxConstraints(minHeight: height),
       padding: EdgeInsets.symmetric(
-        horizontal: theme.marginSM.w,
-        vertical: _isMultiple && selectedLabels.length > 1 ? 4.w : 0,
+        horizontal: theme.marginSM,
+        vertical: _isMultiple && selectedLabels.length > 1 ? theme.s(4) : 0,
       ),
       decoration: BoxDecoration(
         color: widget.disabled
             ? theme.colorBgContainerDisabled
             : theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadius.w),
+        borderRadius: BorderRadius.circular(theme.borderRadius),
         border: Border.all(
           color: open && !widget.disabled
               ? theme.controlOutline
               : theme.colorBorder,
-          width: open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
+          width: open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
         ),
       ),
       child: Row(
@@ -377,46 +377,46 @@ class _AntSelectState<T> extends State<AntSelect<T>>
                 ? Text(
                     widget.placeholder ?? '请选择',
                     style: TextStyle(
-                      fontSize: theme.fontSize.sp,
+                      fontSize: theme.fontSize,
                       color: theme.colorTextPlaceholder,
                     ),
                   )
                 : _isMultiple
                     ? Wrap(
-                        spacing: 4.w,
-                        runSpacing: 4.w,
+                        spacing: theme.s(4),
+                        runSpacing: theme.s(4),
                         children: selectedLabels,
                       )
                     : Row(children: selectedLabels),
           ),
           if (showClear) ...[
-            SizedBox(width: 4.w),
+            SizedBox(width: theme.s(4)),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _handleClear,
               child: Icon(
                 AntIcons.closeCircleFilled,
-                size: 14.w,
+                size: theme.s(14),
                 color: theme.colorTextPlaceholder,
               ),
             ),
           ] else if (widget.loading)
             Padding(
-              padding: EdgeInsets.only(left: 4.w),
+              padding: EdgeInsets.only(left: theme.s(4)),
               child: AntLoading(
-                size: 14.w,
+                size: theme.s(14),
                 color: theme.colorPrimary,
               ),
             )
           else
             Padding(
-              padding: EdgeInsets.only(left: 4.w),
+              padding: EdgeInsets.only(left: theme.s(4)),
               child: AnimatedRotation(
                 turns: open ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   AntIcons.downOutlined,
-                  size: 14.w,
+                  size: theme.s(14),
                   color: widget.disabled
                       ? theme.colorTextDisabled
                       : theme.colorTextSecondary,
@@ -455,22 +455,22 @@ class _Tag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(6), vertical: theme.s(2)),
       decoration: BoxDecoration(
         color: theme.colorFillSecondary,
-        borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusSM),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           label,
           if (onClear != null) ...[
-            SizedBox(width: 2.w),
+            SizedBox(width: theme.s(2)),
             GestureDetector(
               onTap: onClear,
               child: Icon(
                 AntIcons.closeOutlined,
-                size: 10.w,
+                size: theme.s(10),
                 color: theme.colorTextTertiary,
               ),
             ),
@@ -569,7 +569,7 @@ class _SelectOverlay<T> extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         border: Border.all(color: theme.colorSplit),
         boxShadow: [
           BoxShadow(
@@ -584,33 +584,33 @@ class _SelectOverlay<T> extends StatelessWidget {
         children: [
           if (showSearch)
             Padding(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(theme.s(8)),
               child: TextField(
                 autofocus: true,
                 style: TextStyle(
-                  fontSize: theme.fontSize.sp,
+                  fontSize: theme.fontSize,
                   color: theme.colorText,
                 ),
                 decoration: InputDecoration(
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 6.w,
+                    horizontal: theme.s(8),
+                    vertical: theme.s(6),
                   ),
                   hintText: '搜索',
                   hintStyle: TextStyle(
-                    fontSize: theme.fontSizeSM.sp,
+                    fontSize: theme.fontSizeSM,
                     color: theme.colorTextPlaceholder,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
                     borderSide: BorderSide(color: theme.colorBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(theme.borderRadius.w),
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
                     borderSide: BorderSide(
                       color: theme.colorPrimary,
-                      width: 1.5.w,
+                      width: theme.s(1.5),
                     ),
                   ),
                 ),
@@ -619,19 +619,19 @@ class _SelectOverlay<T> extends StatelessWidget {
             ),
           if (loading)
             Padding(
-              padding: EdgeInsets.all(24.w),
+              padding: EdgeInsets.all(theme.s(24)),
               child: AntLoading(
-                size: 20.w,
+                size: theme.s(20),
                 color: theme.colorPrimary,
               ),
             )
           else if (filtered.isEmpty)
             Padding(
-              padding: EdgeInsets.all(24.w),
+              padding: EdgeInsets.all(theme.s(24)),
               child: Text(
                 '暂无数据',
                 style: TextStyle(
-                  fontSize: theme.fontSize.sp,
+                  fontSize: theme.fontSize,
                   color: theme.colorTextDisabled,
                 ),
               ),
@@ -640,7 +640,7 @@ class _SelectOverlay<T> extends StatelessWidget {
             Flexible(
               child: ListView(
                 shrinkWrap: true,
-                padding: EdgeInsets.symmetric(vertical: 4.w),
+                padding: EdgeInsets.symmetric(vertical: theme.s(4)),
                 children: [
                   for (var i = 0; i < filtered.length; i++)
                     _OptionItem<T>(
@@ -708,17 +708,17 @@ class _OptionItem<T> extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(6)),
         child: Row(
           children: [
             if (isMultiple)
               Padding(
-                padding: EdgeInsets.only(right: 8.w),
+                padding: EdgeInsets.only(right: theme.s(8)),
                 child: Icon(
                   selected
                       ? AntIcons.checkSquareFilled
                       : AntIcons.borderOutlined,
-                  size: 16.w,
+                  size: theme.s(16),
                   color: selected && !disabled ? t.colorPrimary : t.colorBorder,
                 ),
               ),
@@ -727,7 +727,7 @@ class _OptionItem<T> extends StatelessWidget {
                   ? label
                   : DefaultTextStyle.merge(
                       style: TextStyle(
-                        fontSize: t.fontSize.sp,
+                        fontSize: t.fontSize,
                         color: textColor,
                       ),
                       child: label,
@@ -736,7 +736,7 @@ class _OptionItem<T> extends StatelessWidget {
             if (!isMultiple && selected)
               Icon(
                 AntIcons.checkOutlined,
-                size: 14.w,
+                size: theme.s(14),
                 color: t.colorPrimary,
               ),
           ],

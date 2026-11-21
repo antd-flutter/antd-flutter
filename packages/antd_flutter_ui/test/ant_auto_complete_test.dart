@@ -8,8 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
@@ -18,8 +17,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 Widget _autoComplete() => const AntAutoComplete<String>(

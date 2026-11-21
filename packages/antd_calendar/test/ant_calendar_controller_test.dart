@@ -4,16 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 构建固定视口高度的日历（card 形态）。

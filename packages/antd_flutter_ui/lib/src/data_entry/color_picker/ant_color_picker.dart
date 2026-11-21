@@ -239,11 +239,11 @@ class _AntColorPickerState<T> extends State<AntColorPicker<T>>
   double get _triggerSize {
     switch (widget.size) {
       case AntColorPickerSize.small:
-        return 16.r;
+        return _themeData.s(16);
       case AntColorPickerSize.middle:
-        return 24.r;
+        return _themeData.s(24);
       case AntColorPickerSize.large:
-        return 32.r;
+        return _themeData.s(32);
     }
   }
 
@@ -257,9 +257,9 @@ class _AntColorPickerState<T> extends State<AntColorPicker<T>>
       key: _triggerKey,
       onTap: widget.disabled ? null : () => _setOpen(!_currentOpen),
       child: Container(
-        padding: EdgeInsets.all(4.r),
+        padding: EdgeInsets.all(t.s(4)),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+          borderRadius: BorderRadius.circular(t.borderRadiusSM),
           border: Border.all(color: t.colorBorder),
         ),
         child: Row(
@@ -270,18 +270,18 @@ class _AntColorPickerState<T> extends State<AntColorPicker<T>>
               height: _triggerSize,
               decoration: BoxDecoration(
                 color: color ?? Colors.transparent,
-                borderRadius: BorderRadius.circular(t.borderRadiusXS.r),
+                borderRadius: BorderRadius.circular(t.borderRadiusXS),
                 border: Border.all(
                   color: color == null ? t.colorSplit : Colors.transparent,
                 ),
               ),
             ),
             if (widget.showText) ...[
-              SizedBox(width: 8.w),
+              SizedBox(width: t.s(8)),
               Text(
                 hex ?? '-',
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: t.colorText,
                 ),
               ),
@@ -451,17 +451,17 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
         color: Colors.transparent,
         child: Container(
           key: const Key('ant_color_picker_panel'),
-          width: 240.w,
-          padding: EdgeInsets.all(12.w),
+          width: t.s(240),
+          padding: EdgeInsets.all(t.s(12)),
           decoration: BoxDecoration(
             color: t.colorBgContainer,
-            borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
+            borderRadius: BorderRadius.circular(t.borderRadiusLG),
             border: Border.all(color: t.colorSplit),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 12.r,
-                offset: Offset(0, 4.h),
+                blurRadius: t.s(12),
+                offset: Offset(0, t.s(4)),
               ),
             ],
           ),
@@ -483,7 +483,7 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
           onChanged: _updateColor,
           onComplete: _completeColor,
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: t.s(12)),
         // 色相滑块
         _HueSlider(
           hue: _hsv.hue,
@@ -492,7 +492,7 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
         ),
         // 透明度滑块
         if (!widget.disabledAlpha) ...[
-          SizedBox(height: 8.h),
+          SizedBox(height: t.s(8)),
           _AlphaSlider(
             hsv: _hsv,
             onChanged: (alpha) => _updateColor(_hsv.withAlpha(alpha)),
@@ -500,14 +500,14 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
           ),
         ],
         // 颜色文本 + 清空按钮
-        SizedBox(height: 12.h),
+        SizedBox(height: t.s(12)),
         Row(
           children: [
             Expanded(
               child: Text(
                 _formatColor(_hsv, widget.format),
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: t.colorText,
                 ),
               ),
@@ -517,7 +517,7 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
                 onTap: widget.onClear,
                 child: Icon(
                   AntIcons.closeCircleFilled,
-                  size: 16.r,
+                  size: t.s(16),
                   color: t.colorTextTertiary,
                 ),
               ),
@@ -525,19 +525,19 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
         ),
         // 预设颜色
         if (widget.presets.isNotEmpty) ...[
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           for (final preset in widget.presets) ...[
             Text(
               widget.presetLabelOf(preset),
               style: TextStyle(
-                fontSize: t.fontSizeSM.sp,
+                fontSize: t.fontSizeSM,
                 color: t.colorTextSecondary,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: t.s(8)),
             Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
+              spacing: t.s(8),
+              runSpacing: t.s(8),
               children: [
                 for (final hex in widget.presetColorsOf(preset))
                   _PresetSwatch(
@@ -551,7 +551,7 @@ class _ColorPickerOverlayState<T> extends State<_ColorPickerOverlay<T>> {
                   ),
               ],
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: t.s(8)),
           ],
         ],
       ],
@@ -610,7 +610,7 @@ class _SvPanelState extends State<_SvPanel> {
             widget.onComplete();
           },
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+            borderRadius: BorderRadius.circular(t.borderRadiusSM),
             child: SizedBox(
               height: panelHeight,
               child: CustomPaint(
@@ -619,21 +619,21 @@ class _SvPanelState extends State<_SvPanel> {
                   children: [
                     Positioned(
                       left: (widget.hsv.saturation *
-                              (constraints.maxWidth - 12.r))
-                          .clamp(0.0, constraints.maxWidth - 12.r),
-                      top: ((1.0 - widget.hsv.value) * (panelHeight - 12.r))
-                          .clamp(0.0, panelHeight - 12.r),
+                              (constraints.maxWidth - t.s(12)))
+                          .clamp(0.0, constraints.maxWidth - t.s(12)),
+                      top: ((1.0 - widget.hsv.value) * (panelHeight - t.s(12)))
+                          .clamp(0.0, panelHeight - t.s(12)),
                       child: Container(
-                        width: 12.r,
-                        height: 12.r,
+                        width: t.s(12),
+                        height: t.s(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: widget.hsv.toColor(),
-                          border: Border.all(color: Colors.white, width: 2.r),
+                          border: Border.all(color: Colors.white, width: t.s(2)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 2.r,
+                              blurRadius: t.s(2),
                             ),
                           ],
                         ),
@@ -716,6 +716,7 @@ class _HueSliderState extends State<_HueSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -728,33 +729,33 @@ class _HueSliderState extends State<_HueSlider> {
               widget.onChanged(_hueFromPosition(details.localPosition)),
           onPanEnd: (_) => widget.onComplete(),
           child: SizedBox(
-            height: 12.r,
+            height: t.s(12),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(t.s(6)),
                   child: CustomPaint(
-                    size: Size(width, 12.r),
+                    size: Size(width, t.s(12)),
                     painter: _HuePainter(),
                   ),
                 ),
                 Positioned(
-                  left: (widget.hue / 360 * (width - 12.r))
-                      .clamp(0.0, width - 12.r),
-                  top: -2.r,
+                  left: (widget.hue / 360 * (width - t.s(12)))
+                      .clamp(0.0, width - t.s(12)),
+                  top: -t.s(2),
                   child: Container(
-                    width: 14.r,
-                    height: 14.r,
+                    width: t.s(14),
+                    height: t.s(14),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: HSVColor.fromAHSV(1.0, widget.hue, 1.0, 1.0)
                           .toColor(),
-                      border: Border.all(color: Colors.white, width: 2.r),
+                      border: Border.all(color: Colors.white, width: t.s(2)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 2.r,
+                          blurRadius: t.s(2),
                         ),
                       ],
                     ),
@@ -821,6 +822,7 @@ class _AlphaSliderState extends State<_AlphaSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = AntTheme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -833,32 +835,32 @@ class _AlphaSliderState extends State<_AlphaSlider> {
               widget.onChanged(_alphaFromPosition(details.localPosition)),
           onPanEnd: (_) => widget.onComplete(),
           child: SizedBox(
-            height: 12.r,
+            height: themeData.s(12),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(themeData.s(6)),
                   child: CustomPaint(
-                    size: Size(width, 12.r),
+                    size: Size(width, themeData.s(12)),
                     painter: _AlphaPainter(color: widget.hsv.toColor()),
                   ),
                 ),
                 Positioned(
-                  left: (widget.hsv.alpha * (width - 12.r))
-                      .clamp(0.0, width - 12.r),
-                  top: -2.r,
+                  left: (widget.hsv.alpha * (width - themeData.s(12)))
+                      .clamp(0.0, width - themeData.s(12)),
+                  top: -themeData.s(2),
                   child: Container(
-                    width: 14.r,
-                    height: 14.r,
+                    width: themeData.s(14),
+                    height: themeData.s(14),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: widget.hsv.toColor(),
-                      border: Border.all(color: Colors.white, width: 2.r),
+                      border: Border.all(color: Colors.white, width: themeData.s(2)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 2.r,
+                          blurRadius: themeData.s(2),
                         ),
                       ],
                     ),
@@ -932,14 +934,14 @@ class _PresetSwatch extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 20.r,
-        height: 20.r,
+        width: themeData.s(20),
+        height: themeData.s(20),
         decoration: BoxDecoration(
           color: _parseHex(hex),
-          borderRadius: BorderRadius.circular(t.borderRadiusXS.r),
+          borderRadius: BorderRadius.circular(t.borderRadiusXS),
           border: Border.all(
             color: isSelected ? t.colorText : t.colorSplit,
-            width: isSelected ? 2.r : 1.r,
+            width: isSelected ? themeData.s(2) : themeData.s(1),
           ),
         ),
       ),

@@ -8,16 +8,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
@@ -319,14 +317,14 @@ void main() {
           const AntDropdown(
             open: true,
             items: [
-              AntDropdownItem(key: '1', label: '图标项', icon: Icons.star),
+              AntDropdownItem(key: '1', label: '图标项', icon: AntIcons.starOutlined),
             ],
             child: Text('触发'),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byIcon(AntIcons.starOutlined), findsOneWidget);
       expect(find.text('图标项'), findsOneWidget);
     });
   });

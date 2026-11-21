@@ -84,16 +84,16 @@ class AntPasscodeInput extends StatefulWidget {
   /// 是否自动聚焦（移动端自动展开键盘，桌面端自动取焦）。
   final bool autofocus;
 
-  /// 格子尺寸（默认 40.w，对齐 antd-mobile）。
+  /// 格子尺寸（默认 ant.s(40)，对齐 antd-mobile）。
   final double? cellSize;
 
-  /// 格子间距（separated 模式默认 6.w）。
+  /// 格子间距（separated 模式默认 ant.s(6)）。
   final double? cellGap;
 
-  /// 掩码圆点尺寸（默认 10.w）。
+  /// 掩码圆点尺寸（默认 ant.s(10)）。
   final double? dotSize;
 
-  /// 圆角（默认 8.w）。
+  /// 圆角（默认 ant.s(8)）。
   final double? borderRadius;
 
   @override
@@ -275,9 +275,9 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
   @override
   Widget build(BuildContext context) {
     final ant = AntTheme.of(context);
-    final cellSize = widget.cellSize ?? 40.w;
-    final gap = widget.cellGap ?? 6.w;
-    final radius = widget.borderRadius ?? 8.w;
+    final cellSize = widget.cellSize ?? ant.s(40);
+    final gap = widget.cellGap ?? ant.s(6);
+    final radius = widget.borderRadius ?? ant.s(8);
     final danger = ant.colorError;
     final borderColor = widget.error
         ? danger
@@ -297,12 +297,12 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
             decoration: BoxDecoration(
               color: ant.colorBgContainer,
               borderRadius: BorderRadius.circular(radius),
-              border: Border.all(color: borderColor, width: 1.w),
+              border: Border.all(color: borderColor, width: ant.s(1)),
               boxShadow: _active && !widget.error
                   ? [
                       BoxShadow(
                         color: ant.colorPrimary,
-                        blurRadius: 2.w,
+                        blurRadius: ant.s(2),
                       ),
                     ]
                   : null,
@@ -350,7 +350,7 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
       child: AnimatedBuilder(
         animation: _shake,
         builder: (context, child) {
-          final dx = _shakeOffset(_shake.value) * 5.w;
+          final dx = _shakeOffset(_shake.value) * ant.s(5);
           return Transform.translate(offset: Offset(dx, 0), child: child);
         },
         child: body,
@@ -396,13 +396,13 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
                       color: widget.error
                           ? danger
                           : (isCaret ? ant.colorPrimary : ant.colorBorder),
-                      width: 1.w,
+                      width: ant.s(1),
                     ),
                     boxShadow: isCaret && !widget.error
                         ? [
                             BoxShadow(
                               color: ant.colorPrimary,
-                              blurRadius: 2.w,
+                              blurRadius: ant.s(2),
                             ),
                           ]
                         : null,
@@ -413,7 +413,7 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
                         : Border(
                             right: BorderSide(
                               color: ant.colorBorder,
-                              width: 1.w,
+                              width: ant.s(1),
                             ),
                           ),
                   ),
@@ -426,25 +426,25 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
                         ? Text(
                             chars[i],
                             style: TextStyle(
-                              fontSize: 20.sp,
+                              fontSize: ant.s(20),
                               fontWeight: FontWeight.w500,
                               color: ant.colorText,
                             ),
                           )
                         : Container(
-                            width: widget.dotSize ?? 10.w,
-                            height: widget.dotSize ?? 10.w,
+                            width: widget.dotSize ?? ant.s(10),
+                            height: widget.dotSize ?? ant.s(10),
                             decoration: BoxDecoration(
                               color: ant.colorText,
                               shape: BoxShape.circle,
                             ),
                           ),
                   if (isCaret) ...[
-                    if (filled) SizedBox(width: 2.w),
+                    if (filled) SizedBox(width: ant.s(2)),
                     _AntCaret(
                       color: ant.colorPrimary,
                       height: cellSize * 0.55,
-                      width: 1.5.w,
+                      width: ant.s(1.5),
                     ),
                   ],
                 ],

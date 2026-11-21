@@ -6,16 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child, {AntThemeData? data}) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: data ?? AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 class _MenuData {

@@ -39,8 +39,9 @@ class MentionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +57,7 @@ class MentionsPage extends StatelessWidget {
                   debugPrint('mentions onSelect: ${member.id}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '默认值',
             child: AntMentions<Member>(
@@ -67,7 +68,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '输入 @ 提及他人',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义前缀',
             child: AntMentions<Topic>(
@@ -78,7 +79,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '输入 # 标记话题',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用选项',
             child: AntMentions<Member>(
@@ -89,7 +90,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '输入 @ 提及他人（李四禁用）',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义选项行',
             child: AntMentions<Member>(
@@ -97,15 +98,15 @@ class MentionsPage extends StatelessWidget {
               labelOf: (member) => member.name,
               valueOf: (member) => member.username,
               itemBuilder: (context, member, index) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(8)),
                 child: Row(
                   children: [
-                    Icon(AntIcons.userOutlined, size: 14.w),
-                    SizedBox(width: 8.w),
+                    Icon(AntIcons.userOutlined, size: theme.s(14)),
+                    SizedBox(width: theme.s(8)),
                     Expanded(child: Text(member.name)),
                     Text(
                       '@${member.username}',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.grey),
+                      style: TextStyle(fontSize: theme.s(12), color: Colors.grey),
                     ),
                   ],
                 ),
@@ -113,7 +114,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '自定义行',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种尺寸',
             child: Column(
@@ -125,7 +126,7 @@ class MentionsPage extends StatelessWidget {
                   size: AntMentionsSize.large,
                   placeholder: '大号 large',
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: theme.s(8)),
                 AntMentions<Member>(
                   options: _members,
                   labelOf: (member) => member.name,
@@ -133,7 +134,7 @@ class MentionsPage extends StatelessWidget {
                   size: AntMentionsSize.middle,
                   placeholder: '中号 middle',
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: theme.s(8)),
                 AntMentions<Member>(
                   options: _members,
                   labelOf: (member) => member.name,
@@ -144,7 +145,7 @@ class MentionsPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '允许清除',
             child: AntMentions<Member>(
@@ -156,7 +157,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '输入 @ 提及他人',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用状态',
             child: AntMentions<Member>(
@@ -168,7 +169,7 @@ class MentionsPage extends StatelessWidget {
               placeholder: '禁用状态',
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控用法', child: _ControlledMentions()),
         ],
       ),
@@ -186,6 +187,7 @@ class _ControlledMentionsState extends State<_ControlledMentions> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       children: [
         AntMentions<Member>(
@@ -196,11 +198,11 @@ class _ControlledMentionsState extends State<_ControlledMentions> {
           onChange: (text) => setState(() => _value = text),
           placeholder: '受控模式',
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前值：$_value',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -220,10 +222,10 @@ class _Section extends StatelessWidget {
     final t = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
-        borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(t.borderRadiusLG),
         border: Border.all(color: t.colorSplit),
       ),
       child: Column(
@@ -232,12 +234,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: t.s(16),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

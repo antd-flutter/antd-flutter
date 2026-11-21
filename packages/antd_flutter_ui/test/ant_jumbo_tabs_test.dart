@@ -46,16 +46,14 @@ Widget _jumboTabs({
   );
 }
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 FontWeight? _weightOf(WidgetTester tester, String text) {
   final paragraph = tester.renderObject<RenderParagraph>(find.text(text));

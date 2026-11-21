@@ -42,13 +42,11 @@ const _regions = <_Region>[_zj, _js];
 const _usable = _Region('a', '可用', [_Region('a1', '子项A1')]);
 const _banned = _Region('b', '禁用', [_Region('b1', '子项B1')], true);
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap(Widget child) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );

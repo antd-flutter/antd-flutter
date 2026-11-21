@@ -251,8 +251,8 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
                   ),
                   // 关闭按钮。
                   Positioned(
-                    top: MediaQuery.paddingOf(context).top + 16.w,
-                    right: 16.w,
+                    top: MediaQuery.paddingOf(context).top + AntTheme.of(context).s(16),
+                    right: AntTheme.of(context).s(16),
                     child: _buildIconButton(
                       icon: AntIcons.closeOutlined,
                       onTap: widget.onClose,
@@ -260,7 +260,7 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
                   ),
                   // 页码指示。
                   Positioned(
-                    bottom: MediaQuery.paddingOf(context).bottom + 24.w,
+                    bottom: MediaQuery.paddingOf(context).bottom + AntTheme.of(context).s(24),
                     left: 0,
                     right: 0,
                     child: Center(
@@ -268,7 +268,7 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
                         '${_index + 1} / ${widget.images.length}',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14.sp,
+                          fontSize: AntTheme.of(context).s(14),
                         ),
                       ),
                     ),
@@ -301,12 +301,12 @@ class _AntImageViewerOverlayState extends State<_AntImageViewerOverlay> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(AntTheme.of(context).s(8)),
         decoration: const BoxDecoration(
           color: Colors.black26,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 22.w, color: Colors.white),
+        child: Icon(icon, size: AntTheme.of(context).s(22), color: Colors.white),
       ),
     );
   }

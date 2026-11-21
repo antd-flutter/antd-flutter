@@ -121,14 +121,14 @@ class _AntTabBarState<T> extends State<AntTabBar<T>> {
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         border: widget.border
-            ? Border(top: BorderSide(color: t.colorSplit, width: 0.5.w))
+            ? Border(top: BorderSide(color: t.colorSplit, width: t.s(0.5)))
             : null,
       ),
       child: SafeArea(
         top: false,
         bottom: widget.safeArea,
         child: SizedBox(
-          height: 50.w,
+          height: t.s(50),
           child: Row(
             children: [
               for (var i = 0; i < widget.items.length; i++)
@@ -190,6 +190,7 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     final color = active ? colorPrimary : colorTextSecondary;
     final currentIcon = active ? (activeIcon ?? icon) : icon;
 
@@ -204,16 +205,16 @@ class _TabItem extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 IconTheme.merge(
-                  data: IconThemeData(size: 22.sp, color: color),
+                  data: IconThemeData(size: t.s(22), color: color),
                   child: currentIcon,
                 ),
                 if (badgeDot)
                   Positioned(
-                    right: -2.w,
-                    top: -2.w,
+                    right: -t.s(2),
+                    top: -t.s(2),
                     child: Container(
-                      width: 8.w,
-                      height: 8.w,
+                      width: t.s(8),
+                      height: t.s(8),
                       decoration: BoxDecoration(
                         color: colorPrimary,
                         shape: BoxShape.circle,
@@ -222,23 +223,23 @@ class _TabItem extends StatelessWidget {
                   ),
                 if (badgeText != null)
                   Positioned(
-                    right: -8.w,
-                    top: -6.w,
+                    right: -t.s(8),
+                    top: -t.s(6),
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 4.w,
-                        vertical: 1.w,
+                        horizontal: t.s(4),
+                        vertical: t.s(1),
                       ),
                       decoration: BoxDecoration(
                         color: colorPrimary,
-                        borderRadius: BorderRadius.circular(8.w),
+                        borderRadius: BorderRadius.circular(t.s(8)),
                       ),
-                      constraints: BoxConstraints(minWidth: 14.w),
+                      constraints: BoxConstraints(minWidth: t.s(14)),
                       alignment: Alignment.center,
                       child: Text(
                         badgeText!,
                         style: TextStyle(
-                          fontSize: 9.sp,
+                          fontSize: t.s(9),
                           color: Colors.white,
                           height: 1.2,
                         ),
@@ -247,9 +248,9 @@ class _TabItem extends StatelessWidget {
                   ),
               ],
             ),
-          if (currentIcon != null) SizedBox(height: 2.w),
+          if (currentIcon != null) SizedBox(height: t.s(2)),
           DefaultTextStyle(
-            style: TextStyle(fontSize: 10.sp, color: color),
+            style: TextStyle(fontSize: t.s(10), color: color),
             child: title,
           ),
         ],

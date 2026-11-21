@@ -106,7 +106,7 @@ class _AntJumboTabsState<T> extends State<AntJumboTabs<T>> {
           decoration: BoxDecoration(
             color: t.colorBgContainer,
             border: Border(
-              bottom: BorderSide(color: t.colorSplit, width: 0.5.w),
+              bottom: BorderSide(color: t.colorSplit, width: t.s(0.5)),
             ),
           ),
           child: Row(
@@ -171,6 +171,7 @@ class _JumboItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     final titleColor =
         disabled ? colorTextDisabled : (active ? colorPrimary : colorText);
     final descriptionColor = disabled
@@ -186,13 +187,13 @@ class _JumboItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 12.w, bottom: 8.w),
+            padding: EdgeInsets.only(top: t.s(12), bottom: t.s(8)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DefaultTextStyle(
                   style: TextStyle(
-                    fontSize: 17.sp,
+                    fontSize: t.s(17),
                     // antd-mobile 标题行高 24px
                     height: 24 / 17,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w400,
@@ -201,18 +202,18 @@ class _JumboItem extends StatelessWidget {
                   child: title,
                 ),
                 if (description != null) ...[
-                  SizedBox(height: 2.w),
+                  SizedBox(height: t.s(2)),
                   // antd-mobile：描述是胶囊标签（底 10px、水平内边距 8px），
                   // 激活时变主色底白字；自定义节点同样套用该胶囊底。
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    padding: EdgeInsets.symmetric(horizontal: t.s(8)),
                     decoration: BoxDecoration(
                       color: descriptionBackground,
-                      borderRadius: BorderRadius.circular(10.w),
+                      borderRadius: BorderRadius.circular(t.s(10)),
                     ),
                     child: DefaultTextStyle.merge(
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: t.s(13),
                         color: descriptionColor,
                       ),
                       child: description!,
@@ -225,14 +226,14 @@ class _JumboItem extends StatelessWidget {
           // 底部指示条
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            height: 2.w,
-            width: active ? 20.w : 0,
+            height: t.s(2),
+            width: active ? t.s(20) : 0,
             decoration: BoxDecoration(
               color: active ? colorPrimary : Colors.transparent,
-              borderRadius: BorderRadius.circular(1.w),
+              borderRadius: BorderRadius.circular(t.s(1)),
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: t.s(8)),
         ],
       ),
     );

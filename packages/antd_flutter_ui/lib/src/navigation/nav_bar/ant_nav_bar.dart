@@ -74,11 +74,11 @@ class AntNavBar extends StatelessWidget {
             onTap: onBack,
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: EdgeInsets.only(right: 4.w),
+              padding: EdgeInsets.only(right: t.s(4)),
               child: backArrow ??
                   Icon(
                     AntIcons.leftOutlined,
-                    size: 18.sp,
+                    size: t.s(18),
                     color: t.colorText,
                   ),
             ),
@@ -88,14 +88,14 @@ class AntNavBar extends StatelessWidget {
     );
 
     return Container(
-      height: 45.w,
+      height: t.s(45),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         border: border
-            ? Border(bottom: BorderSide(color: t.colorSplit, width: 0.5.w))
+            ? Border(bottom: BorderSide(color: t.colorSplit, width: t.s(0.5)))
             : null,
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: t.s(12)),
       child: Row(
         children: [
           Expanded(
@@ -105,7 +105,7 @@ class AntNavBar extends StatelessWidget {
             child: Center(
               child: DefaultTextStyle(
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: t.s(15),
                   color: t.colorText,
                   fontWeight: FontWeight.w500,
                 ),

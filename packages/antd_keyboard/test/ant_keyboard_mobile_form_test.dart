@@ -21,15 +21,13 @@ void _platform(TargetPlatform platform) {
 }
 
 Widget _wrap(Widget child, {EdgeInsets safePadding = EdgeInsets.zero}) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: MediaQuery(
-            data: MediaQueryData(padding: safePadding),
-            child: Material(child: child),
-          ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: MediaQuery(
+          data: MediaQueryData(padding: safePadding),
+          child: Material(child: child),
         ),
       ),
     ),

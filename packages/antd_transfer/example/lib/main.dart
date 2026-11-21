@@ -85,9 +85,7 @@ class _AntdTransferGalleryAppState extends State<AntdTransferGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdTransfer Demo',
             debugShowCheckedModeBanner: false,
@@ -124,7 +122,6 @@ class _AntdTransferGalleryAppState extends State<AntdTransferGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -133,6 +130,7 @@ class _AntdTransferGalleryAppState extends State<AntdTransferGalleryApp> {
     AntLayoutData layout,
     int index,
   ) {
+    final theme = AntTheme.of(pageContext);
     final cards = index == 1
         ? [
             (
@@ -147,15 +145,15 @@ class _AntdTransferGalleryAppState extends State<AntdTransferGalleryApp> {
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in cards)
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 560.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(560)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -164,7 +162,7 @@ class _AntdTransferGalleryAppState extends State<AntdTransferGalleryApp> {
               children: [
                 for (final card in cards)
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -178,7 +176,7 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
+    padding: EdgeInsets.all(theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -188,10 +186,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 12.w),
+          padding: EdgeInsets.only(bottom: theme.s(12)),
           child: Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15)),
           ),
         ),
         child,
@@ -203,10 +201,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
 Widget _resultText(BuildContext context, String label, String value) {
   final theme = AntTheme.of(context);
   return Padding(
-    padding: EdgeInsets.only(top: 8.w),
+    padding: EdgeInsets.only(top: theme.s(8)),
     child: Text(
       value.isEmpty ? '$label：未穿梭' : '$label：$value',
-      style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+      style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
     ),
   );
 }
@@ -479,8 +477,8 @@ final List<_DemoCard> _modelCards = [
                     titleBuilder: (context, item) => Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(AntIcons.fileTextOutlined, size: 12.sp),
-                        SizedBox(width: 4.w),
+                        Icon(AntIcons.fileTextOutlined, size: AntTheme.of(context).s(12)),
+                        SizedBox(width: AntTheme.of(context).s(4)),
                         Flexible(child: Text(item.name)),
                       ],
                     ),
@@ -517,6 +515,7 @@ class _ControlledSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Builder(
       builder: (context) {
         return StatefulBuilder(
@@ -536,7 +535,7 @@ class _ControlledSection extends StatelessWidget {
                 ),
                 _resultText(context, '受控 targetKeys', _namesOf(targetKeys)),
                 Padding(
-                  padding: EdgeInsets.only(top: 8.w),
+                  padding: EdgeInsets.only(top: theme.s(8)),
                   child: OutlinedButton(
                     onPressed: () => setState(() => targetKeys = <Object>[]),
                     child: const Text('重置为空'),

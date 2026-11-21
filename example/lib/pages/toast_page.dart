@@ -31,7 +31,7 @@ class ToastPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,13 +43,13 @@ class ToastPage extends StatelessWidget {
               child: const Text('纯文字提示'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带图标',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () =>
@@ -75,12 +75,12 @@ class ToastPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Loading 手动关闭',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -107,13 +107,13 @@ class ToastPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '位置三档',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () =>
@@ -133,12 +133,12 @@ class ToastPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '遮罩不可穿透',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () =>
@@ -180,7 +180,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -192,12 +192,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

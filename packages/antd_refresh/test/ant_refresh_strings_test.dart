@@ -6,13 +6,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -62,7 +60,19 @@ void main() {
     test('内置 11 种语言全部字段非空', () {
       expect(
         AntRefreshStrings.supportedLanguageCodes.toSet(),
-        <String>{'zh', 'en', 'ja', 'ko', 'fr', 'de', 'es', 'ru', 'pt', 'it', 'ar'},
+        <String>{
+          'zh',
+          'en',
+          'ja',
+          'ko',
+          'fr',
+          'de',
+          'es',
+          'ru',
+          'pt',
+          'it',
+          'ar',
+        },
       );
       for (final String code in AntRefreshStrings.supportedLanguageCodes) {
         final AntRefreshStrings s = AntRefreshStrings.builtIn[code]!;
@@ -175,8 +185,7 @@ void _widgetTests() {
     expect(find.text('CUSTOM'), findsOneWidget);
   });
 
-  testWidgets('未传 locale 时默认（系统语言，测试环境 en）渲染不抛错',
-      (WidgetTester tester) async {
+  testWidgets('未传 locale 时默认（系统语言，测试环境 en）渲染不抛错', (WidgetTester tester) async {
     await tester.pumpWidget(_wrap(_buildList()));
     await sendWheelScroll(tester, ticks: 1, deltaPerTick: -30);
     // 测试宿主默认 locale 不一定可断言具体文案，只验证头部出现且无异常。

@@ -181,11 +181,12 @@ class _MessageStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = AntTheme.of(context);
     // 设备真实安全区（根视图 MediaQuery，不受页面 SafeArea 消费影响）
     final safeTop = antDeviceSafePadding().top;
     final theme = items.isEmpty ? null : items.first.themeData;
     return Positioned(
-      top: safeTop + 16.w,
+      top: safeTop + themeData.s(16),
       left: 0,
       right: 0,
       child: Column(
@@ -292,27 +293,27 @@ class _MessageItemState extends State<_MessageItem>
     const kMessageLineHeight = 1.4;
     final indicatorBoxHeight = theme.fontSize * kMessageLineHeight;
     final indicator = SizedBox(
-      width: 16.w,
+      width: theme.s(16),
       height: indicatorBoxHeight,
       child: Center(
         child: widget.item.type == AntMessageType.loading
             ? AntLoading(
-                size: 16.w,
+                size: theme.s(16),
                 color: theme.colorPrimary,
               )
-            : Icon(icon, size: 16.w, color: color),
+            : Icon(icon, size: theme.s(16), color: color),
       ),
     );
 
     final card = Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(8)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         boxShadow: [
           BoxShadow(
             color: theme.colorShadow.withValues(alpha: 0.15),
-            blurRadius: 12.r,
+            blurRadius: theme.s(12),
             offset: const Offset(0, 4),
           ),
         ],
@@ -322,7 +323,7 @@ class _MessageItemState extends State<_MessageItem>
         mainAxisSize: MainAxisSize.min,
         children: [
           indicator,
-          SizedBox(width: 8.w),
+          SizedBox(width: theme.s(8)),
           DefaultTextStyle(
             style: TextStyle(
               fontSize: theme.fontSize,
@@ -332,7 +333,7 @@ class _MessageItemState extends State<_MessageItem>
             child: widget.item.content,
           ),
           if (widget.item.closable) ...[
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -344,7 +345,7 @@ class _MessageItemState extends State<_MessageItem>
                   child: Center(
                     child: Icon(
                       AntIcons.closeOutlined,
-                      size: 14.w,
+                      size: theme.s(14),
                       color: theme.colorTextSecondary,
                     ),
                   ),
@@ -357,7 +358,7 @@ class _MessageItemState extends State<_MessageItem>
     );
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.w),
+      padding: EdgeInsets.only(bottom: theme.s(8)),
       child: Material(
         color: Colors.transparent,
         // 出现动画复用弹层基座（AntPopupMotion：fade + 顶部滑入）

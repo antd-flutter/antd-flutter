@@ -165,8 +165,10 @@ class _AntSplitterState extends State<AntSplitter> {
     }
   }
 
-  /// 缩放因子：1 逻辑像素对应的渲染像素数。
-  double get _scale => 1.0.w;
+  /// 缩放因子：1 逻辑像素对应的渲染像素数（由 build 中的主题写入）。
+  double _scaleFactor = 1.0;
+
+  double get _scale => _scaleFactor;
 
   /// 面板最小尺寸（逻辑像素）。
   double _minOf(AntSplitterPanel panel) => panel.min ?? 0;
@@ -470,6 +472,7 @@ class _AntSplitterState extends State<AntSplitter> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
+    _scaleFactor = theme.scale.factor;
     final isHorizontal = widget.layout == AntSplitterLayout.horizontal;
     final n = widget.children.length;
 
@@ -505,7 +508,8 @@ class _AntSplitterState extends State<AntSplitter> {
         // 渲染域安全归一化：折叠/展开/拖拽多次操作后逻辑尺寸总和可能
         // 超出可用预算（浮点或状态迁移），溢出部分按比例收缩面板，
         // 保证 Row/Column 永不溢出。
-        final dragTotalRender = _kSplitBarDraggableSize.w * (n - 1);
+        final dragTotalRender =
+            theme.s(_kSplitBarDraggableSize) * (n - 1);
         final renderBudget =
             (totalRender - dragTotalRender).clamp(0.0, double.infinity);
         final renderSizes = [
@@ -540,7 +544,7 @@ class _AntSplitterState extends State<AntSplitter> {
           axisOffset += panelSize;
 
           if (i < n - 1) {
-            final dragSizeRender = _kSplitBarDraggableSize.w;
+            final dragSizeRender = theme.s(_kSplitBarDraggableSize);
             final draggerCenter = axisOffset + dragSizeRender / 2;
             children.add(_buildDragger(theme, i, isHorizontal));
             collapseHitBoxes.addAll(
@@ -592,8 +596,8 @@ class _AntSplitterState extends State<AntSplitter> {
         !leftCollapsed &&
         !rightCollapsed;
 
-    final barSize = _kSplitBarSize.w;
-    final dragSize = _kSplitBarDraggableSize.w;
+    final barSize = theme.s(_kSplitBarSize);
+    final dragSize = theme.s(_kSplitBarDraggableSize);
 
     return GestureDetector(
       key: ValueKey('ant_splitter_dragger_$draggerIndex'),
@@ -645,7 +649,7 @@ class _AntSplitterState extends State<AntSplitter> {
     required double crossCenter,
     required double containerLength,
   }) {
-    final hit = 44.0.w;
+    final hit = theme.s(44.0);
     final boxes = <Widget>[];
 
     // 按钮组沿轴起点：组宽 = 可折叠按钮数 × hit，组中心对齐分割条中心。
@@ -723,7 +727,7 @@ class _AntSplitterState extends State<AntSplitter> {
       }
     }
 
-    final btnSize = _kCollapseIconSize.w * 1.6;
+    final btnSize = theme.s(_kCollapseIconSize) * 1.6;
     // 触控区域最小 44x44（Material 触控规范）：命中框大于视觉按钮，
     // 视觉按钮居中绘制，允许溢出分割条（配合 Stack clipBehavior: Clip.none）。
     const hitTarget = 44.0;
@@ -733,8 +737,8 @@ class _AntSplitterState extends State<AntSplitter> {
       behavior: HitTestBehavior.opaque,
       onTap: () => _toggleCollapse(panelIndex),
       child: SizedBox(
-        width: hitTarget.w,
-        height: hitTarget.w,
+        width: theme.s(hitTarget),
+        height: theme.s(hitTarget),
         child: Center(
           child: Container(
             width: btnSize,
@@ -742,11 +746,11 @@ class _AntSplitterState extends State<AntSplitter> {
             decoration: BoxDecoration(
               color: theme.colorBgContainer,
               border: Border.all(color: theme.colorSplit),
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(theme.s(4)),
             ),
             child: AntdIcon(
               icon,
-              size: _kCollapseIconSize.sp,
+              size: theme.s(_kCollapseIconSize),
               color: theme.colorTextSecondary,
             ),
           ),

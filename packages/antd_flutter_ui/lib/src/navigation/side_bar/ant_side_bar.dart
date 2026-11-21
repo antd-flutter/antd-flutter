@@ -173,6 +173,7 @@ class _SideBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     final textColor = disabled
         ? colorTextDisabled
         : (active ? colorPrimary : colorTextSecondary);
@@ -182,26 +183,26 @@ class _SideBarItem extends StatelessWidget {
       onTap: disabled ? null : onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 46.w,
+        height: t.s(46),
         color: bgColor,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12)),
         child: Row(
           children: [
             // 左侧高亮条
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 3.w,
-              height: active ? 16.w : 0,
-              margin: EdgeInsets.only(right: 8.w),
+              width: t.s(3),
+              height: active ? t.s(16) : 0,
+              margin: EdgeInsets.only(right: t.s(8)),
               decoration: BoxDecoration(
                 color: active ? colorPrimary : Colors.transparent,
-                borderRadius: BorderRadius.circular(2.w),
+                borderRadius: BorderRadius.circular(t.s(2)),
               ),
             ),
             Expanded(
               child: DefaultTextStyle(
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: t.s(14),
                   color: textColor,
                   fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                 ),
@@ -213,9 +214,9 @@ class _SideBarItem extends StatelessWidget {
             if (badgeDot)
               // antd Badge 圆点：10×10、danger 色
               Container(
-                width: 10.w,
-                height: 10.w,
-                margin: EdgeInsets.only(left: 6.w),
+                width: t.s(10),
+                height: t.s(10),
+                margin: EdgeInsets.only(left: t.s(6)),
                 decoration: BoxDecoration(
                   color: colorError,
                   shape: BoxShape.circle,
@@ -225,10 +226,10 @@ class _SideBarItem extends StatelessWidget {
               // antd Badge 文字角标：9px/行高 12、上下 1 左右 4 内边距，
               // 固定 14 高，不能随行高被拉满；宽度按内容自适应。
               Container(
-                height: 14.w,
-                margin: EdgeInsets.only(left: 6.w),
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                constraints: BoxConstraints(minWidth: 14.w),
+                height: t.s(14),
+                margin: EdgeInsets.only(left: t.s(6)),
+                padding: EdgeInsets.symmetric(horizontal: t.s(4)),
+                constraints: BoxConstraints(minWidth: t.s(14)),
                 decoration: BoxDecoration(
                   color: colorError,
                   borderRadius: BorderRadius.circular(100),
@@ -239,7 +240,7 @@ class _SideBarItem extends StatelessWidget {
                     badgeText!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 9.sp,
+                      fontSize: t.s(9),
                       color: Colors.white,
                       height: 1.2,
                     ),

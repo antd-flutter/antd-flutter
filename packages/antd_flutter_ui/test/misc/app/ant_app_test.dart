@@ -1,5 +1,4 @@
 import 'package:antd_flutter_ui/src/misc/app/ant_app.dart';
-import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_flutter_ui/src/feedback/notification/ant_notification.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,8 +12,7 @@ Widget _wrap(
   AntAppModalConfig? modal,
 }) {
   final navKey = navigatorKey ?? GlobalKey<NavigatorState>();
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       navigatorKey: navKey,
       home: Scaffold(
         body: AntApp(
@@ -25,8 +23,7 @@ Widget _wrap(
           child: child,
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {

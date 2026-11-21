@@ -15,7 +15,7 @@ class CardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -26,11 +26,11 @@ class CardPage extends StatelessWidget {
               title: const Text('卡片标题'),
               child: Text(
                 '卡片内容卡片内容卡片内容卡片内容卡片内容卡片内容',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无边框',
             theme: theme,
@@ -39,11 +39,11 @@ class CardPage extends StatelessWidget {
               title: const Text('卡片标题'),
               child: Text(
                 '无边框卡片内容无边框卡片内容无边框卡片内容',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '更多操作',
             theme: theme,
@@ -52,11 +52,11 @@ class CardPage extends StatelessWidget {
               extra: const Text('更多'),
               child: Text(
                 '右上角有更多操作链接',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '封面和操作',
             theme: theme,
@@ -65,11 +65,11 @@ class CardPage extends StatelessWidget {
                 color: theme.colorPrimary.withValues(alpha: 0.2),
                 child: Icon(
                   AntIcons.pictureOutlined,
-                  size: 48.w,
+                  size: theme.s(48),
                   color: theme.colorPrimary,
                 ),
               ),
-              coverHeight: 120.w,
+              coverHeight: theme.s(120),
               title: const Text('带封面的卡片'),
               actions: [
                 _CardAction('操作一', () => _showMsg(context, '操作一')),
@@ -79,11 +79,11 @@ class CardPage extends StatelessWidget {
               onActionTap: (action) => action.onTap(),
               child: Text(
                 '卡片内容卡片内容',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '小尺寸',
             theme: theme,
@@ -92,11 +92,11 @@ class CardPage extends StatelessWidget {
               title: const Text('小卡片'),
               child: Text(
                 '小尺寸卡片内容',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '加载中',
             theme: theme,
@@ -106,7 +106,7 @@ class CardPage extends StatelessWidget {
               child: const Text('实际内容'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '可悬浮',
             theme: theme,
@@ -115,7 +115,7 @@ class CardPage extends StatelessWidget {
               title: const Text('悬浮卡片'),
               child: Text(
                 '鼠标悬浮时阴影加深（桌面端效果）',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
@@ -144,7 +144,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -156,12 +156,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

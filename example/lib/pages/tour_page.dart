@@ -74,9 +74,9 @@ class _TourPageState extends State<TourPage> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final titleStyle = TextStyle(fontSize: 14.sp, color: theme.colorText);
+    final titleStyle = TextStyle(fontSize: theme.s(14), color: theme.colorText);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,25 +90,25 @@ class _TourPageState extends State<TourPage> {
                   children: [
                     Container(
                       key: _target1,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorPrimaryBg,
                       child: Text('目标一', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     Container(
                       key: _target2,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorSuccessBg,
                       child: Text('目标二', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     Container(
                       key: _target3,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorWarningBg,
                       child: Text('目标三', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     AntButton(
                       onTap: () => setState(() => _basicOpen = true),
                       child: const Text('开始引导'),
@@ -142,7 +142,7 @@ class _TourPageState extends State<TourPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 placement',
             theme: theme,
@@ -153,11 +153,11 @@ class _TourPageState extends State<TourPage> {
                   children: [
                     Container(
                       key: _target4,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorInfoBg,
                       child: Text('右侧引导', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     AntButton(
                       onTap: () => setState(() => _placementOpen = true),
                       child: const Text('卡片出现在右侧'),
@@ -180,7 +180,7 @@ class _TourPageState extends State<TourPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无遮罩',
             theme: theme,
@@ -188,11 +188,11 @@ class _TourPageState extends State<TourPage> {
               children: [
                 Container(
                   key: _target5,
-                  padding: EdgeInsets.all(12.w),
+                  padding: EdgeInsets.all(theme.s(12)),
                   color: theme.colorFillAlter,
                   child: Text('无遮罩目标', style: titleStyle),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: theme.s(12)),
                 AntButton(
                   onTap: () => setState(() => _noMaskOpen = true),
                   child: const Text('无遮罩引导'),
@@ -214,7 +214,7 @@ class _TourPageState extends State<TourPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无箭头',
             theme: theme,
@@ -222,11 +222,11 @@ class _TourPageState extends State<TourPage> {
               children: [
                 Container(
                   key: _target6,
-                  padding: EdgeInsets.all(12.w),
+                  padding: EdgeInsets.all(theme.s(12)),
                   color: theme.colorErrorBg,
                   child: Text('无箭头目标', style: titleStyle),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: theme.s(12)),
                 AntButton(
                   onTap: () => setState(() => _noArrowOpen = true),
                   child: const Text('无箭头引导'),
@@ -247,7 +247,7 @@ class _TourPageState extends State<TourPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '受控 current',
             theme: theme,
@@ -258,11 +258,11 @@ class _TourPageState extends State<TourPage> {
                   children: [
                     Container(
                       key: _target7,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorPrimaryBg,
                       child: Text('受控引导目标', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     AntButton(
                       onTap: () => setState(() {
                         _controlledCurrent = 0;
@@ -270,7 +270,7 @@ class _TourPageState extends State<TourPage> {
                       }),
                       child: const Text('受控引导'),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     AntButton(
                       onTap: () => setState(() {
                         _controlledCurrent = (_controlledCurrent + 1).clamp(
@@ -301,7 +301,7 @@ class _TourPageState extends State<TourPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '跳过按钮',
             theme: theme,
@@ -313,16 +313,16 @@ class _TourPageState extends State<TourPage> {
                   '设置 maskClosable: true 时点击遮罩也可关闭。',
                   style: titleStyle,
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 Row(
                   children: [
                     Container(
                       key: _target8,
-                      padding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.all(theme.s(12)),
                       color: theme.colorErrorBg,
                       child: Text('跳过确认', style: titleStyle),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: theme.s(12)),
                     AntButton(
                       onTap: () => setState(() => _skipConfirmOpen = true),
                       child: const Text('跳过需确认的引导'),
@@ -375,12 +375,12 @@ class _Section extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: theme.s(16),
             fontWeight: FontWeight.w600,
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         child,
       ],
     );

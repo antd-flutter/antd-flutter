@@ -18,7 +18,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_screenutil: ^5.9.3
   antd_color: ^1.0.0
   antd_tokens: ^1.0.0
   material_ui: ^1.11.0

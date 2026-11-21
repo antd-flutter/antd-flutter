@@ -6,13 +6,12 @@
 //
 // 注意 1：material_ui 是 Material fork 包，其 ListTile 需要 material_ui 的
 // Material 祖先，必须用 material_ui 的 MaterialApp/Scaffold（与真实 app 一致）。
-// 注意 2：AntScreenUtilInit 持续调度帧导致 pumpAndSettle 不收敛，
+// 注意 2：持续调度帧会导致 pumpAndSettle 不收敛，
 // 必须用有限 pump；toImage 用 runAsync+timeout 保证全路径有界。
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:antd_flutter_example/pages/watermark_page.dart';
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -28,9 +27,9 @@ Future<void> _pumpPage(WidgetTester tester) async {
   tester.view.physicalSize = const Size(1024, 1400);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(AntScreenUtilInit(
-    builder: (_, __) => MaterialApp(home: Scaffold(body: WatermarkPage())),
-  ));
+  await tester.pumpWidget(
+    MaterialApp(home: Scaffold(body: WatermarkPage())),
+  );
   await tester.pump();
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

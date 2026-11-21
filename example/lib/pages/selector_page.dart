@@ -43,8 +43,9 @@ class SelectorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -59,7 +60,7 @@ class SelectorPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '多选',
             child: AntSelector<String>(
@@ -70,7 +71,7 @@ class SelectorPage extends StatelessWidget {
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '带描述',
             child: AntSelector<Session>(
@@ -79,7 +80,7 @@ class SelectorPage extends StatelessWidget {
               descriptionOf: (session) => session.time,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '两列布局',
             child: AntSelector<String>(
@@ -89,7 +90,7 @@ class SelectorPage extends StatelessWidget {
               onChange: (v) => _showSnackbar(context, '选中: $v'),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '三列布局',
             child: AntSelector<String>(
@@ -99,7 +100,7 @@ class SelectorPage extends StatelessWidget {
               labelOf: (value) => _sizeNames[value] ?? value,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '禁用',
             child: AntSelector<String>(
@@ -108,7 +109,7 @@ class SelectorPage extends StatelessWidget {
               disabledOf: (value) => value == 'b',
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '自定义内容（itemBuilder）',
             child: AntSelector<Fruit>(
@@ -119,16 +120,16 @@ class SelectorPage extends StatelessWidget {
                 children: [
                   Icon(
                     AntIcons.shoppingCartOutlined,
-                    size: 18.w,
+                    size: theme.s(18),
                     color: AntTheme.of(context).colorPrimary,
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: theme.s(4)),
                   Text(fruit.name),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: theme.s(2)),
                   Text(
                     fruit.price,
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: theme.s(12),
                       color: AntTheme.of(context).colorTextSecondary,
                     ),
                   ),
@@ -136,7 +137,7 @@ class SelectorPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           const _ControlledDemo(),
         ],
       ),
@@ -167,7 +168,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               '当前值: $_value',
               style: TextStyle(
@@ -199,7 +200,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -209,7 +210,7 @@ class _Section extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               title,
               style: TextStyle(

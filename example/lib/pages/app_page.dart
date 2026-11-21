@@ -14,7 +14,7 @@ class AppPage extends StatelessWidget {
         message: const AntAppMessageConfig(closable: false),
         modal: const AntAppModalConfig(okText: '确定', cancelText: '取消'),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(theme.s(16)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -27,7 +27,7 @@ class AppPage extends StatelessWidget {
                   '无需依赖页面 context 弹出反馈。',
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '经 App 调用 message',
                 theme: theme,
@@ -42,7 +42,7 @@ class AppPage extends StatelessWidget {
                               AntApp.of(context)
                                   .messageShow(const Text('这是一条普通提示')),
                         ),
-                        SizedBox(height: 8.w),
+                        SizedBox(height: theme.s(8)),
                         AntButton(
                           child: const Text('成功提示'),
                           onTap: () => AntApp.of(context).messageShow(
@@ -55,7 +55,7 @@ class AppPage extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '经 App 调用 notification',
                 theme: theme,
@@ -72,7 +72,7 @@ class AppPage extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '经 App 弹 modal',
                 theme: theme,
@@ -97,7 +97,7 @@ class AppPage extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '说明',
                 theme: theme,
@@ -131,7 +131,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -148,7 +148,7 @@ class _Section extends StatelessWidget {
               color: theme.colorTextHeading,
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           child,
         ],
       ),

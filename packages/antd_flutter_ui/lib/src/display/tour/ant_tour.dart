@@ -365,7 +365,7 @@ class _TourOverlay<T> extends StatelessWidget {
     final effectivePlacement =
         targetRect == null ? AntTourPlacement.center : placement;
 
-    final gap = 12.w;
+    final gap = themeData.s(12);
     final holeRect = targetRect?.deflate(-gap);
     final transition = tour.stepTransitionDuration;
 
@@ -386,7 +386,7 @@ class _TourOverlay<T> extends StatelessWidget {
                       key: kAntTourMaskKey,
                       painter: _TourMaskPainter(
                         holeRect: animatedRect ?? holeRect,
-                        radius: themeData.borderRadiusLG.r,
+                        radius: themeData.borderRadiusLG,
                         color: themeData.colorBgMask,
                       ),
                     ),
@@ -408,7 +408,7 @@ class _TourOverlay<T> extends StatelessWidget {
               width: targetRect.width + gap * 2,
               height: targetRect.height + gap * 2,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(themeData.borderRadiusLG.r),
+                borderRadius: BorderRadius.circular(themeData.borderRadiusLG),
                 border: Border.all(
                   color: themeData.colorPrimary,
                   width: themeData.lineWidth,
@@ -818,7 +818,7 @@ class _TourCardState<T> extends State<_TourCard<T>>
   @override
   Widget build(BuildContext context) {
     final theme = widget.themeData;
-    final cardW = 280.w;
+    final cardW = theme.s(280);
     if (_cardHeight <= 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -828,7 +828,7 @@ class _TourCardState<T> extends State<_TourCard<T>>
           setState(() => _cardHeight = box.size.height);
         }
       });
-      _cardHeight = 180.w; // 首帧估算
+      _cardHeight = theme.s(180); // 首帧估算
     }
     final pos = _resolvePosition(cardW, _cardHeight);
 
@@ -838,14 +838,14 @@ class _TourCardState<T> extends State<_TourCard<T>>
     final card = Container(
       key: _cardKey,
       width: cardW,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         boxShadow: [
           BoxShadow(
             color: theme.colorShadow.withValues(alpha: 0.15),
-            blurRadius: 16.r,
+            blurRadius: theme.s(16),
             offset: const Offset(0, 4),
           ),
         ],
@@ -856,16 +856,16 @@ class _TourCardState<T> extends State<_TourCard<T>>
         children: [
           if (widget.cover != null)
             Padding(
-              padding: EdgeInsets.only(bottom: 8.w),
+              padding: EdgeInsets.only(bottom: theme.s(8)),
               child: DefaultTextStyle.merge(
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                 child: widget.cover!,
               ),
             ),
           if (widget.title != null)
             DefaultTextStyle.merge(
               style: TextStyle(
-                fontSize: 16.sp,
+                fontSize: theme.s(16),
                 fontWeight: FontWeight.w600,
                 color: theme.colorTextHeading,
               ),
@@ -873,23 +873,23 @@ class _TourCardState<T> extends State<_TourCard<T>>
             ),
           if (widget.description != null)
             Padding(
-              padding: EdgeInsets.only(top: 8.w),
+              padding: EdgeInsets.only(top: theme.s(8)),
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: theme.s(14),
                   color: theme.colorTextSecondary,
                 ),
                 child: widget.description!,
               ),
             ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 底部：步骤指示 + 操作按钮
           Row(
             children: [
               Text(
                 '${widget.stepIndex + 1} / ${widget.tour.steps.length}',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: theme.s(14),
                   color: theme.colorTextSecondary,
                 ),
               ),
@@ -902,7 +902,7 @@ class _TourCardState<T> extends State<_TourCard<T>>
                 child: Text(
                   kAntTourSkipLabel,
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: theme.s(14),
                     color: theme.colorTextSecondary,
                   ),
                 ),
@@ -916,12 +916,12 @@ class _TourCardState<T> extends State<_TourCard<T>>
                   child: Text(
                     kAntTourPrevLabel,
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: theme.s(14),
                       color: theme.colorText,
                     ),
                   ),
                 ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
               AntButton(
                 key: kAntTourNextButtonKey,
                 type: AntButtonType.primary,
@@ -964,11 +964,11 @@ class _TourCardState<T> extends State<_TourCard<T>>
                     child: Transform.rotate(
                       angle: math.pi / 4,
                       child: Container(
-                        width: 10.w,
-                        height: 10.w,
+                        width: theme.s(10),
+                        height: theme.s(10),
                         decoration: BoxDecoration(
                           color: theme.colorBgContainer,
-                          borderRadius: BorderRadius.circular(2.r),
+                          borderRadius: BorderRadius.circular(theme.s(2)),
                         ),
                       ),
                     ),
@@ -1017,37 +1017,37 @@ class _TourCardState<T> extends State<_TourCard<T>>
   double? _arrowTop(_TourCardPos pos) {
     if (_isTopPlacement(pos.placement)) return null;
     if (_isLeftPlacement(pos.placement) || _isRightPlacement(pos.placement)) {
-      return _arrowCenterYInCard(pos) - 5.w;
+      return _arrowCenterYInCard(pos) - widget.themeData.s(5);
     }
-    return -5.w;
+    return -widget.themeData.s(5);
   }
 
   double? _arrowBottom(_TourCardPos pos) {
-    return _isTopPlacement(pos.placement) ? -5.w : null;
+    return _isTopPlacement(pos.placement) ? -widget.themeData.s(5) : null;
   }
 
   double? _arrowRight(_TourCardPos pos) {
     // 卡片在目标左侧 → 箭头贴卡片右边缘外侧（向右指）
-    return _isLeftPlacement(pos.placement) ? -5.w : null;
+    return _isLeftPlacement(pos.placement) ? -widget.themeData.s(5) : null;
   }
 
   /// 箭头水平位置：
-  /// - 卡片在目标右侧 → 箭头贴卡片左边缘（left: -5.w）
-  /// - 卡片在目标左侧 → left 置 null（由 right: -5.w 锚定右边缘）
+  /// - 卡片在目标右侧 → 箭头贴卡片左边缘（left: -widget.themeData.s(5)）
+  /// - 卡片在目标左侧 → left 置 null（由 right: -widget.themeData.s(5) 锚定右边缘）
   /// - 其余 → 对齐挖孔中心 x（clamp 不出卡片边界）
   double? _arrowLeft(double cardW, _TourCardPos pos) {
     if (_isLeftPlacement(pos.placement)) return null;
-    if (_isRightPlacement(pos.placement)) return -5.w;
+    if (_isRightPlacement(pos.placement)) return -widget.themeData.s(5);
     final rect = widget.targetRect;
-    if (rect == null) return cardW / 2 - 5.w;
+    if (rect == null) return cardW / 2 - widget.themeData.s(5);
     final centerInCard = rect.center.dx - pos.left;
-    return centerInCard.clamp(12.0, cardW - 12.0) - 5.w;
+    return centerInCard.clamp(12.0, cardW - 12.0) - widget.themeData.s(5);
   }
 
   /// 挖孔中心 y 相对卡片顶部的偏移（clamp 在卡片内）。
   double _arrowCenterYInCard(_TourCardPos pos) {
     final rect = widget.targetRect;
-    if (rect == null) return _cardHeight / 2 - 5.w;
+    if (rect == null) return _cardHeight / 2 - widget.themeData.s(5);
     final cardTop =
         pos.top ?? widget.mediaSize.height - (pos.bottom ?? 0) - _cardHeight;
     final centerInCard = rect.center.dy - cardTop;

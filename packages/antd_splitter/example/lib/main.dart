@@ -50,9 +50,7 @@ class _AntdSplitterGalleryAppState extends State<AntdSplitterGalleryApp> {
   Widget build(BuildContext context) {
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'Ant Design Splitter',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -64,7 +62,6 @@ class _AntdSplitterGalleryAppState extends State<AntdSplitterGalleryApp> {
             onToggleDark: () => setState(() => _isDark = !_isDark),
           ),
         ),
-      ),
     );
   }
 }

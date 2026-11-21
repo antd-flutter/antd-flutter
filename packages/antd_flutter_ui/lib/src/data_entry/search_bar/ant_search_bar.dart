@@ -237,16 +237,16 @@ class _AntSearchBarState extends State<AntSearchBar> {
                 width: 1,
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            padding: EdgeInsets.symmetric(horizontal: t.s(12)),
             child: Row(
               children: [
                 widget.searchIcon ??
                     Icon(
                       AntIcons.searchOutlined,
-                      size: 16.sp,
+                      size: t.s(16),
                       color: t.colorTextTertiary,
                     ),
-                SizedBox(width: 8.w),
+                SizedBox(width: t.s(8)),
                 Expanded(
                   // 字段核心复用共享基座（embedded：无边框无填充，由胶囊容器统一绘制）
                   child: AntInputField(
@@ -268,10 +268,10 @@ class _AntSearchBarState extends State<AntSearchBar> {
                   GestureDetector(
                     onTap: _handleClear,
                     child: Padding(
-                      padding: EdgeInsets.only(left: 4.w),
+                      padding: EdgeInsets.only(left: t.s(4)),
                       child: Icon(
                         AntIcons.closeCircleFilled,
-                        size: 16.sp,
+                        size: t.s(16),
                         color: t.colorTextQuaternary,
                       ),
                     ),
@@ -281,12 +281,12 @@ class _AntSearchBarState extends State<AntSearchBar> {
           ),
         ),
         if (_showCancel) ...[
-          SizedBox(width: 8.w),
+          SizedBox(width: t.s(8)),
           GestureDetector(
             onTap: _handleCancel,
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              padding: EdgeInsets.symmetric(horizontal: t.s(2)),
               child: Text(
                 widget.cancelText,
                 style: TextStyle(

@@ -206,17 +206,18 @@ class _ToastViewState extends State<_ToastView> {
 
   /// 按 position 解析对齐配置。
   ({Alignment alignment, EdgeInsets padding}) _resolvePosition() {
+    final themeData = widget.toast.themeData;
     // 设备真实安全区（根视图 MediaQuery，不受页面 SafeArea 消费影响）
     final devicePadding = antDeviceSafePadding();
     final vertical = devicePadding.top + devicePadding.bottom;
     return switch (widget.toast.position) {
       AntToastPosition.top => (
           alignment: Alignment.topCenter,
-          padding: EdgeInsets.only(top: vertical + 64.w),
+          padding: EdgeInsets.only(top: vertical + themeData.s(64)),
         ),
       AntToastPosition.bottom => (
           alignment: Alignment.bottomCenter,
-          padding: EdgeInsets.only(bottom: vertical + 64.w),
+          padding: EdgeInsets.only(bottom: vertical + themeData.s(64)),
         ),
       AntToastPosition.center => (
           alignment: Alignment.center,
@@ -230,7 +231,7 @@ class _ToastViewState extends State<_ToastView> {
     if (icon == null) return const SizedBox.shrink();
     if (icon is Widget) return icon;
     if (icon is AntToastIconType) {
-      final size = 36.w;
+      final size = theme.s(36);
       return switch (icon) {
         AntToastIconType.success => Icon(
             AntIcons.checkCircleOutlined,
@@ -276,20 +277,20 @@ class _ToastViewState extends State<_ToastView> {
 
     final card = Container(
       key: kAntToastKey,
-      margin: EdgeInsets.symmetric(horizontal: 48.w),
+      margin: EdgeInsets.symmetric(horizontal: theme.s(48)),
       padding: EdgeInsets.symmetric(
-        horizontal: 24.w,
-        vertical: hasIcon ? 24.w : 12.w,
+        horizontal: theme.s(24),
+        vertical: hasIcon ? theme.s(24) : theme.s(12),
       ),
       decoration: BoxDecoration(
         color: kAntToastMaskColor,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildIcon(theme),
-          if (hasIcon) SizedBox(height: 12.w),
+          if (hasIcon) SizedBox(height: theme.s(12)),
           _buildContent(),
         ],
       ),

@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 气泡内容定位辅助。
 Finder findBubble(String text) => find.descendant(
@@ -19,8 +20,7 @@ Finder findBubble(String text) => find.descendant(
 Finder findTrigger(String text) => find.text(text);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: Center(
           child: AntTheme(
@@ -29,8 +29,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
@@ -80,7 +79,7 @@ void main() {
             defaultOpen: true,
             tooltip: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [Icon(Icons.info), Text('带图标提示')],
+              children: [Icon(AntIcons.infoCircleOutlined), Text('带图标提示')],
             ),
             child: Text('触发'),
           ),
@@ -88,7 +87,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(findBubble('带图标提示'), findsOneWidget);
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleOutlined), findsOneWidget);
     });
 
     testWidgets('点击空白处关闭气泡', (tester) async {

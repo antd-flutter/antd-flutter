@@ -28,7 +28,7 @@ class TablePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,7 +48,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(5),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 排序 ----------------
           _Section(
@@ -71,7 +71,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(8),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 筛选 ----------------
           _Section(
@@ -104,7 +104,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(10),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 固定列 ----------------
           _Section(
@@ -149,7 +149,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(6),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 虚拟滚动 ----------------
           _Section(
@@ -166,7 +166,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(100),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 分页 ----------------
           _Section(
@@ -183,7 +183,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(18),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 尺寸与边框 ----------------
           _Section(
@@ -197,13 +197,13 @@ class TablePage extends StatelessWidget {
                   columns: _sizeColumns(),
                   dataSource: _mockData(3),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntTable<_Person>(
                   size: AntTableSize.middle,
                   columns: _sizeColumns(),
                   dataSource: _mockData(3),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntTable<_Person>(
                   size: AntTableSize.small,
                   bordered: true,
@@ -213,7 +213,7 @@ class TablePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 加载与空数据 ----------------
           _Section(
@@ -227,12 +227,12 @@ class TablePage extends StatelessWidget {
                   columns: _sizeColumns(),
                   dataSource: _mockData(3),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntTable<_Person>(columns: _sizeColumns(), dataSource: const []),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 行选择 ----------------
           _Section(
@@ -253,7 +253,7 @@ class TablePage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 树形数据 ----------------
           _Section(
@@ -268,7 +268,7 @@ class TablePage extends StatelessWidget {
               rowSelection: const AntTableRowSelection<_Person>(),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 合并单元格 ----------------
           _Section(
@@ -290,7 +290,7 @@ class TablePage extends StatelessWidget {
               dataSource: _mockData(3),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 展开行 ----------------
           _Section(
@@ -306,7 +306,7 @@ class TablePage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 汇总行 ----------------
           _Section(
@@ -330,7 +330,7 @@ class TablePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
 
           // ---------------- 表头分组 ----------------
           _Section(
@@ -441,7 +441,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -453,12 +453,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

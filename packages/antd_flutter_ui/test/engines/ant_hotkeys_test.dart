@@ -6,14 +6,11 @@ import 'package:antd_flutter_ui/src/engines/hotkeys/hotkey_binding.dart';
 import 'package:antd_flutter_ui/src/engines/hotkeys/hotkey_registry.dart';
 import 'package:antd_flutter_ui/src/engines/hotkeys/ant_hotkeys.dart';
 import 'package:flutter/services.dart';
-import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(home: Scaffold(body: child)),
-  );
+  return MaterialApp(home: Scaffold(body: child));
 }
 
 void main() {

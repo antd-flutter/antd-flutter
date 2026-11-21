@@ -206,7 +206,7 @@ class _AntInputFieldState extends State<AntInputField> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final standalone = widget.mode == AntInputFieldMode.standalone;
-    final fontSize = widget.textSize ?? antFieldFontSizeOf(t, widget.size).sp;
+    final fontSize = widget.textSize ?? t.s(antFieldFontSizeOf(t, widget.size));
     final multiline = _isMultiline;
     final height = widget.height ?? antFieldHeightOf(t, widget.size);
 
@@ -260,13 +260,13 @@ class _AntInputFieldState extends State<AntInputField> {
         ),
         contentPadding: multiline
             ? EdgeInsets.symmetric(
-                horizontal: t.marginSM.w, vertical: t.marginSM.w,)
+                horizontal: t.marginSM, vertical: t.marginSM,)
             // standalone 单行：上下对称内边距撑满高度锁定块
             // （textAlignVertical.center 需对称余量执行居中；isCollapsed
             // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）
             : standalone
                 ? EdgeInsets.symmetric(
-                    vertical: (height.w - fontSize) / 2,
+                    vertical: (t.s(height) - fontSize) / 2,
                   )
                 // embedded：零内边距默认；外层可传 embeddedPadding 让行盒撑满
                 // 高度以获得严格的垂直居中（AutoComplete 等自绘边框场景）
@@ -284,7 +284,7 @@ class _AntInputFieldState extends State<AntInputField> {
                 child: widget.prefix!,
               )
             : null,
-        prefixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
+        prefixIconConstraints: BoxConstraints(minHeight: t.s(height), minWidth: 0),
         suffixIcon: widget.suffix != null
             ? _FieldSlot(
                 height: height,
@@ -292,7 +292,7 @@ class _AntInputFieldState extends State<AntInputField> {
                 child: widget.suffix!,
               )
             : null,
-        suffixIconConstraints: BoxConstraints(minHeight: height.w, minWidth: 0),
+        suffixIconConstraints: BoxConstraints(minHeight: t.s(height), minWidth: 0),
       ),
       onChanged: widget.onChanged,
       onFieldSubmitted: widget.onSubmitted,
@@ -307,7 +307,7 @@ class _AntInputFieldState extends State<AntInputField> {
       return Container(
         decoration: _decorationOf(t, height, multiline: true),
         padding: widget.bordered
-            ? EdgeInsets.symmetric(horizontal: t.marginSM.w)
+            ? EdgeInsets.symmetric(horizontal: t.marginSM)
             : EdgeInsets.zero,
         child: field,
       );
@@ -322,7 +322,7 @@ class _AntInputFieldState extends State<AntInputField> {
     // widthFactor:1 → 宽度铺满（decorator fill 行为与宽度无关，禁用灰底
     // 由外层容器统一绘制，避免 disabled 字段 intrinsic 收缩灰条）
     final centered = SizedBox(
-      height: height.w,
+      height: t.s(height),
       child: Center(
         widthFactor: 1,
         child: field,
@@ -344,7 +344,7 @@ class _AntInputFieldState extends State<AntInputField> {
                 : SystemMouseCursors.text,
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
-        child: SizedBox(height: height.w, child: centered),
+        child: SizedBox(height: t.s(height), child: centered),
       );
     }
 
@@ -359,11 +359,11 @@ class _AntInputFieldState extends State<AntInputField> {
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        height: height.w,
+        height: t.s(height),
         alignment: Alignment.center,
         decoration: _decorationOf(t, height),
         clipBehavior: Clip.antiAlias,
-        padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
+        padding: EdgeInsets.symmetric(horizontal: t.marginSM),
         child: centered,
       ),
     );
@@ -375,7 +375,7 @@ class _AntInputFieldState extends State<AntInputField> {
     bool multiline = false,
   }) {
     final enabled = widget.enabled;
-    final radius = BorderRadius.circular(t.borderRadius.w);
+    final radius = BorderRadius.circular(t.borderRadius);
     final baseColor = enabled
         ? antFieldBorderColorOf(
             t,
@@ -393,12 +393,12 @@ class _AntInputFieldState extends State<AntInputField> {
     return BoxDecoration(
       color: enabled ? t.colorBgContainer : t.colorBgContainerDisabled,
       borderRadius: radius,
-      border: Border.all(color: baseColor, width: 1.w),
+      border: Border.all(color: baseColor, width: t.s(1)),
       boxShadow: _focused && enabled
           ? [
               BoxShadow(
                 color: t.controlOutline.withValues(alpha: 0.8),
-                blurRadius: t.controlOutlineWidth.w,
+                blurRadius: t.controlOutlineWidth,
               ),
             ]
           : null,
@@ -423,8 +423,8 @@ class _FieldSlot extends StatelessWidget {
     final t = AntTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(
-        left: isLeading ? t.marginSM.w : t.marginXS.w,
-        right: isLeading ? t.marginXS.w : t.marginSM.w,
+        left: isLeading ? t.marginSM : t.marginXS,
+        right: isLeading ? t.marginXS : t.marginSM,
       ),
       child: child,
     );

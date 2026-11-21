@@ -68,8 +68,9 @@ class AntRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hGutter = gutter.w;
-    final vGutter = (verticalGutter ?? 0).w;
+    final theme = AntTheme.of(context);
+    final hGutter = theme.s(gutter);
+    final vGutter = theme.s((verticalGutter ?? 0));
 
     return LayoutBuilder(
       builder: (context, constraints) {

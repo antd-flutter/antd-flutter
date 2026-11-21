@@ -54,7 +54,7 @@ class CollapsePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -69,7 +69,7 @@ class CollapsePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '手风琴',
             theme: theme,
@@ -82,9 +82,9 @@ class CollapsePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控展开', theme: theme, child: _ControlledCollapse()),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用面板',
             theme: theme,
@@ -100,7 +100,7 @@ class CollapsePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无边框',
             theme: theme,
@@ -113,7 +113,7 @@ class CollapsePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'extra 与自定义图标',
             theme: theme,
@@ -125,7 +125,7 @@ class CollapsePage extends StatelessWidget {
                   extra: Text(
                     'OK',
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: theme.s(14),
                       color: theme.colorSuccess,
                     ),
                   ),
@@ -137,7 +137,7 @@ class CollapsePage extends StatelessWidget {
                 isExpanded
                     ? AntIcons.minusCircleOutlined
                     : AntIcons.plusCircleOutlined,
-                size: 16.w,
+                size: theme.s(16),
               ),
             ),
           ),
@@ -163,9 +163,9 @@ class _ControlledCollapseState extends State<_ControlledCollapse> {
       children: [
         Text(
           '当前展开：${_activeKey.isEmpty ? "无" : _activeKey.join(", ")}',
-          style: TextStyle(fontSize: 13.sp, color: theme.colorTextSecondary),
+          style: TextStyle(fontSize: theme.s(13), color: theme.colorTextSecondary),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _collapse(
           activeKey: _activeKey,
           onChange: (_) {},
@@ -194,7 +194,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -206,12 +206,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

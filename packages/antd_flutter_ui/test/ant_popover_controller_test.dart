@@ -14,8 +14,7 @@ Finder findBubble(String text) => find.descendant(
     );
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: Center(
           child: AntTheme(
@@ -24,8 +23,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 Widget _popover({

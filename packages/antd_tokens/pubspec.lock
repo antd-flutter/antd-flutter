@@ -4,10 +4,9 @@ packages:
   antd_color:
     dependency: "direct main"
     description:
-      name: antd_color
-      sha256: "4e1a1b28f99b2b2fe5e5cf4272ef5a1e6c019156b5d9d623c34033c3400752b9"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../antd_color"
+      relative: true
+    source: path
     version: "1.0.0"
   async:
     dependency: transitive

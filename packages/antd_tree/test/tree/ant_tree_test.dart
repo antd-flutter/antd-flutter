@@ -45,14 +45,12 @@ const _treeData = <_Region>[
 ];
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: SingleChildScrollView(
-            child: Material(child: child),
-          ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: SingleChildScrollView(
+          child: Material(child: child),
         ),
       ),
     ),

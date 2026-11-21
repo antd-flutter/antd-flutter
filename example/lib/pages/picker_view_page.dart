@@ -45,7 +45,7 @@ class _PickerViewPageState extends State<PickerViewPage> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -58,7 +58,7 @@ class _PickerViewPageState extends State<PickerViewPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '受控 value（onChange 同步外部状态）',
             child: Column(
@@ -69,15 +69,15 @@ class _PickerViewPageState extends State<PickerViewPage> {
                   value: _value,
                   onChange: (options) => setState(() => _value = options),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 Text(
                   '当前选择：${_value.map((o) => o.name).join(' / ')}',
-                  style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
+                  style: TextStyle(fontSize: t.s(14), color: t.colorPrimary),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '禁用交互（IgnorePointer 包裹）',
             child: IgnorePointer(
@@ -107,7 +107,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -119,12 +119,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: t.s(14),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

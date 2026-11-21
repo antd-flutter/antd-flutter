@@ -48,9 +48,7 @@ class _AntdQrcodeGalleryAppState extends State<AntdQrcodeGalleryApp> {
     final theme = _isDark ? AntThemeData.dark() : AntThemeData.light();
     return AntTheme(
       data: theme,
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'Ant Design QRCode',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -62,7 +60,6 @@ class _AntdQrcodeGalleryAppState extends State<AntdQrcodeGalleryApp> {
             onToggleDark: () => setState(() => _isDark = !_isDark),
           ),
         ),
-      ),
     );
   }
 }

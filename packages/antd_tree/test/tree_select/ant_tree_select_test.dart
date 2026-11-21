@@ -40,13 +40,11 @@ const _cities = <_City>[
   _City(9, '广东'),
 ];
 
-Widget _wrap(Widget child, {bool dark = false}) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: dark ? AntThemeData.dark() : AntThemeData.light(),
-            child: Material(child: Center(child: child)),
-          ),
+Widget _wrap(Widget child, {bool dark = false}) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: dark ? AntThemeData.dark() : AntThemeData.light(),
+          child: Material(child: Center(child: child)),
         ),
       ),
     );
@@ -121,6 +119,9 @@ Future<void> _expand(WidgetTester tester, String title) async {
 }
 
 Future<void> _selectNode(WidgetTester tester, String title) async {
+  // 面板受 maxHeight 限制，先滚动到目标节点再点击，避免被裁剪。
+  await tester.ensureVisible(_panelText(title));
+  await tester.pumpAndSettle();
   await tester.tap(_panelText(title));
   await tester.pumpAndSettle();
 }
@@ -291,18 +292,16 @@ void main() {
             matching: find.byType(Container),
           )
           .first;
-      final expectedHeight = 44 * ScreenUtil().scaleHeight;
-      expect(tester.getSize(trigger), Size(180, expectedHeight));
+      // 迁移后默认缩放因子为 1.0，高度即设计值。
+      expect(tester.getSize(trigger), const Size(180, 44));
     });
 
     testWidgets('dropdownHeight limits panel height', (tester) async {
       await _pumpSelect(tester, dropdownHeight: 120);
       await _open(tester);
       final panel = tester.widget<Container>(_panel());
-      expect(
-        panel.constraints?.maxHeight,
-        120 * ScreenUtil().scaleHeight,
-      );
+      // 迁移后默认缩放因子为 1.0，下拉高度即设计值。
+      expect(panel.constraints?.maxHeight, 120);
     });
 
     testWidgets('自定义模型：keyOf + labelOf 驱动触发器与 onChange', (tester) async {

@@ -62,9 +62,7 @@ class _AntdCalendarGalleryAppState extends State<AntdCalendarGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdCalendar Demo',
             debugShowCheckedModeBanner: false,
@@ -101,7 +99,6 @@ class _AntdCalendarGalleryAppState extends State<AntdCalendarGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -110,6 +107,7 @@ class _AntdCalendarGalleryAppState extends State<AntdCalendarGalleryApp> {
     AntLayoutData layout,
     int index,
   ) {
+    final theme = AntTheme.of(pageContext);
     final isPickerSection = index == _sectionTitles.length - 1;
     final cards = isPickerSection
         ? const _PickerSection().cards
@@ -119,15 +117,15 @@ class _AntdCalendarGalleryAppState extends State<AntdCalendarGalleryApp> {
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in cards)
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 560.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(560)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -136,7 +134,7 @@ class _AntdCalendarGalleryAppState extends State<AntdCalendarGalleryApp> {
               children: [
                 for (final card in cards)
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -150,7 +148,7 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
+    padding: EdgeInsets.all(theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -160,10 +158,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 12.w),
+          padding: EdgeInsets.only(bottom: theme.s(12)),
           child: Text(title,
               style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15))),
         ),
         child,
       ],
@@ -175,7 +173,7 @@ Widget _resultText(BuildContext context, String label, String value) {
   final theme = AntTheme.of(context);
   return Text(
     value.isEmpty ? '$label：未选择' : '$label：$value',
-    style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+    style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
   );
 }
 
@@ -203,7 +201,7 @@ final List<_DemoCard> _basicCards = [
               onSelect: (d) => innerSetState(() => picked = d),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.w),
+              padding: EdgeInsets.only(top: AntTheme.of(context).s(8)),
               child: _resultText(context, '选中', _fmt(picked)),
             ),
           ],
@@ -223,6 +221,7 @@ class _BasicFullscreenCardState extends State<_BasicFullscreenCard> {
 
   @override
   Widget build(BuildContext context) {
+      final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -232,7 +231,7 @@ class _BasicFullscreenCardState extends State<_BasicFullscreenCard> {
           onSelect: (d) => setState(() => _picked = d),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '选中', _fmt(_picked)),
         ),
       ],
@@ -255,7 +254,7 @@ final List<_DemoCard> _renderCards = [
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('${date.day}'),
-              Text('结', style: TextStyle(fontSize: 10.sp, color: Colors.orange)),
+              Text('结', style: TextStyle(fontSize: AntThemeData.light().s(10), color: Colors.orange)),
             ],
           );
         }
@@ -273,7 +272,7 @@ final List<_DemoCard> _renderCards = [
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('${date.day}'),
-          if (info.isToday) Text('今', style: TextStyle(fontSize: 10.sp, color: Colors.green)),
+          if (info.isToday) Text('今', style: TextStyle(fontSize: AntThemeData.light().s(10), color: Colors.green)),
         ],
       ),
     ),
@@ -284,7 +283,7 @@ final List<_DemoCard> _renderCards = [
       fullscreen: true,
       defaultValue: _date(DateTime.now().year, DateTime.now().month, 1),
       fullCellRender: (date, info) => Container(
-        margin: EdgeInsets.all(2.w),
+        margin: EdgeInsets.all(AntThemeData.light().s(2)),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: info.isSelected ? Colors.indigo : Colors.indigo.withValues(alpha: 0.06),
@@ -309,7 +308,7 @@ final List<_DemoCard> _renderCards = [
         children: [
           Text('${month.month}月'),
           if (month.month == 1)
-            Text('春节', style: TextStyle(fontSize: 10.sp, color: Colors.red)),
+            Text('春节', style: TextStyle(fontSize: AntThemeData.light().s(10), color: Colors.red)),
         ],
       ),
     ),
@@ -344,6 +343,7 @@ class _ModeControlledCardState extends State<_ModeControlledCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -355,7 +355,7 @@ class _ModeControlledCardState extends State<_ModeControlledCard> {
               setState(() => _log = '${mode.name} @ ${_fmt(date)}'),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '面板变化', _log),
         ),
       ],
@@ -435,6 +435,7 @@ class _RangeCardState extends State<_RangeCard> {
 
   @override
   Widget build(BuildContext context) {
+  final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -446,7 +447,7 @@ class _RangeCardState extends State<_RangeCard> {
               setState(() => _range = '${_fmt(s)} ~ ${_fmt(e)}'),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '范围', _range),
         ),
       ],
@@ -464,6 +465,7 @@ class _MultiCardState extends State<_MultiCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -474,7 +476,7 @@ class _MultiCardState extends State<_MultiCard> {
           onSelectMulti: (days) => setState(() => _count = days.length),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '已选数', '$_count'),
         ),
       ],
@@ -492,6 +494,7 @@ class _AllowClearCardState extends State<_AllowClearCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -502,7 +505,7 @@ class _AllowClearCardState extends State<_AllowClearCard> {
           onChange: (d) => setState(() => _onChange = _fmt(d)),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, 'onChange', _onChange),
         ),
       ],
@@ -538,11 +541,12 @@ class _ControllerCardState extends State<_ControllerCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
+          spacing: theme.s(8),
           children: [
             OutlinedButton(
               onPressed: () => _controller.previousMonth(),
@@ -563,7 +567,7 @@ class _ControllerCardState extends State<_ControllerCard> {
           ],
         ),
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.w),
+          padding: EdgeInsets.symmetric(vertical: theme.s(8)),
           child: AntCalendar(
             layout: AntCalendarLayout.card,
             defaultValue: _date(DateTime.now().year, DateTime.now().month, 10),
@@ -586,7 +590,7 @@ final List<_DemoCard> _mobileCards = [
       defaultValue: _date(DateTime.now().year, DateTime.now().month, 10),
       renderDate: (d) => Text('${d.day}'),
       renderLabel: (d) => d.day % 5 == 0
-          ? Text('休', style: TextStyle(fontSize: 9.sp, color: Colors.red))
+          ? Text('休', style: TextStyle(fontSize: AntThemeData.light().s(9), color: Colors.red))
           : null,
     ),
   ),
@@ -606,6 +610,7 @@ class _PageChangeCardState extends State<_PageChangeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final now = DateTime.now();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -617,7 +622,7 @@ class _PageChangeCardState extends State<_PageChangeCard> {
           onPageChange: (y, m) => setState(() => _page = '$y-$m'),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '当前页', _page),
         ),
       ],
@@ -674,6 +679,7 @@ class _PickerCardState extends State<_PickerCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final now = DateTime.now();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -689,19 +695,19 @@ class _PickerCardState extends State<_PickerCard> {
           onMaskClick: () => setState(() => _events = 'onMaskClick'),
           onClose: () => setState(() => _events = '$_events onClose'),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(8)),
             decoration: BoxDecoration(
               border: Border.all(color: AntTheme.of(context).colorSplit),
               borderRadius: BorderRadius.circular(AntTheme.of(context).borderRadius),
             ),
             child: Text(
               _confirmed.isEmpty ? '点击选择日期' : _confirmed,
-              style: TextStyle(fontSize: 14.sp),
+              style: TextStyle(fontSize: theme.s(14)),
             ),
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.w),
+          padding: EdgeInsets.only(top: theme.s(8)),
           child: _resultText(context, '确认值', _confirmed),
         ),
         if (_events.isNotEmpty)

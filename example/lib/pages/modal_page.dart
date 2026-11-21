@@ -10,7 +10,7 @@ class ModalPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -19,7 +19,7 @@ class ModalPage extends StatelessWidget {
             theme: theme,
             child: const _BasicModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '确认风格 showAntModal',
             theme: theme,
@@ -39,25 +39,25 @@ class ModalPage extends StatelessWidget {
               child: const Text('打开确认对话框'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'confirmLoading 加载态',
             theme: theme,
             child: const _LoadingModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 footer',
             theme: theme,
             child: const _CustomFooterModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '遮罩与关闭配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -84,12 +84,12 @@ class ModalPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '宽度配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -116,7 +116,7 @@ class ModalPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '居中',
             theme: theme,
@@ -233,8 +233,9 @@ class _CustomFooterModalDemoState extends State<_CustomFooterModalDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Wrap(
-      spacing: 8.w,
+      spacing: theme.s(8),
       children: [
         AntButton(
           onTap: () => setState(() => _open = true),
@@ -254,7 +255,7 @@ class _CustomFooterModalDemoState extends State<_CustomFooterModalDemo> {
             ],
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         AntButton(
           onTap: () => setState(() => _open2 = true),
           child: const Text('隐藏底部（footer=null）'),
@@ -286,7 +287,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -298,12 +299,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

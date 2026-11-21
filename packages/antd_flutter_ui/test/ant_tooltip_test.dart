@@ -20,8 +20,7 @@ Finder findBubble(String text) => find.descendant(
 Finder findTrigger(String text) => find.text(text);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: Center(
           child: AntTheme(
@@ -30,8 +29,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 /// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
 /// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。

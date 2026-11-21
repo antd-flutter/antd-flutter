@@ -169,7 +169,7 @@ class _AntProgressState extends State<AntProgress>
   // line 模式
   // ------------------------------------------------------------
   Widget _buildLine(AntThemeData theme) {
-    final strokeWidth = widget.size ?? 8.w;
+    final strokeWidth = widget.size ?? theme.s(8);
     final percent = _displayPercent.clamp(0.0, 100.0);
 
     return Row(
@@ -194,7 +194,7 @@ class _AntProgressState extends State<AntProgress>
           ),
         ),
         if (widget.showInfo) ...[
-          SizedBox(width: 8.w),
+          SizedBox(width: theme.s(8)),
           Text(
             _formatText(percent),
             style: TextStyle(
@@ -215,8 +215,8 @@ class _AntProgressState extends State<AntProgress>
   // circle 模式
   // ------------------------------------------------------------
   Widget _buildCircle(AntThemeData theme) {
-    final diameter = widget.size ?? 120.w;
-    final arcWidth = widget.strokeWidth ?? 6.w;
+    final diameter = widget.size ?? theme.s(120);
+    final arcWidth = widget.strokeWidth ?? theme.s(6);
     final percent = _displayPercent.clamp(0.0, 100.0);
 
     return SizedBox(

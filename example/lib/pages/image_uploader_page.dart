@@ -19,8 +19,9 @@ class ImageUploaderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -37,7 +38,7 @@ class ImageUploaderPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '初始图片列表',
             child: const AntImageUploader<Photo>(
@@ -49,7 +50,7 @@ class ImageUploaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '最大数量限制（3 张）',
             child: AntImageUploader<Photo>(
@@ -70,7 +71,7 @@ class ImageUploaderPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '上传状态展示',
             child: const AntImageUploader<Photo>(
@@ -92,7 +93,7 @@ class ImageUploaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '不可删除',
             child: const AntImageUploader<Photo>(
@@ -104,7 +105,7 @@ class ImageUploaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '每行 3 列',
             child: const AntImageUploader<Photo>(
@@ -116,7 +117,7 @@ class ImageUploaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '自定义格子与预览',
             child: AntImageUploader<Photo>(
@@ -128,16 +129,16 @@ class ImageUploaderPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AntTheme.of(context).colorFillSecondary,
                   borderRadius: BorderRadius.circular(
-                    AntTheme.of(context).borderRadiusSM.w,
+                    AntTheme.of(context).borderRadiusSM,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(AntIcons.pictureOutlined, size: 20.w),
-                    SizedBox(height: 4.h),
-                    Text(photo.id, style: TextStyle(fontSize: 12.sp)),
+                    Icon(AntIcons.pictureOutlined, size: theme.s(20)),
+                    SizedBox(height: theme.s(4)),
+                    Text(photo.id, style: TextStyle(fontSize: theme.s(12))),
                   ],
                 ),
               ),
@@ -148,7 +149,7 @@ class ImageUploaderPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: 'String 列表数据源',
             child: const AntImageUploader<String>(
@@ -158,7 +159,7 @@ class ImageUploaderPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
@@ -178,6 +179,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -190,11 +192,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           ],
           onChange: (items) => setState(() => _items = items),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         AntText(
           text: '当前图片数: ${_items.length}',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -213,11 +215,11 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-        border: Border.all(color: theme.colorSplit, width: 1.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+        border: Border.all(color: theme.colorSplit, width: theme.s(1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,12 +227,12 @@ class _Section extends StatelessWidget {
           AntText(
             text: title,
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: theme.s(15),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

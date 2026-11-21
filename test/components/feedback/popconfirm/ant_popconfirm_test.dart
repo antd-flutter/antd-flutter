@@ -6,18 +6,17 @@ import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 居中放置一个触发元素 + Popconfirm。
@@ -174,18 +173,20 @@ void main() {
     await tester.pumpWidget(_host(title: 'A'));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.help_outline), findsOneWidget);
+    expect(find.byIcon(AntIcons.questionCircleOutlined), findsOneWidget);
     // 先关闭气泡，避免复用同一位置的 Element 状态
     await tester.tapAt(const Offset(20, 30));
     await tester.pumpAndSettle();
 
     await tester.pumpWidget(
       _host(
-          title: 'B', icon: const Icon(Icons.delete, key: Key('custom-icon'))),
+        title: 'B',
+        icon: const Icon(AntIcons.deleteOutlined, key: Key('custom-icon')),
+      ),
     );
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.help_outline), findsNothing);
+    expect(find.byIcon(AntIcons.questionCircleOutlined), findsNothing);
     expect(find.byKey(const Key('custom-icon')), findsOneWidget);
   });
 

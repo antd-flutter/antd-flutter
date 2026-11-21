@@ -20,9 +20,8 @@ class _DrawerPageState extends State<DrawerPage> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    return AntScreenUtilInit(
-      builder: (context, _) => SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+    return SingleChildScrollView(
+        padding: EdgeInsets.all(theme.s(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -34,7 +33,7 @@ class _DrawerPageState extends State<DrawerPage> {
                 child: const AntText(text: 'Open Drawer'),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '左侧滑入',
               theme: theme,
@@ -43,7 +42,7 @@ class _DrawerPageState extends State<DrawerPage> {
                 child: const AntText(text: '左侧打开'),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '顶部滑入',
               theme: theme,
@@ -52,7 +51,7 @@ class _DrawerPageState extends State<DrawerPage> {
                 child: const AntText(text: '顶部打开'),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '底部滑入',
               theme: theme,
@@ -61,7 +60,7 @@ class _DrawerPageState extends State<DrawerPage> {
                 child: const AntText(text: '底部打开'),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '带底部操作区',
               theme: theme,
@@ -70,13 +69,13 @@ class _DrawerPageState extends State<DrawerPage> {
                 child: const AntText(text: '带 Footer'),
               ),
             ),
-            SizedBox(height: 16.w),
+            SizedBox(height: theme.s(16)),
             _Section(
               title: '遮罩配置（无遮罩 + 不可点遮罩关闭）',
               theme: theme,
               child: Wrap(
-                spacing: 8.w,
-                runSpacing: 8.w,
+                spacing: theme.s(8),
+                runSpacing: theme.s(8),
                 children: [
                   AntButton(
                     onTap: () => setState(() => _noMaskOpen = true),
@@ -92,11 +91,11 @@ class _DrawerPageState extends State<DrawerPage> {
             _buildDrawers(),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildDrawers() {
+    final theme = AntTheme.of(context);
     return Stack(
       children: [
         AntDrawer(
@@ -133,7 +132,7 @@ class _DrawerPageState extends State<DrawerPage> {
           title: const AntText(text: '带 Footer 抽屉'),
           onClose: () => setState(() => _footerOpen = false),
           footer: Wrap(
-            spacing: 8.w,
+            spacing: theme.s(8),
             children: [
               AntButton(
                 onTap: () => setState(() => _footerOpen = false),
@@ -197,12 +196,12 @@ class _Section extends StatelessWidget {
         AntText(
           text: title,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             fontWeight: FontWeight.w600,
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

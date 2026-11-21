@@ -40,9 +40,7 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'AntdFloating Demo',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -79,7 +77,6 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -91,17 +88,18 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
 
   Widget _sectionShell(
       BuildContext context, AntLayoutData layout, List<Widget> cards) {
+    final theme = AntTheme.of(context);
     final isWide = _isWide(layout);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in cards)
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 560.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(560)),
                     child: card,
                   ),
               ],
@@ -110,7 +108,7 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
               children: [
                 for (final card in cards)
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child: card,
                   ),
               ],
@@ -122,10 +120,10 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
       BuildContext pageContext, String title, String desc, Widget demo) {
     final theme = AntTheme.of(pageContext);
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         border: Border.all(color: theme.colorBorderSecondary),
       ),
       child: Column(
@@ -135,20 +133,20 @@ class _AntdFloatingGalleryAppState extends State<AntdFloatingGalleryApp> {
           Text(
             title,
             style: TextStyle(
-              fontSize: theme.fontSizeLG.sp,
+              fontSize: theme.fontSizeLG,
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 4.w),
+          SizedBox(height: theme.s(4)),
           Text(
             desc,
             style: TextStyle(
-              fontSize: theme.fontSizeSM.sp,
+              fontSize: theme.fontSizeSM,
               color: theme.colorTextSecondary,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           demo,
         ],
       ),
@@ -238,8 +236,8 @@ class _PanelDemoState extends State<_PanelDemo> {
     return Column(
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             OutlinedButton(
               onPressed: () => _controller.expand(),
@@ -259,11 +257,11 @@ class _PanelDemoState extends State<_PanelDemo> {
             ),
           ],
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前高度比例：${_ratio.toStringAsFixed(2)}',
           style: TextStyle(
-            fontSize: theme.fontSizeSM.sp,
+            fontSize: theme.fontSizeSM,
             color: theme.colorTextSecondary,
           ),
         ),
@@ -302,6 +300,7 @@ class _BubbleDemoState extends State<_BubbleDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SizedBox(
       height: 300,
       child: Stack(
@@ -315,7 +314,7 @@ class _BubbleDemoState extends State<_BubbleDemo> {
             child: Text(
               '点击回调：$_last',
               style: TextStyle(
-                fontSize: AntTheme.of(context).fontSizeSM.sp,
+                fontSize: AntTheme.of(context).fontSizeSM,
                 color: AntTheme.of(context).colorTextSecondary,
               ),
             ),
@@ -329,10 +328,10 @@ class _BubbleDemoState extends State<_BubbleDemo> {
             child: const Icon(AntIcons.aimOutlined),
           ),
           Positioned(
-            left: 8.w,
-            bottom: 8.w,
+            left: theme.s(8),
+            bottom: theme.s(8),
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 OutlinedButton(
                   onPressed: () => _controller.snapToNearestEdge(),
@@ -378,7 +377,7 @@ class _AutoSnapBubbleDemo extends StatelessWidget {
             child: Text(
               '拖拽气泡松手 → 自动吸附最近左/右边缘',
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color: theme.colorTextSecondary,
               ),
             ),
@@ -426,7 +425,7 @@ class _BubbleMenuDemoState extends State<_BubbleMenuDemo> {
             child: Text(
               '最近动作：$_action',
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color: theme.colorTextSecondary,
               ),
             ),
@@ -453,8 +452,8 @@ class _BubbleMenuDemoState extends State<_BubbleMenuDemo> {
             ],
           ),
           Positioned(
-            left: 8.w,
-            bottom: 8.w,
+            left: theme.s(8),
+            bottom: theme.s(8),
             child: OutlinedButton(
               onPressed: () {
                 _visible = !_visible;
@@ -482,10 +481,10 @@ class _MultiBubbleDemo extends StatelessWidget {
     final theme = AntTheme.of(context);
     Widget card(String title, Color color, IconData icon, Offset pos) =>
         Container(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(theme.s(16)),
           decoration: BoxDecoration(
             color: theme.colorBgContainer,
-            borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+            borderRadius: BorderRadius.circular(theme.borderRadiusLG),
             border: Border.all(color: theme.colorBorderSecondary),
           ),
           child: Column(
@@ -495,20 +494,20 @@ class _MultiBubbleDemo extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: theme.fontSizeLG.sp,
+                  fontSize: theme.fontSizeLG,
                   fontWeight: FontWeight.w600,
                   color: theme.colorText,
                 ),
               ),
-              SizedBox(height: 4.w),
+              SizedBox(height: theme.s(4)),
               Text(
                 '独立实例，互不影响；可分别拖拽',
                 style: TextStyle(
-                  fontSize: theme.fontSizeSM.sp,
+                  fontSize: theme.fontSizeSM,
                   color: theme.colorTextSecondary,
                 ),
               ),
-              SizedBox(height: 12.w),
+              SizedBox(height: theme.s(12)),
               SizedBox(
                 height: 220,
                 child: AntFloatingBubble(
@@ -524,9 +523,9 @@ class _MultiBubbleDemo extends StatelessWidget {
     return Column(
       children: [
         card('实例 A（主色）', theme.colorPrimary, AntIcons.editOutlined, const Offset(180, 100)),
-        SizedBox(height: 16.w),
+        SizedBox(height: theme.s(16)),
         card('实例 B（金色）', const Color(0xFFFAAD14), AntIcons.starFilled, const Offset(30, 120)),
-        SizedBox(height: 16.w),
+        SizedBox(height: theme.s(16)),
         card('实例 C（仅 Y 轴）', const Color(0xFF52C41A), AntIcons.verticalAlignMiddleOutlined,
             const Offset(140, 40)),
       ],

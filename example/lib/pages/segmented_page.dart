@@ -35,7 +35,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,7 +47,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (v) => _showMsg(context, '选中：$v'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '受控模式',
             theme: theme,
@@ -57,7 +57,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (v) => setState(() => _controlledValue = v),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Block 占满整行',
             theme: theme,
@@ -69,7 +69,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (v) => _showMsg(context, '视图：$v'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种大小',
             theme: theme,
@@ -80,13 +80,13 @@ class _SegmentedPageState extends State<SegmentedPage> {
                   size: AntSegmentedSize.small,
                   onChange: (v) => _showMsg(context, 'small：$v'),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntSegmented(
                   options: const ['小', '中', '大'],
                   size: AntSegmentedSize.middle,
                   onChange: (v) => _showMsg(context, 'middle：$v'),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntSegmented(
                   options: const ['小', '中', '大'],
                   size: AntSegmentedSize.large,
@@ -95,7 +95,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用',
             theme: theme,
@@ -106,7 +106,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
                   disabled: true,
                   defaultValue: '开启',
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntSegmented(
                   options: const ['可用', '禁用项'],
                   disabledOf: (v) => v == '禁用项',
@@ -115,7 +115,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带图标',
             theme: theme,
@@ -126,7 +126,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (mode) => _showMsg(context, '选中：${mode.label}'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 Item（icon-only / itemBuilder）',
             theme: theme,
@@ -138,7 +138,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (mode) => _showMsg(context, '选中：${mode.id}'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义模型',
             theme: theme,
@@ -153,7 +153,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               onChange: (density) => _showMsg(context, '密度：${density.name}'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '垂直排列',
             theme: theme,
@@ -166,7 +166,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
                   direction: AntSegmentedDirection.vertical,
                   onChange: (v) => _showMsg(context, '方向：$v'),
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 // icon-only：无宽度约束，同样 hug 内容
                 AntSegmented<_ViewMode>(
                   options: _viewModes.take(2).toList(),
@@ -175,10 +175,10 @@ class _SegmentedPageState extends State<SegmentedPage> {
                   direction: AntSegmentedDirection.vertical,
                   onChange: (mode) => _showMsg(context, 'icon-only：${mode.id}'),
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 // 外部 SizedBox 可自行设置宽度（有界约束生效，不足处省略号）
                 SizedBox(
-                  width: 160.w,
+                  width: theme.s(160),
                   child: AntSegmented(
                     options: const ['日', '周', '月', '年'],
                     direction: AntSegmentedDirection.vertical,
@@ -189,7 +189,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '胶囊形状',
             theme: theme,
@@ -207,7 +207,7 @@ class _SegmentedPageState extends State<SegmentedPage> {
                     _showMsg(context, '形状：$v');
                   },
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntSegmented(
                   options: const ['Kilometer', 'Monthly', 'Yearly'],
                   block: true,
@@ -247,8 +247,8 @@ class _Section extends StatelessWidget {
       width: double.infinity,
       // 桌面宽窗口下限宽卡片，避免 demo 区块被拉得过宽影响观感；
       // fullWidth 的卡片不限宽，保证 block 组件宽度自适应可验证。
-      constraints: fullWidth ? null : BoxConstraints(maxWidth: 560.w),
-      padding: EdgeInsets.all(16.w),
+      constraints: fullWidth ? null : BoxConstraints(maxWidth: theme.s(560)),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -260,12 +260,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

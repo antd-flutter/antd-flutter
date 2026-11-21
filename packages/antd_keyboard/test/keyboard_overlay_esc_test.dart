@@ -5,13 +5,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(WidgetBuilder builder) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: Builder(builder: builder)),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: Builder(builder: builder)),
       ),
     ),
   );
@@ -36,7 +34,10 @@ void main() {
 
       controller.show(
         capturedContext,
-        const ColoredBox(color: Color(0xFF123456), child: SizedBox(height: 100)),
+        const ColoredBox(
+          color: Color(0xFF123456),
+          child: SizedBox(height: 100),
+        ),
         onDismiss: () => dismissed = true,
       );
       await tester.pumpAndSettle();

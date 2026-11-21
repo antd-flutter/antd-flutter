@@ -29,7 +29,7 @@ class _CarouselPageState extends State<CarouselPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,21 +37,21 @@ class _CarouselPageState extends State<CarouselPage> {
           _Section(
             title: '基础用法',
             theme: theme,
-            child: AntCarousel(height: 150.w, children: _demoPages(theme)),
+            child: AntCarousel(height: theme.s(150), children: _demoPages(theme)),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 2. 自动播放
           _Section(
             title: '自动播放（3s 间隔，末页循环回首页）',
             theme: theme,
             child: AntCarousel(
-              height: 150.w,
+              height: theme.s(150),
               autoplay: true,
               loop: true,
               children: _demoPages(theme),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 3. 指示点位置
           _Section(
             title: '指示点位置',
@@ -59,44 +59,44 @@ class _CarouselPageState extends State<CarouselPage> {
             child: Column(
               children: [
                 AntCarousel(
-                  height: 110.w,
+                  height: theme.s(110),
                   dotPosition: AntCarouselDotPosition.top,
                   children: _demoPages(theme),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntCarousel(
-                  height: 110.w,
+                  height: theme.s(110),
                   dotPosition: AntCarouselDotPosition.left,
                   children: _demoPages(theme),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntCarousel(
-                  height: 110.w,
+                  height: theme.s(110),
                   dotPosition: AntCarouselDotPosition.right,
                   children: _demoPages(theme),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 4. 箭头
           _Section(
             title: '箭头（hover 加深，桌面端常用）',
             theme: theme,
             child: AntCarousel(
-              height: 150.w,
+              height: theme.s(150),
               arrows: true,
               loop: true,
               children: _demoPages(theme),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 5. 垂直轮播
           _Section(
             title: '垂直轮播',
             theme: theme,
             child: AntCarousel(
-              height: 200.w,
+              height: theme.s(200),
               vertical: true,
               autoplay: true,
               loop: true,
@@ -104,7 +104,7 @@ class _CarouselPageState extends State<CarouselPage> {
               children: _demoPages(theme),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 6. 受控 + goTo
           _Section(
             title: '受控模式 + goTo 跳转',
@@ -112,16 +112,16 @@ class _CarouselPageState extends State<CarouselPage> {
             child: Column(
               children: [
                 AntCarousel(
-                  height: 150.w,
+                  height: theme.s(150),
                   controller: _controller,
                   current: _current,
                   onChange: (i) => setState(() => _current = i),
                   children: _demoPages(theme),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.w,
+                  spacing: theme.s(8),
+                  runSpacing: theme.s(8),
                   children: [
                     for (var i = 0; i < 3; i++)
                       AntButton(
@@ -140,13 +140,13 @@ class _CarouselPageState extends State<CarouselPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // 7. 自定义内容卡片
           _Section(
             title: '自定义内容卡片',
             theme: theme,
             child: AntCarousel(
-              height: 180.w,
+              height: theme.s(180),
               autoplay: true,
               loop: true,
               arrows: true,
@@ -196,7 +196,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -208,12 +208,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),
@@ -239,8 +239,8 @@ class _BannerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.w),
-      padding: EdgeInsets.all(20.w),
+      margin: EdgeInsets.symmetric(horizontal: theme.s(8), vertical: theme.s(8)),
+      padding: EdgeInsets.all(theme.s(20)),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -249,20 +249,20 @@ class _BannerCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 32.sp, color: color),
-          SizedBox(height: 8.w),
+          Icon(icon, size: theme.s(32), color: color),
+          SizedBox(height: theme.s(8)),
           Text(
             title,
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: theme.s(18),
               fontWeight: FontWeight.w600,
               color: color,
             ),
           ),
-          SizedBox(height: 4.w),
+          SizedBox(height: theme.s(4)),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+            style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
           ),
         ],
       ),

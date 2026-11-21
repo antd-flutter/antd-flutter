@@ -76,8 +76,9 @@ class AntMasonry extends StatelessWidget {
   Widget build(BuildContext context) {
     if (children.isEmpty) return const SizedBox.shrink();
 
-    final hGutter = gutter.w;
-    final vGutter = (verticalGutter ?? gutter).w;
+    final theme = AntTheme.of(context);
+    final hGutter = theme.s(gutter);
+    final vGutter = theme.s(verticalGutter ?? gutter);
 
     return LayoutBuilder(
       builder: (context, constraints) {

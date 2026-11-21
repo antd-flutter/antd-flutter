@@ -5,14 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          // 外层可滚动，避免固定高度下表体溢出误报
-          child: SingleChildScrollView(child: Material(child: child)),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        // 外层可滚动，避免固定高度下表体溢出误报
+        child: SingleChildScrollView(child: Material(child: child)),
       ),
     ),
   );

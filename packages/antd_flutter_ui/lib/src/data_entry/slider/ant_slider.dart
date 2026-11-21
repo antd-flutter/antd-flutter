@@ -153,15 +153,15 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
     final theme = AntTheme.of(context);
     final percent = _valueToPercent(_currentValue);
     final showTooltip = widget.tooltipVisible || _dragging;
-    final trackHeight = 4.w;
-    final thumbSize = 14.w;
+    final trackHeight = theme.s(4);
+    final thumbSize = theme.s(14);
     final activeColor =
         widget.disabled ? theme.colorTextDisabled : theme.colorPrimary;
     final inactiveColor =
         widget.disabled ? theme.colorFillSecondary : theme.colorFillSecondary;
 
     final hasMarks = widget.marks.isNotEmpty;
-    final baseHeight = (hasMarks ? 32 : 16).w;
+    final baseHeight = theme.s((hasMarks ? 32 : 16));
     final trackCenter = baseHeight / 2;
 
     Widget slider = LayoutBuilder(
@@ -237,11 +237,11 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
                     final markPercent = _valueToPercent(markValue);
                     final isPassed = _currentValue >= markValue;
                     return Positioned(
-                      left: markPercent * trackWidth - 2.w,
-                      top: trackCenter - 2.w,
+                      left: markPercent * trackWidth - theme.s(2),
+                      top: trackCenter - theme.s(2),
                       child: Container(
-                        width: 4.w,
-                        height: 4.w,
+                        width: theme.s(4),
+                        height: theme.s(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isPassed
@@ -255,7 +255,7 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
                                   color: widget.disabled
                                       ? theme.colorBorder
                                       : theme.colorSplit,
-                                  width: 1.w,
+                                  width: theme.s(1),
                                 ),
                         ),
                       ),
@@ -276,7 +276,7 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
                           : Colors.white,
                       border: Border.all(
                         color: activeColor,
-                        width: 2.w,
+                        width: theme.s(2),
                       ),
                       boxShadow: widget.disabled
                           ? null
@@ -297,16 +297,16 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
 
         // 提示气泡 overlay：悬浮于轨道上方，不占布局空间、不影响滑块自身位置
         final bubble = Positioned(
-          left: (thumbDx - 20.w)
-              .clamp(0.0, (trackWidth - 40.w).clamp(0.0, double.infinity)),
-          bottom: baseHeight + 6.w,
+          left: (thumbDx - theme.s(20))
+              .clamp(0.0, (trackWidth - theme.s(40)).clamp(0.0, double.infinity)),
+          bottom: baseHeight + theme.s(6),
           child: Container(
-            width: 40.w,
-            height: 22.w,
+            width: theme.s(40),
+            height: theme.s(22),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: theme.colorBgContainer,
-              borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
+              borderRadius: BorderRadius.circular(theme.borderRadiusSM),
               border: Border.all(color: theme.colorSplit),
               boxShadow: [
                 BoxShadow(
@@ -321,7 +321,7 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
                   ? _currentValue.toInt().toString()
                   : _currentValue.toStringAsFixed(1),
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color: theme.colorText,
               ),
             ),
@@ -343,23 +343,23 @@ class _AntSliderState<T> extends State<AntSlider<T>> {
         children: [
           slider,
           Padding(
-            padding: EdgeInsets.only(top: 4.w),
+            padding: EdgeInsets.only(top: theme.s(4)),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final trackWidth = constraints.maxWidth;
                 return SizedBox(
-                  height: 16.w,
+                  height: theme.s(16),
                   child: Stack(
                     children: widget.marks.map((mark) {
                       final markPercent = _valueToPercent(_markValue(mark));
                       return Positioned(
-                        left: markPercent * trackWidth - 16.w,
-                        width: 32.w,
+                        left: markPercent * trackWidth - theme.s(16),
+                        width: theme.s(32),
                         child: Text(
                           _markLabel(mark),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: theme.fontSizeSM.sp,
+                            fontSize: theme.fontSizeSM,
                             color: theme.colorTextTertiary,
                           ),
                         ),

@@ -4,8 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
@@ -16,8 +15,7 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
             ),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntAppBar', () {
@@ -60,8 +58,7 @@ void main() {
     testWidgets('shows back arrow when route can pop', (tester) async {
       final navigatorKey = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        AntScreenUtilInit(
-          builder: (context, _) => MaterialApp(
+        MaterialApp(
             navigatorKey: navigatorKey,
             home: Scaffold(
               body: Builder(
@@ -80,7 +77,6 @@ void main() {
               ),
             ),
           ),
-        ),
       );
       await tester.tap(find.text('go'));
       await tester.pumpAndSettle();

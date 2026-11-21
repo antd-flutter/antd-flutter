@@ -12,15 +12,12 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _wrap(Widget child) {
   // 禁用桌面自适应分支：固定按 designSize(375) 缩放，消除跨用例
   // ScreenUtil 静态状态漂移导致的缩放模式不一致（边距断言依赖稳定缩放）
-  return AntScreenUtilInit(
-    desktopBreakpoint: null,
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body:
             AntTheme(data: AntThemeData.light(), child: Material(child: child)),
       ),
-    ),
-  );
+    );
 }
 
 /// 字形（caret）相对容器左边距 —— 基座标准字形内缩 17.3
@@ -259,7 +256,7 @@ void main() {
       // 字形内缩 = marginSM(12) + 5（桌面缩放因子 1，与移动端同公式）
       expect(
         glyphInset(tester, find.byType(AntInput)),
-        closeTo(t.marginSM.w + 5, 2.5),
+        closeTo(t.marginSM + 5, 2.5),
         reason: '桌面模式字形内缩与移动端同基座标准',
       );
     });

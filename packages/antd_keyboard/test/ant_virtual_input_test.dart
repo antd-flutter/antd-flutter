@@ -5,13 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -95,7 +93,10 @@ void main() {
       );
       await tester.tap(find.text('123'));
       await tester.pump();
-      expect(find.byKey(const ValueKey('ant-virtual-input-clear')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('ant-virtual-input-clear')),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const ValueKey('ant-virtual-input-clear')));
       await tester.pump();
       expect(changed, '');

@@ -332,25 +332,25 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
   Widget _buildFooter(BuildContext context, _AntInfiniteScrollPhase phase) {
     final theme = AntTheme.of(context);
     final style = TextStyle(
-      fontSize: 14.sp,
+      fontSize: theme.s(14),
       color: theme.colorTextSecondary,
     );
 
     if (phase == _AntInfiniteScrollPhase.loading) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.w),
+        padding: EdgeInsets.symmetric(vertical: theme.s(12)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 16.w,
-              height: 16.w,
+              width: theme.s(16),
+              height: theme.s(16),
               child: CircularProgressIndicator(
-                strokeWidth: 2.w,
+                strokeWidth: theme.s(2),
                 color: theme.colorPrimary,
               ),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
             Text(
               widget.loadingText ?? AntInfiniteScrollDefaults.loadingText,
               style: style,
@@ -362,7 +362,7 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
 
     if (phase == _AntInfiniteScrollPhase.failed) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.w),
+        padding: EdgeInsets.symmetric(vertical: theme.s(12)),
         child: GestureDetector(
           onTap: () => _loadMore(isRetry: true),
           behavior: HitTestBehavior.opaque,
@@ -374,7 +374,7 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
                     AntInfiniteScrollDefaults.loadFailedText,
                 style: style.copyWith(color: theme.colorTextTertiary),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
               Text(
                 widget.loadFailedRetryText ??
                     AntInfiniteScrollDefaults.loadFailedRetryText,
@@ -388,7 +388,7 @@ class AntInfiniteScrollState extends State<AntInfiniteScroll> {
 
     if (phase == _AntInfiniteScrollPhase.noMore) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.w),
+        padding: EdgeInsets.symmetric(vertical: theme.s(12)),
         child: Text(
           widget.noMoreText ?? AntInfiniteScrollDefaults.noMoreText,
           style: style.copyWith(color: theme.colorTextTertiary),

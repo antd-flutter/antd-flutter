@@ -13,19 +13,19 @@ class FooterPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(title: '基础用法（默认文案）', theme: theme, child: const AntFooter()),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义文案',
             theme: theme,
             child: const AntFooter(content: '自定义底部文案'),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '点击回调（返回顶部）',
             theme: theme,
             child: AntFooter(onClick: () => _showMsg(context, '点击返回顶部')),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义内容',
             theme: theme,
@@ -33,8 +33,8 @@ class FooterPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  AntdIcon(AntIcons.verticalAlignTopOutlined, size: 14.w),
-                  SizedBox(width: 4.w),
+                  AntdIcon(AntIcons.verticalAlignTopOutlined, size: theme.s(14)),
+                  SizedBox(width: theme.s(4)),
                   AntText(
                     text: '回到顶部',
                     style: TextStyle(
@@ -72,7 +72,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -84,12 +84,12 @@ class _Section extends StatelessWidget {
           AntText(
             text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

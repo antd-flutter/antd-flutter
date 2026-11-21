@@ -24,7 +24,7 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('PullToRefresh 下拉刷新')),
       body: ListView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(theme.s(16)),
         children: [
           _Section(
             title: '程序化刷新（Controller）',
@@ -39,9 +39,9 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  height: 220.w,
+                  height: theme.s(220),
                   child: AntPullToRefresh(
                     controller: _refreshController,
                     onRefresh: _mockRefresh,
@@ -51,24 +51,24 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '基础用法',
             theme: theme,
             child: SizedBox(
-              height: 220.w,
+              height: theme.s(220),
               child: AntPullToRefresh(
                 onRefresh: _mockRefresh,
                 child: _buildItems(5),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义文案',
             theme: theme,
             child: SizedBox(
-              height: 220.w,
+              height: theme.s(220),
               child: AntPullToRefresh(
                 onRefresh: _mockRefresh,
                 pullingText: '下拉加载最新内容',
@@ -79,12 +79,12 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '阈值与头部高度',
             theme: theme,
             child: SizedBox(
-              height: 220.w,
+              height: theme.s(220),
               child: AntPullToRefresh(
                 onRefresh: _mockRefresh,
                 headHeight: 60,
@@ -93,12 +93,12 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义头部',
             theme: theme,
             child: SizedBox(
-              height: 220.w,
+              height: theme.s(220),
               child: AntPullToRefresh(
                 onRefresh: _mockRefresh,
                 headHeight: 50,
@@ -109,11 +109,11 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
                     children: [
                       Icon(
                         AntIcons.reloadOutlined,
-                        size: 18.w,
+                        size: theme.s(18),
                         color: theme.colorPrimary,
                       ),
-                      SizedBox(width: 6.w),
-                      Text('自定义头部提示', style: TextStyle(fontSize: 14.sp)),
+                      SizedBox(width: theme.s(6)),
+                      Text('自定义头部提示', style: TextStyle(fontSize: theme.s(14))),
                     ],
                   ),
                 ),
@@ -121,7 +121,7 @@ class _PullToRefreshPageState extends State<PullToRefreshPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '刷新回调展示',
             theme: theme,
@@ -163,7 +163,7 @@ class _RefreshCallbackDemoState extends State<_RefreshCallbackDemo> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 220.w,
+          height: theme.s(220),
           child: AntPullToRefresh(
             onRefresh: () async {
               await Future<void>.delayed(const Duration(seconds: 1));
@@ -180,15 +180,15 @@ class _RefreshCallbackDemoState extends State<_RefreshCallbackDemo> {
             ),
           ),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         Text(
           '当前状态：$_status',
-          style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
+          style: TextStyle(fontSize: theme.s(14), color: theme.colorTextSecondary),
         ),
-        SizedBox(height: 4.w),
+        SizedBox(height: theme.s(4)),
         Text(
           '累计刷新次数：$_refreshCount',
-          style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
+          style: TextStyle(fontSize: theme.s(14), color: theme.colorTextSecondary),
         ),
       ],
     );
@@ -210,7 +210,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -222,12 +222,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

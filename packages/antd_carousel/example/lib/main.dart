@@ -57,7 +57,7 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
           child: Text(
             labels != null && i < labels.length ? labels[i] : '第 ${i + 1} 页',
             style: TextStyle(
-              fontSize: 20.sp,
+              fontSize: theme.s(20),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
@@ -67,18 +67,19 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
   }
 
   List<_DemoCard> _buildCards() {
+    final theme = AntThemeData.light();
     return [
       (
         '基础轮播',
         AntCarousel(
-          height: 160.w,
+          height: theme.s(160),
           children: _demoPages(3),
         ),
       ),
       (
         '自动播放（3s）',
         AntCarousel(
-          height: 160.w,
+          height: theme.s(160),
           autoplay: true,
           children: _demoPages(4),
         ),
@@ -86,7 +87,7 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
       (
         '无限循环（连续滑动不回弹）',
         AntCarousel(
-          height: 160.w,
+          height: theme.s(160),
           loop: true,
           autoplay: true,
           children: _demoPages(3),
@@ -97,25 +98,25 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
         Column(
           children: [
             AntCarousel(
-              height: 140.w,
+              height: theme.s(140),
               dotPosition: AntCarouselDotPosition.top,
               arrows: true,
               children: _demoPages(3),
             ),
-            SizedBox(height: 12.w),
+            SizedBox(height: theme.s(12)),
             Row(
               children: [
                 Expanded(
                   child: AntCarousel(
-                    height: 120.w,
+                    height: theme.s(120),
                     dotPosition: AntCarouselDotPosition.left,
                     children: _demoPages(3),
                   ),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: theme.s(8)),
                 Expanded(
                   child: AntCarousel(
-                    height: 120.w,
+                    height: theme.s(120),
                     dotPosition: AntCarouselDotPosition.right,
                     children: _demoPages(3),
                   ),
@@ -128,7 +129,7 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
       (
         '垂直轮播',
         AntCarousel(
-          height: 200.w,
+          height: theme.s(200),
           vertical: true,
           autoplay: true,
           children: _demoPages(3),
@@ -151,9 +152,7 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdCarousel Demo',
             debugShowCheckedModeBanner: false,
@@ -190,11 +189,11 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget _buildSection(int index, AntLayoutData layout) {
+  final theme = AntThemeData.light();
     final cards = _buildCards();
     // 每个标签页只展示对应形态（受控与视差页为独立 StatefulWidget）。
     final filtered = <_DemoCard>[
@@ -220,15 +219,15 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
         layout.breakpoint == AntBreakpoint.xxl;
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(theme.s(16)),
         child: isWide
             ? Wrap(
-                spacing: 16.w,
-                runSpacing: 16.w,
+                spacing: theme.s(16),
+                runSpacing: theme.s(16),
                 children: [
                   for (final card in widgets)
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 560.w),
+                      constraints: BoxConstraints(maxWidth: theme.s(560)),
                       child: card,
                     ),
                 ],
@@ -237,7 +236,7 @@ class _AntdCarouselGalleryAppState extends State<AntdCarouselGalleryApp> {
                 children: [
                   for (final card in widgets)
                     Padding(
-                      padding: EdgeInsets.only(bottom: 16.w),
+                      padding: EdgeInsets.only(bottom: theme.s(16)),
                       child: card,
                     ),
                 ],
@@ -258,7 +257,7 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -268,11 +267,11 @@ class _Card extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.w),
+            padding: EdgeInsets.only(bottom: theme.s(8)),
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: theme.s(14),
                 fontWeight: FontWeight.w600,
                 color: theme.colorText,
               ),
@@ -307,7 +306,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
     return Column(
       children: [
         AntCarousel(
-          height: 140.w,
+          height: theme.s(140),
           controller: _controller,
           onChange: (i) => setState(() {
             _current = i;
@@ -320,15 +319,15 @@ class _ControlledDemoState extends State<_ControlledDemo> {
                 color: theme.colorPrimary.withValues(alpha: 0.1 + 0.15 * i),
                 child: Text(
                   '第 ${i + 1} 页',
-                  style: TextStyle(fontSize: 20.sp, color: theme.colorText),
+                  style: TextStyle(fontSize: theme.s(20), color: theme.colorText),
                 ),
               ),
           ],
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             for (var i = 0; i < 4; i++)
               OutlinedButton(
@@ -345,10 +344,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
             ),
           ],
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前页：第 ${_current + 1} 页　onChange 日志：$_log',
-          style: TextStyle(fontSize: 12.sp, color: theme.colorTextSecondary),
+          style: TextStyle(fontSize: theme.s(12), color: theme.colorTextSecondary),
         ),
       ],
     );
@@ -380,7 +379,7 @@ class _ParallaxDemoState extends State<_ParallaxDemo> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SizedBox(
-      height: 180.w,
+      height: theme.s(180),
       child: PageView.builder(
         controller: _pageController,
         itemCount: 4,
@@ -399,7 +398,7 @@ class _ParallaxDemoState extends State<_ParallaxDemo> {
               return Transform(
                 alignment: Alignment.center,
                 transform: Matrix4.identity()
-                  ..translateByDouble(p * 40.w, 0.0, 0.0, 1.0)
+                  ..translateByDouble(p * theme.s(40), 0.0, 0.0, 1.0)
                   ..scaleByDouble(0.85 + 0.15 * t, 0.85 + 0.15 * t, 1.0, 1.0)
                   ..rotateZ(p * 0.05),
                 child: Opacity(
@@ -409,7 +408,7 @@ class _ParallaxDemoState extends State<_ParallaxDemo> {
               );
             },
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
+              margin: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(12)),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -427,7 +426,7 @@ class _ParallaxDemoState extends State<_ParallaxDemo> {
               child: Text(
                 '视差页面 ${i + 1}',
                 style: TextStyle(
-                  fontSize: 22.sp,
+                  fontSize: theme.s(22),
                   fontWeight: FontWeight.w700,
                   color: theme.colorWhite,
                 ),

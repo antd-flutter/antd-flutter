@@ -119,7 +119,7 @@ class _AntRateState extends State<AntRate> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final starSize = 20.w;
+    final starSize = theme.s(20);
     final icon = widget.character ?? AntIcons.starFilled;
     final activeColor =
         widget.disabled ? theme.colorTextDisabled : theme.colorWarning;
@@ -162,7 +162,7 @@ class _AntRateState extends State<AntRate> {
                       _handleHover(index, isLeftHalf);
                     },
               child: Padding(
-                padding: EdgeInsets.only(right: 4.w),
+                padding: EdgeInsets.only(right: theme.s(4)),
                 child: SizedBox(
                   width: starSize,
                   height: starSize,

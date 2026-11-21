@@ -93,10 +93,10 @@ class _AntSwitchState extends State<AntSwitch> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final isSmall = widget.size == AntSwitchSize.small;
-    final trackW = (isSmall ? 28 : 40).w;
-    final trackH = (isSmall ? 16 : 22).w;
-    final thumbSize = trackH - 4.w;
-    final padding = 2.w;
+    final trackW = t.s((isSmall ? 28 : 40));
+    final trackH = t.s((isSmall ? 16 : 22));
+    final thumbSize = trackH - t.s(4);
+    final padding = t.s(2);
 
     final isChecked = widget.checked ?? _checked;
     final isDisabled = widget.disabled;
@@ -109,7 +109,7 @@ class _AntSwitchState extends State<AntSwitch> {
         ? t.colorBgContainerDisabled
         : t.colorFillSecondary.withValues(alpha: 0.6);
 
-    final childTextSize = (isSmall ? 10 : 12).sp;
+    final childTextSize = t.s((isSmall ? 10 : 12));
     final childColor = isDisabled ? t.colorTextDisabled : Colors.white;
 
     return GestureDetector(
@@ -175,16 +175,16 @@ class _AntSwitchState extends State<AntSwitch> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 2.w,
-                      offset: Offset(0, 1.w),
+                      blurRadius: t.s(2),
+                      offset: Offset(0, t.s(1)),
                     ),
                   ],
                 ),
                 child: isLoading
                     ? Padding(
-                        padding: EdgeInsets.all(2.w),
+                        padding: EdgeInsets.all(t.s(2)),
                         child: AntLoading(
-                          size: 16.w,
+                          size: t.s(16),
                           color: t.colorPrimary,
                         ),
                       )

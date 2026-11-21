@@ -6,8 +6,9 @@ class PageIndicatorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -22,9 +23,9 @@ class PageIndicatorPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(title: '受控切换演示', child: _ControlledDemo()),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(
             title: '排列方向',
             child: Row(
@@ -43,7 +44,7 @@ class PageIndicatorPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(
             title: '自定义颜色与尺寸',
             child: Column(
@@ -72,7 +73,7 @@ class PageIndicatorPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(title: '与 PageView 联动', child: _PageViewDemo()),
         ],
       ),
@@ -101,7 +102,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AntPageIndicator(total: 4, current: _current),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         Row(
           children: [
             AntButton(
@@ -111,7 +112,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
                   setState(() => _current = (_current - 1).clamp(0, 3)),
               child: const Text('上一页'),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
             AntButton(
               type: AntButtonType.normal,
               size: AntButtonSize.small,
@@ -119,11 +120,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
                   setState(() => _current = (_current + 1).clamp(0, 3)),
               child: const Text('下一页'),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: theme.s(12)),
             Text(
               'current: $_current',
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color: theme.colorText,
               ),
             ),
@@ -161,7 +162,7 @@ class _PageViewDemoState extends State<_PageViewDemo> {
     return Column(
       children: [
         SizedBox(
-          height: 100.w,
+          height: theme.s(100),
           child: PageView(
             controller: _controller,
             onPageChanged: (page) => setState(() => _page = page),
@@ -169,20 +170,20 @@ class _PageViewDemoState extends State<_PageViewDemo> {
               for (var i = 1; i <= 4; i++)
                 Container(
                   alignment: Alignment.center,
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                  margin: EdgeInsets.symmetric(horizontal: theme.s(4)),
                   decoration: BoxDecoration(
                     color: theme.colorPrimaryBg,
-                    borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+                    borderRadius: BorderRadius.circular(theme.borderRadiusLG),
                   ),
                   child: Text(
                     '第 $i 页',
-                    style: TextStyle(fontSize: theme.fontSize.sp),
+                    style: TextStyle(fontSize: theme.fontSize),
                   ),
                 ),
             ],
           ),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         AntPageIndicator(total: 4, current: _page),
       ],
     );
@@ -204,10 +205,10 @@ class _Section extends StatelessWidget {
     final theme = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         border: Border.all(
           color: theme.colorBorderSecondary,
           width: theme.lineWidth,
@@ -219,12 +220,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: theme.fontSize.sp,
+              fontSize: theme.fontSize,
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

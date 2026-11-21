@@ -202,7 +202,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       );
     }
     final rowHeight = theme.keyHeight ?? kAntNumberKeyboardKeyHeight;
-    final gap = desktop ? (theme.keySpacing ?? 6.w) : 1.0;
+    final gap = desktop ? (theme.keySpacing ?? ant.s(6)) : 1.0;
     final hasConfirm = (widget.confirmText ?? '').isNotEmpty;
     final keys = _buildKeys(hasConfirm);
 
@@ -284,7 +284,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
         if (_showHeader) _buildHeader(theme, desktop),
         Padding(
           padding: desktop
-              ? EdgeInsets.all(theme.sectionPadding ?? 12.w)
+              ? EdgeInsets.all(theme.sectionPadding ?? ant.s(12))
               : EdgeInsets.zero,
           child: gridBody,
         ),
@@ -297,7 +297,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       ],
     );
 
-    final radius = desktop ? (theme.surfaceBorderRadius ?? 8.w) : 8.w;
+    final radius = desktop ? (theme.surfaceBorderRadius ?? ant.s(8)) : ant.s(8);
     Widget panel = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -306,7 +306,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
         border: desktop && theme.surfaceBorderColor != null
             ? Border.all(
                 color: theme.surfaceBorderColor!,
-                width: theme.keyBorderWidth ?? 1.w,
+                width: theme.keyBorderWidth ?? ant.s(1),
               )
             : null,
         boxShadow: theme.boxShadow,
@@ -318,7 +318,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       panel = Align(
         alignment: Alignment.center,
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 640.w),
+          constraints: BoxConstraints(maxWidth: ant.s(640)),
           child: panel,
         ),
       );
@@ -352,14 +352,14 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
   Widget _buildHeader(AntKeyboardThemeData theme, bool desktop) {
     final ant = AntTheme.of(context);
     return Container(
-      height: theme.headerHeight ?? (desktop ? 40.w : 34.w),
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      height: theme.headerHeight ?? (desktop ? ant.s(40) : ant.s(34)),
+      padding: EdgeInsets.symmetric(horizontal: ant.s(12)),
       decoration: BoxDecoration(
         color: theme.headerBackgroundColor ?? theme.surfaceColor,
         border: Border(
           bottom: BorderSide(
             color: ant.colorBorder,
-            width: 1.w,
+            width: ant.s(1),
           ),
         ),
       ),
@@ -371,7 +371,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: theme.titleFontSize ?? ant.fontSizeSM.sp,
+                fontSize: theme.titleFontSize ?? ant.fontSizeSM,
                 color: theme.titleColor ?? ant.colorTextSecondary,
               ),
             ),
@@ -382,11 +382,11 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
               behavior: HitTestBehavior.opaque,
               onTap: _close,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.w),
+                padding: EdgeInsets.symmetric(vertical: ant.s(4)),
                 child: AntdIcon(
                   AntIcons.downOutlined,
                   key: const ValueKey('ant-kb-collapse'),
-                  size: 22.w,
+                  size: ant.s(22),
                   color: theme.titleColor ?? ant.colorTextSecondary,
                   semanticLabel: '收起键盘',
                 ),
@@ -398,6 +398,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
   }
 
   Widget _buildKey(String token, AntKeyboardThemeData theme, bool desktop) {
+    final ant = AntTheme.of(context);
     if (token == _backspaceToken) return _buildBackspace(theme);
     if (token.isEmpty) {
       // antd-mobile 确认态 11 键时的空白格。
@@ -425,7 +426,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       child: Text(
         token,
         style: TextStyle(
-          fontSize: desktop ? 18.sp : 22.sp,
+          fontSize: desktop ? ant.s(18) : ant.s(22),
           fontWeight: FontWeight.w500,
           color: foreground,
           fontFeatures: const [FontFeature.tabularFigures()],
@@ -435,6 +436,7 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
   }
 
   Widget _buildBackspace(AntKeyboardThemeData theme) {
+    final ant = AntTheme.of(context);
     return AntKeyboardKeyView(
       theme: theme,
       height: theme.keyHeight,
@@ -449,13 +451,14 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       child: AntKeyboardGlyph(
         AntKeyboardGlyphType.backspace,
         key: const ValueKey('ant-kb-backspace'),
-        size: theme.desktop ? (theme.iconSize ?? 22) : 24.w,
+        size: theme.desktop ? (theme.iconSize ?? 22) : ant.s(24),
         color: theme.actionKeyForegroundColor!,
       ),
     );
   }
 
   Widget _buildConfirm(AntKeyboardThemeData theme) {
+    final ant = AntTheme.of(context);
     return AntKeyboardKeyView(
       theme: theme,
       borderRadius: theme.desktop ? theme.keyBorderRadius : 0,
@@ -471,8 +474,8 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: theme.desktop
-                ? (theme.confirmFontSize ?? 16.sp)
-                : 16.sp,
+                ? (theme.confirmFontSize ?? ant.s(16))
+                : ant.s(16),
             fontWeight: FontWeight.w500,
             color: theme.confirmForegroundColor,
           ),

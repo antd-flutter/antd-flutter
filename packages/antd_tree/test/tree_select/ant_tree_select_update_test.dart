@@ -24,13 +24,11 @@ const _cities = <_City>[
   ),
 ];
 
-Widget _wrap(Widget child, {bool dark = false}) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: dark ? AntThemeData.dark() : AntThemeData.light(),
-            child: Material(child: Center(child: child)),
-          ),
+Widget _wrap(Widget child, {bool dark = false}) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: dark ? AntThemeData.dark() : AntThemeData.light(),
+          child: Material(child: Center(child: child)),
         ),
       ),
     );

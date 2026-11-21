@@ -48,9 +48,7 @@ class AntdIconsGalleryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntScreenUtilInit(
-      designSize: const Size(375, 812),
-      builder: (ctx, _) => ValueListenableBuilder<bool>(
+    return ValueListenableBuilder<bool>(
         valueListenable: themeModeController,
         builder: (context, isDark, _) {
           final antThemeData = AntThemeData.fromSeed(
@@ -93,7 +91,6 @@ class AntdIconsGalleryApp extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
+      );
   }
 }

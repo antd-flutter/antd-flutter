@@ -162,7 +162,7 @@ class AntStatistic extends StatelessWidget {
               color: theme.colorTextSecondary,
             ),
           ),
-        SizedBox(height: 4.w),
+        SizedBox(height: theme.s(4)),
         if (loading)
           _buildSkeleton(theme)
         else
@@ -175,13 +175,13 @@ class AntStatistic extends StatelessWidget {
                 DefaultTextStyle.merge(
                   style: valueStyle ??
                       TextStyle(
-                        fontSize: 24.sp,
+                        fontSize: theme.s(24),
                         fontWeight: FontWeight.w600,
                         color: theme.colorText,
                       ),
                   child: prefix!,
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: theme.s(4)),
               ],
               Builder(
                 builder: (_) => Text.rich(
@@ -190,7 +190,7 @@ class AntStatistic extends StatelessWidget {
                       formatted: _formatValue(),
                       valueStyle: valueStyle ??
                           TextStyle(
-                            fontSize: 24.sp,
+                            fontSize: theme.s(24),
                             fontWeight: FontWeight.w600,
                             color: theme.colorText,
                           ),
@@ -200,11 +200,11 @@ class AntStatistic extends StatelessWidget {
                 ),
               ),
               if (suffix != null) ...[
-                SizedBox(width: 4.w),
+                SizedBox(width: theme.s(4)),
                 DefaultTextStyle.merge(
                   style: valueStyle ??
                       TextStyle(
-                        fontSize: 24.sp,
+                        fontSize: theme.s(24),
                         fontWeight: FontWeight.w600,
                         color: theme.colorText,
                       ),
@@ -219,8 +219,8 @@ class AntStatistic extends StatelessWidget {
 
   Widget _buildSkeleton(AntThemeData theme) {
     return Container(
-      width: 120.w,
-      height: 32.w,
+      width: theme.s(120),
+      height: theme.s(32),
       decoration: BoxDecoration(
         color: theme.colorFillSecondary,
         borderRadius: BorderRadius.circular(theme.borderRadiusSM),
@@ -332,12 +332,12 @@ class _AntStatisticCountdownState extends State<AntStatisticCountdown> {
               color: theme.colorTextSecondary,
             ),
           ),
-        SizedBox(height: 4.w),
+        SizedBox(height: theme.s(4)),
         Text(
           _formatDuration(),
           style: widget.valueStyle ??
               TextStyle(
-                fontSize: 24.sp,
+                fontSize: theme.s(24),
                 fontWeight: FontWeight.w600,
                 color: theme.colorText,
               ),

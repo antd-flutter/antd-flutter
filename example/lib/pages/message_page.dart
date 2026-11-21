@@ -28,7 +28,7 @@ class MessagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,8 +36,8 @@ class MessagePage extends StatelessWidget {
             title: '四种类型',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () => _show(context, '这是一条普通提示'),
@@ -61,12 +61,12 @@ class MessagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '加载中',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -94,12 +94,12 @@ class MessagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '时长配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () => _show(
@@ -129,7 +129,7 @@ class MessagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '多条叠加',
             theme: theme,
@@ -142,7 +142,7 @@ class MessagePage extends StatelessWidget {
               child: const Text('连续弹出三条'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '回调',
             theme: theme,
@@ -158,7 +158,7 @@ class MessagePage extends StatelessWidget {
               child: const Text('带 onClose 回调'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '可关闭',
             theme: theme,
@@ -188,7 +188,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -200,12 +200,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

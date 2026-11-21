@@ -457,10 +457,11 @@ class _AntKeyboardState extends State<AntKeyboard> {
 
   @override
   Widget build(BuildContext context) {
+    final ant = AntTheme.of(context);
     final theme = _resolveTheme(context);
     final rows = _rows;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final pad = theme.sectionPadding ?? 8.w;
+    final pad = theme.sectionPadding ?? ant.s(8);
     final spacing = theme.keySpacing ?? 0;
 
     Widget body = Column(

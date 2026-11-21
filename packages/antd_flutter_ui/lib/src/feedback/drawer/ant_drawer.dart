@@ -280,14 +280,14 @@ class _DrawerOverlay extends StatelessWidget {
             // 标题栏
             if (drawer.title != null || drawer.closable)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: theme.s(24), vertical: theme.s(16)),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: DefaultTextStyle(
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: theme.s(16),
                           fontWeight: FontWeight.w600,
                           color: theme.colorTextHeading,
                         ),
@@ -302,10 +302,10 @@ class _DrawerOverlay extends StatelessWidget {
                           onTap: _handleClose,
                           behavior: HitTestBehavior.opaque,
                           child: Padding(
-                            padding: EdgeInsets.all(4.w),
+                            padding: EdgeInsets.all(theme.s(4)),
                             child: Icon(
                               AntIcons.closeOutlined,
-                              size: 18.sp,
+                              size: theme.s(18),
                               color: theme.colorTextSecondary,
                             ),
                           ),
@@ -318,9 +318,9 @@ class _DrawerOverlay extends StatelessWidget {
             // 内容区（可滚动）
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(24.w),
+                padding: EdgeInsets.all(theme.s(24)),
                 child: DefaultTextStyle(
-                  style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                  style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                   child: drawer.child,
                 ),
               ),
@@ -331,9 +331,9 @@ class _DrawerOverlay extends StatelessWidget {
               Container(
                 key: kAntDrawerFooterKey,
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.w),
+                padding: EdgeInsets.symmetric(horizontal: theme.s(24), vertical: theme.s(12)),
                 child: DefaultTextStyle(
-                  style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                  style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                   child: drawer.footer!,
                 ),
               ),

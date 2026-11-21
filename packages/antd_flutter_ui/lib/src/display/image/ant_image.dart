@@ -108,8 +108,8 @@ class _AntImageState extends State<AntImage> {
     return _cachedNetworkImage(
       url: url,
       fit: fit,
-      width: widget.width?.w,
-      height: widget.height?.w,
+      width: widget.width == null ? null : theme.s(widget.width!),
+      height: widget.height == null ? null : theme.s(widget.height!),
       placeholder: (_, __) =>
           widget.placeholder ?? AntImageDefaults.defaultPlaceholder(theme),
       errorWidget: (_, __, ___) {
@@ -138,14 +138,14 @@ class _AntImageState extends State<AntImage> {
       return _cachedNetworkImage(
         url: src,
         fit: fit,
-        width: widget.width?.w,
-        height: widget.height?.w,
+        width: widget.width == null ? null : theme.s(widget.width!),
+        height: widget.height == null ? null : theme.s(widget.height!),
       );
     }
     return Image.asset(
       src,
-      width: widget.width?.w,
-      height: widget.height?.w,
+      width: widget.width == null ? null : theme.s(widget.width!),
+      height: widget.height == null ? null : theme.s(widget.height!),
       fit: fit,
     );
   }
@@ -174,7 +174,7 @@ class _AntImageState extends State<AntImage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     final radius =
-        BorderRadius.circular((widget.radius ?? theme.borderRadiusLG).r);
+        BorderRadius.circular(theme.s((widget.radius ?? theme.borderRadiusLG)));
 
     Widget content = _buildImageBody(context, theme);
     content = ClipRRect(borderRadius: radius, child: content);
@@ -187,8 +187,8 @@ class _AntImageState extends State<AntImage> {
     }
 
     return SizedBox(
-      width: widget.width?.w,
-      height: widget.height?.w,
+      width: widget.width == null ? null : theme.s(widget.width!),
+      height: widget.height == null ? null : theme.s(widget.height!),
       child: content,
     );
   }
@@ -243,11 +243,12 @@ class AntImagePreviewGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return _AntImageGroupScope(
       sources: _sources,
       child: Wrap(
-        spacing: 8.w,
-        runSpacing: 8.w,
+        spacing: theme.s(8),
+        runSpacing: theme.s(8),
         children: children,
       ),
     );
@@ -310,6 +311,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Positioned.fill(
       child: Material(
         color: Colors.black
@@ -332,8 +334,8 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
             ),
             // 关闭按钮。
             Positioned(
-              top: MediaQuery.paddingOf(context).top + 16.w,
-              right: 16.w,
+              top: MediaQuery.paddingOf(context).top + theme.s(16),
+              right: theme.s(16),
               child: _buildIconButton(
                 icon: AntIcons.closeOutlined,
                 onTap: widget.onClose,
@@ -344,7 +346,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
               Positioned(
                 top: 0,
                 bottom: 0,
-                left: 12.w,
+                left: theme.s(12),
                 child: Center(
                   child: _buildIconButton(
                     icon: AntIcons.leftOutlined,
@@ -355,7 +357,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
               Positioned(
                 top: 0,
                 bottom: 0,
-                right: 12.w,
+                right: theme.s(12),
                 child: Center(
                   child: _buildIconButton(
                     icon: AntIcons.rightOutlined,
@@ -367,7 +369,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
               ),
               // 页码指示。
               Positioned(
-                bottom: MediaQuery.paddingOf(context).bottom + 24.w,
+                bottom: MediaQuery.paddingOf(context).bottom + theme.s(24),
                 left: 0,
                 right: 0,
                 child: Center(
@@ -375,7 +377,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
                     '${_index + 1} / ${widget.sources.length}',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14.sp,
+                      fontSize: theme.s(14),
                     ),
                   ),
                 ),
@@ -398,7 +400,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
         placeholder: (_, __) => AntImageDefaults.defaultPlaceholder(theme),
         errorWidget: (_, __, ___) => Icon(
           AntIcons.pictureOutlined,
-          size: 48.w,
+          size: theme.s(48),
           color: Colors.white54,
         ),
       );
@@ -410,18 +412,19 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
     required IconData icon,
     VoidCallback? onTap,
   }) {
+    final theme = AntTheme.of(context);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 40.w,
-        height: 40.w,
+        width: theme.s(40),
+        height: theme.s(40),
         decoration: const BoxDecoration(
           color: Colors.white24,
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child: Icon(icon, size: 22.w, color: Colors.white),
+        child: Icon(icon, size: theme.s(22), color: Colors.white),
       ),
     );
   }

@@ -11,14 +11,11 @@ Widget _wrap(
   Widget child, {
   Size design = const Size(375, 812),
 }) {
-  return AntScreenUtilInit(
-    designSize: design,
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -32,9 +29,7 @@ void _device(WidgetTester tester, Size logical, double dpr) {
 
 double _heightOfText(WidgetTester tester, String text) {
   final container = tester.widget<Container>(
-    find
-        .ancestor(of: find.text(text), matching: find.byType(Container))
-        .first,
+    find.ancestor(of: find.text(text), matching: find.byType(Container)).first,
   );
   return container.constraints?.maxHeight ?? 0;
 }
@@ -481,15 +476,14 @@ void main() {
       await tester.pump();
 
       final theme = AntThemeData.light();
-      final decorated = tester
-          .widgetList<Container>(find.byType(Container))
-          .where(
-            (c) =>
-                c.decoration is BoxDecoration &&
-                (c.decoration! as BoxDecoration).border != null &&
-                (c.decoration! as BoxDecoration).border!.top.color ==
-                    theme.colorError,
-          );
+      final decorated =
+          tester.widgetList<Container>(find.byType(Container)).where(
+                (c) =>
+                    c.decoration is BoxDecoration &&
+                    (c.decoration! as BoxDecoration).border != null &&
+                    (c.decoration! as BoxDecoration).border!.top.color ==
+                        theme.colorError,
+              );
       expect(decorated, isNotEmpty);
     });
 

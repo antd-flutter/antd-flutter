@@ -17,7 +17,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,7 +31,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                   checked: _dark,
                   onChange: (v) => setState(() => _dark = v),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: theme.s(12)),
                 Text(
                   'Theme.of 主色：'
                   '${Theme.of(context).colorScheme.primary}',
@@ -39,7 +39,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           // AntTheme 包裹即覆盖：内部原生 Material 控件直接取到 antd 派生主题
           AntTheme(
             data: _dark ? AntThemeData.dark() : AntThemeData.light(),
@@ -53,7 +53,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                       title: '按钮（原生 Material）',
                       theme: antTheme,
                       child: Wrap(
-                        spacing: 8.w,
+                        spacing: theme.s(8),
                         children: [
                           ElevatedButton(
                             onPressed: () {},
@@ -74,7 +74,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 16.w),
+                    SizedBox(height: theme.s(16)),
                     _Section(
                       title: '输入框（原生 Material）',
                       theme: antTheme,
@@ -85,7 +85,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.w),
+                    SizedBox(height: theme.s(16)),
                     _Section(
                       title: '卡片与选择控件（原生 Material）',
                       theme: antTheme,
@@ -93,7 +93,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                         children: [
                           Card(
                             child: Padding(
-                              padding: EdgeInsets.all(12.w),
+                              padding: EdgeInsets.all(theme.s(12)),
                               child: ListTile(
                                 title: const Text('antd 风格卡片'),
                                 subtitle: const Text('原生 Card / ListTile 自动继承'),
@@ -104,12 +104,12 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 8.w),
+                          SizedBox(height: theme.s(8)),
                           Row(
                             children: [
                               Checkbox(value: true, onChanged: (_) {}),
                               const Text('Checkbox'),
-                              SizedBox(width: 16.w),
+                              SizedBox(width: theme.s(16)),
                               RadioGroup<bool>(
                                 groupValue: true,
                                 onChanged: (_) {},
@@ -125,7 +125,7 @@ class _MaterialCompatiblePageState extends State<MaterialCompatiblePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 16.w),
+                    SizedBox(height: theme.s(16)),
                     _Section(
                       title: '对话框（原生 Material）',
                       theme: antTheme,
@@ -176,7 +176,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -193,7 +193,7 @@ class _Section extends StatelessWidget {
               color: theme.colorTextHeading,
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           child,
         ],
       ),

@@ -49,8 +49,9 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -58,7 +59,7 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             title: '基础用法',
             description: '输入时自动补全匹配选项；onSelect 直接拿到模型对象。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
@@ -75,14 +76,14 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
               description: 'onSelect 回传的就是你的业务模型。',
               child: Text(
                 '已选中: ${_selectedFruit!.id} / ${_selectedFruit!.name}',
-                style: TextStyle(fontSize: 14.sp, color: Colors.blue),
+                style: TextStyle(fontSize: theme.s(14), color: Colors.blue),
               ),
             ),
           _Section(
             title: '自定义展示与回填',
             description: 'labelOf 决定下拉文案，valueOf 决定回填输入框的文本。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Country>(
                 options: _countries,
                 labelOf: (country) => country.name,
@@ -97,14 +98,14 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             description: '文本值仍由 value/onChange 管理，与模型选择解耦。',
             child: Text(
               _typed == null || _typed!.isEmpty ? '（未输入）' : _typed!,
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              style: TextStyle(fontSize: theme.s(14), color: Colors.grey),
             ),
           ),
           _Section(
             title: '禁用选项',
             description: 'disabledOf 命中的选项不可选中。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
@@ -118,23 +119,23 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             title: '自定义选项行',
             description: 'itemBuilder 整行自定义渲染，点击/禁用逻辑仍由组件负责。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
                 itemBuilder: (context, fruit, index) => Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 8.h,
+                    horizontal: theme.s(12),
+                    vertical: theme.s(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(AntIcons.appleOutlined, size: 16.w),
-                      SizedBox(width: 8.w),
+                      Icon(AntIcons.appleOutlined, size: theme.s(16)),
+                      SizedBox(width: theme.s(8)),
                       Expanded(child: Text(fruit.name)),
                       Text(
                         fruit.id,
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: theme.s(12), color: Colors.grey),
                       ),
                     ],
                   ),
@@ -149,7 +150,7 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             child: Column(
               children: [
                 SizedBox(
-                  width: 300.w,
+                  width: theme.s(300),
                   child: AntAutoComplete<Fruit>(
                     options: _fruits,
                     labelOf: (fruit) => fruit.name,
@@ -157,9 +158,9 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
                     placeholder: '大尺寸',
                   ),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  width: 300.w,
+                  width: theme.s(300),
                   child: AntAutoComplete<Fruit>(
                     options: _fruits,
                     labelOf: (fruit) => fruit.name,
@@ -167,9 +168,9 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
                     placeholder: '中尺寸（默认）',
                   ),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  width: 300.w,
+                  width: theme.s(300),
                   child: AntAutoComplete<Fruit>(
                     options: _fruits,
                     labelOf: (fruit) => fruit.name,
@@ -184,7 +185,7 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             title: '允许清除',
             description: 'allowClear 开启后可一键清空输入。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
@@ -198,7 +199,7 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             title: '关闭过滤',
             description: 'filterOption=false 时输入不过滤选项，始终展示全部。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
@@ -211,7 +212,7 @@ class _AutoCompletePageState extends State<AutoCompletePage> {
             title: '禁用状态',
             description: 'disabled 禁用整个输入框。',
             child: SizedBox(
-              width: 300.w,
+              width: theme.s(300),
               child: AntAutoComplete<Fruit>(
                 options: _fruits,
                 labelOf: (fruit) => fruit.name,
@@ -243,8 +244,8 @@ class _Section extends StatelessWidget {
     final t = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 24.h),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(bottom: t.s(24)),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -261,7 +262,7 @@ class _Section extends StatelessWidget {
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: t.s(4)),
           Text(
             description,
             style: TextStyle(
@@ -269,7 +270,7 @@ class _Section extends StatelessWidget {
               color: t.colorTextSecondary,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

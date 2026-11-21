@@ -320,7 +320,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
           }
         },
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: 24.w),
+          constraints: BoxConstraints(minHeight: t.s(24)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -336,7 +336,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                           widget.placeholder ?? '',
                           maxLines: 1,
                           style: TextStyle(
-                            fontSize: t.fontSize.sp,
+                            fontSize: t.fontSize,
                             color: t.colorTextPlaceholder,
                           ),
                         )
@@ -345,14 +345,14 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                           value,
                           maxLines: 1,
                           style: TextStyle(
-                            fontSize: t.fontSize.sp,
+                            fontSize: t.fontSize,
                             letterSpacing: 1,
                             color: color,
                           ),
                         ),
                       if (_focused && !widget.disabled)
                         Padding(
-                          padding: EdgeInsets.only(left: 1.w),
+                          padding: EdgeInsets.only(left: t.s(1)),
                           child: AnimatedBuilder(
                             animation: _caret,
                             builder: (context, child) => Opacity(
@@ -361,8 +361,8 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                             ),
                             child: Container(
                               key: const ValueKey('ant-virtual-input-caret'),
-                              width: 2.w,
-                              height: t.fontSize.sp * 1.1,
+                              width: t.s(2),
+                              height: t.fontSize * 1.1,
                               color: t.colorPrimary,
                             ),
                           ),
@@ -374,16 +374,16 @@ class _AntVirtualInputState extends State<AntVirtualInput>
               if (widget.clearable &&
                   value.isNotEmpty &&
                   !widget.disabled) ...[
-                SizedBox(width: t.marginXS.w),
+                SizedBox(width: t.marginXS),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _handleClear,
                   child: Padding(
-                    padding: EdgeInsets.all(4.w),
+                    padding: EdgeInsets.all(t.s(4)),
                     child: AntdIcon(
                       AntIcons.closeCircleFilled,
                       key: const ValueKey('ant-virtual-input-clear'),
-                      size: 16.w,
+                      size: t.s(16),
                       color: t.colorTextQuaternary,
                       semanticLabel: '清空',
                     ),
@@ -391,16 +391,16 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                 ),
               ],
               if (_focused && !widget.disabled) ...[
-                SizedBox(width: 4.w),
+                SizedBox(width: t.s(4)),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _blur,
                   child: Padding(
-                    padding: EdgeInsets.all(4.w),
+                    padding: EdgeInsets.all(t.s(4)),
                     child: AntdIcon(
                       AntIcons.downOutlined,
                       key: const ValueKey('ant-virtual-input-hide'),
-                      size: 18.w,
+                      size: t.s(18),
                       color: t.colorTextSecondary,
                       semanticLabel: '收起键盘',
                     ),
@@ -427,13 +427,13 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             : t.colorBorder;
 
     return Container(
-      height: t.controlHeight.w,
-      padding: EdgeInsets.symmetric(horizontal: t.marginSM.w),
+      height: t.controlHeight,
+      padding: EdgeInsets.symmetric(horizontal: t.marginSM),
       decoration: BoxDecoration(
         color:
             widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-        border: Border.all(color: borderColor, width: 1.w),
-        borderRadius: BorderRadius.circular(t.borderRadius.w),
+        border: Border.all(color: borderColor, width: t.s(1)),
+        borderRadius: BorderRadius.circular(t.borderRadius),
       ),
       alignment: Alignment.center,
       child: Row(
@@ -449,7 +449,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                 decimal: true,
               ),
               style: TextStyle(
-                fontSize: t.fontSize.sp,
+                fontSize: t.fontSize,
                 color: widget.disabled ? t.colorTextDisabled : t.colorText,
               ),
               cursorColor: t.colorPrimary,
@@ -466,7 +466,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
                 hintStyle: TextStyle(
-                  fontSize: t.fontSize.sp,
+                  fontSize: t.fontSize,
                   color: t.colorTextPlaceholder,
                 ),
                 hintText: widget.placeholder,
@@ -474,14 +474,14 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             ),
           ),
           if (widget.clearable && value.isNotEmpty && !widget.disabled) ...[
-            SizedBox(width: t.marginXS.w),
+            SizedBox(width: t.marginXS),
             GestureDetector(
               onTap: _handleClear,
               behavior: HitTestBehavior.opaque,
               child: AntdIcon(
                 AntIcons.closeCircleFilled,
                 key: const ValueKey('ant-virtual-input-clear'),
-                size: 16.w,
+                size: t.s(16),
                 color: t.colorTextQuaternary,
                 semanticLabel: '清空',
               ),

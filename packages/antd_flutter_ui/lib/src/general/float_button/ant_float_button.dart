@@ -53,12 +53,12 @@ class _FloatButtonMetrics {
   factory _FloatButtonMetrics.of(AntThemeData t) {
     final rawSize = t.controlHeightLG;
     return _FloatButtonMetrics(
-      size: rawSize.w,
-      iconSize: (t.fontSizeIcon * 1.5).sp,
-      contentFontSize: t.fontSizeSM.sp,
-      borderRadiusCircle: rawSize.w / 2,
-      borderRadiusSquare: t.borderRadiusLG.r,
-      gap: t.paddingXXS.w,
+      size: t.s(rawSize),
+      iconSize: t.s(t.fontSizeIcon * 1.5),
+      contentFontSize: t.fontSizeSM,
+      borderRadiusCircle: t.s(rawSize) / 2,
+      borderRadiusSquare: t.borderRadiusLG,
+      gap: t.paddingXXS,
     );
   }
 }
@@ -293,8 +293,8 @@ class _BadgeDecorator extends StatelessWidget {
           right: -2,
           child: badge.dot
               ? Container(
-                  width: 8.w,
-                  height: 8.w,
+                  width: theme.s(8),
+                  height: theme.s(8),
                   decoration: BoxDecoration(
                     color: badgeColor,
                     shape: BoxShape.circle,
@@ -302,17 +302,17 @@ class _BadgeDecorator extends StatelessWidget {
                   ),
                 )
               : Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  constraints: BoxConstraints(minWidth: 16.w),
+                  padding: EdgeInsets.symmetric(horizontal: theme.s(4)),
+                  constraints: BoxConstraints(minWidth: theme.s(16)),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: badgeColor,
-                    borderRadius: BorderRadius.circular(8.w),
+                    borderRadius: BorderRadius.circular(theme.s(8)),
                     border: Border.all(color: theme.colorWhite, width: 1),
                   ),
                   child: Text(
                     count > badge.overflowCount ? '${badge.overflowCount}+' : '$count',
-                    style: TextStyle(fontSize: 10.sp, color: theme.colorWhite, height: 1.4),
+                    style: TextStyle(fontSize: theme.s(10), color: theme.colorWhite, height: 1.4),
                   ),
                 ),
         ),

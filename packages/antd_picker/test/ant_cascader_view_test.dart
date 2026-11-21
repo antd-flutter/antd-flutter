@@ -38,13 +38,11 @@ const _sz = _Area('sz', '苏州');
 const _js = _Area('js', '江苏', [_nj, _sz]);
 const _areas = <_Area>[_zj, _js];
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap(Widget child) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );

@@ -41,16 +41,14 @@ Widget _capsuleTabs({
   );
 }
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 /// 取出胶囊项背景装饰（圆角 20 的 Container）。
 List<BoxDecoration> _capsuleDecorations(WidgetTester tester) => tester

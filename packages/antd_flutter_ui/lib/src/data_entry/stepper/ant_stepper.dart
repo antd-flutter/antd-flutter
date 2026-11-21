@@ -233,7 +233,7 @@ class _AntStepperState extends State<AntStepper> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final h = _height.w;
+    final h = theme.s(_height);
     final borderColor =
         _focused ? theme.colorPrimary : theme.colorBorder;
     final buttonColor = widget.disabled ? theme.colorTextDisabled : theme.colorPrimary;
@@ -243,8 +243,8 @@ class _AntStepperState extends State<AntStepper> {
       height: h,
       decoration: BoxDecoration(
         color: inputBg,
-        borderRadius: BorderRadius.circular(theme.borderRadiusSM.w),
-        border: Border.all(color: borderColor, width: 1.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusSM),
+        border: Border.all(color: borderColor, width: theme.s(1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -262,7 +262,7 @@ class _AntStepperState extends State<AntStepper> {
             color: theme.colorSplit,
           ),
           SizedBox(
-            width: 44.w,
+            width: theme.s(44),
             child: TextField(
               controller: _controller,
               focusNode: _focusNode,
@@ -289,7 +289,7 @@ class _AntStepperState extends State<AntStepper> {
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
                 isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(vertical: (h - theme.fontSizeSM.sp) / 2),
+                contentPadding: EdgeInsets.symmetric(vertical: (h - theme.fontSizeSM) / 2),
               ),
               onChanged: _handleInputChange,
             ),
@@ -323,12 +323,12 @@ class _AntStepperState extends State<AntStepper> {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        width: _height.w,
-        height: _height.w,
+        width: theme.s(_height),
+        height: theme.s(_height),
         alignment: Alignment.center,
         child: Icon(
           icon,
-          size: iconSize.w,
+          size: theme.s(iconSize),
           color: disabled ? theme.colorTextDisabled : color,
         ),
       ),

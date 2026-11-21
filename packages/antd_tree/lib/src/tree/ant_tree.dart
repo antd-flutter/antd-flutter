@@ -397,7 +397,7 @@ class _AntTreeState<T> extends State<AntTree<T>> {
   // 构建
   // ----------------------------------------------------------
 
-  double get _indentWidth => (widget.indent ?? 24).w;
+  double _indentWidth(AntThemeData theme) => theme.s(widget.indent ?? 24);
 
   @override
   Widget build(BuildContext context) {
@@ -437,7 +437,7 @@ class _AntTreeState<T> extends State<AntTree<T>> {
           selected: _selectedKeys.contains(key),
           checked: checked.contains(key),
           halfChecked: half.contains(key),
-          indentWidth: _indentWidth,
+          indentWidth: _indentWidth(theme),
           title: _titleOf(context, item),
           onToggle: () => _toggleExpand(item),
           onSelect: () => _handleSelect(item),
@@ -507,12 +507,12 @@ class _TreeNodeRow<T> extends StatelessWidget {
         for (var i = 0; i < depth; i++)
           SizedBox(
             width: indentWidth,
-            height: 24.h,
+            height: theme.s(24),
             child: tree.showLine
                 ? Center(
                     child: Container(
                       width: 1,
-                      height: 24.h,
+                      height: theme.s(24),
                       color: theme.colorBorderSecondary,
                     ),
                   )
@@ -520,14 +520,14 @@ class _TreeNodeRow<T> extends StatelessWidget {
           ),
         // 展开/收起
         if (!hasChildren)
-          SizedBox(width: 20.w, height: 24.h)
+          SizedBox(width: theme.s(20), height: theme.s(24))
         else
           GestureDetector(
             onTap: disabled ? null : onToggle,
             behavior: HitTestBehavior.opaque,
             child: SizedBox(
-              width: 20.w,
-              height: 24.h,
+              width: theme.s(20),
+              height: theme.s(24),
               child: Center(
                 child: AnimatedRotation(
                   turns: expanded ? 0 : -0.25,
@@ -536,7 +536,7 @@ class _TreeNodeRow<T> extends StatelessWidget {
                     tree.showLine
                         ? AntIcons.enterOutlined
                         : AntIcons.downOutlined,
-                    size: 14.sp,
+                    size: theme.s(14),
                     color: disabled
                         ? theme.colorTextDisabled
                         : theme.colorTextQuaternary,
@@ -551,14 +551,14 @@ class _TreeNodeRow<T> extends StatelessWidget {
             onTap: disabled ? null : onCheck,
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: EdgeInsets.only(right: 4.w),
+              padding: EdgeInsets.only(right: theme.s(4)),
               child: Icon(
                 halfChecked
                     ? AntIcons.minusSquareFilled
                     : checked
                         ? AntIcons.checkSquareOutlined
                         : AntIcons.borderOutlined,
-                size: 18.sp,
+                size: theme.s(18),
                 color: disabled
                     ? theme.colorTextDisabled
                     : halfChecked || checked
@@ -573,7 +573,7 @@ class _TreeNodeRow<T> extends StatelessWidget {
             onTap: tree.selectable && !disabled ? onSelect : null,
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.w),
+              padding: EdgeInsets.symmetric(horizontal: theme.s(6), vertical: theme.s(3)),
               decoration: BoxDecoration(
                 color: selected
                     ? theme.colorPrimaryBg
@@ -584,7 +584,7 @@ class _TreeNodeRow<T> extends StatelessWidget {
               ),
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  fontSize: theme.fontSize.sp,
+                  fontSize: theme.fontSize,
                   height: 1.5,
                   color: disabled ? theme.colorTextDisabled : theme.colorText,
                 ),

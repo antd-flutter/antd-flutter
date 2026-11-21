@@ -247,7 +247,7 @@ class _NotificationStack extends StatelessWidget {
         if (items.isEmpty) return const SizedBox.shrink();
         final placement = _placementOf(state);
         final theme = AntTheme.of(context);
-        final margin = 24.w;
+        final margin = theme.s(24);
 
         final isTop = placement == AntNotificationPlacement.topRight ||
             placement == AntNotificationPlacement.topLeft;
@@ -381,7 +381,7 @@ class _NotificationCardState extends State<_NotificationCard>
     final (icon, color) = _resolveType(theme);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.w),
+      padding: EdgeInsets.only(bottom: theme.s(16)),
       // 出现动画复用弹层基座（AntPopupMotion：fade + 侧向滑入）
       child: AntPopupMotion(
         animation: _curve,
@@ -389,14 +389,14 @@ class _NotificationCardState extends State<_NotificationCard>
         child: Container(
           key: kAntNotificationCardKey,
           width: widget.width,
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(theme.s(16)),
           decoration: BoxDecoration(
             color: theme.colorBgContainer,
-            borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+            borderRadius: BorderRadius.circular(theme.borderRadiusLG),
             boxShadow: [
               BoxShadow(
                 color: theme.colorShadow.withValues(alpha: 0.15),
-                blurRadius: 16.r,
+                blurRadius: theme.s(16),
                 offset: const Offset(0, 4),
               ),
             ],
@@ -407,15 +407,15 @@ class _NotificationCardState extends State<_NotificationCard>
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, size: 20.w, color: color),
-                  SizedBox(width: 8.w),
+                  Icon(icon, size: theme.s(20), color: color),
+                  SizedBox(width: theme.s(8)),
                   Expanded(
                     child: Text(
                       item.title ?? item.message ?? '',
                       key: kAntNotificationTitleKey,
                       style: TextStyle(
-                        fontSize: 16.sp,
-                        // 行高 1.25（=20.w）与图标同高，保证图标与首行文字垂直居中对齐
+                        fontSize: theme.s(16),
+                        // 行高 1.25（=theme.s(20)）与图标同高，保证图标与首行文字垂直居中对齐
                         height: 1.25,
                         fontWeight: FontWeight.w600,
                         color: theme.colorTextHeading,
@@ -429,15 +429,15 @@ class _NotificationCardState extends State<_NotificationCard>
                         key: kAntNotificationCloseKey,
                         onTap: _handleClose,
                         behavior: HitTestBehavior.opaque,
-                        // 与标题行高（20.w）同高居中，保证关闭图标与文字垂直对齐
+                        // 与标题行高（theme.s(20)）同高居中，保证关闭图标与文字垂直对齐
                         child: SizedBox(
-                          height: 20.w,
+                          height: theme.s(20),
                           child: Center(
                             child: Padding(
-                              padding: EdgeInsets.only(left: 8.w),
+                              padding: EdgeInsets.only(left: theme.s(8)),
                               child: Icon(
                                 AntIcons.closeOutlined,
-                                size: 14.w,
+                                size: theme.s(14),
                                 color: theme.colorTextSecondary,
                               ),
                             ),
@@ -449,12 +449,12 @@ class _NotificationCardState extends State<_NotificationCard>
               ),
               if (item.description != null)
                 Padding(
-                  padding: EdgeInsets.only(top: 8.w),
+                  padding: EdgeInsets.only(top: theme.s(8)),
                   child: Text(
                     item.description!,
                     key: kAntNotificationDescKey,
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: theme.s(14),
                       color: theme.colorTextSecondary,
                       height: 1.5,
                     ),

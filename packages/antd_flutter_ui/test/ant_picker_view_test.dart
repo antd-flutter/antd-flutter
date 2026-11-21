@@ -25,13 +25,10 @@ AntPickerColumn<_Season> _seasonColumn() => AntPickerColumn<_Season>(
     );
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    designSize: const Size(375, 812),
-    builder: (context, _) => AntTheme(
+  return AntTheme(
       data: AntThemeData.light(),
       child: MaterialApp(home: Scaffold(body: child)),
-    ),
-  );
+    );
 }
 
 void main() {

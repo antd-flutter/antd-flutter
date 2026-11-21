@@ -180,7 +180,7 @@ class _AntTimePickerState extends State<AntTimePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final height = _controlHeight.w;
+    final height = theme.s(_controlHeight);
     final open = _currentOpen;
     final value = _currentValue;
 
@@ -193,42 +193,42 @@ class _AntTimePickerState extends State<AntTimePicker> {
         child: Container(
           key: _fieldKey,
           height: height,
-          padding: EdgeInsets.symmetric(horizontal: theme.marginSM.w),
+          padding: EdgeInsets.symmetric(horizontal: theme.marginSM),
           decoration: BoxDecoration(
             color: widget.disabled
                 ? theme.colorBgContainerDisabled
                 : theme.colorBgContainer,
-            borderRadius: BorderRadius.circular(theme.borderRadius.w),
+            borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
               color: open && !widget.disabled
                   ? theme.controlOutline
                   : theme.colorBorder,
               width:
-                  open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
+                  open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
             ),
           ),
           child: Row(
             children: [
               Icon(
                 AntIcons.clockCircleOutlined,
-                size: 14.w,
+                size: theme.s(14),
                 color: widget.disabled
                     ? theme.colorTextDisabled
                     : theme.colorTextSecondary,
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
               Expanded(
                 child: value == null
                     ? Text(
                         widget.placeholder ?? '请选择时间',
                         style: TextStyle(
-                          fontSize: theme.fontSize.sp,
+                          fontSize: theme.fontSize,
                           color: theme.colorTextPlaceholder,
                         ),
                       )
                     : DefaultTextStyle.merge(
                         style: TextStyle(
-                          fontSize: theme.fontSize.sp,
+                          fontSize: theme.fontSize,
                           color: theme.colorText,
                         ),
                         child: widget.labelBuilder?.call(context, value) ??
@@ -240,14 +240,14 @@ class _AntTimePickerState extends State<AntTimePicker> {
                   onTap: _handleClear,
                   child: Icon(
                     AntIcons.closeCircleFilled,
-                    size: 14.w,
+                    size: theme.s(14),
                     color: theme.colorTextPlaceholder,
                   ),
                 )
               else
                 Icon(
                   AntIcons.downOutlined,
-                  size: 14.w,
+                  size: theme.s(14),
                   color: widget.disabled
                       ? theme.colorTextDisabled
                       : theme.colorTextSecondary,
@@ -331,14 +331,14 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
       placement: AntPopupPlacement.bottomLeft,
       onDismiss: widget.onDismiss,
       child: Container(
-        width: 280.w,
+        width: theme.s(280),
         padding: EdgeInsets.symmetric(
-          horizontal: 8.w,
-          vertical: 8.w,
+          horizontal: theme.s(8),
+          vertical: theme.s(8),
         ),
         decoration: BoxDecoration(
           color: theme.colorBgContainer,
-          borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           border: Border.all(color: theme.colorSplit),
           boxShadow: [
             BoxShadow(
@@ -410,7 +410,7 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
                 ),
               ],
             ),
-            SizedBox(height: 8.w),
+            SizedBox(height: theme.s(8)),
             SizedBox(
               width: double.infinity,
               child: AntButton(
@@ -419,7 +419,7 @@ class _TimePickerOverlayState extends State<_TimePickerOverlay> {
                 onTap: widget.onConfirm,
                 child: Text(
                   '确定',
-                  style: TextStyle(fontSize: theme.fontSizeSM.sp),
+                  style: TextStyle(fontSize: theme.fontSizeSM),
                 ),
               ),
             ),
@@ -442,11 +442,11 @@ class _Separator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(2)),
       child: Text(
         ':',
         style: TextStyle(
-          fontSize: theme.fontSizeLG.sp,
+          fontSize: theme.fontSizeLG,
           color: theme.colorTextSecondary,
         ),
       ),
@@ -474,14 +474,14 @@ class _WheelColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 180.w,
+      height: theme.s(180),
       child: ListView.builder(
         padding: EdgeInsets.zero,
-        itemExtent: 36.w,
+        itemExtent: theme.s(36),
         scrollDirection: Axis.vertical,
         itemCount: items.length,
         controller: ScrollController(
-          initialScrollOffset: math.max(0, selectedIndex - 2) * 36.w,
+          initialScrollOffset: math.max(0, selectedIndex - 2) * theme.s(36),
         ),
         itemBuilder: (context, index) {
           final selected = index == selectedIndex;
@@ -493,7 +493,7 @@ class _WheelColumn extends StatelessWidget {
               child: Text(
                 items[index],
                 style: TextStyle(
-                  fontSize: theme.fontSize.sp,
+                  fontSize: theme.fontSize,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   color: selected ? theme.colorPrimary : theme.colorText,
                 ),

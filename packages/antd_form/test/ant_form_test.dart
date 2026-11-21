@@ -5,13 +5,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -20,49 +18,53 @@ Widget _wrap(Widget child) {
 void main() {
   group('AntForm', () {
     testWidgets('renders form items with labels', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-            AntFormItem<String>(
-              name: 'email',
-              label: '邮箱',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+              AntFormItem<String>(
+                name: 'email',
+                label: '邮箱',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       expect(find.text('用户名'), findsOneWidget);
       expect(find.text('邮箱'), findsOneWidget);
     });
 
     testWidgets('shows required asterisk when required', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              required: true,
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                required: true,
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       expect(find.text('*'), findsOneWidget);
     });
@@ -71,23 +73,25 @@ void main() {
       final controller = AntFormController();
       Map<String, dynamic>? submitted;
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          onFinish: (values) => submitted = values,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            onFinish: (values) => submitted = values,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                rules: [const AntFormFieldRule.required(message: '请输入用户名')],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 输入值
       await tester.enterText(find.byType(AntInput), 'admin');
@@ -105,23 +109,25 @@ void main() {
       final controller = AntFormController();
       Map<String, String>? failedErrors;
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          onFinishFailed: (errors) => failedErrors = errors,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            onFinishFailed: (errors) => failedErrors = errors,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                rules: [const AntFormFieldRule.required(message: '请输入用户名')],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 不输入值直接提交
       controller.submit();
@@ -134,22 +140,24 @@ void main() {
     testWidgets('error text displayed after failed validation', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              rules: [const AntFormFieldRule.required(message: '请输入用户名')],
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                rules: [const AntFormFieldRule.required(message: '请输入用户名')],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 校验前无错误文案
       expect(find.text('请输入用户名'), findsNothing);
@@ -164,25 +172,27 @@ void main() {
         (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              rules: [
-                const AntFormFieldRule(minLength: 3, message: '至少3个字符'),
-              ],
-              validateTrigger: AntFormValidateTrigger.onChange,
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                rules: [
+                  const AntFormFieldRule(minLength: 3, message: '至少3个字符'),
+                ],
+                validateTrigger: AntFormValidateTrigger.onChange,
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 输入短文本触发校验
       await tester.enterText(find.byType(AntInput), 'ab');
@@ -200,21 +210,23 @@ void main() {
     testWidgets('controller getValue and setValue', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 通过 controller 设置值
       controller.setValue('username', 'hello');
@@ -228,22 +240,24 @@ void main() {
     testWidgets('controller reset restores initialValues', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          initialValues: {'username': 'initial'},
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            initialValues: {'username': 'initial'},
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       expect(controller.getValue('username'), 'initial');
 
@@ -261,22 +275,24 @@ void main() {
     testWidgets('initialValues populated into fields', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          initialValues: {'username': 'preset'},
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            initialValues: {'username': 'preset'},
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       expect(controller.getValue('username'), 'preset');
       expect(find.text('preset'), findsOneWidget);
@@ -284,21 +300,23 @@ void main() {
 
     testWidgets('horizontal layout renders label and control in a row',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          layout: AntFormLayout.horizontal,
-          children: [
-            AntFormItem<String>(
-              name: 'username',
-              label: '用户名',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            layout: AntFormLayout.horizontal,
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: '用户名',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 水平布局应有 Row 包含标签和控件
       final rowFinder = find.byType(Row);
@@ -308,27 +326,29 @@ void main() {
     testWidgets('pattern rule validates correctly', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          children: [
-            AntFormItem<String>(
-              name: 'email',
-              label: '邮箱',
-              rules: [
-                AntFormFieldRule(
-                  pattern: RegExp(r'^[\w.-]+@[\w.-]+\.\w+$'),
-                  message: '邮箱格式不正确',
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            children: [
+              AntFormItem<String>(
+                name: 'email',
+                label: '邮箱',
+                rules: [
+                  AntFormFieldRule(
+                    pattern: RegExp(r'^[\w.-]+@[\w.-]+\.\w+$'),
+                    message: '邮箱格式不正确',
+                  ),
+                ],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
                 ),
-              ],
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       // 输入非法邮箱
       await tester.enterText(find.byType(AntInput), 'not-an-email');
@@ -346,27 +366,28 @@ void main() {
     testWidgets('custom validator rule', (tester) async {
       final controller = AntFormController();
 
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          controller: controller,
-          children: [
-            AntFormItem<String>(
-              name: 'age',
-              label: '年龄',
-              rules: [
-                AntFormFieldRule(
-                  validator: (value) =>
-                      (value == '18') ? null : '必须为18岁',
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            controller: controller,
+            children: [
+              AntFormItem<String>(
+                name: 'age',
+                label: '年龄',
+                rules: [
+                  AntFormFieldRule(
+                    validator: (value) => (value == '18') ? null : '必须为18岁',
+                  ),
+                ],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
                 ),
-              ],
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       await tester.enterText(find.byType(AntInput), '20');
       await tester.pumpAndSettle();
@@ -378,21 +399,23 @@ void main() {
     });
 
     testWidgets('help text always displayed', (tester) async {
-      await tester.pumpWidget(_wrap(
-        AntForm(
-          children: [
-            AntFormItem<String>(
-              name: 'password',
-              label: '密码',
-              help: '密码长度至少6位',
-              builder: (field) => AntInput(
-                value: field.value ?? '',
-                onChange: field.didChange,
+      await tester.pumpWidget(
+        _wrap(
+          AntForm(
+            children: [
+              AntFormItem<String>(
+                name: 'password',
+                label: '密码',
+                help: '密码长度至少6位',
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  onChange: field.didChange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),);
+      );
 
       expect(find.text('密码长度至少6位'), findsOneWidget);
     });

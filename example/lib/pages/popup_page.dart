@@ -26,7 +26,7 @@ class _PopupPageState extends State<PopupPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,13 +39,13 @@ class _PopupPageState extends State<PopupPage> {
               child: const Text('底部弹出'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '四方向弹出',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 for (final position in AntPopupPosition.values)
                   AntButton(
@@ -58,13 +58,13 @@ class _PopupPageState extends State<PopupPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带关闭图标 + 遮罩配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -88,7 +88,7 @@ class _PopupPageState extends State<PopupPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '内容滚动',
             theme: theme,
@@ -111,23 +111,23 @@ class _PopupPageState extends State<PopupPage> {
               child: const Text('长列表滚动内容'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '回调展示',
             theme: theme,
             child: Container(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(theme.s(12)),
               decoration: BoxDecoration(
                 color: theme.colorFillQuaternary,
-                borderRadius: BorderRadius.circular(theme.borderRadius.r),
+                borderRadius: BorderRadius.circular(theme.borderRadius),
               ),
               child: Text(
                 '最近事件：$_lastEvent',
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
             ),
           ),
-          SizedBox(height: 32.w),
+          SizedBox(height: theme.s(32)),
 
           // ---- 受控弹出层实例 ----
           AntPopup(
@@ -139,12 +139,12 @@ class _PopupPageState extends State<PopupPage> {
               setState(() => _bottomVisible = false);
             },
             body: Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(theme.s(16)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('底部弹出内容', style: TextStyle(fontSize: 16.sp)),
-                  SizedBox(height: 12.w),
+                  Text('底部弹出内容', style: TextStyle(fontSize: theme.s(16))),
+                  SizedBox(height: theme.s(12)),
                   AntButton(
                     onTap: () => setState(() => _bottomVisible = false),
                     child: const Text('关闭'),
@@ -162,10 +162,10 @@ class _PopupPageState extends State<PopupPage> {
             },
             body: Center(
               child: Padding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(theme.s(16)),
                 child: Text(
                   '${_positionLabel(_direction)}弹出内容',
-                  style: TextStyle(fontSize: 16.sp),
+                  style: TextStyle(fontSize: theme.s(16)),
                 ),
               ),
             ),
@@ -180,10 +180,10 @@ class _PopupPageState extends State<PopupPage> {
               setState(() => _noMaskCloseVisible = false);
             },
             body: Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(theme.s(16)),
               child: Text(
                 'maskClosable = false，只能通过关闭图标关闭。',
-                style: TextStyle(fontSize: 14.sp),
+                style: TextStyle(fontSize: theme.s(14)),
               ),
             ),
           ),
@@ -226,12 +226,12 @@ class _Section extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: theme.s(15),
             fontWeight: FontWeight.w600,
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

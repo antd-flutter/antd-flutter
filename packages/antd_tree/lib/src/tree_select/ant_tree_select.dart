@@ -415,11 +415,11 @@ class _AntTreeSelectState<T> extends State<AntTreeSelect<T>>
       child: GestureDetector(
         onTap: widget.disabled ? null : (_open ? _removeOverlay : _showOverlay),
         child: Container(
-          height: (widget.height ?? _height).h,
-          width: widget.width?.w,
+          height: t.s(widget.height ?? _height),
+          width: widget.width == null ? null : t.s(widget.width!),
           padding: EdgeInsets.symmetric(
-            horizontal: (widget.size == AntTreeSelectSize.small ? 7 : 12).w,
-            vertical: (widget.multiple ? 2 : 0).h,
+            horizontal: t.s(widget.size == AntTreeSelectSize.small ? 7 : 12),
+            vertical: t.s(widget.multiple ? 2 : 0),
           ),
           decoration: BoxDecoration(
             color: widget.disabled
@@ -443,7 +443,7 @@ class _AntTreeSelectState<T> extends State<AntTreeSelect<T>>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: fontSize.sp,
+                    fontSize: fontSize,
                     color: _displayText.isNotEmpty
                         ? (widget.disabled ? t.colorTextDisabled : t.colorText)
                         : t.colorTextPlaceholder,
@@ -455,20 +455,20 @@ class _AntTreeSelectState<T> extends State<AntTreeSelect<T>>
                   onTap: _clear,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.only(left: 4.w),
+                    padding: EdgeInsets.only(left: t.s(4)),
                     child: Icon(
                       AntIcons.closeCircleFilled,
-                      size: 14.sp,
+                      size: t.s(14),
                       color: t.colorTextQuaternary,
                     ),
                   ),
                 )
               else
                 Padding(
-                  padding: EdgeInsets.only(left: 4.w),
+                  padding: EdgeInsets.only(left: t.s(4)),
                   child: Icon(
                     _open ? AntIcons.upOutlined : AntIcons.downOutlined,
-                    size: 14.sp,
+                    size: t.s(14),
                     color: t.colorTextQuaternary,
                   ),
                 ),
@@ -537,10 +537,10 @@ class _TreeSelectOverlay<T> extends StatelessWidget {
     );
   }
 
-  double _panelMaxHeight(BuildContext context) {
-    if (dropdownHeight != null) return dropdownHeight!.h;
+  double _panelMaxHeight(BuildContext context, AntThemeData t) {
+    if (dropdownHeight != null) return t.s(dropdownHeight!);
     final screenH = MediaQuery.sizeOf(context).height;
-    return math.min(256.h, screenH / 2);
+    return math.min(t.s(256), screenH / 2);
   }
 
   Widget _buildPanel(BuildContext context, AntThemeData t) {
@@ -549,11 +549,11 @@ class _TreeSelectOverlay<T> extends StatelessWidget {
     final triggerWidth = (triggerBox != null && triggerBox.hasSize)
         ? triggerBox.size.width
         : 0.0;
-    final panelWidth = triggerWidth > 160.w ? triggerWidth : 160.w;
+    final panelWidth = triggerWidth > t.s(160) ? triggerWidth : t.s(160);
     return Container(
       key: const Key('ant_tree_select_panel'),
       width: panelWidth,
-      constraints: BoxConstraints(maxHeight: _panelMaxHeight(context)),
+      constraints: BoxConstraints(maxHeight: _panelMaxHeight(context, t)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -668,6 +668,7 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -676,7 +677,7 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
         onTap: disabled ? null : widget.onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: theme.s(8), horizontal: theme.s(12)),
           color: disabled
               ? widget.colorFillSecondary.withValues(alpha: 0.3)
               : widget.isSelected
@@ -687,21 +688,21 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
           child: Row(
             children: [
               // 缩进
-              SizedBox(width: widget.depth * 20.w),
+              SizedBox(width: widget.depth * theme.s(20)),
               // 展开/收起箭头
               if (widget.isLeaf)
-                SizedBox(width: 16.w)
+                SizedBox(width: theme.s(16))
               else
                 GestureDetector(
                   onTap: widget.onToggle,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4.w),
+                    padding: EdgeInsets.only(right: theme.s(4)),
                     child: Icon(
                       widget.isExpanded
                           ? AntIcons.downOutlined
                           : AntIcons.rightOutlined,
-                      size: 14.sp,
+                      size: theme.s(14),
                       color: widget.colorTextDisabled,
                     ),
                   ),
@@ -709,12 +710,12 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
               // 多选 checkbox
               if (widget.multiple)
                 Padding(
-                  padding: EdgeInsets.only(right: 6.w),
+                  padding: EdgeInsets.only(right: theme.s(6)),
                   child: Icon(
                     widget.isSelected
                         ? AntIcons.checkSquareFilled
                         : AntIcons.borderOutlined,
-                    size: 14.sp,
+                    size: theme.s(14),
                     color: widget.isSelected
                         ? widget.colorPrimary
                         : widget.colorTextDisabled,
@@ -724,7 +725,7 @@ class _TreeNodeTileState extends State<_TreeNodeTile> {
               Expanded(
                 child: DefaultTextStyle.merge(
                   style: TextStyle(
-                    fontSize: widget.fontSize.sp,
+                    fontSize: widget.fontSize,
                     color: disabled
                         ? widget.colorTextDisabled
                         : widget.isSelected

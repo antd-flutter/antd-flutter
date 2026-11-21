@@ -9,8 +9,7 @@ const String kLongText =
     '支持 React、Vue、Angular 等多种框架，是国内使用最广泛的移动端组件库之一。';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
@@ -20,8 +19,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {

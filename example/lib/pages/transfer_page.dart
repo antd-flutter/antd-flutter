@@ -93,8 +93,9 @@ class TransferPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -105,27 +106,27 @@ class TransferPage extends StatelessWidget {
                   debugPrint('onChange: $keys, $direction, $moves'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '默认目标项',
             child: _transfer(defaultTargetKeys: const ['b']),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '带搜索', child: _transfer(showSearch: true)),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '禁用选项', child: _transfer(data: _disabledData)),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '单向模式', child: _transfer(oneWay: true)),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义操作文案',
             child: _transfer(operations: const ['右移', '左移']),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '禁用状态', child: _transfer(disabled: true)),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控用法', child: const _ControlledTransfer()),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '树形穿梭（TreeTransfer）',
             child: _transfer(
@@ -154,6 +155,7 @@ class _ControlledTransferState extends State<_ControlledTransfer> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       children: [
         _transfer(
@@ -161,11 +163,11 @@ class _ControlledTransferState extends State<_ControlledTransfer> {
           onChange: (keys, direction, moves) =>
               setState(() => _targetKeys = keys),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前 targetKeys: $_targetKeys',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -185,10 +187,10 @@ class _Section extends StatelessWidget {
     final t = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
-        borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(t.borderRadiusLG),
         border: Border.all(color: t.colorSplit),
       ),
       child: Column(
@@ -197,12 +199,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: t.s(16),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

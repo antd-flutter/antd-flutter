@@ -6,13 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: Center(child: child)),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: Center(child: child)),
       ),
     ),
   );
@@ -73,7 +71,7 @@ void main() {
             )
             .first,
       );
-      expect(container.constraints?.maxWidth, closeTo(200.w, 0.1));
+      expect(container.constraints?.maxWidth, closeTo(200, 0.1));
     });
 
     testWidgets('painter sizes QR canvas to size', (tester) async {
@@ -113,7 +111,13 @@ void main() {
 
     testWidgets('custom color and bgColor apply', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntQRCode(value: 'a', color: Colors.red, bgColor: Colors.yellow)),
+        _wrap(
+          const AntQRCode(
+            value: 'a',
+            color: Colors.red,
+            bgColor: Colors.yellow,
+          ),
+        ),
       );
       final painter = _painter(tester);
       expect(painter.moduleColor, Colors.red);
@@ -129,7 +133,8 @@ void main() {
     });
 
     testWidgets('bordered false removes border', (tester) async {
-      await tester.pumpWidget(_wrap(const AntQRCode(value: 'a', bordered: false)));
+      await tester
+          .pumpWidget(_wrap(const AntQRCode(value: 'a', bordered: false)));
       expect(_rootDecoration(tester).border, isNull);
     });
 
@@ -141,11 +146,15 @@ void main() {
     testWidgets('expired status shows overlay and tap refreshes',
         (tester) async {
       var refreshed = 0;
-      await tester.pumpWidget(_wrap(AntQRCode(
-        value: 'a',
-        status: AntQRCodeStatus.expired,
-        onRefresh: () => refreshed++,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          AntQRCode(
+            value: 'a',
+            status: AntQRCodeStatus.expired,
+            onRefresh: () => refreshed++,
+          ),
+        ),
+      );
       expect(find.text('二维码过期'), findsOneWidget);
 
       await tester.tap(find.text('二维码过期'));
@@ -176,11 +185,13 @@ void main() {
 
     testWidgets('icon hidden in non-active status', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntQRCode(
-          value: 'a',
-          icon: true,
-          status: AntQRCodeStatus.expired,
-        ),),
+        _wrap(
+          const AntQRCode(
+            value: 'a',
+            icon: true,
+            status: AntQRCodeStatus.expired,
+          ),
+        ),
       );
       expect(find.byIcon(AntIcons.qrcodeOutlined), findsNothing);
       expect(find.text('二维码过期'), findsOneWidget);

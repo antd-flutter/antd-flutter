@@ -113,7 +113,7 @@ class AntTimeline<T> extends StatelessWidget {
         _TimelineCell(
           customDot: pendingDot ??
               AntLoading(
-                size: 14.w,
+                size: theme.s(14),
                 color: theme.colorPrimary,
               ),
           content: pendingContent,
@@ -192,7 +192,7 @@ class _TimelineRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final dot = _buildDot();
     final content = _buildContent();
-    final gap = isLast ? 0.0 : 16.w;
+    final gap = isLast ? 0.0 : theme.s(16);
     final label = cell.label == null
         ? null
         : DefaultTextStyle.merge(
@@ -216,7 +216,7 @@ class _TimelineRow extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 16.w, bottom: gap),
+                  padding: EdgeInsets.only(right: theme.s(16), bottom: gap),
                   child: leftSide ?? const SizedBox.shrink(),
                 ),
               ),
@@ -226,7 +226,7 @@ class _TimelineRow extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 16.w, bottom: gap),
+                  padding: EdgeInsets.only(left: theme.s(16), bottom: gap),
                   child: rightSide ?? const SizedBox.shrink(),
                 ),
               ),
@@ -249,7 +249,7 @@ class _TimelineRow extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: theme.s(16)),
             _buildDotColumn(dot),
           ],
         ),
@@ -262,15 +262,15 @@ class _TimelineRow extends StatelessWidget {
           children: [
             if (label != null) ...[
               SizedBox(
-                width: 64.w,
+                width: theme.s(64),
                 child: Padding(
-                  padding: EdgeInsets.only(right: 12.w, top: 2.w),
+                  padding: EdgeInsets.only(right: theme.s(12), top: theme.s(2)),
                   child: label,
                 ),
               ),
             ],
             _buildDotColumn(dot),
-            SizedBox(width: 16.w),
+            SizedBox(width: theme.s(16)),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(bottom: gap),

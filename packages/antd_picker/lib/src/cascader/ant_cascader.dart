@@ -294,9 +294,9 @@ class _AntCascaderState<T> extends State<AntCascader<T>>
       key: _fieldKey,
       onTap: widget.disabled ? null : (_open ? _removeOverlay : _showOverlay),
       child: Container(
-        height: _height.h,
+        height: t.s(_height),
         padding: EdgeInsets.symmetric(
-          horizontal: (widget.size == AntCascaderSize.small ? 7 : 12).w,
+          horizontal: t.s(widget.size == AntCascaderSize.small ? 7 : 12),
         ),
         decoration: BoxDecoration(
           color:
@@ -315,20 +315,20 @@ class _AntCascaderState<T> extends State<AntCascader<T>>
                 onTap: _clear,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 4.w),
+                  padding: EdgeInsets.only(left: t.s(4)),
                   child: Icon(
                     AntIcons.closeCircleFilled,
-                    size: 14.sp,
+                    size: t.s(14),
                     color: t.colorTextQuaternary,
                   ),
                 ),
               )
             else
               Padding(
-                padding: EdgeInsets.only(left: 4.w),
+                padding: EdgeInsets.only(left: t.s(4)),
                 child: Icon(
                   _open ? AntIcons.upOutlined : AntIcons.downOutlined,
-                  size: 14.sp,
+                  size: t.s(14),
                   color: t.colorTextQuaternary,
                 ),
               ),
@@ -350,7 +350,7 @@ class _AntCascaderState<T> extends State<AntCascader<T>>
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: fontSize.sp,
+          fontSize: fontSize,
           color: t.colorTextPlaceholder,
         ),
       );
@@ -363,14 +363,14 @@ class _AntCascaderState<T> extends State<AntCascader<T>>
         path.map((item) => '$item').join(' / '),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(fontSize: fontSize.sp, color: color),
+        style: TextStyle(fontSize: fontSize, color: color),
       );
     }
 
     return DefaultTextStyle.merge(
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: fontSize.sp, color: color),
+      style: TextStyle(fontSize: fontSize, color: color),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -474,7 +474,7 @@ class _CascaderOverlay<T> extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: Container(
-          constraints: BoxConstraints(maxHeight: 256.h),
+          constraints: BoxConstraints(maxHeight: t.s(256)),
           decoration: BoxDecoration(
             color: t.colorBgContainer,
             borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -510,8 +510,8 @@ class _CascaderOverlay<T> extends StatelessWidget {
         colIndex < activePath.length ? activePath[colIndex] : null;
 
     return Container(
-      width: 140.w,
-      constraints: BoxConstraints(maxHeight: 256.h),
+      width: t.s(140),
+      constraints: BoxConstraints(maxHeight: t.s(256)),
       decoration: BoxDecoration(
         border: Border(
           right: colIndex < cols.length - 1
@@ -594,6 +594,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) {
@@ -605,7 +606,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
         onTap: disabled ? null : widget.onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: t.s(8), horizontal: t.s(12)),
           color: disabled
               ? widget.colorFillSecondary.withValues(alpha: 0.3)
               : widget.isActive
@@ -620,7 +621,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: widget.fontSize.sp,
+                    fontSize: widget.fontSize,
                     color: disabled
                         ? widget.colorTextDisabled
                         : widget.isActive
@@ -633,7 +634,7 @@ class _CascaderOptionTileState extends State<_CascaderOptionTile> {
               if (!widget.isLeaf)
                 Icon(
                   AntIcons.rightOutlined,
-                  size: 14.sp,
+                  size: t.s(14),
                   color: widget.colorTextDisabled,
                 ),
             ],

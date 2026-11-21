@@ -6,9 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child, {Size size = const Size(400, 800)}) {
-  return AntScreenUtilInit(
-    designSize: const Size(375, 812),
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: MediaQuery(
         data: MediaQueryData(size: size),
         child: Scaffold(
@@ -18,8 +16,7 @@ Widget _wrap(Widget child, {Size size = const Size(400, 800)}) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 AntList<String> _list({

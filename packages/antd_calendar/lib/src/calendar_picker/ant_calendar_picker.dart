@@ -237,7 +237,7 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
       children: [
         // 月份导航
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
+          padding: EdgeInsets.symmetric(vertical: t.s(8)),
           child: Row(
             children: [
               _buildNavButton(t, canGoPrev, () => _goToMonth(-1), AntIcons.leftOutlined),
@@ -259,7 +259,7 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
         ),
         // 周标签
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 4.h),
+          padding: EdgeInsets.symmetric(vertical: t.s(4)),
           child: Row(
             children: weekLabels.map((label) {
               return Expanded(
@@ -301,10 +301,10 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(4)),
         child: Icon(
           icon,
-          size: 24.w,
+          size: t.s(24),
           color: enabled ? t.colorText : t.colorTextDisabled,
         ),
       ),
@@ -333,7 +333,7 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
     Color textColor;
     Color? bgColor;
     BorderRadius? borderRadius;
-    EdgeInsets margin = EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h);
+    EdgeInsets margin = EdgeInsets.symmetric(horizontal: t.s(2), vertical: t.s(1));
 
     if (disabled) {
       textColor = t.colorTextDisabled;
@@ -357,10 +357,10 @@ class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
     // 范围端点的圆角和边距
     if (start) {
       borderRadius = BorderRadius.horizontal(left: Radius.circular(t.borderRadiusSM));
-      margin = EdgeInsets.only(left: 2.w, top: 1.h, bottom: 1.h);
+      margin = EdgeInsets.only(left: t.s(2), top: t.s(1), bottom: t.s(1));
     } else if (end) {
       borderRadius = BorderRadius.horizontal(right: Radius.circular(t.borderRadiusSM));
-      margin = EdgeInsets.only(right: 2.w, top: 1.h, bottom: 1.h);
+      margin = EdgeInsets.only(right: t.s(2), top: t.s(1), bottom: t.s(1));
     }
 
     return GestureDetector(
@@ -632,7 +632,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
       children: [
         // 头部
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(16), vertical: t.s(10)),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(color: t.colorSplit, width: 1),
@@ -679,10 +679,10 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                   onTap: widget.onCloseButtonTap,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.only(left: 12.w),
+                    padding: EdgeInsets.only(left: t.s(12)),
                     child: Icon(
                       AntIcons.closeOutlined,
-                      size: 20.w,
+                      size: t.s(20),
                       color: t.colorTextSecondary,
                     ),
                   ),
@@ -692,7 +692,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
         ),
         // 日历视图
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: t.s(12)),
           child: AntCalendarPickerView(
             selectionMode: widget.selectionMode,
             value: _innerValue,
@@ -708,7 +708,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
             },
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: t.s(16)),
       ],
     );
   }

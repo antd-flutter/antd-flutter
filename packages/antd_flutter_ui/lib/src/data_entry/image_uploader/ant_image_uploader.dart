@@ -203,7 +203,7 @@ class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final gap = t.marginXS.w;
+        final gap = t.marginXS;
         final cellSize = (constraints.maxWidth - gap * (widget.columns - 1)) /
             widget.columns;
 
@@ -248,7 +248,7 @@ class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
             widget.itemBuilder!(context, item, index)
           else
             ClipRRect(
-              borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
+              borderRadius: BorderRadius.circular(t.borderRadiusSM),
               child: Image.network(
                 _urlOf(item),
                 fit: widget.imageFit,
@@ -257,7 +257,7 @@ class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
                   alignment: Alignment.center,
                   child: Icon(
                     AntIcons.pictureOutlined,
-                    size: 24.w,
+                    size: t.s(24),
                     color: t.colorTextQuaternary,
                   ),
                 ),
@@ -265,45 +265,45 @@ class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
             ),
           if (status == AntImageUploadStatus.uploading)
             ClipRRect(
-              borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
+              borderRadius: BorderRadius.circular(t.borderRadiusSM),
               child: Container(
                 color: Colors.black.withValues(alpha: 0.4),
                 alignment: Alignment.center,
                 child: AntLoading(
-                  size: 20.w,
+                  size: t.s(20),
                   color: Colors.white,
                 ),
               ),
             ),
           if (status == AntImageUploadStatus.failed)
             ClipRRect(
-              borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
+              borderRadius: BorderRadius.circular(t.borderRadiusSM),
               child: Container(
                 color: Colors.black.withValues(alpha: 0.4),
                 alignment: Alignment.center,
                 child: Icon(
                   AntIcons.exclamationCircleOutlined,
-                  size: 24.w,
+                  size: t.s(24),
                   color: Colors.white,
                 ),
               ),
             ),
           if (widget.deletable)
             Positioned(
-              top: 2.w,
-              right: 2.w,
+              top: t.s(2),
+              right: t.s(2),
               child: GestureDetector(
                 onTap: () => _handleDelete(index),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding: EdgeInsets.all(2.w),
+                  padding: EdgeInsets.all(t.s(2)),
                   decoration: const BoxDecoration(
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     AntIcons.closeOutlined,
-                    size: 14.w,
+                    size: t.s(14),
                     color: Colors.white,
                   ),
                 ),
@@ -320,14 +320,14 @@ class _AntImageUploaderState<T> extends State<AntImageUploader<T>> {
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: t.colorBorder, width: 1.w),
-          borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
+          border: Border.all(color: t.colorBorder, width: t.s(1)),
+          borderRadius: BorderRadius.circular(t.borderRadiusSM),
           color: t.colorFillSecondary,
         ),
         alignment: Alignment.center,
         child: Icon(
           widget.uploadIcon,
-          size: 28.w,
+          size: t.s(28),
           color: t.colorTextQuaternary,
         ),
       ),

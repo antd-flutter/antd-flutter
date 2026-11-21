@@ -5,13 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -20,9 +18,7 @@ Widget _wrap(Widget child) {
 /// 构建一行内容位移 Transform（内容层唯一：祖先含行文本）。
 Offset _contentOffset(WidgetTester tester, String text) {
   final transform = tester.widget<Transform>(
-    find
-        .ancestor(of: find.text(text), matching: find.byType(Transform))
-        .first,
+    find.ancestor(of: find.text(text), matching: find.byType(Transform)).first,
   );
   final Vector3 translation = transform.transform.getTranslation();
   return Offset(translation.x, translation.y);
@@ -31,31 +27,39 @@ Offset _contentOffset(WidgetTester tester, String text) {
 void main() {
   group('AntSwipeAction', () {
     testWidgets('默认渲染 child 内容', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('左滑试试')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('左滑试试')),
+            ),
+          ),
         ),
-      ),),);
+      );
       expect(find.text('左滑试试'), findsOneWidget);
       expect(find.byKey(kAntSwipeActionContentKey), findsOneWidget);
     });
 
     testWidgets('左滑露出右侧操作按钮', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('左滑试试')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('左滑试试')),
+            ),
+          ),
         ),
-      ),),);
+      );
       // 未滑动时按钮被裁剪不可见（内容完全覆盖，按钮文本不在视口内）
       await tester.drag(find.text('左滑试试'), const Offset(-100, 0));
       await tester.pumpAndSettle();
@@ -65,16 +69,20 @@ void main() {
     });
 
     testWidgets('按钮 text/color 正确渲染', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '标记', color: Colors.red),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '标记', color: Colors.red),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       final material = tester.widget<Material>(
@@ -86,16 +94,20 @@ void main() {
     });
 
     testWidgets('默认按钮色取主题主色', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '默认色'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '默认色'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       final material = tester.widget<Material>(
@@ -108,16 +120,20 @@ void main() {
 
     testWidgets('点击按钮触发 onPressed 并收起', (tester) async {
       var pressed = false;
-      await tester.pumpWidget(_wrap(AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除', onPressed: () => pressed = true),
-        ],
-        child: const SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除', onPressed: () => pressed = true),
+            ],
+            child: const SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       await tester.tap(find.text('删除'), warnIfMissed: false);
@@ -128,16 +144,20 @@ void main() {
     });
 
     testWidgets('右滑露出左侧操作按钮', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        leftActions: [
-          AntSwipeActionItem(text: '置顶'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            leftActions: [
+              AntSwipeActionItem(text: '置顶'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(100, 0));
       await tester.pumpAndSettle();
       expect(find.text('置顶'), findsOneWidget);
@@ -147,20 +167,24 @@ void main() {
 
     testWidgets('disabled 按钮不可点击', (tester) async {
       var pressed = false;
-      await tester.pumpWidget(_wrap(AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(
-            text: '删除',
-            disabled: true,
-            onPressed: () => pressed = true,
+      await tester.pumpWidget(
+        _wrap(
+          AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(
+                text: '删除',
+                disabled: true,
+                onPressed: () => pressed = true,
+              ),
+            ],
+            child: const SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
           ),
-        ],
-        child: const SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       await tester.tap(find.text('删除'), warnIfMissed: false);
@@ -171,17 +195,21 @@ void main() {
     });
 
     testWidgets('松手吸附动画后停在展开位置', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-          AntSwipeActionItem(text: '收藏'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+              AntSwipeActionItem(text: '收藏'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       // 拖动超过总宽一半（72 > 144/2）自动展开
       await tester.drag(find.text('内容'), const Offset(-80, 0));
       await tester.pumpAndSettle();
@@ -189,16 +217,20 @@ void main() {
     });
 
     testWidgets('未超半宽松手回弹关闭', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       // 手动拖动 30（未超过 72/2=36）后松手
       final gesture = await tester.startGesture(
         tester.getCenter(find.text('内容')),
@@ -211,18 +243,22 @@ void main() {
     });
 
     testWidgets('多按钮水平排列且宽度一致', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '收藏'),
-          AntSwipeActionItem(text: '编辑'),
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 400,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '收藏'),
+              AntSwipeActionItem(text: '编辑'),
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 400,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-300, 0));
       await tester.pumpAndSettle();
       expect(find.text('收藏'), findsOneWidget);
@@ -236,16 +272,20 @@ void main() {
 
     testWidgets('danger 操作按钮渲染错误色', (tester) async {
       final errorColor = AntThemeData.light().colorError;
-      await tester.pumpWidget(_wrap(AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '危险操作', color: errorColor),
-        ],
-        child: const SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '危险操作', color: errorColor),
+            ],
+            child: const SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       final material = tester.widget<Material>(
@@ -260,16 +300,20 @@ void main() {
     });
 
     testWidgets('拖动时内容跟随位移', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       final gesture = await tester.startGesture(
         tester.getCenter(find.text('内容')),
       );
@@ -282,17 +326,21 @@ void main() {
     });
 
     testWidgets('closeOnAction=false 点击后保持展开', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        closeOnAction: false,
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            closeOnAction: false,
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       await tester.tap(find.text('删除'));
@@ -302,17 +350,21 @@ void main() {
 
     testWidgets('展开时触发 onOpened 回调', (tester) async {
       String? openedSide;
-      await tester.pumpWidget(_wrap(AntSwipeAction(
-        rightActions: const [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        onOpened: (side) => openedSide = side,
-        child: const SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          AntSwipeAction(
+            rightActions: const [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            onOpened: (side) => openedSide = side,
+            child: const SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       expect(openedSide, 'right');
@@ -320,17 +372,21 @@ void main() {
 
     testWidgets('收起时触发 onClosed 回调', (tester) async {
       var closed = false;
-      await tester.pumpWidget(_wrap(AntSwipeAction(
-        rightActions: const [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        onClosed: () => closed = true,
-        child: const SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          AntSwipeAction(
+            rightActions: const [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            onClosed: () => closed = true,
+            child: const SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       expect(closed, isFalse);
@@ -359,16 +415,20 @@ void main() {
     }
 
     testWidgets('fling 快速左甩直接展开', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       // 位移很小（< 72/2）但速度极快：应按 fling 判定直接展开
       await flingGesture(tester, find.text('内容'), -120);
       await tester.pumpAndSettle();
@@ -376,16 +436,20 @@ void main() {
     });
 
     testWidgets('fling 快速右甩（展开态）直接收起', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-100, 0));
       await tester.pumpAndSettle();
       expect(_contentOffset(tester, '内容').dx, -72);
@@ -396,17 +460,21 @@ void main() {
     });
 
     testWidgets('rubber-band：超过总宽后弹性阻尼跟随', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-          AntSwipeActionItem(text: '收藏'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+              AntSwipeActionItem(text: '收藏'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       // 总宽 144：先 1:1 拖到 -100、再 1:1 到 -160（事件前未超宽）；
       // 第三步事件前已超宽（160 > 144）→ delta/9 阻尼：-160 - 60/9 ≈ -166.7
       final gesture = await tester.startGesture(
@@ -428,16 +496,20 @@ void main() {
     });
 
     testWidgets('rubber-band：过拉距离有上限', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       final gesture = await tester.startGesture(
         tester.getCenter(find.text('内容')),
       );
@@ -455,16 +527,20 @@ void main() {
     });
 
     testWidgets('snap 动画：松手后逐帧过渡到目标位移', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
+      await tester.pumpWidget(
+        _wrap(
+          const AntSwipeAction(
+            rightActions: [
+              AntSwipeActionItem(text: '删除'),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 56,
+              child: Center(child: Text('内容')),
+            ),
+          ),
         ),
-      ),),);
+      );
       await tester.drag(find.text('内容'), const Offset(-60, 0));
       // 动画中间帧：AnimationController 首帧仅启动 ticker（offset 仍为起点），
       // 再推进 100ms 后处于过渡中段（easeOutQuart 前段快）
@@ -478,8 +554,34 @@ void main() {
     });
 
     testWidgets('手势竞争：ListView 纵向滚动不触发横滑位移', (tester) async {
-      await tester.pumpWidget(_wrap(ListView(
-        children: [
+      await tester.pumpWidget(
+        _wrap(
+          ListView(
+            children: [
+              const AntSwipeAction(
+                rightActions: [
+                  AntSwipeActionItem(text: '删除'),
+                ],
+                child: SizedBox(
+                  width: 300,
+                  height: 56,
+                  child: Center(child: Text('内容')),
+                ),
+              ),
+              for (int i = 0; i < 10; i++) ListTile(title: Text('行 $i')),
+            ],
+          ),
+        ),
+      );
+      // 纵向拖动：方向相关识别器不处理纵向手势，内容位移保持 0
+      await tester.drag(find.text('内容'), const Offset(0, -120));
+      await tester.pumpAndSettle();
+      expect(_contentOffset(tester, '内容').dx, 0);
+    });
+
+    testWidgets('无对应侧按钮时拖动不产生位移', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
           const AntSwipeAction(
             rightActions: [
               AntSwipeActionItem(text: '删除'),
@@ -490,26 +592,8 @@ void main() {
               child: Center(child: Text('内容')),
             ),
           ),
-          for (int i = 0; i < 10; i++) ListTile(title: Text('行 $i')),
-        ],
-      ),),);
-      // 纵向拖动：方向相关识别器不处理纵向手势，内容位移保持 0
-      await tester.drag(find.text('内容'), const Offset(0, -120));
-      await tester.pumpAndSettle();
-      expect(_contentOffset(tester, '内容').dx, 0);
-    });
-
-    testWidgets('无对应侧按钮时拖动不产生位移', (tester) async {
-      await tester.pumpWidget(_wrap(const AntSwipeAction(
-        rightActions: [
-          AntSwipeActionItem(text: '删除'),
-        ],
-        child: SizedBox(
-          width: 300,
-          height: 56,
-          child: Center(child: Text('内容')),
         ),
-      ),),);
+      );
       // 只有右侧按钮，向右拖动不应产生位移
       final gesture = await tester.startGesture(
         tester.getCenter(find.text('内容')),
@@ -523,17 +607,20 @@ void main() {
 
     group('渲染探针：action 可见性与位移联动', () {
       Future<void> pumpProbe(WidgetTester tester) async {
-        await tester.pumpWidget(_wrap(const AntSwipeAction(
-          rightActions: [
-            AntSwipeActionItem(text: '删除'),
-          ],
-          child: SizedBox(
-            width: 300,
-            height: 56,
-            child: Center(child: Text('内容')),
+        await tester.pumpWidget(
+          _wrap(
+            const AntSwipeAction(
+              rightActions: [
+                AntSwipeActionItem(text: '删除'),
+              ],
+              child: SizedBox(
+                width: 300,
+                height: 56,
+                child: Center(child: Text('内容')),
+              ),
+            ),
           ),
-        ),),);
-        
+        );
       }
 
       testWidgets('拖拽中 action 按钮可见（可视区内非零尺寸）', (tester) async {
@@ -544,15 +631,18 @@ void main() {
         await gesture.moveBy(const Offset(-40, 0));
         await tester.pump();
 
-        final Rect actionBox = tester.getRect(find.byKey(kAntSwipeActionRightKey));
+        final Rect actionBox =
+            tester.getRect(find.byKey(kAntSwipeActionRightKey));
         expect(actionBox.width, 72, reason: 'action 区宽度塌陷为 0 则不可见');
         expect(actionBox.height, 56);
         // 视口（组件根）范围内：action 按钮中心必须在可视区
         final Rect viewport = tester.getRect(
-          find.ancestor(
-            of: find.byKey(kAntSwipeActionRightKey),
-            matching: find.byType(ClipRect),
-          ).first,
+          find
+              .ancestor(
+                of: find.byKey(kAntSwipeActionRightKey),
+                matching: find.byType(ClipRect),
+              )
+              .first,
         );
         expect(
           viewport.contains(actionBox.center),

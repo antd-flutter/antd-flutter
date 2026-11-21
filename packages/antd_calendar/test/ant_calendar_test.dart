@@ -7,8 +7,7 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 DateTime _date(int y, int m, int d) => DateTime(y, m, d);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
@@ -17,8 +16,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 AntCalendar _calendar({
@@ -289,9 +287,9 @@ void main() {
           (w) => w is Container && w.constraints?.minHeight != null,
         ),
       );
-      // 默认紧凑模式单元格最小高度为 44.w（antd-mobile 比例）。
+      // 默认紧凑模式单元格最小高度为 44（antd-mobile 比例，默认因子 1.0）。
       expect(
-        containers.any((c) => c.constraints!.minHeight == 44.w),
+        containers.any((c) => c.constraints!.minHeight == 44),
         isTrue,
       );
     });

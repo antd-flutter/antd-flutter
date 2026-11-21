@@ -14,16 +14,14 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   testWidgets('Popover 受控 open false→true', (tester) async {

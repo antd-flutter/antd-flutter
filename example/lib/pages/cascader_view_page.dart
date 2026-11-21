@@ -70,8 +70,9 @@ class CascaderViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -88,7 +89,7 @@ class CascaderViewPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '默认值（key 数组）',
             child: AntCascaderView<_Region>(
@@ -101,9 +102,9 @@ class CascaderViewPage extends StatelessWidget {
                   debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控模式', child: const _ControlledCascaderView()),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义占位文本',
             child: AntCascaderView<_Region>(
@@ -116,7 +117,7 @@ class CascaderViewPage extends StatelessWidget {
                   debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义选中图标',
             child: AntCascaderView<_Region>(
@@ -124,12 +125,12 @@ class CascaderViewPage extends StatelessWidget {
               keyOf: _keyOf,
               childrenOf: _childrenOf,
               labelBuilder: _labelBuilder,
-              activeIcon: Icon(AntIcons.starFilled, size: 16.sp),
+              activeIcon: Icon(AntIcons.starFilled, size: theme.s(16)),
               onChange: (value, items) =>
                   debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用选项',
             child: AntCascaderView<_Region>(
@@ -142,7 +143,7 @@ class CascaderViewPage extends StatelessWidget {
                   debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'onTabsChange 回调',
             child: AntCascaderView<_Region>(
@@ -155,7 +156,7 @@ class CascaderViewPage extends StatelessWidget {
                   debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义高度',
             child: AntCascaderView<_Region>(
@@ -196,7 +197,7 @@ class _ControlledCascaderViewState extends State<_ControlledCascaderView> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(10)),
           decoration: BoxDecoration(
             color: t.colorFillSecondary,
             borderRadius: BorderRadius.circular(t.borderRadius),
@@ -206,16 +207,16 @@ class _ControlledCascaderViewState extends State<_ControlledCascaderView> {
             children: [
               Text(
                 '当前选择',
-                style: TextStyle(fontSize: 14.sp, color: t.colorText),
+                style: TextStyle(fontSize: t.s(14), color: t.colorText),
               ),
               Text(
                 label,
-                style: TextStyle(fontSize: 14.sp, color: t.colorPrimary),
+                style: TextStyle(fontSize: t.s(14), color: t.colorPrimary),
               ),
             ],
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: t.s(8)),
         AntCascaderView<_Region>(
           dataSource: _regions,
           keyOf: _keyOf,
@@ -239,7 +240,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -251,12 +252,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: t.s(14),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

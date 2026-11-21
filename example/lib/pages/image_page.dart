@@ -8,7 +8,7 @@ class ImagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -16,8 +16,8 @@ class ImagePage extends StatelessWidget {
             title: '基础用法（点击可全屏预览）',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntImage(
                   src: 'https://picsum.photos/id/1015/600/400',
@@ -32,13 +32,13 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '尺寸与圆角',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntImage(
                   src: 'https://picsum.photos/id/1020/600/400',
@@ -61,13 +61,13 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '填充模式 fit',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 _FitDemo(
                   label: 'cover',
@@ -102,13 +102,13 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '预览开关 preview',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntImage(
                   src: 'https://picsum.photos/id/1025/600/400',
@@ -125,7 +125,7 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '预览组 PreviewGroup（多图左右切换）',
             theme: theme,
@@ -149,7 +149,7 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'previewSrc 缩略图与大图分离',
             theme: theme,
@@ -160,13 +160,13 @@ class ImagePage extends StatelessWidget {
               height: 120,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '加载失败',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntImage(
                   src: 'https://invalid.example.com/bad.png',
@@ -176,13 +176,13 @@ class ImagePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 fallback 占位',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntImage(
                   src: 'https://invalid.example.com/bad.png',
@@ -194,7 +194,7 @@ class ImagePage extends StatelessWidget {
                     child: AntText(
                       text: '图片走丢了',
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: theme.s(13),
                         color: theme.colorTextSecondary,
                       ),
                     ),
@@ -234,10 +234,10 @@ class _FitDemo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         child,
-        SizedBox(height: 6.w),
+        SizedBox(height: theme.s(6)),
         AntText(
           text: label,
-          style: TextStyle(fontSize: 12.sp, color: theme.colorTextSecondary),
+          style: TextStyle(fontSize: theme.s(12), color: theme.colorTextSecondary),
         ),
       ],
     );
@@ -260,7 +260,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -272,12 +272,12 @@ class _Section extends StatelessWidget {
           AntText(
             text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

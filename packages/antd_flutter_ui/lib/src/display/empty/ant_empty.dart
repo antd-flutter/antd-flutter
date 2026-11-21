@@ -63,7 +63,7 @@ class AntEmpty extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         imageContent,
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         if (description != null)
           Text(
             description!,
@@ -73,7 +73,7 @@ class AntEmpty extends StatelessWidget {
             ),
           ),
         if (child != null) ...[
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           child!,
         ],
       ],
@@ -84,8 +84,8 @@ class AntEmpty extends StatelessWidget {
     switch (image) {
       case AntEmptyImage.standard:
         return SizedBox(
-          width: 64.w,
-          height: 41.w,
+          width: theme.s(64),
+          height: theme.s(41),
           child: CustomPaint(
             painter: _EmptyPainter(
               borderColor: theme.colorSplit,
@@ -96,15 +96,15 @@ class AntEmpty extends StatelessWidget {
         );
       case AntEmptyImage.simple:
         return Container(
-          width: 64.w,
-          height: 41.w,
+          width: theme.s(64),
+          height: theme.s(41),
           decoration: BoxDecoration(
             color: theme.colorFillSecondary,
             borderRadius: BorderRadius.circular(theme.borderRadius),
           ),
           child: Icon(
             AntIcons.inboxOutlined,
-            size: 24.w,
+            size: theme.s(24),
             color: theme.colorTextQuaternary,
           ),
         );

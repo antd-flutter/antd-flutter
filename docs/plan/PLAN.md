@@ -111,6 +111,11 @@ packages/
   - 每个组件至少一条「用户自定义模型」测试，示例页统一用业务模型（如 `_Person`/`_Region`），不用字符串 Map；
   - 约定细节见 `docs/plan/tasks/data-model-generic-convention.md`，审计清单见 `docs/plan/tasks/data-model-audit.md`。
 
+- R41 **尺寸统一走 AntScale，移除 flutter_screenutil（用户指定，适用于所有包与示例）**：设计稿数值一律包 `theme.s(n)`，主题 token（fontSize/controlHeight/padding/margin/borderRadius/sizeUnit 等）已随因子缩放，**不得再叠加 `.s()`**；禁止 `.w/.h/.sp/.r` 扩展与 `flutter_screenutil` 依赖/导入。
+  - 全局缩放只由 `AntThemeData(scale: AntScale(...))` 决定：默认 `AntScale.none`（1.0），移动端可显式 `AntScale.auto(context)`（短边 375，clamp 0.9–1.2）；桌面不做超宽自动放大。
+  - 新增/修改组件时尺寸写 `t.s(设计值)` 或直接用 token；字号随因子缩放并叠加系统 `MediaQuery.textScaler`。
+  - 方案与迁移记录见 `docs/plan/tasks/screenutil-exit-and-ant-scale.md`。
+
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
 - R30.1 轮子参考清单（实现对应组件时必须先研究该轮子源码）：
@@ -241,6 +246,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **移除 flutter_screenutil，改用 AntScale 统一缩放因子**：新增 `AntScale`/`AntThemeData.s()`，seed 尺寸 token 随因子缩放；全库 2323 处 `.w/.h/.sp/.r` 清零（components/examples/tests），删除 `flutter_screenutil` 依赖与 `AntScreenUtilInit` 实际逻辑（保留 deprecated 直通包装），删除 ScreenUtil 演示页；新增规则 R41。ui 1540、root example 59、21 包与 20 个示例 analyze/test 全绿 |
 | 2026-11-21 | **P09 Calendar 双端拆分立项（排队）**：用户要求按平台各实现一套 UI、功能分别对齐 antd v6 / antd-mobile v5，等全部任务完成后开始；任务书 `P09-calendar-platform-split.md`（C0–C6 分阶段） |
 | 2026-11-21 | **数据参数全面泛型化（破坏性）**：Table/Tree/TreeSelect/Transfer/Picker/Cascader/PickerView/Upload/Select/Radio/Checkbox/CheckList/Selector/Segmented/AutoComplete/Mentions/Slider/ColorPicker/ImageUploader/Tabs 家族/SideBar/IndexBar/Menu/Steps/Anchor/Breadcrumb/List/Timeline/Descriptions/Collapse/Tour/Card 改为 `<T>` + builder 数据源，删除 dataIndex/Ant*Item 强约束；新增规则 R40 与两份任务文档；ui 测试 1540、root example 59、各独立包全绿 |
 | 2026-11-21 | **全库图标迁移 antd_icons_flutter**：58 个库文件 + 53 个测试文件 + 主示例 4 处 Material `Icons.*` 全部替换为 `AntIcons.*`，Table 单选筛选改为自绘圆点，新增规则 R39；11 个依赖图标包的独立包补充 `antd_icons_flutter` 依赖 |

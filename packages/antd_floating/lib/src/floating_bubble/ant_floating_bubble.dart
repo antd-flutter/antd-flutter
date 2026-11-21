@@ -2,7 +2,7 @@
 ///
 /// API 与 antd-mobile 对齐（Flutter 语义化命名）：
 /// - [axis] — x / y / both 可拖拽轴向
-/// - [initialPos] — 初始位置（相对父容器左上角的逻辑像素偏移，.w 缩放）
+/// - [initialPos] — 初始位置（相对父容器左上角的逻辑像素偏移，按缩放因子缩放）
 /// - [constraint] — 是否约束在父容器边界内（默认 true，屏幕内）
 /// - [menu] — 点击展开的菜单项列表（图标 + 文字，弹出列表）
 /// - [onClick] — 无菜单时的点击回调 / 拖拽后的点击
@@ -54,7 +54,7 @@ class AntFloatingBubble extends StatefulWidget {
   /// 可拖拽轴向。
   final AntFloatingBubbleAxis axis;
 
-  /// 初始位置（逻辑像素，内部 .w 缩放）。
+  /// 初始位置（设计逻辑像素，内部按缩放因子缩放）。
   final Offset initialPos;
 
   /// 是否约束在父容器边界内（默认 true）。
@@ -87,11 +87,28 @@ class AntFloatingBubble extends StatefulWidget {
 
 class _AntFloatingBubbleState extends State<AntFloatingBubble>
     implements AntFloatingBubbleControllerDelegate {
-  late Offset _pos = Offset(widget.initialPos.dx.w, widget.initialPos.dy.w);
+  /// 当前缩放因子（build 阶段由主题写入，用于逻辑值到渲染值的换算）。
+  double _scaleFactor = 1.0;
 
-  /// 初始位置（供 Controller resetPosition 使用）。
-  late final Offset _initialPos =
-      Offset(widget.initialPos.dx.w, widget.initialPos.dy.w);
+  late Offset _pos = _scaledInitialPos;
+  late Offset _initialPos = _scaledInitialPos;
+  bool _didInitPos = false;
+
+  Offset get _scaledInitialPos => Offset(
+        widget.initialPos.dx * _scaleFactor,
+        widget.initialPos.dy * _scaleFactor,
+      );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scaleFactor = AntTheme.of(context).scale.factor;
+    if (!_didInitPos) {
+      _didInitPos = true;
+      _pos = _scaledInitialPos;
+      _initialPos = _scaledInitialPos;
+    }
+  }
 
   /// 气泡可见性（Controller show/hide 控制）。
   bool _visible = true;
@@ -131,7 +148,8 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
     widget.controller?._notifyPosition(pos);
   }
 
-  double get _bubbleSizePx => (widget.size ?? _kBubbleSize).w;
+  double get _bubbleSizePx =>
+      (widget.size ?? _kBubbleSize) * _scaleFactor;
 
   bool get _draggableX =>
       widget.axis == AntFloatingBubbleAxis.x ||
@@ -215,7 +233,7 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
       );
     }
     final theme = AntTheme.of(context);
-    final bubbleSize = (widget.size ?? _kBubbleSize).w;
+    final bubbleSize = (widget.size ?? _kBubbleSize) * _scaleFactor;
     final bg = widget.backgroundColor ?? theme.colorPrimary;
 
     // ---- 菜单列表（弹出列于气泡上方）----
@@ -237,7 +255,7 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < actions.length; i++) ...[
-                  if (i > 0) SizedBox(height: _kMenuGap.w),
+                  if (i > 0) SizedBox(height: theme.s(_kMenuGap)),
                   _MenuItem(
                     action: actions[i],
                     theme: theme,
@@ -310,7 +328,7 @@ class _AntFloatingBubbleState extends State<AntFloatingBubble>
                     children: [
                       if (menuPanel != null) ...[
                         menuPanel,
-                        SizedBox(height: _kMenuGap.w),
+                        SizedBox(height: theme.s(_kMenuGap)),
                       ],
                       bubble,
                     ],
@@ -347,10 +365,10 @@ class _MenuItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
+        padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(8)),
         decoration: BoxDecoration(
           color: theme.colorBgContainer,
-          borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           border: Border.all(color: theme.colorBorderSecondary, width: theme.lineWidth),
           boxShadow: theme.boxShadowSecondary,
         ),
@@ -365,12 +383,12 @@ class _MenuItem extends StatelessWidget {
                 ),
                 child: action.icon!,
               ),
-              SizedBox(width: theme.paddingXXS.w),
+              SizedBox(width: theme.paddingXXS),
             ],
             Text(
               action.label,
               style: TextStyle(
-                fontSize: theme.fontSizeSM.sp,
+                fontSize: theme.fontSizeSM,
                 color: theme.colorText,
               ),
             ),

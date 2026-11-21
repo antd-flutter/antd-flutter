@@ -4,13 +4,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -102,7 +100,7 @@ void main() {
             )
             .first,
       );
-      expect(handleBox.height, 60.w);
+      expect(handleBox.height, 60);
     });
 
     testWidgets('自定义 handle 渲染', (tester) async {
@@ -174,7 +172,7 @@ void main() {
       expect(decoration.color, theme.colorBgContainer);
       expect(decoration.boxShadow, isNotEmpty);
       final radius = decoration.borderRadius! as BorderRadius;
-      expect(radius.topLeft.x, 16.r);
+      expect(radius.topLeft.x, 16);
       expect(radius.bottomLeft.x, 0);
     });
 
@@ -185,7 +183,7 @@ void main() {
         find.byKey(kAntFloatingPanelContentKey),
       );
       // 初始高度 360，把手 28 → 内容区 332。
-      expect(contentSize.height, closeTo(360 - 28.w, 1));
+      expect(contentSize.height, closeTo(360 - 28, 1));
     });
 
     testWidgets('内容列表可滚动', (tester) async {
@@ -194,8 +192,7 @@ void main() {
           _defaultPanel(
             child: ListView.builder(
               itemCount: 50,
-              itemBuilder: (_, int index) =>
-                  ListTile(title: Text('项目 $index')),
+              itemBuilder: (_, int index) => ListTile(title: Text('项目 $index')),
             ),
           ),
         ),

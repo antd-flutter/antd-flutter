@@ -25,16 +25,14 @@ Finder findDialogCard() => find.byKey(kAntDialogCardKey);
 Finder findDrawerPanel() => find.byKey(kAntDrawerPanelKey);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {

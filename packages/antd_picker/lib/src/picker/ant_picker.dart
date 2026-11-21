@@ -299,7 +299,7 @@ class _PickerSheetState<T> extends State<_PickerSheet<T>> {
       children: [
         // Header
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(16), vertical: t.s(10)),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(color: t.colorSplit, width: 1),

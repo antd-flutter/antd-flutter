@@ -49,16 +49,14 @@ TextStyle? _effectiveStyle(WidgetTester tester, String text) {
   return paragraph.text.style;
 }
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntSideBar — 渲染', () {

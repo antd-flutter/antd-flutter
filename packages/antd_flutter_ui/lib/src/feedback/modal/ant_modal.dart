@@ -322,14 +322,14 @@ class _ModalOverlayState extends State<_ModalOverlay> {
     final card = Container(
       key: kAntModalCardKey,
       width: config.width,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(theme.s(24)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
         boxShadow: [
           BoxShadow(
             color: theme.colorShadow.withValues(alpha: 0.2),
-            blurRadius: 24.r,
+            blurRadius: theme.s(24),
             offset: const Offset(0, 8),
           ),
         ],
@@ -346,7 +346,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
                     ? Text(
                         config.title!,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: theme.s(16),
                           fontWeight: FontWeight.w600,
                           color: theme.colorTextHeading,
                         ),
@@ -362,14 +362,14 @@ class _ModalOverlayState extends State<_ModalOverlay> {
                     behavior: HitTestBehavior.opaque,
                     child: Icon(
                       AntIcons.closeOutlined,
-                      size: 16.w,
+                      size: theme.s(16),
                       color: theme.colorTextSecondary,
                     ),
                   ),
                 ),
             ],
           ),
-          if (config.title != null) SizedBox(height: 12.w),
+          if (config.title != null) SizedBox(height: theme.s(12)),
           if (config.content != null)
             DefaultTextStyle(
               style: TextStyle(
@@ -378,7 +378,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
               ),
               child: config.content!,
             ),
-          SizedBox(height: 24.w),
+          SizedBox(height: theme.s(24)),
           if (config.useDefaultFooter) _buildDefaultFooter(theme, config),
           if (config.footerHidden)
             const SizedBox.shrink()
@@ -400,7 +400,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
       escToClose: true,
       open: _open,
       alignment: config.centered ? Alignment.center : Alignment.topCenter,
-      padding: config.centered ? EdgeInsets.zero : EdgeInsets.only(top: 100.w),
+      padding: config.centered ? EdgeInsets.zero : EdgeInsets.only(top: theme.s(100)),
       maskKey: kAntModalMaskKey,
       onMaskTap: config.maskClosable ? () => _handleCancel() : null,
       maskClosable: true,
@@ -420,7 +420,7 @@ class _ModalOverlayState extends State<_ModalOverlay> {
           onTap: () => _handleCancel(),
           child: Text(config.cancelText),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: theme.s(8)),
         AntButton(
           key: kAntModalOkButtonKey,
           type: AntButtonType.primary,

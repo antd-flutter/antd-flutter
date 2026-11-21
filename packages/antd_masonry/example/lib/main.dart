@@ -46,9 +46,7 @@ class _AntdMasonryGalleryAppState extends State<AntdMasonryGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'AntdMasonry Demo',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -85,26 +83,26 @@ class _AntdMasonryGalleryAppState extends State<AntdMasonryGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget _sectionBody(
       BuildContext pageContext, AntLayoutData layout, int index) {
+    final theme = AntTheme.of(pageContext);
     final isWide = layout.width >= 768 ||
         layout.breakpoint == AntBreakpoint.lg ||
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in _sectionCards(context, index))
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 560.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(560)),
                     child: _sectionCard(pageContext, card.$1, card.$2, card.$3),
                   ),
               ],
@@ -113,7 +111,7 @@ class _AntdMasonryGalleryAppState extends State<AntdMasonryGalleryApp> {
               children: [
                 for (final card in _sectionCards(context, index))
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child:
                         _sectionCard(pageContext, card.$1, card.$2, card.$3),
                   ),
@@ -276,8 +274,8 @@ class _IncrementalSectionState extends State<_IncrementalSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             FilledButton(onPressed: _loadMore, child: const Text('加载 6 条')),
             OutlinedButton(
@@ -286,10 +284,10 @@ class _IncrementalSectionState extends State<_IncrementalSection> {
             ),
           ],
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         Text('当前 ${_items.length} 条',
-            style: TextStyle(fontSize: 13.sp, color: theme.colorTextSecondary)),
-        SizedBox(height: 8.w),
+            style: TextStyle(fontSize: theme.s(13), color: theme.colorTextSecondary)),
+        SizedBox(height: theme.s(8)),
         AntMasonry(
           columns: 3,
           gutter: 10,
@@ -381,7 +379,7 @@ class _Tile extends StatelessWidget {
         border: Border.all(color: theme.colorSplit),
       ),
       alignment: Alignment.center,
-      child: Text(label, style: TextStyle(fontSize: 14.sp)),
+      child: Text(label, style: TextStyle(fontSize: theme.s(14))),
     );
   }
 }
@@ -392,7 +390,7 @@ Widget _sectionCard(
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
+    padding: EdgeInsets.all(theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -402,15 +400,15 @@ Widget _sectionCard(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 4.w),
+          padding: EdgeInsets.only(bottom: theme.s(4)),
           child: Text(title,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15))),
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: 12.w),
+          padding: EdgeInsets.only(bottom: theme.s(12)),
           child: Text(desc,
               style: TextStyle(
-                  fontSize: 12.sp, color: theme.colorTextSecondary)),
+                  fontSize: theme.s(12), color: theme.colorTextSecondary)),
         ),
         child,
       ],

@@ -55,17 +55,17 @@ class _CheckboxBox extends StatelessWidget {
         : (checked || indeterminate ? t.colorPrimary : t.colorBgContainer);
 
     return Container(
-      width: size.w,
-      height: size.w,
+      width: t.s(size),
+      height: t.s(size),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(t.borderRadiusSM.w),
-        border: Border.all(color: borderColor, width: 1.w),
+        borderRadius: BorderRadius.circular(t.borderRadiusSM),
+        border: Border.all(color: borderColor, width: t.s(1)),
       ),
       child: checked || indeterminate
           ? Icon(
               indeterminate ? AntIcons.minusOutlined : AntIcons.checkOutlined,
-              size: size.w * 0.75,
+              size: t.s(size) * 0.75,
               color: disabled ? t.colorTextDisabled : Colors.white,
             )
           : null,
@@ -198,10 +198,10 @@ class _AntCheckboxState extends State<AntCheckbox> {
             size: 16,
             theme: t,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: t.s(8)),
           Flexible(
             child: DefaultTextStyle(
-              style: TextStyle(fontSize: t.fontSize.sp, color: textColor),
+              style: TextStyle(fontSize: t.fontSize, color: textColor),
               child: widget.child,
             ),
           ),
@@ -396,15 +396,15 @@ class _AntCheckboxGroupState<T> extends State<AntCheckboxGroup<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < items.length; i++) ...[
-            if (i > 0) SizedBox(height: 8.w),
+            if (i > 0) SizedBox(height: t.s(8)),
             items[i],
           ],
         ],
       );
     }
     return Wrap(
-      spacing: 12.w,
-      runSpacing: 8.w,
+      spacing: t.s(12),
+      runSpacing: t.s(8),
       children: items,
     );
   }
@@ -417,15 +417,15 @@ class _AntCheckboxGroupState<T> extends State<AntCheckboxGroup<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < widget.children!.length; i++) ...[
-            if (i > 0) SizedBox(height: 8.w),
+            if (i > 0) SizedBox(height: t.s(8)),
             widget.children![i],
           ],
         ],
       );
     }
     return Wrap(
-      spacing: 12.w,
-      runSpacing: 8.w,
+      spacing: t.s(12),
+      runSpacing: t.s(8),
       children: widget.children!,
     );
   }
@@ -471,10 +471,10 @@ class _GroupCheckboxItem<T> extends StatelessWidget {
             size: 16,
             theme: t,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: t.s(8)),
           Flexible(
             child: DefaultTextStyle(
-              style: TextStyle(fontSize: t.fontSize.sp, color: textColor),
+              style: TextStyle(fontSize: t.fontSize, color: textColor),
               child: child,
             ),
           ),

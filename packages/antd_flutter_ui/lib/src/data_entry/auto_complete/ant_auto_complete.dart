@@ -333,7 +333,7 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
         widget.allowClear && _currentValue.isNotEmpty && !widget.disabled;
 
     final inputSize = _inputSize;
-    final fieldHeight = antFieldHeightOf(t, inputSize).w;
+    final fieldHeight = t.s(antFieldHeightOf(t, inputSize));
     final isMobile = MediaQuery.sizeOf(context).width < 768;
     final textSize = _textSizeOf(t, inputSize, isMobile);
 
@@ -353,7 +353,7 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
         ),
         // embedded 装饰器无固有偏移：marginSM+4 → 字形内缩 17.3，与 Input 家族
         // （standalone marginSM + 4.33 固有偏移）字形对齐，基座单点标准
-        padding: EdgeInsets.symmetric(horizontal: t.marginSM.w + 4),
+        padding: EdgeInsets.symmetric(horizontal: t.marginSM + 4),
         child: Row(
           children: [
             Expanded(
@@ -374,7 +374,7 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
                 onTap: _clear,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 4.w),
+                  padding: EdgeInsets.only(left: t.s(4)),
                   child: Icon(
                     AntIcons.closeCircleFilled,
                     size: 14,
@@ -384,7 +384,7 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
               )
             else if (_open)
               Padding(
-                padding: EdgeInsets.only(left: 4.w),
+                padding: EdgeInsets.only(left: t.s(4)),
                 child: Icon(
                   AntIcons.upOutlined,
                   size: 14,
@@ -393,7 +393,7 @@ class _AntAutoCompleteState<T> extends State<AntAutoComplete<T>>
               )
             else
               Padding(
-                padding: EdgeInsets.only(left: 4.w),
+                padding: EdgeInsets.only(left: t.s(4)),
                 child: Icon(
                   AntIcons.searchOutlined,
                   size: 14,
@@ -463,7 +463,7 @@ class _AutoCompleteOverlay<T> extends StatelessWidget {
       return Container(
         key: const Key('ant_auto_complete_panel'),
         width: triggerWidth > 120 ? triggerWidth : 120,
-        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+        padding: EdgeInsets.symmetric(vertical: t.s(8), horizontal: t.s(12)),
         decoration: BoxDecoration(
           color: t.colorBgContainer,
           borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -485,7 +485,7 @@ class _AutoCompleteOverlay<T> extends StatelessWidget {
     return Container(
       key: const Key('ant_auto_complete_panel'),
       width: triggerWidth > 120 ? triggerWidth : 120,
-      constraints: BoxConstraints(maxHeight: 256.h),
+      constraints: BoxConstraints(maxHeight: t.s(256)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -511,7 +511,7 @@ class _AutoCompleteOverlay<T> extends StatelessWidget {
                 ? itemBuilder!(context, option, index)
                 : Container(
                     padding:
-                        EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                        EdgeInsets.symmetric(vertical: t.s(8), horizontal: t.s(12)),
                     color: disabled
                         ? t.colorFillSecondary.withValues(alpha: 0.3)
                         : isHighlighted

@@ -8,18 +8,18 @@ class EmptyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(title: '基础用法', theme: theme, child: const AntEmpty()),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义描述',
             theme: theme,
             child: const AntEmpty(description: '没有找到相关结果'),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '简单样式',
             theme: theme,
@@ -28,7 +28,7 @@ class EmptyPage extends StatelessWidget {
               image: AntEmptyImage.simple,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义图片',
             theme: theme,
@@ -36,18 +36,18 @@ class EmptyPage extends StatelessWidget {
               description: '自定义图标',
               imageWidget: AntdIcon(
                 AntIcons.searchOutlined,
-                size: 64.w,
+                size: theme.s(64),
                 color: theme.colorTextQuaternary,
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无描述',
             theme: theme,
             child: const AntEmpty(description: null),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带操作按钮',
             theme: theme,
@@ -86,7 +86,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -98,12 +98,12 @@ class _Section extends StatelessWidget {
           AntText(
             text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           Center(child: child),
         ],
       ),

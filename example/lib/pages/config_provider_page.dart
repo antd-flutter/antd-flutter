@@ -17,7 +17,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,7 +31,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
                   checked: _dark,
                   onChange: (v) => setState(() => _dark = v),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntConfigProvider(
                   antdTheme: _dark ? AntThemeData.dark() : AntThemeData.light(),
                   child: _ThemeCard(),
@@ -39,7 +39,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'RTL 方向',
             theme: theme,
@@ -47,7 +47,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Wrap(
-                  spacing: 8.w,
+                  spacing: theme.s(8),
                   children: [
                     AntButton(
                       type: _direction == AntConfigDirection.ltr
@@ -67,12 +67,12 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntConfigProvider(
                   direction: _direction,
                   child: Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(8.w),
+                    padding: EdgeInsets.all(theme.s(8)),
                     color: theme.colorFillQuaternary,
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,7 +83,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'locale 自定义文案',
             theme: theme,
@@ -97,7 +97,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('语言码：${zh.languageCode}'),
-                    SizedBox(height: 4.w),
+                    SizedBox(height: theme.s(4)),
                     AntConfigProvider(
                       locale: zh,
                       child: Builder(
@@ -112,7 +112,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
               },
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '嵌套覆盖',
             theme: theme,
@@ -134,7 +134,7 @@ class _ConfigProviderPageState extends State<ConfigProviderPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '默认值',
             theme: theme,
@@ -162,7 +162,7 @@ class _ThemeCard extends StatelessWidget {
     final theme = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -179,12 +179,12 @@ class _ThemeCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 4.w),
+          SizedBox(height: theme.s(4)),
           Text(
             '主色即当前 ConfigProvider 注入的 antdTheme 主色',
             style: TextStyle(color: theme.colorTextSecondary),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           AntTag(child: '主色标签', color: AntTagColor.processing),
         ],
       ),
@@ -207,7 +207,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -224,7 +224,7 @@ class _Section extends StatelessWidget {
               color: theme.colorTextHeading,
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           child,
         ],
       ),

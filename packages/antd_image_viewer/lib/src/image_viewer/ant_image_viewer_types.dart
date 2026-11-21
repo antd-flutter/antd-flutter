@@ -63,10 +63,10 @@ class AntImageViewerDefaults {
   static Widget defaultPlaceholder(AntThemeData theme) {
     return Center(
       child: SizedBox(
-        width: 24.w,
-        height: 24.w,
+        width: theme.s(24),
+        height: theme.s(24),
         child: CircularProgressIndicator(
-          strokeWidth: 2.w,
+          strokeWidth: theme.s(2),
           color: theme.colorPrimary,
         ),
       ),
@@ -80,13 +80,13 @@ class AntImageViewerDefaults {
       children: [
         Icon(
           AntIcons.pictureOutlined,
-          size: 48.w,
+          size: theme.s(48),
           color: Colors.white70,
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           '图片加载失败',
-          style: TextStyle(fontSize: 14.sp, color: Colors.white70),
+          style: TextStyle(fontSize: theme.s(14), color: Colors.white70),
         ),
       ],
     );

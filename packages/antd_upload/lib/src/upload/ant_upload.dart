@@ -237,7 +237,7 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
       children: [
         _buildTrigger(t),
         if (widget.showUploadList && visibleFiles.isNotEmpty) ...[
-          SizedBox(height: 8.h),
+          SizedBox(height: t.s(8)),
           _buildFileList(context, t, visibleFiles),
         ],
       ],
@@ -249,8 +249,8 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
       return GestureDetector(
         onTap: widget.disabled || _reachedMaxCount ? null : _handleSelect,
         child: Container(
-          width: 80.w,
-          height: 80.w,
+          width: t.s(80),
+          height: t.s(80),
           decoration: BoxDecoration(
             color: widget.disabled
                 ? t.colorBgContainerDisabled
@@ -258,23 +258,23 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
             border: Border.all(
               color: widget.disabled ? t.colorBorder : t.colorSplit,
             ),
-            borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+            borderRadius: BorderRadius.circular(t.borderRadiusSM),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 widget.uploadButtonIcon ?? AntIcons.plusOutlined,
-                size: 24.r,
+                size: t.s(24),
                 color:
                     widget.disabled ? t.colorTextDisabled : t.colorTextTertiary,
               ),
               if (widget.uploadButtonText != null) ...[
-                SizedBox(height: 4.h),
+                SizedBox(height: t.s(4)),
                 Text(
                   widget.uploadButtonText!,
                   style: TextStyle(
-                    fontSize: t.fontSizeSM.sp,
+                    fontSize: t.fontSizeSM,
                     color: widget.disabled
                         ? t.colorTextDisabled
                         : t.colorTextTertiary,
@@ -291,7 +291,7 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
       onTap: widget.disabled || _reachedMaxCount ? null : _handleSelect,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: 16.w,
+          horizontal: t.s(16),
           vertical: (t.controlHeight - t.fontSizeLG) / 2,
         ),
         decoration: BoxDecoration(
@@ -300,21 +300,21 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
           border: Border.all(
             color: widget.disabled ? t.colorBorder : t.colorPrimary,
           ),
-          borderRadius: BorderRadius.circular(t.borderRadius.r),
+          borderRadius: BorderRadius.circular(t.borderRadius),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               widget.uploadButtonIcon ?? AntIcons.uploadOutlined,
-              size: 16.r,
+              size: t.s(16),
               color: widget.disabled ? t.colorTextDisabled : t.colorPrimary,
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: t.s(8)),
             Text(
               widget.uploadButtonText ?? '上传',
               style: TextStyle(
-                fontSize: t.fontSize.sp,
+                fontSize: t.fontSize,
                 color: widget.disabled ? t.colorTextDisabled : t.colorPrimary,
               ),
             ),
@@ -336,15 +336,15 @@ class _AntUploadState<T> extends State<AntUpload<T>> {
           itemBuilder(context, files[i], i),
       ];
       if (widget.listType == AntUploadListType.pictureCard) {
-        return Wrap(spacing: 8.w, runSpacing: 8.h, children: items);
+        return Wrap(spacing: t.s(8), runSpacing: t.s(8), children: items);
       }
       return Column(children: items);
     }
 
     if (widget.listType == AntUploadListType.pictureCard) {
       return Wrap(
-        spacing: 8.w,
-        runSpacing: 8.h,
+        spacing: t.s(8),
+        runSpacing: t.s(8),
         children: [
           for (final file in files)
             _PictureCardItem<T>(
@@ -399,29 +399,29 @@ class _FileListItem<T> extends StatelessWidget {
     final isUploading = file.status == AntUploadStatus.uploading;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(vertical: t.s(4)),
       child: Row(
         children: [
           // 图片缩略图（picture 模式）
           if (listType == AntUploadListType.picture) ...[
             _buildThumb(t),
-            SizedBox(width: 8.w),
+            SizedBox(width: t.s(8)),
           ],
           // 状态图标
           if (isUploading)
             SizedBox(
-              width: 16.r,
-              height: 16.r,
+              width: t.s(16),
+              height: t.s(16),
               child: CircularProgressIndicator(
-                strokeWidth: 2.r,
+                strokeWidth: t.s(2),
                 color: t.colorPrimary,
               ),
             )
           else if (isError)
-            Icon(AntIcons.closeOutlined, size: 16.r, color: t.colorError)
+            Icon(AntIcons.closeOutlined, size: t.s(16), color: t.colorError)
           else
-            Icon(AntIcons.checkCircleFilled, size: 16.r, color: t.colorPrimary),
-          SizedBox(width: 8.w),
+            Icon(AntIcons.checkCircleFilled, size: t.s(16), color: t.colorPrimary),
+          SizedBox(width: t.s(8)),
           // 文件名
           Expanded(
             child: GestureDetector(
@@ -431,7 +431,7 @@ class _FileListItem<T> extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: isError
                       ? t.colorError
                       : disabled
@@ -449,10 +449,10 @@ class _FileListItem<T> extends StatelessWidget {
             GestureDetector(
               onTap: onRemove,
               child: Padding(
-                padding: EdgeInsets.only(left: 8.w),
+                padding: EdgeInsets.only(left: t.s(8)),
                 child: Icon(
                   AntIcons.closeOutlined,
-                  size: 16.r,
+                  size: t.s(16),
                   color: t.colorTextTertiary,
                 ),
               ),
@@ -465,11 +465,11 @@ class _FileListItem<T> extends StatelessWidget {
   Widget _buildThumb(AntThemeData t) {
     if (file.thumbUrl != null || file.url != null) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+        borderRadius: BorderRadius.circular(t.borderRadiusSM),
         child: Image.network(
           file.thumbUrl ?? file.url!,
-          width: 40.w,
-          height: 40.w,
+          width: t.s(40),
+          height: t.s(40),
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => _placeholderThumb(t),
         ),
@@ -480,15 +480,15 @@ class _FileListItem<T> extends StatelessWidget {
 
   Widget _placeholderThumb(AntThemeData t) {
     return Container(
-      width: 40.w,
-      height: 40.w,
+      width: t.s(40),
+      height: t.s(40),
       decoration: BoxDecoration(
         color: t.colorFillSecondary,
-        borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+        borderRadius: BorderRadius.circular(t.borderRadiusSM),
       ),
       child: Icon(
         AntIcons.pictureOutlined,
-        size: 20.r,
+        size: t.s(20),
         color: t.colorTextQuaternary,
       ),
     );
@@ -518,14 +518,14 @@ class _PictureCardItem<T> extends StatelessWidget {
     final isError = file.status == AntUploadStatus.error;
 
     return SizedBox(
-      width: 80.w,
-      height: 80.w,
+      width: t.s(80),
+      height: t.s(80),
       child: Stack(
         children: [
           // 图片或占位
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+              borderRadius: BorderRadius.circular(t.borderRadiusSM),
               child: (file.thumbUrl != null || file.url != null)
                   ? Image.network(
                       file.thumbUrl ?? file.url!,
@@ -541,7 +541,7 @@ class _PictureCardItem<T> extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+                  borderRadius: BorderRadius.circular(t.borderRadiusSM),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -549,20 +549,20 @@ class _PictureCardItem<T> extends StatelessWidget {
                     Text(
                       '${file.percent}%',
                       style: TextStyle(
-                        fontSize: t.fontSizeSM.sp,
+                        fontSize: t.fontSizeSM,
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: t.s(4)),
                     SizedBox(
-                      width: 48.w,
+                      width: t.s(48),
                       child: LinearProgressIndicator(
                         value: file.percent / 100,
                         backgroundColor: Colors.white24,
                         valueColor:
                             const AlwaysStoppedAnimation<Color>(Colors.white),
-                        minHeight: 2.h,
+                        minHeight: t.s(2),
                       ),
                     ),
                   ],
@@ -575,12 +575,12 @@ class _PictureCardItem<T> extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(t.borderRadiusSM.r),
+                  borderRadius: BorderRadius.circular(t.borderRadiusSM),
                 ),
                 child: Icon(
                   AntIcons.exclamationCircleOutlined,
                   color: Colors.white,
-                  size: 24.r,
+                  size: t.s(24),
                 ),
               ),
             ),
@@ -592,14 +592,14 @@ class _PictureCardItem<T> extends StatelessWidget {
               child: GestureDetector(
                 onTap: onRemove,
                 child: Container(
-                  padding: EdgeInsets.all(2.r),
+                  padding: EdgeInsets.all(t.s(2)),
                   decoration: const BoxDecoration(
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     AntIcons.closeOutlined,
-                    size: 14.r,
+                    size: t.s(14),
                     color: Colors.white,
                   ),
                 ),
@@ -623,7 +623,7 @@ class _PictureCardItem<T> extends StatelessWidget {
       color: t.colorFillSecondary,
       child: Icon(
         AntIcons.pictureOutlined,
-        size: 24.r,
+        size: t.s(24),
         color: t.colorTextQuaternary,
       ),
     );

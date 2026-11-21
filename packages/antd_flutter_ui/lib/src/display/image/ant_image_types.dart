@@ -37,7 +37,7 @@ class AntImageDefaults {
   static Widget defaultPlaceholder(AntThemeData theme) {
     return Center(
       child: AntLoading(
-        size: 24.w,
+        size: theme.s(24),
         color: theme.colorPrimary,
       ),
     );
@@ -48,20 +48,20 @@ class AntImageDefaults {
     return Container(
       color: theme.colorFillSecondary,
       alignment: Alignment.center,
-      padding: EdgeInsets.all(8.w),
+      padding: EdgeInsets.all(theme.s(8)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             AntIcons.pictureOutlined,
-            size: 24.w,
+            size: theme.s(24),
             color: theme.colorTextQuaternary,
           ),
-          SizedBox(height: 4.w),
+          SizedBox(height: theme.s(4)),
           Text(
             errorText,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: theme.s(12),
               color: theme.colorTextQuaternary,
             ),
           ),

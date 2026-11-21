@@ -50,11 +50,9 @@ Future<List<FlutterErrorDetails>> pumpDemoPage(
   FlutterError.onError = (details) => errors.add(details);
   try {
     await tester.pumpWidget(
-      AntScreenUtilInit(
-        builder: (context, _) => AntResponsiveInit(
-          builder: (context, data, child) => MaterialApp(
-            home: Scaffold(body: ComponentPage(snakeName: snakeName)),
-          ),
+      AntResponsiveInit(
+        builder: (context, data, child) => MaterialApp(
+          home: Scaffold(body: ComponentPage(snakeName: snakeName)),
         ),
       ),
     );

@@ -8,16 +8,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {
@@ -283,8 +281,7 @@ double _backTopOpacity(WidgetTester tester) {
 
 /// BackTop 测试专用包装 — 可滚动列表 + 右下角回到顶部按钮。
 Widget _backTopWrap(ScrollController controller, {VoidCallback? onClick}) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
@@ -310,6 +307,5 @@ Widget _backTopWrap(ScrollController controller, {VoidCallback? onClick}) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }

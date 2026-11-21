@@ -175,7 +175,7 @@ class _AntDatePickerState extends State<AntDatePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final height = _controlHeight.w;
+    final height = theme.s(_controlHeight);
     final open = _currentOpen;
     final value = _currentValue;
 
@@ -188,42 +188,42 @@ class _AntDatePickerState extends State<AntDatePicker> {
         child: Container(
           key: _fieldKey,
           height: height,
-          padding: EdgeInsets.symmetric(horizontal: theme.marginSM.w),
+          padding: EdgeInsets.symmetric(horizontal: theme.marginSM),
           decoration: BoxDecoration(
             color: widget.disabled
                 ? theme.colorBgContainerDisabled
                 : theme.colorBgContainer,
-            borderRadius: BorderRadius.circular(theme.borderRadius.w),
+            borderRadius: BorderRadius.circular(theme.borderRadius),
             border: Border.all(
               color: open && !widget.disabled
                   ? theme.controlOutline
                   : theme.colorBorder,
               width:
-                  open && !widget.disabled ? theme.controlOutlineWidth.w : 1.w,
+                  open && !widget.disabled ? theme.controlOutlineWidth : theme.s(1),
             ),
           ),
           child: Row(
             children: [
               Icon(
                 AntIcons.calendarOutlined,
-                size: 14.w,
+                size: theme.s(14),
                 color: widget.disabled
                     ? theme.colorTextDisabled
                     : theme.colorTextSecondary,
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
               Expanded(
                 child: value == null
                     ? Text(
                         widget.placeholder ?? '请选择日期',
                         style: TextStyle(
-                          fontSize: theme.fontSize.sp,
+                          fontSize: theme.fontSize,
                           color: theme.colorTextPlaceholder,
                         ),
                       )
                     : DefaultTextStyle.merge(
                         style: TextStyle(
-                          fontSize: theme.fontSize.sp,
+                          fontSize: theme.fontSize,
                           color: theme.colorText,
                         ),
                         child: widget.labelBuilder?.call(context, value) ??
@@ -235,14 +235,14 @@ class _AntDatePickerState extends State<AntDatePicker> {
                   onTap: _handleClear,
                   child: Icon(
                     AntIcons.closeCircleFilled,
-                    size: 14.w,
+                    size: theme.s(14),
                     color: theme.colorTextPlaceholder,
                   ),
                 )
               else
                 Icon(
                   AntIcons.downOutlined,
-                  size: 14.w,
+                  size: theme.s(14),
                   color: widget.disabled
                       ? theme.colorTextDisabled
                       : theme.colorTextSecondary,
@@ -321,11 +321,11 @@ class _DatePickerOverlay extends StatelessWidget {
       placement: AntPopupPlacement.bottomLeft,
       onDismiss: onDismiss,
       child: Container(
-        width: 280.w,
-        padding: EdgeInsets.all(12.w),
+        width: theme.s(280),
+        padding: EdgeInsets.all(theme.s(12)),
         decoration: BoxDecoration(
           color: theme.colorBgContainer,
-          borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           border: Border.all(color: theme.colorSplit),
           boxShadow: [
             BoxShadow(
@@ -352,7 +352,7 @@ class _DatePickerOverlay extends StatelessWidget {
                 Text(
                   '$year年$month月',
                   style: TextStyle(
-                    fontSize: theme.fontSize.sp,
+                    fontSize: theme.fontSize,
                     fontWeight: FontWeight.w600,
                     color: theme.colorText,
                   ),
@@ -366,7 +366,7 @@ class _DatePickerOverlay extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8.w),
+            SizedBox(height: theme.s(8)),
             // 星期表头
             Row(
               children: _weekdays
@@ -376,7 +376,7 @@ class _DatePickerOverlay extends StatelessWidget {
                         child: Text(
                           w,
                           style: TextStyle(
-                            fontSize: theme.fontSizeSM.sp,
+                            fontSize: theme.fontSizeSM,
                             color: theme.colorTextTertiary,
                           ),
                         ),
@@ -385,14 +385,14 @@ class _DatePickerOverlay extends StatelessWidget {
                   )
                   .toList(),
             ),
-            SizedBox(height: 4.w),
+            SizedBox(height: theme.s(4)),
             // 日期网格
             GridView.count(
               crossAxisCount: 7,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 2.w,
-              crossAxisSpacing: 2.w,
+              mainAxisSpacing: theme.s(2),
+              crossAxisSpacing: theme.s(2),
               childAspectRatio: 1,
               children: dayCells,
             ),
@@ -430,16 +430,16 @@ class _DayCell extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: selected ? t.colorPrimary : Colors.transparent,
-          borderRadius: BorderRadius.circular(t.borderRadius.w),
+          borderRadius: BorderRadius.circular(t.borderRadius),
           border: isToday && !selected
-              ? Border.all(color: t.colorPrimary, width: 1.w)
+              ? Border.all(color: t.colorPrimary, width: theme.s(1))
               : null,
         ),
         child: Center(
           child: Text(
             '$day',
             style: TextStyle(
-              fontSize: t.fontSizeSM.sp,
+              fontSize: t.fontSizeSM,
               color: selected
                   ? Colors.white
                   : isToday
@@ -473,14 +473,14 @@ class _NavButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 28.w,
-        height: 28.w,
+        width: theme.s(28),
+        height: theme.s(28),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(theme.borderRadius.w),
+          borderRadius: BorderRadius.circular(theme.borderRadius),
         ),
         child: Icon(
           icon,
-          size: 18.w,
+          size: theme.s(18),
           color: theme.colorTextSecondary,
         ),
       ),

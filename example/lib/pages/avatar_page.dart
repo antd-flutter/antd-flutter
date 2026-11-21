@@ -8,7 +8,7 @@ class AvatarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,39 +18,39 @@ class AvatarPage extends StatelessWidget {
             child: Row(
               children: [
                 AntAvatar(child: 'A'),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(child: 'U', backgroundColor: Colors.blueGrey),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(icon: const Icon(AntIcons.userOutlined)),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '尺寸',
             theme: theme,
             child: Row(
               children: [
                 AntAvatar(child: 'L', presetSize: AntAvatarSize.large),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(child: 'D'),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(child: 'S', presetSize: AntAvatarSize.small),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(child: '64', size: 64),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '形状',
             theme: theme,
             child: Row(
               children: [
                 AntAvatar(child: 'C', shape: AntAvatarShape.circle),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(child: 'S', shape: AntAvatarShape.square),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(
                   icon: const Icon(AntIcons.userOutlined),
                   shape: AntAvatarShape.square,
@@ -58,13 +58,13 @@ class AvatarPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '文字头像',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 AntAvatar(child: '张'),
                 AntAvatar(child: '李四', backgroundColor: Colors.green),
@@ -73,7 +73,7 @@ class AvatarPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '头像组',
             theme: theme,
@@ -89,7 +89,7 @@ class AvatarPage extends StatelessWidget {
                     AntAvatar(child: 'D', backgroundColor: Colors.purple),
                   ],
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntAvatarGroup(
                   spacing: -8,
                   maxCount: 3,
@@ -101,7 +101,7 @@ class AvatarPage extends StatelessWidget {
                     AntAvatar(child: 'E', backgroundColor: Colors.teal),
                   ],
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntAvatarGroup(
                   spacing: 8,
                   children: [
@@ -112,7 +112,7 @@ class AvatarPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '图片头像',
             theme: theme,
@@ -121,14 +121,14 @@ class AvatarPage extends StatelessWidget {
                 AntAvatar(
                   src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                 ),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(
                   src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
                   shape: AntAvatarShape.square,
                 ),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(src: 'assets/avatar_demo.png'),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntAvatar(
                   src: 'https://invalid.example.com/bad.png',
                   onError: () {
@@ -160,7 +160,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -172,12 +172,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

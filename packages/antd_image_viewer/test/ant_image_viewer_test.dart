@@ -10,17 +10,15 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 const String kMissingAsset = 'assets/images/not_exist.png';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Stack(
-            children: [
-              const Text('页面内容'),
-              child,
-            ],
-          ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Stack(
+          children: [
+            const Text('页面内容'),
+            child,
+          ],
         ),
       ),
     ),
@@ -68,12 +66,14 @@ class _HostState extends State<_Host> {
 void main() {
   group('AntImageViewer', () {
     testWidgets('open=true shows mask and first image', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset, kMissingAsset],
-          open: true,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset, kMissingAsset],
+            open: true,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       // 暗色遮罩 + 图片渲染组件存在，页面底层内容仍在其下。
       expect(find.byType(Material), findsWidgets);
@@ -85,47 +85,55 @@ void main() {
     });
 
     testWidgets('open=false shows nothing', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset, kMissingAsset],
-          open: false,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset, kMissingAsset],
+            open: false,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       expect(find.byType(InteractiveViewer), findsNothing);
       expect(find.byType(PageView), findsNothing);
     });
 
     testWidgets('multi images show page indicator', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset, kMissingAsset, kMissingAsset],
-          open: true,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset, kMissingAsset, kMissingAsset],
+            open: true,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       expect(find.text('1 / 3'), findsOneWidget);
     });
 
     testWidgets('defaultIndex sets initial page', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset, kMissingAsset, kMissingAsset],
-          open: true,
-          defaultIndex: 1,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset, kMissingAsset, kMissingAsset],
+            open: true,
+            defaultIndex: 1,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
       expect(find.text('2 / 3'), findsOneWidget);
     });
 
     testWidgets('swipe left updates page indicator', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset, kMissingAsset, kMissingAsset],
-          open: true,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset, kMissingAsset, kMissingAsset],
+            open: true,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       await tester.fling(find.byType(PageView), const Offset(-600, 0), 2000);
@@ -163,13 +171,15 @@ void main() {
 
     testWidgets('close button triggers onClose', (tester) async {
       var closed = false;
-      await tester.pumpWidget(_wrap(
-        AntImageViewer(
-          images: const [kMissingAsset],
-          open: true,
-          onClose: () => closed = true,
+      await tester.pumpWidget(
+        _wrap(
+          AntImageViewer(
+            images: const [kMissingAsset],
+            open: true,
+            onClose: () => closed = true,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(AntIcons.closeOutlined));
@@ -178,13 +188,15 @@ void main() {
     });
 
     testWidgets('InteractiveViewer respects maxZoomRatio', (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset],
-          open: true,
-          maxZoomRatio: 4.5,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset],
+            open: true,
+            maxZoomRatio: 4.5,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       final viewer =
@@ -195,13 +207,15 @@ void main() {
 
     testWidgets('double tap zooms in with composite zoom enabled',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset],
-          open: true,
-          maxZoomRatio: 3.0,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset],
+            open: true,
+            maxZoomRatio: 3.0,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       final center = tester.getCenter(find.byType(InteractiveViewer));
@@ -218,13 +232,15 @@ void main() {
 
     testWidgets('double tap does not zoom when composite zoom disabled',
         (tester) async {
-      await tester.pumpWidget(_wrap(
-        const AntImageViewer(
-          images: [kMissingAsset],
-          open: true,
-          enableCompositeZoom: false,
+      await tester.pumpWidget(
+        _wrap(
+          const AntImageViewer(
+            images: [kMissingAsset],
+            open: true,
+            enableCompositeZoom: false,
+          ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(InteractiveViewer));
@@ -234,15 +250,17 @@ void main() {
 
       final viewer =
           tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
-      expect(viewer.transformationController!.value.getMaxScaleOnAxis(),
-          closeTo(1.0, 0.01),);
+      expect(
+        viewer.transformationController!.value.getMaxScaleOnAxis(),
+        closeTo(1.0, 0.01),
+      );
     });
 
     testWidgets('afterClose fires after close animation', (tester) async {
       var closed = false;
       var afterClosed = false;
-      await tester.pumpWidget(AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
+      await tester.pumpWidget(
+        MaterialApp(
           home: Scaffold(
             body: AntTheme(
               data: AntThemeData.light(),
@@ -253,7 +271,7 @@ void main() {
             ),
           ),
         ),
-      ),);
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('打开'));
@@ -273,10 +291,12 @@ void main() {
 
     testWidgets('overlay removed from screen when open toggles false',
         (tester) async {
-      await tester.pumpWidget(const _Host(
-        images: [kMissingAsset, kMissingAsset],
-        initialOpen: true,
-      ),);
+      await tester.pumpWidget(
+        const _Host(
+          images: [kMissingAsset, kMissingAsset],
+          initialOpen: true,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('1 / 2'), findsOneWidget);
 

@@ -7,13 +7,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap(Widget child) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );

@@ -407,8 +407,8 @@ class _PopconfirmOverlay extends StatelessWidget {
       placement: _mapPlacement(placement),
       arrow: true,
       arrowColor: bubbleColor,
-      arrowSize: 8.w,
-      gap: 8.w,
+      arrowSize: themeData.s(8),
+      gap: themeData.s(8),
       onDismiss: onDismiss,
       child: _buildBubble(themeData, bubbleColor),
     );
@@ -417,13 +417,13 @@ class _PopconfirmOverlay extends StatelessWidget {
   Widget _buildBubble(AntThemeData theme, Color bubbleColor) {
     final style = overlayStyle;
     final radius = style?.borderRadius ??
-        BorderRadius.circular(theme.borderRadiusLG.r);
+        BorderRadius.circular(theme.borderRadiusLG);
     final padding = style?.padding ??
-        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w);
+        EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12));
 
     return Container(
       key: kAntPopconfirmBubbleKey,
-      width: 240.w,
+      width: theme.s(240),
       padding: padding,
       decoration: BoxDecoration(
         color: bubbleColor,
@@ -433,7 +433,7 @@ class _PopconfirmOverlay extends StatelessWidget {
             [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 12.r,
+                blurRadius: theme.s(12),
                 offset: const Offset(0, 4),
               ),
             ],
@@ -448,15 +448,15 @@ class _PopconfirmOverlay extends StatelessWidget {
             children: [
               if (icon != null)
                 Padding(
-                  padding: EdgeInsets.only(right: 8.w),
+                  padding: EdgeInsets.only(right: theme.s(8)),
                   child: icon!,
                 )
               else
                 Padding(
-                  padding: EdgeInsets.only(right: 8.w),
+                  padding: EdgeInsets.only(right: theme.s(8)),
                   child: Icon(
                     AntIcons.questionCircleOutlined,
-                    size: 16.sp,
+                    size: theme.s(16),
                     color: theme.colorPrimary,
                   ),
                 ),
@@ -464,7 +464,7 @@ class _PopconfirmOverlay extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: theme.s(14),
                     fontWeight: FontWeight.w600,
                     color: theme.colorTextHeading,
                   ),
@@ -474,16 +474,16 @@ class _PopconfirmOverlay extends StatelessWidget {
           ),
           if (description != null)
             Padding(
-              padding: EdgeInsets.only(top: 4.w, left: 24.w),
+              padding: EdgeInsets.only(top: theme.s(4), left: theme.s(24)),
               child: Text(
                 description!,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: theme.s(12),
                   color: theme.colorTextSecondary,
                 ),
               ),
             ),
-          SizedBox(height: 10.w),
+          SizedBox(height: theme.s(10)),
           // 操作按钮行
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -496,7 +496,7 @@ class _PopconfirmOverlay extends StatelessWidget {
                 onTap: onCancel,
                 child: Text(cancelText),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
               AntButton(
                 key: kAntPopconfirmOkButtonKey,
                 type: AntButtonType.primary,

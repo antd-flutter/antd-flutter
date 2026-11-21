@@ -10,8 +10,7 @@ Widget _wrap(
   Widget child, {
   AntCalendarLocale? injected,
 }) =>
-    AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+    MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
@@ -23,8 +22,7 @@ Widget _wrap(
                 : SingleChildScrollView(child: Material(child: child)),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntCalendarLocale 预设', () {

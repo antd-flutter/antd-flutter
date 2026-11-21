@@ -4,18 +4,16 @@ packages:
   antd_color:
     dependency: "direct main"
     description:
-      name: antd_color
-      sha256: "4e1a1b28f99b2b2fe5e5cf4272ef5a1e6c019156b5d9d623c34033c3400752b9"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../antd_color"
+      relative: true
+    source: path
     version: "1.0.0"
   antd_tokens:
     dependency: "direct main"
     description:
-      name: antd_tokens
-      sha256: "51ffc7cbc2d7a5de2c597faf96df783a448f400436122c022a609ae11ea013d4"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../antd_tokens"
+      relative: true
+    source: path
     version: "1.0.0"
   async:
     dependency: transitive
@@ -91,14 +89,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_screenutil:
-    dependency: "direct main"
-    description:
-      name: flutter_screenutil
-      sha256: "8239210dd68bee6b0577aa4a090890342d04a136ce1c81f98ee513fc0ce891de"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.9.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter

@@ -226,10 +226,10 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
 
   Widget _buildTabBar(AntThemeData t, List<_CascaderLevel<T>> levels) {
     return SizedBox(
-      height: 44.h,
+      height: t.s(44),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: t.s(12)),
         itemCount: levels.length,
         itemBuilder: (context, index) {
           final level = levels[index];
@@ -239,7 +239,7 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
             onTap: () => _onTabTap(index),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              padding: EdgeInsets.symmetric(horizontal: t.s(12)),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 border: Border(
@@ -253,7 +253,7 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: t.s(14),
                   color: active ? t.colorPrimary : t.colorTextSecondary,
                   fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                 ),
@@ -272,12 +272,12 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
   Widget _buildContent(AntThemeData t, List<_CascaderLevel<T>> levels) {
     final level = levels[_tabActiveIndex];
     return SizedBox(
-      height: widget.height ?? 300.h,
+      height: widget.height ?? t.s(300),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: ListView.builder(
           key: ValueKey(_tabActiveIndex),
-          padding: EdgeInsets.symmetric(vertical: 4.h),
+          padding: EdgeInsets.symmetric(vertical: t.s(4)),
           itemCount: level.options.length,
           itemBuilder: (context, index) {
             final option = level.options[index];
@@ -303,7 +303,7 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
       child: Opacity(
         opacity: disabled ? 0.4 : 1.0,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(16), vertical: t.s(13)),
           child: Row(
             children: [
               Expanded(
@@ -311,7 +311,7 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: t.s(15),
                     color: selected ? t.colorPrimary : t.colorText,
                   ),
                   child: widget.labelBuilder?.call(context, option) ??
@@ -319,11 +319,11 @@ class _AntCascaderViewState<T> extends State<AntCascaderView<T>> {
                 ),
               ),
               if (selected) ...[
-                SizedBox(width: 8.w),
+                SizedBox(width: t.s(8)),
                 widget.activeIcon ??
                     Icon(
                       AntIcons.checkOutlined,
-                      size: 18.sp,
+                      size: t.s(18),
                       color: t.colorPrimary,
                     ),
               ],

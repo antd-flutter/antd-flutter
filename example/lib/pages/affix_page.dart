@@ -67,8 +67,8 @@ class _AffixPageState extends State<AffixPage> {
           // 长滚动内容：保证每个固钉都有足够的滚动行程触发/解除
           for (var i = 1; i <= 40; i++)
             Container(
-              margin: EdgeInsets.only(bottom: 8.w),
-              padding: EdgeInsets.all(16.w),
+              margin: EdgeInsets.only(bottom: theme.s(8)),
+              padding: EdgeInsets.all(theme.s(16)),
               decoration: BoxDecoration(
                 color: theme.colorFillQuaternary,
                 borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -97,7 +97,7 @@ class _AffixPageState extends State<AffixPage> {
     final theme = AntTheme.of(context);
     final affixed = _affixed[key] ?? false;
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.w),
+      padding: EdgeInsets.only(bottom: theme.s(8)),
       child: Text(
         affixed ? '当前状态：已固定' : '当前状态：未固定',
         style: TextStyle(
@@ -110,7 +110,7 @@ class _AffixPageState extends State<AffixPage> {
 
   Widget _bar(AntThemeData theme, String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -118,8 +118,8 @@ class _AffixPageState extends State<AffixPage> {
       ),
       child: Row(
         children: [
-          Icon(AntIcons.pushpinOutlined, size: 16.w, color: theme.colorPrimary),
-          SizedBox(width: 8.w),
+          Icon(AntIcons.pushpinOutlined, size: theme.s(16), color: theme.colorPrimary),
+          SizedBox(width: theme.s(8)),
           // Expanded：窄屏/钉住宽度约束下长文本换行，不产生横向溢出
           Expanded(child: Text(text, softWrap: true)),
         ],
@@ -144,8 +144,8 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 24.w),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(bottom: theme.s(24)),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgLayout,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -162,7 +162,7 @@ class _Section extends StatelessWidget {
             ),
           ),
           if (status != null) status!,
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

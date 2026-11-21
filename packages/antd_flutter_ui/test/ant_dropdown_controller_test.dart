@@ -11,8 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 Finder findMenuItem(String label) => find.text(label);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: Center(
           child: AntTheme(
@@ -21,8 +20,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 Widget _dropdown({

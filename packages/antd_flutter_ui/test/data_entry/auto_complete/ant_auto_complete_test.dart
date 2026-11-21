@@ -5,16 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 const _options = ['apple', 'banana', 'cherry', 'grape'];
@@ -389,8 +387,7 @@ void main() {
     testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
       // 模拟 app 主题注入 enabledBorder/focusedBorder（双层边框根因场景）
       await tester.pumpWidget(
-        AntScreenUtilInit(
-          builder: (context, _) => MaterialApp(
+        MaterialApp(
             theme: ThemeData(
               inputDecorationTheme: const InputDecorationTheme(
                 enabledBorder: OutlineInputBorder(),
@@ -406,7 +403,6 @@ void main() {
               ),
             ),
           ),
-        ),
       );
       await tester.pumpAndSettle();
       // 输入框自身四态边框均为 none（单一外层描边语义）
@@ -440,8 +436,7 @@ void main() {
     testWidgets('禁用态背景为灰底（colorBgContainerDisabled），非主题白色填充', (tester) async {
       // 模拟 Material 桥接主题注入 filled 白底（双层白底根因场景）
       await tester.pumpWidget(
-        AntScreenUtilInit(
-          builder: (context, _) => MaterialApp(
+        MaterialApp(
             theme: ThemeData(
               inputDecorationTheme: const InputDecorationTheme(
                 filled: true,
@@ -461,7 +456,6 @@ void main() {
               ),
             ),
           ),
-        ),
       );
       await tester.pumpAndSettle();
       // 输入框不自行填充（filled:false 基座契约，杜绝主题白底渗入盖掉容器灰底）

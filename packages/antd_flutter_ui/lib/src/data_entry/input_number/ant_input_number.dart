@@ -237,7 +237,7 @@ class _AntInputNumberState extends State<AntInputNumber> {
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final iconSize = widget.size == AntInputSize.small ? 10.sp : 12.sp;
+    final iconSize = widget.size == AntInputSize.small ? t.s(10) : t.s(12);
     final showUp = widget.controls == AntInputNumberControls.upDown ||
         widget.controls == AntInputNumberControls.up;
     final showDown = widget.controls == AntInputNumberControls.down ||
@@ -250,11 +250,11 @@ class _AntInputNumberState extends State<AntInputNumber> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (showDown) ...[
-                SizedBox(width: 4.w),
+                SizedBox(width: t.s(4)),
                 _buildStepButton(t, iconSize, AntIcons.minusOutlined, _canDown, () => _step(false)),
               ],
               if (showUp) ...[
-                SizedBox(width: 4.w),
+                SizedBox(width: t.s(4)),
                 _buildStepButton(t, iconSize, AntIcons.plusOutlined, _canUp, () => _step(true)),
               ],
             ],

@@ -56,9 +56,7 @@ class _AntdTableGalleryAppState extends State<AntdTableGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdTable Demo',
             debugShowCheckedModeBanner: false,
@@ -94,7 +92,6 @@ class _AntdTableGalleryAppState extends State<AntdTableGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 }

@@ -15,16 +15,14 @@ class _Palette {
   final List<String> colors;
 }
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntColorPicker', () {

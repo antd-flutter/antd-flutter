@@ -92,7 +92,7 @@ class AntDivider extends StatelessWidget {
     final effectiveVariant =
         dashed ? AntDividerVariant.dashed : variant;
     final lineColor = color ?? theme.colorSplit;
-    final lineThickness = (thickness ?? theme.lineWidth).w;
+    final lineThickness = theme.s((thickness ?? theme.lineWidth));
 
     switch (type) {
       case AntDividerType.horizontal:
@@ -122,9 +122,9 @@ class AntDivider extends StatelessWidget {
     Color lineColor,
     double lineThickness,
   ) {
-    final effectiveSpacing = (spacing ?? theme.marginLG).w;
-    final effectiveIndent = (indent ?? 0).w;
-    final effectiveEndIndent = (endIndent ?? 0).w;
+    final effectiveSpacing = theme.s((spacing ?? theme.marginLG));
+    final effectiveIndent = theme.s((indent ?? 0));
+    final effectiveEndIndent = theme.s((endIndent ?? 0));
 
     if (child == null) {
       // 无标题：简单水平线
@@ -147,13 +147,13 @@ class AntDivider extends StatelessWidget {
 
     // 有标题：根据 orientation 布局
     final textStyle = TextStyle(
-      fontSize: (plain ? theme.fontSizeSM : theme.fontSize).sp,
+      fontSize: theme.s((plain ? theme.fontSizeSM : theme.fontSize)),
       color: plain ? theme.colorTextSecondary : theme.colorTextPlaceholder,
       fontWeight: plain ? FontWeight.normal : FontWeight.w500,
     );
 
-    final textPadding = theme.paddingXS.w;
-    final margin = orientationMargin?.w;
+    final textPadding = theme.paddingXS;
+    final margin = orientationMargin;
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: effectiveSpacing / 2),
@@ -246,7 +246,7 @@ class AntDivider extends StatelessWidget {
     Color lineColor,
     double lineThickness,
   ) {
-    final effectiveSpacing = (spacing ?? theme.marginXXS).w;
+    final effectiveSpacing = theme.s((spacing ?? theme.marginXXS));
 
     return Container(
       width: effectiveSpacing,

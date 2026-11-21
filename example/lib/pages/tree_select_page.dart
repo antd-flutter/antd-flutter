@@ -63,46 +63,46 @@ class TreeSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(title: '基础用法', theme: t, child: const _BasicDemo()),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '默认展开全部',
             theme: t,
             child: _treeSelect(defaultExpandAll: true),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(title: '多选', theme: t, child: const _MultipleDemo()),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '禁用选项',
             theme: t,
             child: _treeSelect(data: _disabledData),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '三种尺寸',
             theme: t,
             child: Column(
               children: [
                 _treeSelect(size: AntTreeSelectSize.large, placeholder: '大号'),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 _treeSelect(size: AntTreeSelectSize.middle, placeholder: '中号'),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 _treeSelect(size: AntTreeSelectSize.small, placeholder: '小号'),
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '允许清除',
             theme: t,
             child: _treeSelect(defaultValue: 'nj', allowClear: true),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: t.s(16)),
           _Section(
             title: '禁用状态',
             theme: t,
@@ -130,6 +130,7 @@ class _BasicDemoState extends State<_BasicDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,7 +140,7 @@ class _BasicDemoState extends State<_BasicDemo> {
         ),
         if (_selected != null)
           Padding(
-            padding: EdgeInsets.only(top: 8.h),
+            padding: EdgeInsets.only(top: theme.s(8)),
             child: Text('已选：$_selected'),
           ),
       ],
@@ -159,6 +160,7 @@ class _MultipleDemoState extends State<_MultipleDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -172,7 +174,7 @@ class _MultipleDemoState extends State<_MultipleDemo> {
         ),
         if (_selected.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: 8.h),
+            padding: EdgeInsets.only(top: theme.s(8)),
             child: Text('已选：${_selected.join('、')}'),
           ),
       ],
@@ -196,7 +198,7 @@ class _Section extends StatelessWidget {
     final t = theme;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -208,11 +210,11 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: t.fontSizeLG.sp,
+              fontSize: theme.fontSizeLG,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

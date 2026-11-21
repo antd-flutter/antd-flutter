@@ -225,7 +225,7 @@ class _AntLayoutSiderState extends State<AntLayoutSider> {
 
         final currentWidth =
             _effectiveCollapsed ? widget.collapsedWidth : widget.width;
-        final scaledWidth = currentWidth.w;
+        final scaledWidth = theme.s(currentWidth);
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -243,7 +243,7 @@ class _AntLayoutSiderState extends State<AntLayoutSider> {
                     maxHeight: constraints.maxHeight,
                     alignment: Alignment.topLeft,
                     child: SizedBox(
-                      width: widget.width.w,
+                      width: theme.s(widget.width),
                       child: widget.child ?? const SizedBox.shrink(),
                     ),
                   ),
@@ -274,7 +274,7 @@ class _AntLayoutSiderState extends State<AntLayoutSider> {
     return InkWell(
       onTap: _toggle,
       child: Container(
-        height: _kHeaderHeight.w * 0.75,
+        height: theme.s(_kHeaderHeight) * 0.75,
         color: triggerBg,
         alignment: Alignment.center,
         child: AntdIcon(
@@ -306,13 +306,13 @@ class AntLayoutHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final h = (height ?? _kHeaderHeight).w;
+    final h = theme.s((height ?? _kHeaderHeight));
 
     return Container(
       height: h,
       color: theme.colorBgContainer,
       alignment: Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(horizontal: theme.margin.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.margin),
       child: child ?? const SizedBox.shrink(),
     );
   }
@@ -373,8 +373,8 @@ class AntLayoutFooter extends StatelessWidget {
     final theme = AntTheme.of(context);
     final p = padding ??
         EdgeInsets.symmetric(
-          horizontal: (50).w,
-          vertical: (24).w,
+          horizontal: theme.s((50)),
+          vertical: theme.s((24)),
         );
 
     return Container(
@@ -382,7 +382,7 @@ class AntLayoutFooter extends StatelessWidget {
       color: theme.colorBgLayout,
       child: DefaultTextStyle(
         style: TextStyle(
-          fontSize: theme.fontSize.sp,
+          fontSize: theme.fontSize,
           color: theme.colorTextSecondary,
         ),
         child: child ?? const SizedBox.shrink(),

@@ -25,7 +25,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,7 +43,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               child: const _RowTile(title: '左滑显示删除按钮'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '左滑多按钮',
             theme: theme,
@@ -64,7 +64,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               child: const _RowTile(title: '左滑显示三个按钮'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '左右双侧',
             theme: theme,
@@ -95,7 +95,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               child: const _RowTile(title: '右滑置顶/标记，左滑更多/删除'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '危险操作',
             theme: theme,
@@ -110,7 +110,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               child: const _RowTile(title: '左滑清空数据（危险）'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用操作',
             theme: theme,
@@ -129,7 +129,7 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               child: const _RowTile(title: '左滑：禁用 + 可用按钮'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '回调结果展示',
             theme: theme,
@@ -137,8 +137,8 @@ class _SwipeActionPageState extends State<SwipeActionPage> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  margin: EdgeInsets.only(bottom: 12.w),
+                  padding: EdgeInsets.all(theme.s(12)),
+                  margin: EdgeInsets.only(bottom: theme.s(12)),
                   decoration: BoxDecoration(
                     color: theme.colorBgLayout,
                     borderRadius: BorderRadius.circular(theme.borderRadius),
@@ -183,8 +183,8 @@ class _RowTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      height: 56.w,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      height: theme.s(56),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16)),
       alignment: Alignment.centerLeft,
       child: Text(
         title,
@@ -209,7 +209,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -221,12 +221,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

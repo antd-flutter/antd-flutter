@@ -824,7 +824,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
               // 右对齐打开，避免靠近屏幕右缘时面板越界
               targetAnchor: Alignment.bottomRight,
               followerAnchor: Alignment.topRight,
-              offset: Offset(0, 4.w),
+              offset: Offset(0, theme.s(4)),
               child: _FilterPanel(
                 theme: theme,
                 items: leaf.column.filters ?? const [],
@@ -900,15 +900,15 @@ class _AntTableState<T> extends State<AntTable<T>> {
               showWhenUnlinked: false,
               targetAnchor: Alignment.bottomLeft,
               followerAnchor: Alignment.topLeft,
-              offset: Offset(0, 4.w),
+              offset: Offset(0, theme.s(4)),
               child: Material(
                 color: theme.colorBgContainer,
                 elevation: 6,
                 shadowColor: theme.colorText.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(theme.borderRadiusLG),
                 child: Container(
-                  width: 120.w,
-                  padding: EdgeInsets.symmetric(vertical: 8.w),
+                  width: theme.s(120),
+                  padding: EdgeInsets.symmetric(vertical: theme.s(8)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(theme.borderRadiusLG),
                     border: Border.all(color: theme.colorSplit),
@@ -926,8 +926,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
                           },
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 6.w,
+                              horizontal: theme.s(12),
+                              vertical: theme.s(6),
                             ),
                             child: Text(
                               item.text,
@@ -960,32 +960,33 @@ class _AntTableState<T> extends State<AntTable<T>> {
   // 尺寸令牌
   // ------------------------------------------------------------
 
-  double get _cellPaddingV {
+  double _cellPaddingV(AntThemeData theme) {
     switch (widget.size) {
       case AntTableSize.large:
-        return 16;
+        return theme.s(16);
       case AntTableSize.middle:
-        return 12;
+        return theme.s(12);
       case AntTableSize.small:
-        return 8;
+        return theme.s(8);
     }
   }
 
-  double get _cellFontSize {
+  double _cellFontSize(AntThemeData theme) {
     switch (widget.size) {
       case AntTableSize.large:
-        return 16;
+        return theme.s(16);
       case AntTableSize.middle:
       case AntTableSize.small:
-        return 14;
+        return theme.s(14);
     }
   }
 
   /// 表头单行高度（固定高度保证多级表头纵向对齐）
-  double get _headerRowHeight => (_cellPaddingV * 2 + _cellFontSize * 1.5).w;
+  double _headerRowHeight(AntThemeData theme) =>
+      _cellPaddingV(theme) * 2 + _cellFontSize(theme) * 1.5;
 
-  double _columnWidth(AntTableColumn<T> column) =>
-      (column.width ?? _kDefaultColumnWidth).w;
+  double _columnWidth(AntThemeData theme, AntTableColumn<T> column) =>
+      theme.s(column.width ?? _kDefaultColumnWidth);
 
   bool get _hasScrollX => widget.scrollX != null;
 
@@ -1045,7 +1046,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
             color: theme.colorBgContainer.withValues(alpha: 0.45),
             child: CircularProgressIndicator(
               color: theme.colorPrimary,
-              strokeWidth: 3.w,
+              strokeWidth: theme.s(3),
             ),
           ),
         ),
@@ -1077,10 +1078,10 @@ class _AntTableState<T> extends State<AntTable<T>> {
           if (node.subtreeLeaves.first.fixed == fixed) node,
       ];
 
-  double get _middleWidth {
+  double _middleWidth(AntThemeData theme) {
     var width = 0.0;
     for (final leaf in _middleLeaves) {
-      width += _columnWidth(leaf.column);
+      width += _columnWidth(theme, leaf.column);
     }
     return width;
   }
@@ -1104,7 +1105,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
                     scrollDirection: Axis.horizontal,
                     controller: _hController,
                     child: SizedBox(
-                      width: _middleWidth,
+                      width: _middleWidth(theme),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: _headerSegmentCells(
@@ -1147,7 +1148,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
           SizedBox(
             width: subtree.fold<double>(
               0,
-              (w, l) => w + _columnWidth(l.column),
+              (w, l) => w + _columnWidth(theme, l.column),
             ),
             child: cell,
           ),
@@ -1175,7 +1176,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
     // antd：跨列分组标题一律居中，且非末行分组表头不画底边
     final title = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16)),
       child: Align(
         alignment: Alignment.center,
         child: _cellText(
@@ -1192,7 +1193,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
-          height: _headerRowHeight,
+          height: _headerRowHeight(theme),
           child: title,
         ),
         Row(
@@ -1216,7 +1217,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
       if (_selection != null && selectionCell != null) selectionCell,
 
       // 固定在左侧的列
-      ..._leafSegmentCells(
+      ..._leafSegmentCells(theme,
         _leftLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
@@ -1232,10 +1233,10 @@ class _AntTableState<T> extends State<AntTable<T>> {
                 scrollDirection: Axis.horizontal,
                 controller: _hController,
                 child: SizedBox(
-                  width: _middleWidth,
+                  width: _middleWidth(theme),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _leafSegmentCells(
+                    children: _leafSegmentCells(theme,
                       _middleLeaves,
                       cellBuilder,
                       hiddenLeaves: hiddenLeaves,
@@ -1246,7 +1247,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
               )
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _leafSegmentCells(
+                children: _leafSegmentCells(theme,
                   _middleLeaves,
                   cellBuilder,
                   hiddenLeaves: hiddenLeaves,
@@ -1259,7 +1260,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
       if (_rightLeaves.isNotEmpty && _hasScrollX)
         _buildShadow(theme, isLeft: false),
       // 固定在右侧的列
-      ..._leafSegmentCells(
+      ..._leafSegmentCells(theme,
         _rightLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
@@ -1275,6 +1276,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
   /// 单个分段（一组叶子列）的单元格列表，处理 colSpan 合并消费
   List<Widget> _leafSegmentCells(
+    AntThemeData theme,
     List<_LeafColumn<T>> leaves,
     Widget Function(_LeafColumn<T> leaf, int colSpan) cellBuilder, {
     Set<int>? hiddenLeaves,
@@ -1294,12 +1296,12 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
       // colSpan 在分段内消费后续叶子列
       var effective = 1;
-      var widthSum = _columnWidth(leaf.column);
+      var widthSum = _columnWidth(theme, leaf.column);
       var allWidth = leaf.column.width != null;
       while (effective < colSpan && pos + effective < leaves.length) {
         final next = leaves[pos + effective];
         consumed.add(next.leafIndex);
-        widthSum += _columnWidth(next.column);
+        widthSum += _columnWidth(theme, next.column);
         allWidth = allWidth && next.column.width != null;
         effective++;
       }
@@ -1366,7 +1368,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
     if (widget.scrollY != null) {
       if (rows.length > _kVirtualThreshold) {
         return SizedBox(
-          height: widget.scrollY!.w,
+          height: theme.s(widget.scrollY!),
           child: ListView.builder(
             itemCount: rows.length,
             findChildIndexCallback: (key) {
@@ -1381,7 +1383,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
         );
       }
       return SizedBox(
-        height: widget.scrollY!.w,
+        height: theme.s(widget.scrollY!),
         child: ListView(
           children: [for (var i = 0; i < rows.length; i++) rowWidget(i)],
         ),
@@ -1403,7 +1405,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
     if (content == null) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
       color: theme.colorFillQuaternary.withValues(alpha: 0.35),
       child: KeyedSubtree(
         key: ValueKey('ant_table_expanded_$index'),
@@ -1478,7 +1480,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
     if (isFirstLeaf && _hasExpandable) {
       content = Row(
         children: [
-          SizedBox(width: row.depth * _kTreeIndentStep.w),
+          SizedBox(width: row.depth * theme.s(_kTreeIndentStep)),
           _ExpandIcon(
             theme: theme,
             rowKey: key,
@@ -1492,7 +1494,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
     } else if (isFirstLeaf && row.depth > 0) {
       content = Row(
         children: [
-          SizedBox(width: row.depth * _kTreeIndentStep.w),
+          SizedBox(width: row.depth * theme.s(_kTreeIndentStep)),
           Expanded(child: content),
         ],
       );
@@ -1500,8 +1502,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: _cellPaddingV.w,
+        horizontal: theme.s(16),
+        vertical: _cellPaddingV(theme),
       ),
       decoration: BoxDecoration(
         border: widget.bordered
@@ -1527,7 +1529,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
       overflow: TextOverflow.ellipsis,
       softWrap: false,
       style: TextStyle(
-        fontSize: _cellFontSize.sp,
+        fontSize: _cellFontSize(theme),
         color: color,
         fontWeight: fontWeight,
         height: 1.5,
@@ -1564,9 +1566,9 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
     // antd：th 与 td 同 padding，标题按 align 对齐（默认左对齐）
     Widget cell = SizedBox(
-      height: _headerRowHeight,
+      height: _headerRowHeight(theme),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: theme.s(16)),
         child: title,
       ),
     );
@@ -1581,7 +1583,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
           children: [
             Expanded(child: cell),
             _buildSortIcons(theme, leaf),
-            SizedBox(width: 16.w),
+            SizedBox(width: theme.s(16)),
           ],
         ),
       );
@@ -1593,7 +1595,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
         children: [
           Expanded(child: cell),
           _buildFilterIcon(theme, leaf),
-          SizedBox(width: 16.w),
+          SizedBox(width: theme.s(16)),
         ],
       );
     }
@@ -1605,7 +1607,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           cell,
-          SizedBox(height: fillerRows * _headerRowHeight),
+          SizedBox(height: fillerRows * _headerRowHeight(theme)),
         ],
       );
     }
@@ -1625,7 +1627,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
                 alignment: Alignment.centerRight,
                 child: Container(
                   width: 1,
-                  height: _cellFontSize.sp * 1.6,
+                  height: _cellFontSize(theme) * 1.6,
                   color: theme.colorSplit,
                 ),
               ),
@@ -1647,13 +1649,13 @@ class _AntTableState<T> extends State<AntTable<T>> {
       children: [
         Icon(
           AntIcons.arrowUpOutlined,
-          size: 12.w,
+          size: theme.s(12),
           color:
               order == AntTableSortOrder.ascend ? activeColor : inactiveColor,
         ),
         Icon(
           AntIcons.arrowDownOutlined,
-          size: 12.w,
+          size: theme.s(12),
           color:
               order == AntTableSortOrder.descend ? activeColor : inactiveColor,
         ),
@@ -1671,10 +1673,10 @@ class _AntTableState<T> extends State<AntTable<T>> {
         behavior: HitTestBehavior.opaque,
         onTap: () => _toggleFilterOverlay(leaf.leafIndex, theme),
         child: Padding(
-          padding: EdgeInsets.only(left: 4.w),
+          padding: EdgeInsets.only(left: theme.s(4)),
           child: Icon(
             AntIcons.filterOutlined,
-            size: 14.w,
+            size: theme.s(14),
             color: active ? theme.colorPrimary : theme.colorTextQuaternary,
           ),
         ),
@@ -1690,12 +1692,12 @@ class _AntTableState<T> extends State<AntTable<T>> {
     final selection = _selection!;
     final showMenu =
         selection.selections != null && selection.selections!.isNotEmpty;
-    final width = _selectionWidth.w;
+    final width = _selectionWidth(theme);
 
     return SizedBox(
       key: const ValueKey('ant_table_th_selection'),
       width: width,
-      height: _headerRowHeight,
+      height: _headerRowHeight(theme),
       // antd：复选框居中，下拉箭头绝对定位于复选框右侧，不参与居中
       child: Stack(
         alignment: Alignment.center,
@@ -1710,7 +1712,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
             ),
           if (showMenu)
             Positioned(
-              left: width / 2 + 10.w,
+              left: width / 2 + theme.s(10),
               child: CompositedTransformTarget(
                 link: _selectionLink,
                 child: GestureDetector(
@@ -1718,7 +1720,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
                   onTap: () => _toggleSelectionOverlay(theme),
                   child: Icon(
                     AntIcons.caretDownOutlined,
-                    size: 14.w,
+                    size: theme.s(14),
                     color: theme.colorTextSecondary,
                   ),
                 ),
@@ -1735,7 +1737,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
   ) {
     return SizedBox(
       key: const ValueKey('ant_table_td_selection'),
-      width: _selectionWidth.w,
+      width: _selectionWidth(theme),
       child: Center(
         child: _TableCheckbox(
           key: ValueKey('ant_table_checkbox_row_${row.key}'),
@@ -1748,12 +1750,12 @@ class _AntTableState<T> extends State<AntTable<T>> {
     );
   }
 
-  double get _selectionWidth {
+  double _selectionWidth(AntThemeData theme) {
     final width = _selection?.columnWidth ?? _kDefaultSelectionWidth;
     final base = width > 0 ? width : _kDefaultSelectionWidth;
     // antd：有自定义选择项下拉时列宽补 fontSizeIcon + padding / 4
     final hasMenu = _selection?.selections?.isNotEmpty ?? false;
-    return base + (hasMenu ? 16 : 0);
+    return theme.s(base + (hasMenu ? 16 : 0));
   }
 
   // ------------------------------------------------------------
@@ -1779,8 +1781,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
             if (cell == null) return const SizedBox.shrink();
             return Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: _cellPaddingV.w,
+                horizontal: theme.s(16),
+                vertical: _cellPaddingV(theme),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1804,7 +1806,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
   Widget _buildShadow(AntThemeData theme, {required bool isLeft}) {
     final color = theme.colorText.withValues(alpha: 0.08);
     return Container(
-      width: _kFixedShadowWidth.w,
+      width: theme.s(_kFixedShadowWidth),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: isLeft ? Alignment.centerLeft : Alignment.centerRight,
@@ -1822,25 +1824,25 @@ class _AntTableState<T> extends State<AntTable<T>> {
   Widget _buildEmpty(AntThemeData theme) {
     if (widget.empty != null) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 32.w),
+        padding: EdgeInsets.symmetric(vertical: theme.s(32)),
         child: Center(child: widget.empty!),
       );
     }
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 32.w),
+      padding: EdgeInsets.symmetric(vertical: theme.s(32)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             AntIcons.inboxOutlined,
-            size: 48.w,
+            size: theme.s(48),
             color: theme.colorTextQuaternary,
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           Text(
             '暂无数据',
             style: TextStyle(
-              fontSize: _cellFontSize.sp,
+              fontSize: _cellFontSize(theme),
               color: theme.colorTextSecondary,
             ),
           ),
@@ -1867,8 +1869,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
         behavior: HitTestBehavior.opaque,
         child: Container(
           key: ValueKey('ant_table_page_$n'),
-          margin: EdgeInsets.symmetric(horizontal: 2.w),
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.w),
+          margin: EdgeInsets.symmetric(horizontal: theme.s(2)),
+          padding: EdgeInsets.symmetric(horizontal: theme.s(8), vertical: theme.s(2)),
           decoration: BoxDecoration(
             color: isCurrent ? theme.colorPrimaryBg : Colors.transparent,
             borderRadius: BorderRadius.circular(theme.borderRadiusXS),
@@ -1893,10 +1895,10 @@ class _AntTableState<T> extends State<AntTable<T>> {
         onTap: disabled ? null : onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          padding: EdgeInsets.symmetric(horizontal: theme.s(4)),
           child: Icon(
             icon,
-            size: 16.w,
+            size: theme.s(16),
             color: disabled ? theme.colorTextQuaternary : theme.colorText,
           ),
         ),
@@ -1905,7 +1907,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: theme.colorSplit)),
       ),
@@ -1977,10 +1979,10 @@ class _ExpandIcon extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.only(right: 6.w),
+        padding: EdgeInsets.only(right: theme.s(6)),
         child: Icon(
           expanded ? AntIcons.downOutlined : AntIcons.rightOutlined,
-          size: _kExpandIconSize.w,
+          size: theme.s(_kExpandIconSize),
           color: theme.colorTextSecondary,
         ),
       ),
@@ -2016,17 +2018,17 @@ class _TableCheckbox extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        width: size.w,
-        height: size.w,
+        width: theme.s(size),
+        height: theme.s(size),
         decoration: BoxDecoration(
           color: checked || indeterminate ? theme.colorPrimary : null,
-          border: Border.all(color: borderColor, width: 1.w),
+          border: Border.all(color: borderColor, width: theme.s(1)),
           borderRadius: BorderRadius.circular(theme.borderRadiusXS),
         ),
         child: checked || indeterminate
             ? Icon(
                 indeterminate ? AntIcons.minusOutlined : AntIcons.checkOutlined,
-                size: size.w * 0.75,
+                size: theme.s(size) * 0.75,
                 color: Colors.white,
               )
             : null,
@@ -2072,8 +2074,8 @@ class _FilterPanelState extends State<_FilterPanel> {
       shadowColor: theme.colorText.withValues(alpha: 0.2),
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
       child: Container(
-        width: 140.w,
-        padding: EdgeInsets.symmetric(vertical: 8.w),
+        width: theme.s(140),
+        padding: EdgeInsets.symmetric(vertical: theme.s(8)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           border: Border.all(color: theme.colorSplit),
@@ -2099,7 +2101,7 @@ class _FilterPanelState extends State<_FilterPanel> {
                   }
                 }),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  padding: EdgeInsets.symmetric(horizontal: theme.s(12)),
                   child: Row(
                     children: [
                       if (widget.multiple)
@@ -2107,7 +2109,7 @@ class _FilterPanelState extends State<_FilterPanel> {
                           _selected.contains(item.value)
                               ? AntIcons.checkSquareFilled
                               : AntIcons.borderOutlined,
-                          size: 16.w,
+                          size: theme.s(16),
                           color: _selected.contains(item.value)
                               ? theme.colorPrimary
                               : theme.colorBorder,
@@ -2115,11 +2117,11 @@ class _FilterPanelState extends State<_FilterPanel> {
                       else
                         _FilterRadio(
                           selected: _selected.contains(item.value),
-                          size: 16.w,
+                          size: theme.s(16),
                           activeColor: theme.colorPrimary,
                           inactiveColor: theme.colorBorder,
                         ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: theme.s(8)),
                       Expanded(
                         child: Text(
                           item.text,
@@ -2135,9 +2137,9 @@ class _FilterPanelState extends State<_FilterPanel> {
                   ),
                 ),
               ),
-            Divider(color: theme.colorSplit, height: 16.w),
+            Divider(color: theme.colorSplit, height: theme.s(16)),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              padding: EdgeInsets.symmetric(horizontal: theme.s(12)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

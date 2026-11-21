@@ -8,7 +8,7 @@ class BorderBeamPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -29,7 +29,7 @@ class BorderBeamPage extends StatelessWidget {
                   colorSecondary: Colors.purpleAccent,
                   child: _body('紫色流光'),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntBorderBeam(
                   colorPrimary: Colors.orange,
                   colorSecondary: Colors.deepOrangeAccent,
@@ -47,12 +47,12 @@ class BorderBeamPage extends StatelessWidget {
                   duration: const Duration(seconds: 2),
                   child: _body('快速（2s 周期）'),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntBorderBeam(
                   duration: const Duration(seconds: 10),
                   child: _body('慢速（10s 周期）'),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntBorderBeam(reverse: true, child: _body('反向流动')),
               ],
             ),
@@ -63,16 +63,16 @@ class BorderBeamPage extends StatelessWidget {
             child: Column(
               children: [
                 AntBorderBeam(
-                  borderRadius: BorderRadius.circular(24.w),
+                  borderRadius: BorderRadius.circular(theme.s(24)),
                   child: _body('大圆角（24）'),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntBorderBeam(
                   size: 6,
-                  borderRadius: BorderRadius.circular(12.w),
+                  borderRadius: BorderRadius.circular(theme.s(12)),
                   child: _body('粗边框（6px）'),
                 ),
-                SizedBox(height: 16.w),
+                SizedBox(height: theme.s(16)),
                 AntBorderBeam(initialOffset: 0.5, child: _body('初始相位 0.5')),
               ],
             ),
@@ -83,7 +83,7 @@ class BorderBeamPage extends StatelessWidget {
             child: AntBorderBeam(
               colorPrimary: theme.colorSuccess,
               colorSecondary: theme.colorSuccessBorder,
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(theme.s(16)),
               borderRadius: BorderRadius.circular(theme.borderRadiusLG),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,10 +92,10 @@ class BorderBeamPage extends StatelessWidget {
                     children: [
                       Icon(
                         AntIcons.safetyCertificateFilled,
-                        size: 20.w,
+                        size: theme.s(20),
                         color: theme.colorSuccess,
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: theme.s(8)),
                       Text(
                         '认证信息',
                         style: TextStyle(
@@ -106,21 +106,21 @@ class BorderBeamPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.w),
+                  SizedBox(height: theme.s(8)),
                   Text(
                     '边框流光可以包裹任意内容：文字、图标、按钮组合均可，'
                     '流光沿边框循环移动以突出展示重点内容。',
                     style: TextStyle(color: theme.colorTextSecondary),
                   ),
-                  SizedBox(height: 12.w),
+                  SizedBox(height: theme.s(12)),
                   Row(
                     children: [
                       Icon(
                         AntIcons.checkCircleOutlined,
-                        size: 16.w,
+                        size: theme.s(16),
                         color: theme.colorSuccess,
                       ),
-                      SizedBox(width: 4.w),
+                      SizedBox(width: theme.s(4)),
                       const Text('实时校验通过'),
                     ],
                   ),
@@ -158,8 +158,8 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 24.w),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(bottom: theme.s(24)),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgLayout,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -175,7 +175,7 @@ class _Section extends StatelessWidget {
               color: theme.colorTextHeading,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

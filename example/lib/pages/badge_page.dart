@@ -8,7 +8,7 @@ class BadgePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,25 +18,25 @@ class BadgePage extends StatelessWidget {
             child: Row(
               children: [
                 AntBadge(count: 5, child: AntButton(child: const Text('消息'))),
-                SizedBox(width: 32.w),
+                SizedBox(width: theme.s(32)),
                 AntBadge(
                   dot: true,
                   child: Icon(
                     AntIcons.notificationOutlined,
-                    size: 24.w,
+                    size: theme.s(24),
                     color: theme.colorText,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '独立使用',
             theme: theme,
             child: Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 AntBadge(count: 10),
@@ -46,23 +46,23 @@ class BadgePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '溢出',
             theme: theme,
             child: Row(
               children: [
                 AntBadge(count: 99),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntBadge(count: 100),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntBadge(count: 200, overflowCount: 199),
-                SizedBox(width: 16.w),
+                SizedBox(width: theme.s(16)),
                 AntBadge(count: 1000, overflowCount: 999),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '状态点',
             theme: theme,
@@ -70,31 +70,31 @@ class BadgePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AntBadge(status: AntBadgeStatus.success, text: '成功'),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntBadge(status: AntBadgeStatus.processing, text: '处理中'),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntBadge(status: AntBadgeStatus.standard, text: '默认'),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntBadge(status: AntBadgeStatus.error, text: '错误'),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntBadge(status: AntBadgeStatus.warning, text: '警告'),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义颜色',
             theme: theme,
             child: Row(
               children: [
                 AntBadge(count: 5, color: Colors.blue, child: const Text('蓝色')),
-                SizedBox(width: 32.w),
+                SizedBox(width: theme.s(32)),
                 AntBadge(
                   count: 5,
                   color: Colors.green,
                   child: const Text('绿色'),
                 ),
-                SizedBox(width: 32.w),
+                SizedBox(width: theme.s(32)),
                 AntBadge(
                   dot: true,
                   color: Colors.purple,
@@ -103,7 +103,7 @@ class BadgePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '偏移',
             theme: theme,
@@ -114,17 +114,17 @@ class BadgePage extends StatelessWidget {
                   offset: [10, -5],
                   child: Icon(
                     AntIcons.notificationOutlined,
-                    size: 24.w,
+                    size: theme.s(24),
                     color: theme.colorText,
                   ),
                 ),
-                SizedBox(width: 32.w),
+                SizedBox(width: theme.s(32)),
                 AntBadge(
                   count: 5,
                   offset: [-10, 10],
                   child: Icon(
                     AntIcons.mailOutlined,
-                    size: 24.w,
+                    size: theme.s(24),
                     color: theme.colorText,
                   ),
                 ),
@@ -152,7 +152,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -164,12 +164,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

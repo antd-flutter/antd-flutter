@@ -60,9 +60,7 @@ class _AntdUploadGalleryAppState extends State<AntdUploadGalleryApp> {
     // MaterialApp，theme + darkTheme + themeMode 三件套联动。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'AntdUpload Demo',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -93,7 +91,6 @@ class _AntdUploadGalleryAppState extends State<AntdUploadGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -103,8 +100,8 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
-    margin: EdgeInsets.only(bottom: 16.w),
+    padding: EdgeInsets.all(theme.s(16)),
+    margin: EdgeInsets.only(bottom: theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -115,20 +112,22 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       children: [
         Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15)),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         child,
       ],
     ),
   );
 }
 
-Widget _page(BuildContext context, List<Widget> children) =>
-    SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
-      child: Column(children: children),
-    );
+Widget _page(BuildContext context, List<Widget> children) {
+  final theme = AntTheme.of(context);
+  return SingleChildScrollView(
+    padding: EdgeInsets.all(theme.s(16)),
+    child: Column(children: children),
+  );
+}
 
 /// 模拟文件选择（R16：真实选择由使用方注入，demo 模拟返回）。
 Future<List<AntUploadFile>> _pickFiles(
@@ -288,6 +287,7 @@ class _StatusSectionState extends State<_StatusSection> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return _page(context, [
       _sectionCard(
         context,
@@ -305,12 +305,12 @@ class _StatusSectionState extends State<_StatusSection> {
               },
               customRequest: _request,
             ),
-            SizedBox(height: 8.w),
+            SizedBox(height: theme.s(8)),
             Text(
               '说明：第 1、3、5… 次上传模拟失败（error），失败后可移除重新上传；'
               '上传中展示进度百分比与进度条。',
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: theme.s(12),
                 color: AntTheme.of(context).colorTextTertiary,
               ),
             ),
@@ -359,6 +359,7 @@ class _PreviewSectionState extends State<_PreviewSection> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return _page(context, [
       _sectionCard(
         context,
@@ -396,24 +397,24 @@ class _PreviewSectionState extends State<_PreviewSection> {
                   _fakeUpload(file, updateFile),
             ),
             if (_previewUrl != null) ...[
-              SizedBox(height: 12.w),
+              SizedBox(height: theme.s(12)),
               GestureDetector(
                 onTap: () => setState(() => _previewUrl = null),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(theme.s(8)),
                   child: Image.network(
                     _previewUrl!,
                     width: double.infinity,
-                    height: 200.w,
+                    height: theme.s(200),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              SizedBox(height: 4.w),
+              SizedBox(height: theme.s(4)),
               Text(
                 '点击预览图关闭',
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: theme.s(12),
                   color: AntTheme.of(context).colorTextTertiary,
                 ),
               ),
@@ -441,6 +442,7 @@ class _ControlledSectionState extends State<_ControlledSection> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return _page(context, [
       _sectionCard(
         context,
@@ -474,17 +476,17 @@ class _ControlledSectionState extends State<_ControlledSection> {
               customRequest: (file, updateFile) =>
                   _fakeUpload(file, updateFile),
             ),
-            SizedBox(height: 12.w),
+            SizedBox(height: theme.s(12)),
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(theme.s(8)),
               decoration: BoxDecoration(
                 color: AntTheme.of(context).colorFillQuaternary,
-                borderRadius: BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(theme.s(6)),
               ),
               child: Text(
                 '回调日志：$_lastAction',
-                style: TextStyle(fontSize: 12.sp),
+                style: TextStyle(fontSize: theme.s(12)),
               ),
             ),
           ],
@@ -512,6 +514,7 @@ class _CustomItemSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return _page(context, [
       _sectionCard(
         context,
@@ -529,19 +532,19 @@ class _CustomItemSection extends StatelessWidget {
         context,
         '外层自定义包装（卡片化 + 禁用态）',
         Container(
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.all(theme.s(12)),
           decoration: BoxDecoration(
             color: AntTheme.of(context).colorFillQuaternary,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(theme.s(12)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 '入职材料提交',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: theme.s(14)),
               ),
-              SizedBox(height: 8.w),
+              SizedBox(height: theme.s(8)),
               AntUpload(
                 disabled: true,
                 defaultFileList: const [
@@ -609,12 +612,12 @@ Widget _attachmentItemBuilder(
   final theme = AntTheme.of(context);
   final extra = file.extra;
   return Padding(
-    padding: EdgeInsets.symmetric(vertical: 6.w),
+    padding: EdgeInsets.symmetric(vertical: theme.s(6)),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(AntIcons.paperClipOutlined, size: 16.r, color: theme.colorPrimary),
-        SizedBox(width: 8.w),
+        Icon(AntIcons.paperClipOutlined, size: theme.s(16), color: theme.colorPrimary),
+        SizedBox(width: theme.s(8)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,15 +626,15 @@ Widget _attachmentItemBuilder(
                 '${index + 1}. ${file.name}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
               ),
               if (extra != null)
                 Padding(
-                  padding: EdgeInsets.only(top: 2.w),
+                  padding: EdgeInsets.only(top: theme.s(2)),
                   child: Text(
                     '${extra.category} · 项目 ${extra.projectId} · 负责人 ${extra.owner}',
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: theme.s(12),
                       color: theme.colorTextSecondary,
                     ),
                   ),

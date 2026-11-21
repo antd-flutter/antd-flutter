@@ -144,7 +144,7 @@ class _AntAlertState extends State<AntAlert>
               Builder(
                 builder: (context) {
                   final hasDesc = widget.description != null;
-                  final iconSize = hasDesc ? 20.w : 16.w;
+                  final iconSize = hasDesc ? theme.s(20) : theme.s(16);
                   final firstLineHeight = theme.fontSize * 1.5;
                   // 首行盒高可能小于放大后的图标（.w 缩放），偏移不允许为负。
                   final gap = firstLineHeight - iconSize;
@@ -159,7 +159,7 @@ class _AntAlertState extends State<AntAlert>
                   );
                 },
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: theme.s(8)),
             ],
             Expanded(
               child: Text(
@@ -177,10 +177,10 @@ class _AntAlertState extends State<AntAlert>
                 onTap: _handleClose,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 8.w),
+                  padding: EdgeInsets.only(left: theme.s(8)),
                   child: Icon(
                     AntIcons.closeOutlined,
-                    size: 14.w,
+                    size: theme.s(14),
                     color: theme.colorTextSecondary,
                   ),
                 ),
@@ -188,7 +188,7 @@ class _AntAlertState extends State<AntAlert>
           ],
         ),
         if (widget.description != null) ...[
-          SizedBox(height: 4.w),
+          SizedBox(height: theme.s(4)),
           Text(
             widget.description!,
             style: TextStyle(
@@ -209,10 +209,10 @@ class _AntAlertState extends State<AntAlert>
 
     Widget alert = Container(
       padding: EdgeInsets.only(
-        left: 12.w,
-        right: 12.w,
-        top: widget.description != null ? 10.w : 8.w,
-        bottom: widget.description != null ? 10.w : 8.w,
+        left: theme.s(12),
+        right: theme.s(12),
+        top: widget.description != null ? theme.s(10) : theme.s(8),
+        bottom: widget.description != null ? theme.s(10) : theme.s(8),
       ),
       decoration: BoxDecoration(
         color: bg,
@@ -226,18 +226,18 @@ class _AntAlertState extends State<AntAlert>
         children: [
           if (widget.bordered && !widget.banner) ...[
             Container(
-              width: 3.w,
+              width: theme.s(3),
               constraints: const BoxConstraints(minHeight: 16),
               decoration: BoxDecoration(
                 color: fg,
-                borderRadius: BorderRadius.circular(1.5.w),
+                borderRadius: BorderRadius.circular(theme.s(1.5)),
               ),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
           ],
           Expanded(child: content),
           if (widget.action != null) ...[
-            SizedBox(width: 8.w),
+            SizedBox(width: theme.s(8)),
             widget.action!,
           ],
         ],

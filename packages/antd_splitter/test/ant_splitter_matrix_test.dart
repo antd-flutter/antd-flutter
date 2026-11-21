@@ -9,13 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -27,9 +25,10 @@ void _assertCentered(
   bool allowClamped = false,
 }) {
   var draggerIndex = 0;
-  while (tester.any(find.byKey(ValueKey('ant_splitter_dragger_$draggerIndex')))) {
-    final draggerCenter =
-        tester.getCenter(find.byKey(ValueKey('ant_splitter_dragger_$draggerIndex')));
+  while (
+      tester.any(find.byKey(ValueKey('ant_splitter_dragger_$draggerIndex')))) {
+    final draggerCenter = tester
+        .getCenter(find.byKey(ValueKey('ant_splitter_dragger_$draggerIndex')));
     final centers = <Offset>[];
     for (final panel in [draggerIndex, draggerIndex + 1]) {
       final key = ValueKey('ant_splitter_collapse_${draggerIndex}_$panel');
@@ -74,8 +73,7 @@ List<double> _panelSizes(WidgetTester tester, bool isHorizontal) {
 void main() {
   for (final panelCount in [2, 3, 4]) {
     for (final isHorizontal in [true, false]) {
-      final layout =
-          isHorizontal ? 'horizontal' : 'vertical';
+      final layout = isHorizontal ? 'horizontal' : 'vertical';
       testWidgets('$layout $panelCount 面板 — 初始位置', (tester) async {
         await tester.pumpWidget(
           _wrap(
@@ -150,7 +148,8 @@ void main() {
             ),
           ),
         );
-        await tester.tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
+        await tester
+            .tap(find.byKey(const ValueKey('ant_splitter_collapse_0_0')));
         await tester.pumpAndSettle();
         expect(_panelSizes(tester, isHorizontal)[0], closeTo(0, 1));
         _assertCentered(tester, isHorizontal, allowClamped: true);

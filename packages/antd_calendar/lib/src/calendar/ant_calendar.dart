@@ -613,7 +613,7 @@ class _AntCalendarState extends State<AntCalendar>
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: t.s(16), vertical: t.s(10)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -666,9 +666,9 @@ class _AntCalendarState extends State<AntCalendar>
                   selectedYear = vals[0];
                   selectedMonth = vals.length > 1 ? vals[1] : null;
                 },
-                height: 200.h,
+                height: t.s(200),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: t.s(16)),
             ],
           ),
         );
@@ -692,7 +692,7 @@ class _AntCalendarState extends State<AntCalendar>
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(vertical: fullscreen ? 8.w : 4.w),
+                padding: EdgeInsets.symmetric(vertical: fullscreen ? t.s(8) : t.s(4)),
                 child: Row(
                   children: weekLabels
                       .map(
@@ -730,7 +730,7 @@ class _AntCalendarState extends State<AntCalendar>
           );
 
     return Container(
-      padding: EdgeInsets.all(fullscreen ? 8.w : 4.w),
+      padding: EdgeInsets.all(fullscreen ? t.s(8) : t.s(4)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -775,7 +775,7 @@ class _AntCalendarState extends State<AntCalendar>
   /// 格式切换 + 「本月」按钮。
   Widget _buildHeader(AntThemeData t, bool fullscreen) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(8)),
       child: Row(
         children: [
           if (widget.showYearNavButtons)
@@ -796,7 +796,7 @@ class _AntCalendarState extends State<AntCalendar>
                       : null,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
+                    padding: EdgeInsets.symmetric(horizontal: t.s(4)),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -812,10 +812,10 @@ class _AntCalendarState extends State<AntCalendar>
                           ),
                         ),
                         if (widget.enableYearMonthDropdown) ...[
-                          SizedBox(width: 2.w),
+                          SizedBox(width: t.s(2)),
                           Icon(
                             AntIcons.downOutlined,
-                            size: 16.w,
+                            size: t.s(16),
                             color: t.colorTextSecondary,
                           ),
                         ],
@@ -824,7 +824,7 @@ class _AntCalendarState extends State<AntCalendar>
                   ),
                 ),
                 if (_showModeSwitcher) ...[
-                  SizedBox(width: 8.w),
+                  SizedBox(width: t.s(8)),
                   _buildModeSwitcher(t),
                 ],
               ],
@@ -835,7 +835,7 @@ class _AntCalendarState extends State<AntCalendar>
             onTap: _goToCurrentMonth,
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.w),
+              padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(4)),
               child: Text(
                 _locale.effectiveTodayText,
                 style: TextStyle(
@@ -871,7 +871,7 @@ class _AntCalendarState extends State<AntCalendar>
           onTap: () => _setMode(entry.key),
           behavior: HitTestBehavior.opaque,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.w),
+            padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(2)),
             decoration: BoxDecoration(
               color: active ? t.colorPrimary : Colors.transparent,
               borderRadius: BorderRadius.horizontal(
@@ -901,8 +901,8 @@ class _AntCalendarState extends State<AntCalendar>
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.all(4.w),
-        child: Icon(icon, size: 20.w, color: t.colorText),
+        padding: EdgeInsets.all(t.s(4)),
+        child: Icon(icon, size: t.s(20), color: t.colorText),
       ),
     );
   }
@@ -915,7 +915,7 @@ class _AntCalendarState extends State<AntCalendar>
       AntCalendarFormat.week: '周',
     };
     return Padding(
-      padding: EdgeInsets.only(right: 4.w),
+      padding: EdgeInsets.only(right: t.s(4)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: labels.entries.map((entry) {
@@ -924,8 +924,8 @@ class _AntCalendarState extends State<AntCalendar>
             onTap: () => _setFormat(entry.key),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.w),
-              margin: EdgeInsets.symmetric(horizontal: 1.w),
+              padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(3)),
+              margin: EdgeInsets.symmetric(horizontal: t.s(1)),
               decoration: BoxDecoration(
                 color: active ? t.colorPrimary : Colors.transparent,
                 borderRadius: BorderRadius.circular(t.borderRadiusSM),
@@ -976,8 +976,8 @@ class _AntCalendarState extends State<AntCalendar>
 
     Widget content = widget.monthFullCellRender?.call(month) ??
         Container(
-          margin: EdgeInsets.all(4.w),
-          constraints: BoxConstraints(minHeight: fullscreen ? 64.w : 36.w),
+          margin: EdgeInsets.all(t.s(4)),
+          constraints: BoxConstraints(minHeight: fullscreen ? t.s(64) : t.s(36)),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(t.borderRadiusSM),
             border: Border.all(
@@ -1088,11 +1088,11 @@ class _AntCalendarState extends State<AntCalendar>
         );
 
     Widget cell = Container(
-      margin: EdgeInsets.all(fullscreen ? 2.w : 1.w),
+      margin: EdgeInsets.all(fullscreen ? t.s(2) : t.s(1)),
       constraints: BoxConstraints(
         // card 形态对齐 antd-mobile 单元格比例（约 44 高 / 53 宽），
         // fullscreen 形态对齐 antd v6 大格子。
-        minHeight: fullscreen ? 72.w : 44.w,
+        minHeight: fullscreen ? t.s(72) : t.s(44),
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -1106,8 +1106,8 @@ class _AntCalendarState extends State<AntCalendar>
       ),
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
-        horizontal: 2.w,
-        vertical: fullscreen ? 4.w : 0,
+        horizontal: t.s(2),
+        vertical: fullscreen ? t.s(4) : 0,
       ),
       child: content,
     );
@@ -1137,7 +1137,7 @@ class _AntCalendarState extends State<AntCalendar>
     final Widget? subtitle = widget.renderLabel?.call(day) ??
         (events.isNotEmpty
             ? Padding(
-                padding: EdgeInsets.only(top: fullscreen ? 4.w : 1.w),
+                padding: EdgeInsets.only(top: fullscreen ? t.s(4) : t.s(1)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -1145,9 +1145,9 @@ class _AntCalendarState extends State<AntCalendar>
                         i < events.length && i < _kMaxEventDots;
                         i++)
                       Container(
-                        width: fullscreen ? 6.w : 3.w,
-                        height: fullscreen ? 6.w : 3.w,
-                        margin: EdgeInsets.symmetric(horizontal: 1.w),
+                        width: fullscreen ? t.s(6) : t.s(3),
+                        height: fullscreen ? t.s(6) : t.s(3),
+                        margin: EdgeInsets.symmetric(horizontal: t.s(1)),
                         decoration: BoxDecoration(
                           color: textColor == Colors.white
                               ? Colors.white
@@ -1159,7 +1159,7 @@ class _AntCalendarState extends State<AntCalendar>
                 ),
               )
             : fullscreen
-                ? SizedBox(height: 4.w)
+                ? SizedBox(height: t.s(4))
                 : null);
     return Column(
       mainAxisSize: MainAxisSize.min,

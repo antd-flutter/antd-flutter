@@ -486,7 +486,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
     final errorWidget = _buildError(t, errorText);
     final helpWidget = widget.help != null
         ? Padding(
-            padding: EdgeInsets.only(top: 4.sp),
+            padding: EdgeInsets.only(top: t.s(4)),
             child: Text(
               widget.help!,
               style: TextStyle(
@@ -498,7 +498,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
         : null;
     final extraWidget = widget.extra != null
         ? Padding(
-            padding: EdgeInsets.only(top: 4.sp),
+            padding: EdgeInsets.only(top: t.s(4)),
             child: Text(
               widget.extra!,
               style: TextStyle(
@@ -521,12 +521,12 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
 
     if (layout == AntFormLayout.horizontal && labelWidget != null) {
       return Padding(
-        padding: EdgeInsets.only(bottom: (errorText != null || widget.help != null) ? 8.sp : 16.sp),
+        padding: EdgeInsets.only(bottom: (errorText != null || widget.help != null) ? t.s(8) : t.s(16)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: labelWidth ?? 100.w,
+              width: labelWidth ?? t.s(100),
               child: labelWidget,
             ),
             Expanded(child: Column(
@@ -544,14 +544,14 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
 
     if (layout == AntFormLayout.inline) {
       return Padding(
-        padding: EdgeInsets.only(right: 16.w, bottom: 8.sp),
+        padding: EdgeInsets.only(right: t.s(16), bottom: t.s(8)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (labelWidget != null) ...[
               labelWidget,
-              SizedBox(width: 8.w),
+              SizedBox(width: t.s(8)),
             ],
             control,
           ],
@@ -561,14 +561,14 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
 
     // vertical（默认）
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.sp),
+      padding: EdgeInsets.only(bottom: t.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (labelWidget != null) ...[
             labelWidget,
-            SizedBox(height: 8.sp),
+            SizedBox(height: t.s(8)),
           ],
           control,
           if (bottomColumn.children.isNotEmpty) bottomColumn,
@@ -580,13 +580,13 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
   Widget? _buildLabel(AntThemeData t) {
     if (widget.label == null) return null;
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2.sp),
+      padding: EdgeInsets.symmetric(vertical: t.s(2)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (_isRequired)
             Padding(
-              padding: EdgeInsets.only(right: 4.sp),
+              padding: EdgeInsets.only(right: t.s(4)),
               child: Text(
                 '*',
                 style: TextStyle(
@@ -610,7 +610,7 @@ class _AntFormItemState<T> extends State<AntFormItem<T>> {
   Widget? _buildError(AntThemeData t, String? errorText) {
     if (errorText == null) return null;
     return Padding(
-      padding: EdgeInsets.only(top: 4.sp),
+      padding: EdgeInsets.only(top: t.s(4)),
       child: Text(
         errorText,
         style: TextStyle(

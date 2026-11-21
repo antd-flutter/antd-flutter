@@ -207,7 +207,7 @@ class _AntTransferState<T> extends State<AntTransfer<T>> {
     return Text(
       _searchTextOf(item),
       style: TextStyle(
-        fontSize: AntTheme.of(context).fontSizeSM.sp,
+        fontSize: AntTheme.of(context).fontSizeSM,
       ),
     );
   }
@@ -527,7 +527,7 @@ class _AntTransferState<T> extends State<AntTransfer<T>> {
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
-    final panelHeight = widget.height ?? 240.h;
+    final panelHeight = widget.height ?? t.s(240);
 
     return Opacity(
       opacity: widget.disabled ? 0.5 : 1.0,
@@ -562,11 +562,11 @@ class _AntTransferState<T> extends State<AntTransfer<T>> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: t.s(8)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: panelHeight / 2 - 32.h),
+                SizedBox(height: panelHeight / 2 - t.s(32)),
                 _OperationButton(
                   icon: widget.operations.isNotEmpty &&
                           widget.operations[0].isNotEmpty
@@ -580,7 +580,7 @@ class _AntTransferState<T> extends State<AntTransfer<T>> {
                   onTap: _moveToTarget,
                   theme: t,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: t.s(8)),
                 if (!widget.oneWay)
                   _OperationButton(
                     icon: widget.operations.length > 1 &&
@@ -705,15 +705,15 @@ class _TransferPanel<T> extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         border: Border.all(color: t.colorSplit),
-        borderRadius: BorderRadius.circular(t.borderRadius.r),
+        borderRadius: BorderRadius.circular(t.borderRadius),
       ),
       child: Column(
         children: [
           // 标题栏 + 全选
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 8.h,
+              horizontal: t.s(12),
+              vertical: t.s(8),
             ),
             decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: t.colorSplit)),
@@ -728,12 +728,12 @@ class _TransferPanel<T> extends StatelessWidget {
                   onChange: onToggleAll,
                   child: const SizedBox.shrink(),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: t.s(8)),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: t.fontSizeSM.sp,
+                      fontSize: t.fontSizeSM,
                       color: t.colorText,
                       fontWeight: FontWeight.w500,
                     ),
@@ -742,7 +742,7 @@ class _TransferPanel<T> extends StatelessWidget {
                 Text(
                   '$selectedCount/$totalCount',
                   style: TextStyle(
-                    fontSize: t.fontSizeSM.sp,
+                    fontSize: t.fontSizeSM,
                     color: t.colorTextSecondary,
                   ),
                 ),
@@ -752,35 +752,35 @@ class _TransferPanel<T> extends StatelessWidget {
           // 搜索框
           if (showSearch)
             Padding(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(t.s(8)),
               child: SizedBox(
-                height: t.controlHeightSM.h,
+                height: t.controlHeightSM,
                 child: TextField(
                   enabled: !disabled,
                   onChanged: onSearch,
-                  style: TextStyle(fontSize: t.fontSizeSM.sp),
+                  style: TextStyle(fontSize: t.fontSizeSM),
                   decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
+                      horizontal: t.s(8),
                       vertical: 0,
                     ),
                     prefixIcon: Icon(
                       AntIcons.searchOutlined,
-                      size: 16.r,
+                      size: t.s(16),
                       color: t.colorTextTertiary,
                     ),
                     hintText: 'Search',
                     hintStyle: TextStyle(
-                      fontSize: t.fontSizeSM.sp,
+                      fontSize: t.fontSizeSM,
                       color: t.colorTextPlaceholder,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(t.borderRadius.r),
+                      borderRadius: BorderRadius.circular(t.borderRadius),
                       borderSide: BorderSide(color: t.colorBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(t.borderRadius.r),
+                      borderRadius: BorderRadius.circular(t.borderRadius),
                       borderSide: BorderSide(
                         color: t.colorPrimary,
                         width: t.controlOutlineWidth,
@@ -797,7 +797,7 @@ class _TransferPanel<T> extends StatelessWidget {
                     child: Text(
                       'No data',
                       style: TextStyle(
-                        fontSize: t.fontSizeSM.sp,
+                        fontSize: t.fontSizeSM,
                         color: t.colorTextQuaternary,
                       ),
                     ),
@@ -827,8 +827,8 @@ class _TransferPanel<T> extends StatelessWidget {
           // 底部
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 6.h,
+              horizontal: t.s(12),
+              vertical: t.s(6),
             ),
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: t.colorSplit)),
@@ -838,7 +838,7 @@ class _TransferPanel<T> extends StatelessWidget {
                 Text(
                   '$selectedCount selected',
                   style: TextStyle(
-                    fontSize: t.fontSizeSM.sp,
+                    fontSize: t.fontSizeSM,
                     color: t.colorTextSecondary,
                   ),
                 ),
@@ -913,29 +913,29 @@ class _TransferRowTile<T> extends StatelessWidget {
       onTap: isDisabled ? null : onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 12.w,
-          vertical: 8.h,
+          horizontal: t.s(12),
+          vertical: t.s(8),
         ),
         child: Row(
           children: [
             // 展开箭头占位（含层级缩进）
-            SizedBox(width: row.depth * 16.w),
+            SizedBox(width: row.depth * t.s(16)),
             if (row.hasChildren)
               GestureDetector(
                 onTap: onToggleExpand,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 4.w),
+                  padding: EdgeInsets.only(right: t.s(4)),
                   child: Icon(
                     row.expanded
                         ? AntIcons.downOutlined
                         : AntIcons.rightOutlined,
-                    size: 16.r,
+                    size: t.s(16),
                     color: t.colorTextSecondary,
                   ),
                 ),
               )
             else if (treeMode)
-              SizedBox(width: 20.w),
+              SizedBox(width: t.s(20)),
             AntCheckbox(
               checked: checked,
               indeterminate: indeterminate,
@@ -943,11 +943,11 @@ class _TransferRowTile<T> extends StatelessWidget {
               onChange: isDisabled ? null : (_) => onTap(),
               child: const SizedBox.shrink(),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: t.s(8)),
             Expanded(
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: isDisabled ? t.colorTextDisabled : t.colorText,
                 ),
                 child: titleOf(context, item),
@@ -957,7 +957,7 @@ class _TransferRowTile<T> extends StatelessWidget {
               Text(
                 description,
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: t.colorTextTertiary,
                 ),
               ),
@@ -990,25 +990,25 @@ class _OperationButton extends StatelessWidget {
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
-        width: 32.w,
-        height: 32.w,
+        width: t.s(32),
+        height: t.s(32),
         decoration: BoxDecoration(
           color: enabled ? t.colorPrimary : t.colorFillSecondary,
-          borderRadius: BorderRadius.circular(t.borderRadius.r),
+          borderRadius: BorderRadius.circular(t.borderRadius),
         ),
         child: Center(
           child: label != null
               ? Text(
                   label!,
                   style: TextStyle(
-                    fontSize: t.fontSizeSM.sp,
+                    fontSize: t.fontSizeSM,
                     color: enabled ? Colors.white : t.colorTextDisabled,
                     fontWeight: FontWeight.w500,
                   ),
                 )
               : Icon(
                   icon,
-                  size: 18.r,
+                  size: t.s(18),
                   color: enabled ? Colors.white : t.colorTextDisabled,
                 ),
         ),

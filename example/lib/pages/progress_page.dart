@@ -8,7 +8,7 @@ class ProgressPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -25,7 +25,7 @@ class ProgressPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '状态色',
             theme: theme,
@@ -39,7 +39,7 @@ class ProgressPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义颜色与粗细',
             theme: theme,
@@ -53,7 +53,7 @@ class ProgressPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '不显示百分比文字',
             theme: theme,
@@ -65,13 +65,13 @@ class ProgressPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '圆形基础',
             theme: theme,
             child: Wrap(
-              spacing: 24.w,
-              runSpacing: 12.w,
+              spacing: theme.s(24),
+              runSpacing: theme.s(12),
               children: const [
                 AntProgress(percent: 30, type: AntProgressType.circle),
                 AntProgress(percent: 70, type: AntProgressType.circle),
@@ -88,13 +88,13 @@ class ProgressPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '圆形自定义',
             theme: theme,
             child: Wrap(
-              spacing: 24.w,
-              runSpacing: 12.w,
+              spacing: theme.s(24),
+              runSpacing: theme.s(12),
               children: [
                 AntProgress(
                   percent: 75,
@@ -146,7 +146,7 @@ class _Section extends StatelessWidget {
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

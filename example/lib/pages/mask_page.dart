@@ -24,7 +24,7 @@ class _MaskPageState extends State<MaskPage> {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(theme.s(16)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -32,8 +32,8 @@ class _MaskPageState extends State<MaskPage> {
                 title: '基础显隐 / 点击回调',
                 theme: theme,
                 child: Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.w,
+                  spacing: theme.s(8),
+                  runSpacing: theme.s(8),
                   children: [
                     AntButton(
                       onTap: () => setState(() {
@@ -50,13 +50,13 @@ class _MaskPageState extends State<MaskPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '自定义透明度',
                 theme: theme,
                 child: Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.w,
+                  spacing: theme.s(8),
+                  runSpacing: theme.s(8),
                   children: [
                     for (final value in <double>[0.3, 0.5, 0.8])
                       AntButton(
@@ -70,7 +70,7 @@ class _MaskPageState extends State<MaskPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '带内容组合（Loading）',
                 theme: theme,
@@ -84,13 +84,13 @@ class _MaskPageState extends State<MaskPage> {
                   child: const Text('显示 Loading 遮罩（2 秒后关闭）'),
                 ),
               ),
-              SizedBox(height: 16.w),
+              SizedBox(height: theme.s(16)),
               _Section(
                 title: '深浅色遮罩',
                 theme: theme,
                 child: Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.w,
+                  spacing: theme.s(8),
+                  runSpacing: theme.s(8),
                   children: [
                     AntButton(
                       onTap: () => setState(() {
@@ -132,7 +132,7 @@ class _MaskPageState extends State<MaskPage> {
           onAction: () => setState(() => _contentVisible = false),
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(24.w),
+              padding: EdgeInsets.all(theme.s(24)),
               decoration: BoxDecoration(
                 color: theme.colorBgContainer,
                 borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -141,10 +141,10 @@ class _MaskPageState extends State<MaskPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const AntSpin(),
-                  SizedBox(height: 12.w),
+                  SizedBox(height: theme.s(12)),
                   Text(
                     '正在加载...',
-                    style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+                    style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                   ),
                 ],
               ),
@@ -160,7 +160,7 @@ class _MaskPageState extends State<MaskPage> {
           child: Center(
             child: Text(
               '浅色遮罩上层内容',
-              style: TextStyle(fontSize: 16.sp, color: theme.colorText),
+              style: TextStyle(fontSize: theme.s(16), color: theme.colorText),
             ),
           ),
         ),
@@ -184,7 +184,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -196,12 +196,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

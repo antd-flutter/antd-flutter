@@ -6,8 +6,9 @@ class ColorPickerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,7 +19,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '显示颜色文本',
             child: AntColorPicker(
@@ -27,9 +28,9 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控模式', child: _ControlledDemo()),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '预设颜色（自定义模型）',
             child: AntColorPicker<_Palette>(
@@ -44,7 +45,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'RGB 格式',
             child: AntColorPicker(
@@ -54,7 +55,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'HSL 格式',
             child: AntColorPicker(
@@ -64,7 +65,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'HSB 格式',
             child: AntColorPicker(
@@ -74,7 +75,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用透明度',
             child: AntColorPicker(
@@ -84,7 +85,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '允许清空',
             child: AntColorPicker(
@@ -94,7 +95,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种尺寸',
             child: AntSpace(
@@ -118,7 +119,7 @@ class ColorPickerPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用状态',
             child: AntColorPicker(
@@ -144,9 +145,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntFlex(
       vertical: true,
-      gap: AntFlexGap.all(12.w),
+      gap: AntFlexGap.all(theme.s(12)),
       children: [
         AntColorPicker(
           value: _color,
@@ -174,7 +176,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -190,7 +192,7 @@ class _Section extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

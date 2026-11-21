@@ -362,12 +362,12 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
       child: Container(
         key: _triggerKey,
         constraints: BoxConstraints(
-          minHeight: _height.h,
-          maxHeight: maxHeight.h,
+          minHeight: t.s(_height),
+          maxHeight: t.s(maxHeight),
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: (widget.size == AntMentionsSize.small ? 7 : 12).w,
-          vertical: 4.h,
+          horizontal: t.s((widget.size == AntMentionsSize.small ? 7 : 12)),
+          vertical: t.s(4),
         ),
         decoration: BoxDecoration(
           color:
@@ -389,7 +389,7 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
                 maxLines: widget.maxRows,
                 minLines: 1,
                 style: TextStyle(
-                  fontSize: fontSize.sp,
+                  fontSize: t.s(fontSize),
                   color: widget.disabled ? t.colorTextDisabled : t.colorText,
                 ),
                 decoration: InputDecoration(
@@ -414,10 +414,10 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
                   focusColor: Colors.transparent,
                   hintText: widget.placeholder,
                   hintStyle: TextStyle(
-                    fontSize: fontSize.sp,
+                    fontSize: t.s(fontSize),
                     color: t.colorTextPlaceholder,
                   ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 6.h),
+                  contentPadding: EdgeInsets.symmetric(vertical: t.s(6)),
                 ),
               ),
             ),
@@ -426,10 +426,10 @@ class _AntMentionsState<T> extends State<AntMentions<T>>
                 onTap: _clear,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 4.w),
+                  padding: EdgeInsets.only(left: t.s(4)),
                   child: Icon(
                     AntIcons.closeCircleFilled,
-                    size: 14.sp,
+                    size: t.s(14),
                     color: t.colorTextQuaternary,
                   ),
                 ),
@@ -490,12 +490,12 @@ class _MentionsOverlay<T> extends StatelessWidget {
     final triggerWidth = (triggerBox != null && triggerBox.hasSize)
         ? triggerBox.size.width
         : 0.0;
-    final panelWidth = triggerWidth > 200.w ? triggerWidth : 200.w;
+    final panelWidth = triggerWidth > t.s(200) ? triggerWidth : t.s(200);
 
     return Container(
       key: const Key('ant_mentions_panel'),
       width: panelWidth,
-      constraints: BoxConstraints(maxHeight: 200.h),
+      constraints: BoxConstraints(maxHeight: t.s(200)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -509,11 +509,11 @@ class _MentionsOverlay<T> extends StatelessWidget {
       ),
       child: options.isEmpty
           ? Padding(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(t.s(12)),
               child: Text(
                 '无匹配项',
                 style: TextStyle(
-                  fontSize: t.fontSizeSM.sp,
+                  fontSize: t.fontSizeSM,
                   color: t.colorTextQuaternary,
                 ),
               ),
@@ -574,6 +574,7 @@ class _MentionOptionTileState extends State<_MentionOptionTile> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
     final disabled = widget.disabled;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -582,7 +583,7 @@ class _MentionOptionTileState extends State<_MentionOptionTile> {
         onTap: disabled ? null : widget.onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: t.s(8), horizontal: t.s(12)),
           color: disabled
               ? widget.colorFillSecondary.withValues(alpha: 0.3)
               : _isHovered
@@ -594,7 +595,7 @@ class _MentionOptionTileState extends State<_MentionOptionTile> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: widget.fontSize.sp,
+                  fontSize: t.s(widget.fontSize),
                   color: disabled ? widget.colorTextDisabled : widget.colorText,
                 ),
               ),

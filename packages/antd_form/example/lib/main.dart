@@ -47,9 +47,7 @@ class _AntdFormGalleryAppState extends State<AntdFormGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdForm Demo',
             debugShowCheckedModeBanner: false,
@@ -86,25 +84,25 @@ class _AntdFormGalleryAppState extends State<AntdFormGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget _sectionBody(BuildContext pageContext, AntLayoutData layout, int index) {
+    final theme = AntTheme.of(pageContext);
     final isWide = layout.width >= 768 ||
         layout.breakpoint == AntBreakpoint.lg ||
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in _cardsOf(index))
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 480.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(480)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -113,7 +111,7 @@ class _AntdFormGalleryAppState extends State<AntdFormGalleryApp> {
               children: [
                 for (final card in _cardsOf(index))
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -135,7 +133,7 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
+    padding: EdgeInsets.all(theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -145,10 +143,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 12.w),
+          padding: EdgeInsets.only(bottom: theme.s(12)),
           child: Text(title,
               style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp)),
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15))),
         ),
         child,
       ],
@@ -159,9 +157,9 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
 Widget _hintText(BuildContext context, String text) {
   final theme = AntTheme.of(context);
   return Padding(
-    padding: EdgeInsets.only(top: 8.w),
+    padding: EdgeInsets.only(top: theme.s(8)),
     child: Text(text,
-        style: TextStyle(fontSize: 12.sp, color: theme.colorTextTertiary)),
+        style: TextStyle(fontSize: theme.s(12), color: theme.colorTextTertiary)),
   );
 }
 
@@ -186,6 +184,7 @@ class _BasicFormDemoState extends State<_BasicFormDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntForm(
       onFinish: (values) =>
           setState(() => _result = '提交成功：${values.entries.map((e) => '${e.key}=${e.value}').join('，')}'),
@@ -247,7 +246,7 @@ class _BasicFormDemoState extends State<_BasicFormDemo> {
               onChange: (v) => field.didChange(v?.round().toString() ?? ''),
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           ElevatedButton(
             onPressed: () => AntForm.controllerOf(context)?.submit(),
             child: const Text('提交'),
@@ -286,6 +285,7 @@ class _ControlledFormDemoState extends State<_ControlledFormDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntForm(
       controller: _controller,
       initialValues: const {'nickname': 'antd'},
@@ -302,7 +302,7 @@ class _ControlledFormDemoState extends State<_ControlledFormDemo> {
             ),
           ),
           Wrap(
-            spacing: 8.w,
+            spacing: theme.s(8),
             children: [
               OutlinedButton(
                 onPressed: () => setState(() => _controller
@@ -411,6 +411,7 @@ class _DynamicFormDemoState extends State<_DynamicFormDemo> {
 
   @override
   Widget build(BuildContext context) {
+  final theme = AntTheme.of(context);
     return AntForm(
       children: [Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,7 +428,7 @@ class _DynamicFormDemoState extends State<_DynamicFormDemo> {
               ),
             ),
           Wrap(
-            spacing: 8.w,
+            spacing: theme.s(8),
             children: [
               OutlinedButton(
                 onPressed: _memberCount >= 5
@@ -471,6 +472,7 @@ class _InputLinkageFormDemoState extends State<_InputLinkageFormDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntForm(
       onFinish: (values) => setState(
           () => _result = '提交成功：${values.entries.map((e) => '${e.key}=${e.value}').join('，')}'),
@@ -515,7 +517,7 @@ class _InputLinkageFormDemoState extends State<_InputLinkageFormDemo> {
               onChange: (v) => field.didChange(v),
             ),
           ),
-          SizedBox(height: 8.w),
+          SizedBox(height: theme.s(8)),
           ElevatedButton(
             onPressed: () => AntForm.controllerOf(context)?.submit(),
             child: const Text('提交'),

@@ -18,7 +18,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_screenutil: ^5.9.3
 
   # L2/L3 子包（发布后自动从 pub.dev 解析）
   antd_color: ^0.1.0-beta.1

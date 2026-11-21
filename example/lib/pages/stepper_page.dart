@@ -6,8 +6,9 @@ class StepperPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,7 +19,7 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '范围限制',
             child: AntStepper(
@@ -28,7 +29,7 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '步长设置',
             child: AntStepper(
@@ -37,7 +38,7 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '小数精度',
             child: AntStepper(
@@ -47,7 +48,7 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种尺寸',
             child: AntSpace(
@@ -59,7 +60,7 @@ class StepperPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '只读输入',
             child: AntStepper(
@@ -68,7 +69,7 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '允许清空',
             child: AntStepper(
@@ -77,12 +78,12 @@ class StepperPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用状态',
             child: AntStepper(defaultValue: 3, disabled: true),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
@@ -101,9 +102,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntFlex(
       vertical: true,
-      gap: AntFlexGap.all(12.w),
+      gap: AntFlexGap.all(theme.s(12)),
       children: [
         AntStepper(
           value: _value,
@@ -126,7 +128,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -142,7 +144,7 @@ class _Section extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

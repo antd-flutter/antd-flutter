@@ -49,9 +49,7 @@ class _AntdRefreshGalleryAppState extends State<AntdRefreshGalleryApp> {
     final theme = _isDark ? AntThemeData.dark() : AntThemeData.light();
     return AntTheme(
       data: theme,
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => MaterialApp(
+      child: MaterialApp(
           title: 'Ant Design Refresh',
           debugShowCheckedModeBanner: false,
           themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -63,7 +61,6 @@ class _AntdRefreshGalleryAppState extends State<AntdRefreshGalleryApp> {
             onToggleDark: () => setState(() => _isDark = !_isDark),
           ),
         ),
-      ),
     );
   }
 }

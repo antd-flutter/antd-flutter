@@ -31,7 +31,7 @@ class _ActionSheetPageState extends State<ActionSheetPage> {
         Scaffold(
           appBar: AppBar(title: const Text('ActionSheet 动作面板')),
           body: ListView(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(theme.s(16)),
             children: [
               _Section(
                 title: '基础用法',
@@ -79,7 +79,7 @@ class _ActionSheetPageState extends State<ActionSheetPage> {
                 child: Text(
                   _callbackLog,
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: theme.s(14),
                     color: theme.colorTextSecondary,
                   ),
                 ),
@@ -172,7 +172,7 @@ class _DemoButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 12.w),
+        padding: EdgeInsets.symmetric(vertical: theme.s(12)),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: theme.colorPrimaryBg,
@@ -180,7 +180,7 @@ class _DemoButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(fontSize: 14.sp, color: theme.colorPrimary),
+          style: TextStyle(fontSize: theme.s(14), color: theme.colorPrimary),
         ),
       ),
     );
@@ -203,7 +203,7 @@ class _Section extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -215,12 +215,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

@@ -9,8 +9,7 @@ import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 DateTime _date(int y, int m, int d) => DateTime(y, m, d);
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
@@ -19,8 +18,7 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
             ),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   // 2024 年 6 月（6 月 1 日为周六），默认 weekStartsOn=monday。

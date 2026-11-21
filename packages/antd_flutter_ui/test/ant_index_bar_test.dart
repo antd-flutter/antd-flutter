@@ -64,8 +64,7 @@ List<_IndexData> _items() => [
         ),
     ];
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: SizedBox(
             height: 400,
@@ -75,8 +74,7 @@ Widget _wrap(Widget child) => AntScreenUtilInit(
             ),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntIndexBar — 渲染', () {

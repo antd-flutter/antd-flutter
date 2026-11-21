@@ -26,7 +26,6 @@ import 'modal_page.dart';
 import 'notification_page.dart';
 import 'popconfirm_page.dart';
 import 'progress_page.dart';
-import 'screen_util_page.dart';
 import 'responsive_page.dart';
 import 'skeleton_page.dart';
 import 'spin_page.dart';
@@ -169,8 +168,6 @@ class ComponentPage extends StatelessWidget {
         return const ProgressPage();
       case 'responsive':
         return const ResponsivePage();
-      case 'screen_util':
-        return const ScreenUtilPage();
       case 'result':
       case 'result_page':
         return const ResultPagePage();

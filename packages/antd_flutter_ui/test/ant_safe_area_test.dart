@@ -18,8 +18,7 @@ Widget _wrap(
   EdgeInsets padding = EdgeInsets.zero,
   EdgeInsets viewPadding = EdgeInsets.zero,
 }) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: MediaQuery(
           data: MediaQueryData(padding: padding, viewPadding: viewPadding),
@@ -29,8 +28,7 @@ Widget _wrap(
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 获取 AntSafeArea 内部 SizedBox 的高度（占位模式）。

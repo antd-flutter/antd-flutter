@@ -6,13 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
-      home: Scaffold(
-        body: AntTheme(
-          data: AntThemeData.light(),
-          child: Material(child: child),
-        ),
+  return MaterialApp(
+    home: Scaffold(
+      body: AntTheme(
+        data: AntThemeData.light(),
+        child: Material(child: child),
       ),
     ),
   );
@@ -64,7 +62,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       expect(tester.widgetList(dots).length, 3);
     });
@@ -83,7 +82,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       await tester.tap(dots.at(2));
       await tester.pumpAndSettle();
@@ -97,7 +97,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       await tester.tap(dots.at(1));
       await tester.pumpAndSettle();
@@ -109,7 +110,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       expect(tester.widgetList(dots), isEmpty);
     });
@@ -130,10 +132,14 @@ void main() {
 
     testWidgets('autoplay advances page after interval', (tester) async {
       final changes = <int>[];
-      await tester.pumpWidget(_wrap(_carousel(
-        autoplay: true,
-        onChange: changes.add,
-      ),),);
+      await tester.pumpWidget(
+        _wrap(
+          _carousel(
+            autoplay: true,
+            onChange: changes.add,
+          ),
+        ),
+      );
       expect(changes, isEmpty);
       // 等待一个 autoplayInterval 周期
       await tester.pump(const Duration(seconds: 3));
@@ -148,14 +154,16 @@ void main() {
       // R30.1：loop 为无限循环（PageView.builder + 取模），自动播放持续进行，
       // 不再回弹停在第 0 页；断言 3 次切换后 onChange 回到 0。
       final changes = <int>[];
-      await tester.pumpWidget(_wrap(
-        _carousel(
-          autoplay: true,
-          loop: true,
-          interval: const Duration(milliseconds: 400),
-          onChange: changes.add,
+      await tester.pumpWidget(
+        _wrap(
+          _carousel(
+            autoplay: true,
+            loop: true,
+            interval: const Duration(milliseconds: 400),
+            onChange: changes.add,
+          ),
         ),
-      ),);
+      );
       // 3 次自动切换（动画 300ms + 间隔 400ms）：切换序列 0 → 1 → 2 → 0
       for (var i = 0; i < 8; i++) {
         await tester.pump(const Duration(milliseconds: 400));
@@ -165,13 +173,15 @@ void main() {
     });
 
     testWidgets('pauseOnHover stops autoplay while hovered', (tester) async {
-      await tester.pumpWidget(_wrap(
-        _carousel(
-          autoplay: true,
-          pauseOnHover: true,
-          interval: const Duration(milliseconds: 400),
+      await tester.pumpWidget(
+        _wrap(
+          _carousel(
+            autoplay: true,
+            pauseOnHover: true,
+            interval: const Duration(milliseconds: 400),
+          ),
         ),
-      ),);
+      );
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
       addTearDown(gesture.removePointer);
@@ -184,17 +194,19 @@ void main() {
 
     testWidgets('controlled current follows widget updates', (tester) async {
       int? current;
-      Widget buildHost() => _wrap(StatefulBuilder(
-            builder: (context, setState) => Column(
-              children: [
-                TextButton(
-                  onPressed: () => setState(() => current = 2),
-                  child: const Text('jump'),
-                ),
-                _carousel(current: current),
-              ],
+      Widget buildHost() => _wrap(
+            StatefulBuilder(
+              builder: (context, setState) => Column(
+                children: [
+                  TextButton(
+                    onPressed: () => setState(() => current = 2),
+                    child: const Text('jump'),
+                  ),
+                  _carousel(current: current),
+                ],
+              ),
             ),
-          ),);
+          );
       await tester.pumpWidget(buildHost());
       await tester.pumpAndSettle();
       await tester.tap(find.text('jump'));
@@ -227,7 +239,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       // 左侧指示点为纵向排列
       final centers =
@@ -248,7 +261,8 @@ void main() {
       final dots = find.descendant(
         of: find.byType(AntCarousel),
         matching: find.byWidgetPredicate(
-            (w) => w is GestureDetector && w.child is Container,),
+          (w) => w is GestureDetector && w.child is Container,
+        ),
       );
       final centers =
           tester.widgetList(dots).map((w) => w as GestureDetector).toList();

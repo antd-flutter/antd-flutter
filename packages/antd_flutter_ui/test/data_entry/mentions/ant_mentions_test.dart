@@ -25,16 +25,14 @@ const _members = [
   _Member('u3', '王五', 'wangwu'),
 ];
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
         home: Scaffold(
           body: AntTheme(
             data: AntThemeData.light(),
             child: Material(child: child),
           ),
         ),
-      ),
-    );
+      );
 
 void main() {
   group('AntMentions', () {
@@ -413,8 +411,7 @@ void main() {
   group('AntMentions — 单一外层描边（双层边框回归）', () {
     testWidgets('主题带 InputDecorationTheme 时输入框不产生内层第二道边框', (tester) async {
       await tester.pumpWidget(
-        AntScreenUtilInit(
-          builder: (context, _) => MaterialApp(
+        MaterialApp(
             theme: ThemeData(
               inputDecorationTheme: const InputDecorationTheme(
                 enabledBorder: OutlineInputBorder(),
@@ -429,7 +426,6 @@ void main() {
               ),
             ),
           ),
-        ),
       );
       await tester.pumpAndSettle();
       final decoration =
@@ -460,8 +456,7 @@ void main() {
   group('AntMentions — 验收回归（禁用灰底）', () {
     testWidgets('禁用态背景为灰底 token，输入框填充不盖掉容器灰底', (tester) async {
       await tester.pumpWidget(
-        AntScreenUtilInit(
-          builder: (context, _) => MaterialApp(
+        MaterialApp(
             theme: ThemeData(
               inputDecorationTheme: const InputDecorationTheme(
                 filled: true,
@@ -477,7 +472,6 @@ void main() {
               ),
             ),
           ),
-        ),
       );
       await tester.pumpAndSettle();
       final decoration =

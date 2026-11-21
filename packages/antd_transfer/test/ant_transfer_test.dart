@@ -55,13 +55,11 @@ const treeData = <_Item>[
   _Item(3, '独立节点'),
 ];
 
-Widget _wrap(Widget child) => AntScreenUtilInit(
-      builder: (context, _) => MaterialApp(
-        home: Scaffold(
-          body: AntTheme(
-            data: AntThemeData.light(),
-            child: Material(child: child),
-          ),
+Widget _wrap(Widget child) => MaterialApp(
+      home: Scaffold(
+        body: AntTheme(
+          data: AntThemeData.light(),
+          child: Material(child: child),
         ),
       ),
     );
@@ -468,6 +466,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(selected, isEmpty);
       expect(rowCheckbox(tester, '子节点3').disabled, isTrue);
+      // 列表可视区域有限，先滚动到子节点4再断言。
+      await tester.scrollUntilVisible(
+        find.text('子节点4'),
+        80,
+        scrollable: find.descendant(
+          of: find.byType(ListView).first,
+          matching: find.byType(Scrollable),
+        ),
+      );
       expect(rowCheckbox(tester, '子节点4').disabled, isTrue);
     });
 

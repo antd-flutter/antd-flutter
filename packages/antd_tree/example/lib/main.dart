@@ -82,9 +82,7 @@ class _AntdTreeGalleryAppState extends State<AntdTreeGalleryApp> {
     // theme + darkTheme + themeMode 三件套联动，Scaffold 背景跟随 colorBgLayout。
     return AntTheme(
       data: _isDark ? AntThemeData.dark() : AntThemeData.light(),
-      child: AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (context, child) => AntResponsiveInit(
+      child: AntResponsiveInit(
           builder: (context, layout, _) => MaterialApp(
             title: 'AntdTree Demo',
             debugShowCheckedModeBanner: false,
@@ -121,7 +119,6 @@ class _AntdTreeGalleryAppState extends State<AntdTreeGalleryApp> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -130,6 +127,7 @@ class _AntdTreeGalleryAppState extends State<AntdTreeGalleryApp> {
     AntLayoutData layout,
     int index,
   ) {
+    final theme = AntTheme.of(pageContext);
     final cards = _sectionCards(context, index);
     final isWide =
         layout.width >= 768 ||
@@ -137,15 +135,15 @@ class _AntdTreeGalleryAppState extends State<AntdTreeGalleryApp> {
         layout.breakpoint == AntBreakpoint.xl ||
         layout.breakpoint == AntBreakpoint.xxl;
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: isWide
           ? Wrap(
-              spacing: 16.w,
-              runSpacing: 16.w,
+              spacing: theme.s(16),
+              runSpacing: theme.s(16),
               children: [
                 for (final card in cards)
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 480.w),
+                    constraints: BoxConstraints(maxWidth: theme.s(480)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -154,7 +152,7 @@ class _AntdTreeGalleryAppState extends State<AntdTreeGalleryApp> {
               children: [
                 for (final card in cards)
                   Padding(
-                    padding: EdgeInsets.only(bottom: 16.w),
+                    padding: EdgeInsets.only(bottom: theme.s(16)),
                     child: _sectionCard(pageContext, card.$1, card.$2),
                   ),
               ],
@@ -261,6 +259,7 @@ class _BasicTreeState extends State<_BasicTree> {
 
   @override
   Widget build(BuildContext context) {
+      final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -272,7 +271,7 @@ class _BasicTreeState extends State<_BasicTree> {
           selectedKeys: _selected,
           onSelect: (keys) => setState(() => _selected = keys),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(context, '选中', _labelsOf(_selected)),
       ],
     );
@@ -314,6 +313,7 @@ class _CheckableTreeState extends State<_CheckableTree> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -329,7 +329,7 @@ class _CheckableTreeState extends State<_CheckableTree> {
             _halfChecked = halfChecked;
           }),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(context, '勾选', _labelsOf(_checked)),
         _resultText(context, '半选', _labelsOf(_halfChecked)),
       ],
@@ -366,12 +366,13 @@ class _ControlledTreeState extends State<_ControlledTree> {
 
   @override
   Widget build(BuildContext context) {
+  final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             OutlinedButton(
               onPressed: () => setState(() => _expanded = _allParentKeys),
@@ -395,7 +396,7 @@ class _ControlledTreeState extends State<_ControlledTree> {
             ),
           ],
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         AntTree<_Region>(
           dataSource: _basicTreeData,
           keyOf: _regionKey,
@@ -409,7 +410,7 @@ class _ControlledTreeState extends State<_ControlledTree> {
           checkedKeys: _checked,
           onCheck: (keys, _) => setState(() => _checked = keys),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(context, '展开', _labelsOf(_expanded)),
         _resultText(context, '勾选', _labelsOf(_checked)),
         _resultText(context, '选中', _labelsOf(_selected)),
@@ -464,15 +465,16 @@ class _AsyncLoadTreeState extends State<_AsyncLoadTree> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         OutlinedButton.icon(
           onPressed: _loading ? null : _load,
-          icon: Icon(AntIcons.cloudDownloadOutlined, size: 14.sp),
+          icon: Icon(AntIcons.cloudDownloadOutlined, size: theme.s(14)),
           label: Text(_loading ? '加载中…' : '模拟异步加载子节点'),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         AntTree<_Region>(
           dataSource: _treeData,
           keyOf: _regionKey,
@@ -551,8 +553,8 @@ List<_DemoCard> _treeSelectCards() {
         titleBuilder: (context, region) => Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(AntIcons.environmentOutlined, size: 12.sp),
-            SizedBox(width: 4.w),
+            Icon(AntIcons.environmentOutlined, size: AntTheme.of(context).s(12)),
+            SizedBox(width: AntTheme.of(context).s(4)),
             Text(region.name),
           ],
         ),
@@ -575,6 +577,7 @@ class _TreeSelectSingleState extends State<_TreeSelectSingle> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -587,7 +590,7 @@ class _TreeSelectSingleState extends State<_TreeSelectSingle> {
           value: _value,
           onChange: (v) => setState(() => _value = v),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(
           context,
           '选择',
@@ -610,6 +613,7 @@ class _TreeSelectMultipleState extends State<_TreeSelectMultiple> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -625,7 +629,7 @@ class _TreeSelectMultipleState extends State<_TreeSelectMultiple> {
             () => _values = (v as List?)?.cast<Object>() ?? const <Object>[],
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(context, '多选', _labelsOf(_values)),
       ],
     );
@@ -671,6 +675,7 @@ class _CustomModelTreeState extends State<_CustomModelTree> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -684,9 +689,9 @@ class _CustomModelTreeState extends State<_CustomModelTree> {
                 region.children.isEmpty
                     ? AntIcons.fileOutlined
                     : AntIcons.folderOutlined,
-                size: 12.sp,
+                size: theme.s(12),
               ),
-              SizedBox(width: 4.w),
+              SizedBox(width: theme.s(4)),
               Text(region.name),
             ],
           ),
@@ -695,7 +700,7 @@ class _CustomModelTreeState extends State<_CustomModelTree> {
           onSelect: (keys) =>
               setState(() => _selected = keys.isEmpty ? null : keys.first),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         _resultText(
           context,
           '选中',
@@ -715,7 +720,7 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
   final theme = AntTheme.of(context);
   return Container(
     width: double.infinity,
-    padding: EdgeInsets.all(16.w),
+    padding: EdgeInsets.all(theme.s(16)),
     decoration: BoxDecoration(
       color: theme.colorBgContainer,
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -725,10 +730,10 @@ Widget _sectionCard(BuildContext context, String title, Widget child) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 12.w),
+          padding: EdgeInsets.only(bottom: theme.s(12)),
           child: Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: theme.s(15)),
           ),
         ),
         child,
@@ -741,6 +746,6 @@ Widget _resultText(BuildContext context, String label, String value) {
   final theme = AntTheme.of(context);
   return Text(
     value.isEmpty ? '$label：未选择' : '$label：$value',
-    style: TextStyle(fontSize: 14.sp, color: theme.colorText),
+    style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
   );
 }
