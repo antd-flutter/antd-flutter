@@ -17,7 +17,7 @@
 - 无进行中子代理；工作区干净，最后提交 `306591c`（2026-11-20，仓库组织迁移 URL 同步）
 
 ### 组件总量与进度
-- 全库 107 个组件（含族内合并实现）；迁移状态清单：**已验收 ✅ 81 项 / 待验收 ⏱ 26 项**（详见 `docs/plan/tasks/P08-验收状态表.md`）
+- 全库 107 个组件（含族内合并实现）；迁移状态清单：**已验收 ✅ 82 项 / 待验收 ⏱ 25 项**（详见 `docs/plan/tasks/P08-验收状态表.md`）
 - 批次 0（基础组件迁 ui）✅ 全部完成；批次 1/2（独立包拆分）✅ 全部完成，`packages/` 现为 **基础层 4 + ui + 独立包 16**
 - 批次 3：组件自举替换 ✅ / R37 全局热键 ✅ / 伞包 README ✅；剩余 select-like 核查、Calendar 双端打磨、全量回归、3b 终态固化
 - 验收清单已于 2026-11-21 按状态表归位（`example/lib/data/migration_status.dart`：修正 14 项误挂待验证、16 项误标已验收、6 项重复）
@@ -149,7 +149,7 @@ packages/
 
 ### [x] P08 批次 3 收尾 ✅（2026-11-21，已合并 develop `cc7ef4d`）
 - 组件自举替换（d56b5a1）、R37 全局热键（ad35e69 / 93a5526）、伞包 README（2e233b7）
-- 验收清单归位（`migration_status.dart` ✅ 81 / ⏱ 26）
+- 验收清单归位（`migration_status.dart` ✅ 82 / ⏱ 25）
 - select-like 底座核查：Tree/Cascader/ColorPicker/AutoComplete/Mentions 均接 AntPopupOverlay
 - Calendar 双端打磨（card 字号回退修复 + 单元格 44 高）
 - 全量回归全绿（21 包 + 根包 analyze/test、example web build）
