@@ -353,6 +353,8 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
                     color: ant.colorText.withValues(alpha: 0),
                   ),
                   cursorColor: ant.colorPrimary.withValues(alpha: 0),
+                  // 点击软键盘不触发 TextField 默认的点外失焦。
+                  onTapOutside: (_) {},
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isCollapsed: true,

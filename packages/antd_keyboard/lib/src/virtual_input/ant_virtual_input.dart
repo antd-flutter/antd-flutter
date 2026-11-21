@@ -473,6 +473,9 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                   color: widget.disabled ? t.colorTextDisabled : t.colorText,
                 ),
                 cursorColor: t.colorPrimary,
+                // 点击软键盘属于「键盘内部」，不能触发 TextField 默认的点外失焦，
+                // 否则按键还没写入焦点就丢了（键盘随之收起）。
+                onTapOutside: (_) {},
                 onSubmitted: (v) => widget.onEnterPress?.call(v),
                 decoration: InputDecoration(
                   isCollapsed: true,

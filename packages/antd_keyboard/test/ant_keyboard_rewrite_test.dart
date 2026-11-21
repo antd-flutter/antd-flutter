@@ -593,10 +593,15 @@ void main() {
       expect(find.byType(AntKeyboard), findsOneWidget);
       expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
 
-      // 软键盘输入。
+      // 软键盘输入，且按键后键盘不消失。
       await tester.tap(find.text('q'));
       await tester.pump();
       expect(value, 'q');
+      expect(find.byType(AntKeyboard), findsOneWidget);
+      await tester.tap(find.text('w'));
+      await tester.pump();
+      expect(value, 'qw');
+      expect(find.byType(AntKeyboard), findsOneWidget);
 
       // 物理键盘（TextField）输入同样生效。
       await tester.enterText(find.byType(EditableText), 'abc');
