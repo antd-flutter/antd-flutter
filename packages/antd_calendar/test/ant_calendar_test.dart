@@ -288,11 +288,30 @@ void main() {
           (w) => w is Container && w.constraints?.minHeight != null,
         ),
       );
-      // 默认紧凑模式单元格最小高度为 32.w。
+      // 默认紧凑模式单元格最小高度为 44.w（antd-mobile 比例）。
       expect(
-        containers.any((c) => c.constraints!.minHeight == 32.w),
+        containers.any((c) => c.constraints!.minHeight == 44.w),
         isTrue,
       );
+    });
+
+    testWidgets('forced card layout keeps compact typography on desktop',
+        (tester) async {
+      // 回归：桌面/测试环境（auto 解析为 desktop）下显式 layout=card 时，
+      // 单元格内容不得回退到 fullscreen 字号。
+      await tester.pumpWidget(
+        _wrap(_calendar(value: june2024, layout: AntCalendarLayout.card)),
+      );
+      final dayTexts = tester.widgetList<Text>(
+        find.byWidgetPredicate(
+          (w) => w is Text && RegExp(r'^\d+$').hasMatch(w.data ?? ''),
+        ),
+      );
+      final t = AntThemeData.light();
+      expect(dayTexts, isNotEmpty);
+      for (final text in dayTexts) {
+        expect(text.style?.fontSize, t.fontSizeSM);
+      }
     });
 
     testWidgets('dateCell custom builder replaces default content',

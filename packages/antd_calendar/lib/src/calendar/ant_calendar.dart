@@ -1067,12 +1067,21 @@ class _AntCalendarState extends State<AntCalendar>
           isToday: isToday,
           isSelected: isSelected,
         ) ??
-        _buildDefaultCellContent(t, day, textColor, isCurrentMonth, events);
+        _buildDefaultCellContent(
+          t,
+          day,
+          textColor,
+          isCurrentMonth,
+          events,
+          fullscreen,
+        );
 
     Widget cell = Container(
       margin: EdgeInsets.all(fullscreen ? 2.w : 1.w),
       constraints: BoxConstraints(
-        minHeight: fullscreen ? 72.w : 32.w,
+        // card 形态对齐 antd-mobile 单元格比例（约 44 高 / 53 宽），
+        // fullscreen 形态对齐 antd v6 大格子。
+        minHeight: fullscreen ? 72.w : 44.w,
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -1112,8 +1121,8 @@ class _AntCalendarState extends State<AntCalendar>
     Color textColor,
     bool isCurrentMonth,
     List<DateTime> events,
+    bool fullscreen,
   ) {
-    final fullscreen = widget.fullscreen || _isFullscreen(context);
     final Widget? subtitle = widget.renderLabel?.call(day) ??
         (events.isNotEmpty
             ? Padding(
