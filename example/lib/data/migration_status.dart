@@ -32,7 +32,6 @@ const kPendingVerify = <String>[
   'timeline',
   // 批次 0-6 导航族
   'tabs',
-  'capsule_tabs',
   'tab_bar',
   'steps',
   'jumbo_tabs',
@@ -52,6 +51,7 @@ const kPendingVerify = <String>[
 
 const kMigratedVerified = <String>[
   'mentions',
+  'capsule_tabs',
   // 基础层
   'button',
   'typography',
