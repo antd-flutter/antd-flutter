@@ -8,7 +8,7 @@
 /// 当前 NoOp 空实现确保未接入鸿蒙时不触发任何 ohos 代码路径。
 library;
 
-import 'package:antd_theme/antd_theme.dart' show AntFoldState;
+import 'enum/ant_responsive_type.dart' show AntFoldState;
 
 /// ohos 平台能力抽象接口
 ///

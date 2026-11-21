@@ -9,10 +9,6 @@
 /// - `package:antd_theme/antd_theme.dart` — L3 主题层
 library;
 
-// L1 基础层 — 平台工具（本包）
-export 'src/platform/ant_platform.dart';
-export 'src/platform/ant_ohos_channel.dart';
-
 // L2 颜色层
 export 'package:antd_color/antd_color.dart';
 
@@ -205,8 +201,8 @@ export 'package:antd_flutter_ui/src/display/statistic/ant_statistic_types.dart';
 // ============================================================
 // 数据展示 Data Display — 批次B
 // ============================================================
-export 'src/components/data_display/tooltip/ant_tooltip.dart';
-export 'src/components/data_display/tooltip/ant_tooltip_types.dart';
+export 'package:antd_flutter_ui/src/basic/tooltip/ant_tooltip.dart';
+export 'package:antd_flutter_ui/src/basic/tooltip/ant_tooltip_types.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_popover.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_popover_types.dart';
 // Segmented 分段控制器已迁移至 antd_flutter_ui（P08），此处 re-export 保持符号兼容
