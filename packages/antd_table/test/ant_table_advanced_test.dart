@@ -712,6 +712,107 @@ void main() {
           .toList();
       expect(ages, ['25', '30', '35']);
     });
+
+    testWidgets('selection column keeps header and body checkboxes aligned',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntTable(
+            columns: const [
+              AntTableColumn(title: '姓名', dataIndex: 'name'),
+              AntTableColumn(title: '年龄', dataIndex: 'age'),
+            ],
+            dataSource: _people(),
+            rowSelection: AntTableRowSelection(
+              selections: [
+                AntTableRowSelectionItem(text: '全选', onSelect: (_) {}),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final headerCell = tester.getRect(
+        find.byKey(const ValueKey('ant_table_th_selection')),
+      );
+      final headerBox = tester.getRect(
+        find.byKey(const ValueKey('ant_table_checkbox_header')).first,
+      );
+      final row = tester.getRect(
+        find.byKey(const ValueKey<Object?>('ant_table_row_1')),
+      );
+      final rowBox = tester.getRect(
+        find.byKey(const ValueKey('ant_table_checkbox_row_1')).first,
+      );
+
+      // 有下拉箭头时复选框仍水平居中，且与表体行复选框同列
+      expect(headerBox.center.dx, closeTo(headerCell.center.dx, 0.5));
+      expect(headerBox.center.dx, closeTo(rowBox.center.dx, 0.5));
+      // 表头与表体复选框都垂直居中
+      expect(headerBox.center.dy, closeTo(headerCell.center.dy, 0.5));
+      expect(rowBox.center.dy, closeTo(row.center.dy, 1.0));
+    });
+
+    testWidgets('header title aligns with body cell start padding',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntTable(
+            columns: [
+              const AntTableColumn(title: '姓名', dataIndex: 'name'),
+              AntTableColumn(
+                title: '年龄',
+                dataIndex: 'age',
+                sorter: (a, b) => (a['age'] as int).compareTo(b['age'] as int),
+              ),
+            ],
+            dataSource: _people(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 表头标题与表体首个单元格文本都从列左内边距开始
+      final headerTitle = tester.getRect(find.text('姓名'));
+      final bodyText = tester.getRect(find.text('Alice'));
+      expect(headerTitle.left, closeTo(bodyText.left, 0.5));
+
+      // 带排序箭头的表头标题同样左对齐
+      final sortedTitle = tester.getRect(find.text('年龄'));
+      final ageText = tester.getRect(find.text('30'));
+      expect(sortedTitle.left, closeTo(ageText.left, 0.5));
+    });
+
+    testWidgets('group header title centers over its child columns',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          AntTable(
+            columns: [
+              const AntTableColumn(title: '姓名', dataIndex: 'name'),
+              const AntTableColumn(
+                title: '基本信息',
+                children: [
+                  AntTableColumn(title: '年龄', dataIndex: 'age'),
+                  AntTableColumn(title: '城市', dataIndex: 'city'),
+                ],
+              ),
+            ],
+            dataSource: _people(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final groupTitle = tester.getRect(find.text('基本信息'));
+      final ageCell =
+          tester.getRect(find.byKey(const ValueKey('ant_table_th_1')));
+      final cityCell =
+          tester.getRect(find.byKey(const ValueKey('ant_table_th_2')));
+      final spanCenter = (ageCell.left + cityCell.right) / 2;
+      expect(groupTitle.center.dx, closeTo(spanCenter, 1.0));
+    });
   });
 }
 

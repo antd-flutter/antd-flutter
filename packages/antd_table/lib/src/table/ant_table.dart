@@ -1048,7 +1048,8 @@ class _AntTableState extends State<AntTable> {
   Widget _buildHeader(AntThemeData theme) {
     return Container(
       key: const ValueKey('ant_table_header'),
-      color: theme.colorFillQuaternary,
+      // antd tableHeaderBg = colorFillAlter
+      color: theme.colorFillAlter,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1091,8 +1092,13 @@ class _AntTableState extends State<AntTable> {
     List<_HeaderNode> nodes,
   ) {
     final cells = <Widget>[];
-    for (final node in nodes) {
-      final cell = _buildHeaderNodeCell(theme, node);
+    for (var i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
+      final cell = _buildHeaderNodeCell(
+        theme,
+        node,
+        showDivider: i < nodes.length - 1,
+      );
       final subtree = node.subtreeLeaves;
       final allWidth = subtree.every((l) => l.column.width != null);
       if (allWidth || _hasScrollX) {
@@ -1113,28 +1119,40 @@ class _AntTableState extends State<AntTable> {
   }
 
   /// 表头节点单元格（分组列：标题 + 子列递归；叶子列：标题 + 排序/筛选）
-  Widget _buildHeaderNodeCell(AntThemeData theme, _HeaderNode node) {
+  Widget _buildHeaderNodeCell(
+    AntThemeData theme,
+    _HeaderNode node, {
+    bool showDivider = false,
+  }) {
     if (!node.isGroup) {
-      return _buildHeaderLeafCell(theme, node.leaf!);
+      return _buildHeaderLeafCell(
+        theme,
+        node.leaf!,
+        showDivider: showDivider,
+      );
     }
 
-    Widget title = _cellText(
-      theme,
-      node.column.title,
-      color: theme.colorText,
-      fontWeight: FontWeight.w600,
+    // antd：跨列分组标题一律居中，且非末行分组表头不画底边
+    final title = Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Align(
+        alignment: Alignment.center,
+        child: _cellText(
+          theme,
+          node.column.title,
+          color: theme.colorText,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
-    if (node.column.align == AntTableAlign.center) {
-      title = Center(child: title);
-    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
           height: _headerRowHeight,
-          child: Center(heightFactor: 1, child: title),
+          child: title,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1211,7 +1229,7 @@ class _AntTableState extends State<AntTable> {
     ];
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: children,
     );
   }
@@ -1295,12 +1313,13 @@ class _AntTableState extends State<AntTable> {
       );
       _spanRecord = null;
 
-      Widget content = rowContent;
+      // 拉伸行高：选择列等无固有高度的单元格随行高垂直居中（antd 为垂直居中）
+      Widget content = IntrinsicHeight(child: rowContent);
       if (_hasExpandable) {
         content = GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: widget.expandRowByClick ? () => _toggleExpand(key) : null,
-          child: rowContent,
+          child: content,
         );
       }
 
@@ -1490,27 +1509,36 @@ class _AntTableState extends State<AntTable> {
   // 表头叶子单元格（标题 + 排序 + 筛选 + 层级填充）
   // ------------------------------------------------------------
 
-  Widget _buildHeaderLeafCell(AntThemeData theme, _LeafColumn leaf) {
+  Widget _buildHeaderLeafCell(
+    AntThemeData theme,
+    _LeafColumn leaf, {
+    bool showDivider = false,
+  }) {
     final column = leaf.column;
     final fillerRows = (_headerDepth - 1 - leaf.depth).clamp(0, 1 << 31);
+    final alignment = switch (column.align) {
+      AntTableAlign.center => Alignment.center,
+      AntTableAlign.right => Alignment.centerRight,
+      _ => Alignment.centerLeft,
+    };
 
-    Widget title = _cellText(
-      theme,
-      column.title,
-      color: theme.colorText,
-      fontWeight: FontWeight.w600,
+    Widget title = Align(
+      alignment: alignment,
+      child: _cellText(
+        theme,
+        column.title,
+        color: theme.colorText,
+        fontWeight: FontWeight.w600,
+      ),
     );
 
-    final align = column.align;
-    if (align == AntTableAlign.center) {
-      title = Center(child: title);
-    } else if (align == AntTableAlign.right) {
-      title = Align(alignment: Alignment.centerRight, child: title);
-    }
-
+    // antd：th 与 td 同 padding，标题按 align 对齐（默认左对齐）
     Widget cell = SizedBox(
       height: _headerRowHeight,
-      child: Center(heightFactor: 1, child: title),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: title,
+      ),
     );
 
     // 排序：整格可点击
@@ -1523,6 +1551,7 @@ class _AntTableState extends State<AntTable> {
           children: [
             Expanded(child: cell),
             _buildSortIcons(theme, leaf),
+            SizedBox(width: 16.w),
           ],
         ),
       );
@@ -1534,6 +1563,7 @@ class _AntTableState extends State<AntTable> {
         children: [
           Expanded(child: cell),
           _buildFilterIcon(theme, leaf),
+          SizedBox(width: 16.w),
         ],
       );
     }
@@ -1549,6 +1579,30 @@ class _AntTableState extends State<AntTable> {
         ],
       );
     }
+
+    // antd th：底部 1px 分隔线 + 非末列的 1.6em 竖向分隔线
+    cell = Container(
+      key: ValueKey('ant_table_th_${leaf.leafIndex}'),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: theme.colorSplit)),
+      ),
+      child: Stack(
+        children: [
+          cell,
+          if (showDivider)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  width: 1,
+                  height: _cellFontSize.sp * 1.6,
+                  color: theme.colorSplit,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
     return cell;
   }
 
@@ -1606,40 +1660,42 @@ class _AntTableState extends State<AntTable> {
     final selection = _selection!;
     final showMenu =
         selection.selections != null && selection.selections!.isNotEmpty;
-    Widget content = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (!selection.hideSelectAll)
-          _TableCheckbox(
-            key: const ValueKey('ant_table_checkbox_header'),
-            theme: theme,
-            checked: _allSelected,
-            indeterminate: _someSelected,
-            onTap: _toggleSelectAll,
-          ),
-        if (showMenu)
-          CompositedTransformTarget(
-            link: _selectionLink,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _toggleSelectionOverlay(theme),
-              child: Padding(
-                padding: EdgeInsets.only(left: 2.w),
-                child: Icon(
-                  Icons.arrow_drop_down,
-                  size: 14.w,
-                  color: theme.colorTextSecondary,
+    final width = _selectionWidth.w;
+
+    return SizedBox(
+      key: const ValueKey('ant_table_th_selection'),
+      width: width,
+      height: _headerRowHeight,
+      // antd：复选框居中，下拉箭头绝对定位于复选框右侧，不参与居中
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (!selection.hideSelectAll)
+            _TableCheckbox(
+              key: const ValueKey('ant_table_checkbox_header'),
+              theme: theme,
+              checked: _allSelected,
+              indeterminate: _someSelected,
+              onTap: _toggleSelectAll,
+            ),
+          if (showMenu)
+            Positioned(
+              left: width / 2 + 10.w,
+              child: CompositedTransformTarget(
+                link: _selectionLink,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _toggleSelectionOverlay(theme),
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 14.w,
+                    color: theme.colorTextSecondary,
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
-    );
-    return SizedBox(
-      key: const ValueKey('ant_table_th_selection'),
-      width: _selectionWidth.w,
-      height: _headerRowHeight,
-      child: Center(child: content),
+        ],
+      ),
     );
   }
 
@@ -1664,7 +1720,10 @@ class _AntTableState extends State<AntTable> {
 
   double get _selectionWidth {
     final width = _selection?.columnWidth ?? _kDefaultSelectionWidth;
-    return width > 0 ? width : _kDefaultSelectionWidth;
+    final base = width > 0 ? width : _kDefaultSelectionWidth;
+    // antd：有自定义选择项下拉时列宽补 fontSizeIcon + padding / 4
+    final hasMenu = _selection?.selections?.isNotEmpty ?? false;
+    return base + (hasMenu ? 16 : 0);
   }
 
   // ------------------------------------------------------------
@@ -1682,24 +1741,26 @@ class _AntTableState extends State<AntTable> {
         color: theme.colorFillQuaternary.withValues(alpha: 0.35),
         border: Border(top: BorderSide(color: theme.colorSplit)),
       ),
-      child: _buildBodySkeletonRow(
-        theme,
-        isSelectionRow: false,
-        cellBuilder: (leaf, colSpan) {
-          final cell = cellByIndex[leaf.leafIndex];
-          if (cell == null) return const SizedBox.shrink();
-          return Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: _cellPaddingV.w,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Expanded(child: cell.child)],
-            ),
-          );
-        },
-        colSpanResolver: (leafIndex) => cellByIndex[leafIndex]?.colSpan ?? 1,
+      child: IntrinsicHeight(
+        child: _buildBodySkeletonRow(
+          theme,
+          isSelectionRow: false,
+          cellBuilder: (leaf, colSpan) {
+            final cell = cellByIndex[leaf.leafIndex];
+            if (cell == null) return const SizedBox.shrink();
+            return Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: _cellPaddingV.w,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Expanded(child: cell.child)],
+              ),
+            );
+          },
+          colSpanResolver: (leafIndex) => cellByIndex[leafIndex]?.colSpan ?? 1,
+        ),
       ),
     );
   }

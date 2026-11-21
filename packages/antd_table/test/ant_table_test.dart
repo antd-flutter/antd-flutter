@@ -562,10 +562,17 @@ void main() {
           align: AntTableAlign.center,
         ),
       ],),),);
-      // 居中列的单元格内容包一层 Center
-      final centerWidgets =
-          tester.widgetList<Center>(find.byType(Center)).toList();
-      expect(centerWidgets, isNotEmpty);
+      // 居中列的表头/单元格内容以 Alignment.center 对齐
+      final aligns = tester
+          .widgetList<Align>(
+            find.ancestor(
+              of: find.text('年龄'),
+              matching: find.byType(Align),
+            ),
+          )
+          .toList();
+      expect(aligns, isNotEmpty);
+      expect(aligns.first.alignment, Alignment.center);
     });
   });
 }
