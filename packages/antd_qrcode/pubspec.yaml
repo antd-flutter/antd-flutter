@@ -1,6 +1,6 @@
 name: antd_qrcode
 description: Ant Design v6 QRCode component for Flutter. QR code display with error levels, status overlays (expired/scanned) and embedded icon, aligned with antd React QRCode API.
-version: 1.0.0
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.7.0 # 包内吸收的 qr 引擎源码（engines/qr/）需要，BSD-3-Clause 见 LICENSE-THIRD-PARTY.md
-  antd_theme: ^1.0.0
+  antd_theme: ^1.0.1
   antd_icons_flutter: ^1.0.0
   material_ui: ^1.11.0
 

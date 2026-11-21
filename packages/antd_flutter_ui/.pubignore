@@ -3,3 +3,4 @@ build/
 doc/
 example/build/
 example/.dart_tool/
+docs/

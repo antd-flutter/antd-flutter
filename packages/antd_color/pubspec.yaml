@@ -1,6 +1,6 @@
 name: antd_color
 description: Ant Design v6 color system for Flutter. FastColor algorithm, palette generation, and color parsing — ported from @ant-design/fast-color.
-version: 1.0.0
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

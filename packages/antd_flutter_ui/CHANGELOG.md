@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.2
+
+- Added an example application so pub.dev can render live usage.
+- Republished with corrected pubspec metadata for pub.dev scoring.
+
+
+## 1.0.1
+
+- Fix pub.dev static analysis results by aligning internal dependency constraints.
+- Ship the package example and tighten pubspec metadata for better pub.dev scoring.
+- Documentation and changelog polish.
+
 ## 1.0.0
 
 - Initial stable release of `antd_flutter_ui`, the base component layer shared by the Ant Design Flutter suite.

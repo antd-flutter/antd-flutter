@@ -1,8 +1,14 @@
 # Changelog
 
+## 1.0.1
+
+- Fix pub.dev static analysis results by aligning internal dependency constraints.
+- Ship the package example and tighten pubspec metadata for better pub.dev scoring.
+- Documentation and changelog polish.
+
 ## 1.0.0
 
-- Added `AntThemeData` with the full Seed → Map → Alias pipeline, including light, dark, and `fromSeed` factories and around 100 color aliases.
+- Added `AntThemeData` with the full Seed -> Map -> Alias pipeline, including light, dark, and `fromSeed` factories and around 100 color aliases.
 - Added typography, radius, spacing, control-height, line-width, motion, shadow, z-index, opacity, and screen-breakpoint getters to `AntThemeData`.
 - Added `AntThemeData.s()` and `AntScale` for design-value scaling, with fixed, identity, and screen-derived (`auto`) factors.
 - Added `AntTheme` and `AntThemeScope` for inherited theme access, plus `AntThemeBuilder` for rebuilding with `(context, theme)`.

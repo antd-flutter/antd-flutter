@@ -1,6 +1,6 @@
 name: antd_flutter_plus
 description: Ant Design v6 Flutter components library. A Flutter implementation of Ant Design with Design Token system.
-version: 1.0.0
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -20,27 +20,27 @@ dependencies:
     sdk: flutter
 
   # L2/L3 子包（发布后自动从 pub.dev 解析）
-  antd_color: ^1.0.0
-  antd_tokens: ^1.0.0
-  antd_theme: ^1.0.0
-  antd_icons_flutter: ^1.0.0
-  antd_flutter_ui: ^1.0.0
-  antd_qrcode: ^1.0.0
-  antd_refresh: ^1.0.0
-  antd_swipe_action: ^1.0.0
-  antd_calendar: ^1.0.0
-  antd_splitter: ^1.0.0
-  antd_image_viewer: ^1.0.0
-  antd_upload: ^1.0.0
-  antd_picker: ^1.0.0
-  antd_form: ^1.0.0
-  antd_tree: ^1.0.0
-  antd_carousel: ^1.0.0
-  antd_masonry: ^1.0.0
-  antd_floating: ^1.0.0
-  antd_keyboard: ^1.0.0
-  antd_table: ^1.0.0
-  antd_transfer: ^1.0.0
+  antd_color: ^1.0.1
+  antd_tokens: ^1.0.1
+  antd_theme: ^1.0.1
+  antd_icons_flutter: ^1.0.3
+  antd_flutter_ui: ^1.0.1
+  antd_qrcode: ^1.0.1
+  antd_refresh: ^1.0.1
+  antd_swipe_action: ^1.0.1
+  antd_calendar: ^1.0.1
+  antd_splitter: ^1.0.1
+  antd_image_viewer: ^1.0.1
+  antd_upload: ^1.0.1
+  antd_picker: ^1.0.1
+  antd_form: ^1.0.1
+  antd_tree: ^1.0.1
+  antd_carousel: ^1.0.1
+  antd_masonry: ^1.0.1
+  antd_floating: ^1.0.1
+  antd_keyboard: ^1.0.1
+  antd_table: ^1.0.1
+  antd_transfer: ^1.0.1
   cached_network_image: ^4.0.7
 
   material_ui: ^1.11.0

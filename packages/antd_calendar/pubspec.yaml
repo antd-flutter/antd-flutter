@@ -1,6 +1,6 @@
 name: antd_calendar
-description: Ant Design v6 Calendar component family for Flutter. AntCalendar (month panel with desktop/mobile dual UI, format switching, range/multi select, event dots and year-month quick jump), AntCalendarPicker (mobile bottom-sheet calendar picker) and AntPickerView (inline wheel picker), aligned with antd / antd-mobile APIs.
-version: 1.0.0
+description: Ant Design calendar and calendar picker for Flutter, sharing one core with platform-specific desktop (antd v6) and mobile (antd-mobile v5) renderers.
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -19,11 +19,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_theme: ^1.0.0
+  antd_theme: ^1.0.1
   antd_icons_flutter: ^1.0.0
   # 滚轮选择引擎（WheelPickerColumn 等）来自共享基础库，
   # 依赖方向约定：antd_calendar → antd_flutter_ui → antd_theme/tokens/color
-  antd_flutter_ui: ^1.0.0
+  antd_flutter_ui: ^1.0.1
   material_ui: ^1.11.0
 
 dev_dependencies:

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Fix pub.dev static analysis results by aligning internal dependency constraints.
+- Ship the package example and tighten pubspec metadata for better pub.dev scoring.
+- Documentation and changelog polish.
+
 ## 1.0.0
 
 - Initial stable release of `antd_flutter_plus`, the umbrella package for Ant Design Flutter.
@@ -7,4 +13,4 @@
 - Re-exports the public libraries of every aggregated package, plus selected application-level entry points for pickers, refresh, table, form and swipe actions.
 - Unified version line: all packages release at `1.0.0`, with `antd_icons_flutter` at `1.0.1` for icon assets; the umbrella constrains dependencies with `^1.0.0`.
 - Platform layer: `AntPlatform` runtime classification (web, mobile, desktop, OHOS), the OHOS fold-state channel bridge, and `AntResponsiveInit` for wiring responsive state.
-- Layered dependency model: foundations → `antd_flutter_ui` → independent feature packages, with no dependencies between feature packages.
+- Layered dependency model: foundations -> `antd_flutter_ui` -> independent feature packages, with no dependencies between feature packages.

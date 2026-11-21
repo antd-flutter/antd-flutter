@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Fix pub.dev static analysis results by aligning internal dependency constraints.
+- Ship the package example and tighten pubspec metadata for better pub.dev scoring.
+- Documentation and changelog polish.
+
 ## 1.0.0
 
 ### AntPicker

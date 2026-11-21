@@ -1,6 +1,6 @@
 name: antd_theme
 description: Ant Design v6 theme system for Flutter. Theme data, shadow tokens, responsive breakpoints, and screen adaptation.
-version: 1.0.0
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -18,8 +18,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_color: ^1.0.0
-  antd_tokens: ^1.0.0
+  antd_color: ^1.0.1
+  antd_tokens: ^1.0.1
   material_ui: ^1.11.0
 
 dev_dependencies:

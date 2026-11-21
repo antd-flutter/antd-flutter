@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Fix pub.dev static analysis results by aligning internal dependency constraints.
+- Ship the package example and tighten pubspec metadata for better pub.dev scoring.
+- Documentation and changelog polish.
+
 ## 1.0.0
 
 Initial stable release of the standalone `antd_calendar` package.
@@ -8,7 +14,7 @@ Initial stable release of the standalone `antd_calendar` package.
 
 - Split the calendar into a widget-free core plus two renderers: `calendar_core` (config snapshot, `AntCalendarCoreState` `ChangeNotifier`, grid math, locale) with `desktop/` (antd v6) and `mobile/` (antd-mobile v5) implementations.
 - Added platform dispatch through `layout` (`auto` / `fullscreen` / `card`) and `platform` (`auto` / `desktop` / `mobile`), resolving `auto` via `AntResponsive` with a desktop fallback when no responsive scope exists.
-- Dependency direction is one-way: `antd_calendar` → `antd_flutter_ui` → `antd_theme`; no dependency on other standalone component packages.
+- Dependency direction is one-way: `antd_calendar` -> `antd_flutter_ui` -> `antd_theme`; no dependency on other standalone component packages.
 
 ### Features
 
@@ -24,6 +30,6 @@ Initial stable release of the standalone `antd_calendar` package.
 
 - `weekStartsOn` now defaults to **Sunday** on both renderers. Monday-first layouts must pass `AntCalendarWeekStartsOn.monday` explicitly.
 - `selectionMode` is now nullable: `null` renders a display-only calendar whose days are not tappable. The default remains `AntCalendarSelectionMode.single`.
-- Range selection is controlled through `rangeValue` / `defaultRangeValue` plus `onRangeChange` instead of a plain value list. Both lists must contain exactly two dates, and the desktop renderer asserts when they are supplied — range control is a mobile-renderer capability.
+- Range selection is controlled through `rangeValue` / `defaultRangeValue` plus `onRangeChange` instead of a plain value list. Both lists must contain exactly two dates, and the desktop renderer asserts when they are supplied - range control is a mobile-renderer capability.
 - `dateCellRender` and `dateFullCellRender` are deprecated in favor of `cellRender` and `fullCellRender`; they remain as compatibility aliases.
 - `allowClear` defaults differ by renderer: `true` on mobile, `false` on desktop.

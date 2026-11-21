@@ -1,6 +1,6 @@
 name: antd_tokens
 description: Ant Design v6 Design Token system. Seed tokens, token generation algorithms, color token maps, and shadow tokens.
-version: 1.0.0
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -18,7 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_color: ^1.0.0
+  antd_color: ^1.0.1
 
 
 dev_dependencies:

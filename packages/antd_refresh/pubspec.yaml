@@ -1,6 +1,6 @@
 name: antd_refresh
-description: Ant Design (antd-mobile v5) PullToRefresh component for Flutter. Pull-down refresh with gesture state machine (idle/pulling/canRelease/refreshing/complete) and customizable header texts.
-version: 1.0.0
+description: Ant Design pull-to-refresh for Flutter - indicator states, drag thresholds and smooth scroll integration.
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_theme: ^1.0.0
+  antd_theme: ^1.0.1
   antd_icons_flutter: ^1.0.0
   material_ui: ^1.11.0
 

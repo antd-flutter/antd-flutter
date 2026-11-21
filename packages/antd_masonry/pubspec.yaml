@@ -1,6 +1,6 @@
 name: antd_masonry
-description: Ant Design v6 Masonry components for Flutter. Masonry waterfall layout with greedy shortest-column distribution, responsive columns, cross-column span items, and a sliver variant (AntSliverMasonry) for CustomScrollView, aligned with antd React Masonry API.
-version: 1.0.0
+description: Ant Design Masonry grid for Flutter - column-balanced waterfall layout with configurable gaps and responsive column counts.
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_theme: ^1.0.0
+  antd_theme: ^1.0.1
   material_ui: ^1.11.0
 
 dev_dependencies:

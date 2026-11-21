@@ -1,6 +1,6 @@
 name: antd_image_viewer
-description: Ant Design (antd-mobile) ImageViewer component for Flutter. Full-screen image preview with pinch zoom, pan, double-tap zoom, multi-image paging and controlled open/close, aligned with antd-mobile ImageViewer API.
-version: 1.0.0
+description: Ant Design Image and ImageViewer for Flutter - preview, zoom, rotate, drag and gallery paging with antd v6 look and feel.
+version: 1.0.1
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  antd_theme: ^1.0.0
+  antd_theme: ^1.0.1
   antd_icons_flutter: ^1.0.0
   material_ui: ^1.11.0
   cached_network_image: ^4.0.7

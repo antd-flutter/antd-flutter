@@ -1,6 +1,6 @@
 name: antd_icons_flutter
 description: Ant Design icons for Flutter. 850+ icons — outlined & filled as TTF font, twotone via flutter_svg, plus a unified AntdIcon widget.
-version: 1.0.1
+version: 1.0.3
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues

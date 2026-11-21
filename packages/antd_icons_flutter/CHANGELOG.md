@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3
+
+- Added a plain-text summary line to every icon's dartdoc so the public API documentation coverage is reported correctly (862/862 documented elements).
+- Formatted the generated icon sources to satisfy dart format.
+
+## 1.0.2
+
+- Republished with corrected pubspec metadata and changelog formatting for pub.dev.
+
+
 ## 1.0.1
 
 - Added 698 Outlined and Filled icons as `const IconData` values backed by the bundled `AntIcons.ttf` font family, with names matching the Ant Design React package.

@@ -11,5 +11,3 @@ example/.dart_tool/
 packages/*/build/
 packages/*/.dart_tool/
 packages/*/doc/
-packages/*/example/
-packages/*/test/
