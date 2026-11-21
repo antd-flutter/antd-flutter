@@ -13,11 +13,15 @@ dependencies:
     path: ../
   antd_theme:
     path: ../../antd_theme
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
   material_ui: ^1.11.0
 
 dependency_overrides:
   antd_theme:
     path: ../../antd_theme
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
 
   cupertino_icons: ^1.0.8
 

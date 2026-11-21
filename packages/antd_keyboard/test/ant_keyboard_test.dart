@@ -148,7 +148,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byIcon(Icons.backspace_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-backspace')));
       await tester.pump();
       expect(backspaces, 1);
     });
@@ -164,7 +164,7 @@ void main() {
         ),
       );
       final gesture = await tester.startGesture(
-        tester.getCenter(find.byIcon(Icons.backspace_outlined)),
+        tester.getCenter(find.byKey(const ValueKey('ant-kb-backspace'))),
       );
       // 按下即触发 1 次
       await tester.pump();
@@ -371,7 +371,7 @@ void main() {
       );
       expect(find.text('q'), findsOneWidget);
       expect(find.text('-'), findsNothing);
-      await tester.tap(find.byIcon(Icons.swap_horiz_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-mode-switch')));
       await tester.pump();
       expect(find.text('q'), findsNothing);
       expect(find.text('-'), findsOneWidget);
@@ -387,7 +387,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-shift')));
       await tester.pump();
       expect(find.text('Q'), findsOneWidget); // 大写显示
       await tester.tap(find.text('Q'));
@@ -408,7 +408,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byIcon(Icons.keyboard_capslock_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-capslock')));
       await tester.pump();
       await tester.tap(find.text('A'));
       await tester.pump();
@@ -428,7 +428,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-shift')));
       await tester.pump();
       // shift 后显示副字符 '!'
       expect(find.text('!'), findsOneWidget);
@@ -447,10 +447,10 @@ void main() {
           ),
         ),
       );
-      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_capslock_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_return_rounded), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.keyboard_return_rounded));
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-capslock')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-enter')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('ant-kb-enter')));
       await tester.pump();
       expect(confirmed, isTrue);
     });
@@ -470,7 +470,7 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
     });
 
     testWidgets('keyboardShowControlBar renders control bar on desktop',
@@ -489,8 +489,8 @@ void main() {
       await tester.pump();
       await tester.pump();
       // 控制条贴顶/贴底切换按钮
-      expect(find.byIcon(Icons.vertical_align_top_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.vertical_align_bottom_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-align-top')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-align-bottom')), findsOneWidget);
     });
   });
 }

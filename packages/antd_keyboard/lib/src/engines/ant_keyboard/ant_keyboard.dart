@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/services.dart'
     show HardwareKeyboard, KeyDownEvent, KeyEvent, LogicalKeyboardKey;
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_keyboard_controller.dart';
+import 'ant_keyboard_glyph.dart';
 import 'ant_keyboard_key.dart';
 import 'ant_keyboard_layout.dart';
 import 'ant_keyboard_theme.dart';
@@ -530,7 +532,7 @@ class _AntKeyboardState extends State<AntKeyboard> {
   }
 
   Widget _buildControlBar(AntKeyboardThemeData theme) {
-    Widget button(IconData icon, VoidCallback? onTap, String label) {
+    Widget button(Widget icon, VoidCallback? onTap, String label) {
       return Semantics(
         button: true,
         label: label,
@@ -539,28 +541,38 @@ class _AntKeyboardState extends State<AntKeyboard> {
           onTap: onTap,
           child: Padding(
             padding: EdgeInsets.all(theme.keySpacing ?? 4),
-            child: Icon(
-              icon,
-              size: (theme.iconSize ?? 22) * 0.8,
-              color: theme.actionKeyForegroundColor,
-            ),
+            child: icon,
           ),
         ),
       );
     }
 
+    final size = (theme.iconSize ?? 22) * 0.8;
+    final color = theme.actionKeyForegroundColor;
     return Padding(
       padding: EdgeInsets.only(bottom: theme.keySpacing ?? 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           button(
-            Icons.vertical_align_top_rounded,
+            AntdIcon(
+              AntIcons.verticalAlignTopOutlined,
+              key: const ValueKey('ant-kb-align-top'),
+              size: size,
+              color: color,
+              semanticLabel: '贴顶',
+            ),
             widget.onAlignTop,
             '贴顶',
           ),
           button(
-            Icons.vertical_align_bottom_rounded,
+            AntdIcon(
+              AntIcons.verticalAlignBottomOutlined,
+              key: const ValueKey('ant-kb-align-bottom'),
+              size: size,
+              color: color,
+              semanticLabel: '贴底',
+            ),
             widget.onAlignBottom,
             '贴底',
           ),
@@ -610,19 +622,27 @@ class _AntKeyboardState extends State<AntKeyboard> {
           onTapUp: _cancelBackspace,
           onTapCancel: _cancelBackspace,
           semanticLabel: '退格',
-          child: Icon(
-            Icons.backspace_outlined,
-            size: theme.iconSize,
+          child: AntKeyboardGlyph(
+            AntKeyboardGlyphType.backspace,
+            key: const ValueKey('ant-kb-backspace'),
+            size: theme.iconSize ?? 22,
             color: _flashAction == AntKeyAction.backspace
-                ? theme.confirmForegroundColor
-                : theme.actionKeyForegroundColor,
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
           ),
         );
       case AntKeyAction.shift:
         return _actionKey(
           theme,
           key,
-          icon: Icons.arrow_upward_rounded,
+          icon: AntKeyboardGlyph(
+            AntKeyboardGlyphType.shift,
+            key: const ValueKey('ant-kb-shift'),
+            size: theme.iconSize ?? 22,
+            color: _controller.shiftOn
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
+          ),
           label: 'Shift',
           active: _controller.shiftOn,
         );
@@ -630,7 +650,14 @@ class _AntKeyboardState extends State<AntKeyboard> {
         return _actionKey(
           theme,
           key,
-          icon: Icons.keyboard_capslock_rounded,
+          icon: AntKeyboardGlyph(
+            AntKeyboardGlyphType.capsLock,
+            key: const ValueKey('ant-kb-capslock'),
+            size: theme.iconSize ?? 22,
+            color: _controller.capsOn
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
+          ),
           label: 'CapsLock',
           active: _controller.capsOn,
         );
@@ -638,14 +665,27 @@ class _AntKeyboardState extends State<AntKeyboard> {
         return _actionKey(
           theme,
           key,
-          icon: Icons.swap_horiz_rounded,
+          icon: AntdIcon(
+            AntIcons.swapOutlined,
+            key: const ValueKey('ant-kb-mode-switch'),
+            size: theme.iconSize,
+            color: theme.actionKeyForegroundColor!,
+            semanticLabel: '切换键盘',
+          ),
           label: '切换键盘',
         );
       case AntKeyAction.enter:
         return _actionKey(
           theme,
           key,
-          icon: Icons.keyboard_return_rounded,
+          icon: AntKeyboardGlyph(
+            AntKeyboardGlyphType.enter,
+            key: const ValueKey('ant-kb-enter'),
+            size: theme.iconSize ?? 22,
+            color: _flashAction == AntKeyAction.enter
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
+          ),
           label: '回车',
           active: _flashAction == AntKeyAction.enter,
         );
@@ -653,7 +693,14 @@ class _AntKeyboardState extends State<AntKeyboard> {
         return _actionKey(
           theme,
           key,
-          icon: Icons.keyboard_tab_rounded,
+          icon: AntKeyboardGlyph(
+            AntKeyboardGlyphType.tab,
+            key: const ValueKey('ant-kb-tab'),
+            size: theme.iconSize ?? 22,
+            color: _flashAction == AntKeyAction.tab
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
+          ),
           label: 'Tab',
           active: _flashAction == AntKeyAction.tab,
         );
@@ -664,17 +711,26 @@ class _AntKeyboardState extends State<AntKeyboard> {
           borderRadius: radius,
           semanticLabel: '空格',
           onTap: () => _handleKeyTap(key),
-          child: Icon(
-            Icons.space_bar,
-            size: theme.iconSize,
-            color: theme.keyForegroundColor,
+          child: AntKeyboardGlyph(
+            AntKeyboardGlyphType.space,
+            key: const ValueKey('ant-kb-space'),
+            size: theme.iconSize ?? 22,
+            color: theme.keyForegroundColor!,
           ),
         );
       case AntKeyAction.hide:
         return _actionKey(
           theme,
           key,
-          icon: Icons.keyboard_hide_outlined,
+          icon: AntdIcon(
+            AntIcons.downOutlined,
+            key: const ValueKey('ant-kb-hide'),
+            size: theme.iconSize,
+            color: _flashAction == AntKeyAction.hide
+                ? theme.confirmForegroundColor!
+                : theme.actionKeyForegroundColor!,
+            semanticLabel: '收起键盘',
+          ),
           label: '收起键盘',
           active: _flashAction == AntKeyAction.hide,
         );
@@ -705,7 +761,7 @@ class _AntKeyboardState extends State<AntKeyboard> {
   Widget _actionKey(
     AntKeyboardThemeData theme,
     AntKeyboardKey key, {
-    required IconData icon,
+    required Widget icon,
     required String label,
     bool active = false,
   }) {
@@ -719,13 +775,7 @@ class _AntKeyboardState extends State<AntKeyboard> {
       activeBackground: theme.confirmBackgroundColor,
       semanticLabel: label,
       onTap: () => _handleKeyTap(key),
-      child: Icon(
-        icon,
-        size: theme.iconSize,
-        color: active
-            ? theme.confirmForegroundColor
-            : theme.actionKeyForegroundColor,
-      ),
+      child: icon,
     );
   }
 }

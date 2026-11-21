@@ -21,6 +21,8 @@ dependencies:
     sdk: flutter
   # AntTheme/AntThemeData 主题解析（AntKeyboard 主题适配）
   antd_theme: ^1.0.0
+  # 图标统一走 antd_icons_flutter（仓库规则 R39，禁止 Material Icons.*）
+  antd_icons_flutter: ^1.0.0
   # Material 组件基础（TextField / 输入交互 / 视觉基元）
   material_ui: ^1.11.0
 dev_dependencies:
@@ -31,6 +33,8 @@ dev_dependencies:
 dependency_overrides:
   antd_theme:
     path: ../antd_theme
+  antd_icons_flutter:
+    path: ../antd_icons_flutter
 
 flutter:
   uses-material-design: true

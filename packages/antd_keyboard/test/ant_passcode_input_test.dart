@@ -171,7 +171,7 @@ void main() {
       );
       await tester.tap(find.byType(GestureDetector).first);
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.backspace_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-backspace')));
       await tester.pump();
       expect(changed, '1');
     });

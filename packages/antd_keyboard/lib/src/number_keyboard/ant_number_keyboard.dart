@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../engines/ant_keyboard/ant_keyboard.dart'
     show kAntKeyboardMinTouchTarget;
+import '../engines/ant_keyboard/ant_keyboard_glyph.dart';
 import '../engines/ant_keyboard/ant_keyboard_key.dart';
 import '../engines/ant_keyboard/ant_keyboard_theme.dart';
 import '../engines/input_platform.dart';
@@ -381,8 +383,9 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
               onTap: _close,
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 4.w),
-                child: Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                child: AntdIcon(
+                  AntIcons.downOutlined,
+                  key: const ValueKey('ant-kb-collapse'),
                   size: 22.w,
                   color: theme.titleColor ?? ant.colorTextSecondary,
                   semanticLabel: '收起键盘',
@@ -443,10 +446,11 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
       onTapUp: _cancelBackspace,
       onTapCancel: _cancelBackspace,
       semanticLabel: '退格',
-      child: Icon(
-        Icons.backspace_outlined,
-        size: theme.desktop ? theme.iconSize : 24.w,
-        color: theme.actionKeyForegroundColor,
+      child: AntKeyboardGlyph(
+        AntKeyboardGlyphType.backspace,
+        key: const ValueKey('ant-kb-backspace'),
+        size: theme.desktop ? (theme.iconSize ?? 22) : 24.w,
+        color: theme.actionKeyForegroundColor!,
       ),
     );
   }

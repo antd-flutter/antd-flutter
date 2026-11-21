@@ -34,7 +34,7 @@ void main() {
       await tester.pumpWidget(_wrap(const AntNumberKeyboard()));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.backspace_outlined), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-backspace')), findsOneWidget);
     });
 
     testWidgets('renders confirm button when confirmText set', (tester) async {
@@ -110,7 +110,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.backspace_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-backspace')));
       await tester.pumpAndSettle();
 
       expect(changed, ['1']);
@@ -123,7 +123,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.backspace_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-backspace')));
       await tester.pumpAndSettle();
 
       expect(changed, isNull);

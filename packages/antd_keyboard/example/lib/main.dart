@@ -12,6 +12,7 @@
 library;
 
 import 'package:antd_keyboard/antd_keyboard.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -73,7 +74,10 @@ class _AntdKeyboardGalleryAppState extends State<AntdKeyboardGalleryApp> {
                   actions: [
                     IconButton(
                       onPressed: () => setState(() => _isDark = !_isDark),
-                      icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                      icon: AntdIcon(
+                        _isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined,
+                        semanticLabel: _isDark ? '浅色模式' : '深色模式',
+                      ),
                     ),
                   ],
                   bottom: TabBar(

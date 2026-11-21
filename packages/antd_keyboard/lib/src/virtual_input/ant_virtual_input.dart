@@ -16,6 +16,7 @@
 /// ```
 library;
 
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 
 export 'package:antd_keyboard/src/virtual_input/ant_virtual_input_types.dart';
@@ -379,10 +380,12 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                   onTap: _handleClear,
                   child: Padding(
                     padding: EdgeInsets.all(4.w),
-                    child: Icon(
-                      Icons.cancel,
+                    child: AntdIcon(
+                      AntIcons.closeCircleFilled,
+                      key: const ValueKey('ant-virtual-input-clear'),
                       size: 16.w,
                       color: t.colorTextQuaternary,
+                      semanticLabel: '清空',
                     ),
                   ),
                 ),
@@ -394,10 +397,12 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                   onTap: _blur,
                   child: Padding(
                     padding: EdgeInsets.all(4.w),
-                    child: Icon(
-                      Icons.keyboard_hide_outlined,
+                    child: AntdIcon(
+                      AntIcons.downOutlined,
+                      key: const ValueKey('ant-virtual-input-hide'),
                       size: 18.w,
                       color: t.colorTextSecondary,
+                      semanticLabel: '收起键盘',
                     ),
                   ),
                 ),
@@ -473,10 +478,12 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             GestureDetector(
               onTap: _handleClear,
               behavior: HitTestBehavior.opaque,
-              child: Icon(
-                Icons.cancel,
+              child: AntdIcon(
+                AntIcons.closeCircleFilled,
+                key: const ValueKey('ant-virtual-input-clear'),
                 size: 16.w,
                 color: t.colorTextQuaternary,
+                semanticLabel: '清空',
               ),
             ),
           ],

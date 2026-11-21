@@ -95,8 +95,8 @@ void main() {
       );
       await tester.tap(find.text('123'));
       await tester.pump();
-      expect(find.byIcon(Icons.cancel), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.cancel));
+      expect(find.byKey(const ValueKey('ant-virtual-input-clear')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('ant-virtual-input-clear')));
       await tester.pump();
       expect(changed, '');
     });
@@ -132,7 +132,7 @@ void main() {
       await tester.tap(find.text('输入'));
       await tester.pump();
       expect(find.text('1'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.keyboard_hide_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-virtual-input-hide')));
       await tester.pump();
       expect(find.text('1'), findsNothing);
       expect(blurCount, 1);

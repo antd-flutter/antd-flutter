@@ -58,7 +58,7 @@ void main() {
         ),
         findsNothing,
       );
-      expect(find.byIcon(Icons.backspace_outlined), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-backspace')), findsOneWidget);
     });
 
     testWidgets('桌面端（macOS）：QWERTY 56 高键位并注入 hover', (tester) async {
@@ -81,8 +81,8 @@ void main() {
         ),
         findsWidgets,
       );
-      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_capslock_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-capslock')), findsOneWidget);
     });
 
     testWidgets('显式 theme.desktop 在移动平台强制桌面形态', (tester) async {
@@ -106,7 +106,7 @@ void main() {
         ),
         findsWidgets,
       );
-      expect(find.byIcon(Icons.keyboard_capslock_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-capslock')), findsOneWidget);
     });
   });
 
@@ -125,7 +125,7 @@ void main() {
       );
 
       await tester.tap(find.text('q'));
-      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-shift')));
       await tester.pump();
       expect(find.text('Q'), findsOneWidget);
       await tester.tap(find.text('Q'));
@@ -148,8 +148,8 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byIcon(Icons.keyboard_capslock_rounded));
-      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-capslock')));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-shift')));
       await tester.pump();
       await tester.tap(find.text('a'));
       await tester.pump();
@@ -176,7 +176,7 @@ void main() {
       );
 
       final gesture = await tester.startGesture(
-        tester.getCenter(find.byIcon(Icons.backspace_outlined)),
+        tester.getCenter(find.byKey(const ValueKey('ant-kb-backspace'))),
       );
       await tester.pump();
       expect(deletes, 1);
@@ -220,7 +220,7 @@ void main() {
       );
 
       await tester.tap(find.text('完成'));
-      await tester.tap(find.byIcon(Icons.keyboard_hide_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-hide')));
       expect(confirms, 1);
       expect(hides, 1);
     });
@@ -356,7 +356,7 @@ void main() {
 
       expect(find.text('数字键盘'), findsOneWidget);
       expect(tester.getSize(find.byType(AntKeyboardKeyView).first).height, 48);
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down_rounded));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-collapse')));
       expect(cancelled, 1);
       expect(changed, 0);
       // 数字键不再响应已关闭的键盘由调用方控制，这里仅验证回调解耦
@@ -429,7 +429,7 @@ void main() {
       await tester.pump();
       expect(inputs, ['3']);
 
-      await tester.tap(find.byIcon(Icons.backspace_outlined));
+      await tester.tap(find.byKey(const ValueKey('ant-kb-backspace')));
       await tester.pump();
       expect(deletes, 1);
     });
@@ -613,7 +613,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AntKeyboard), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
 
       await tester.tap(find.text('q'));
       await tester.pump();
@@ -638,7 +638,7 @@ void main() {
       await tester.pump();
 
       expect(find.byType(AntKeyboard), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_tab_rounded), findsOneWidget);
+      expect(find.byKey(const ValueKey('ant-kb-tab')), findsOneWidget);
       expect(find.byType(AntNumberKeyboard), findsNothing);
     });
   });
