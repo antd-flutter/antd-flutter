@@ -30,7 +30,6 @@ const kPendingVerify = <String>[
   // 批次 0-5 数据展示残余
   'collapse',
   'descriptions',
-  'list',
   'timeline',
   // 批次 0-6 导航族
   'tabs',
@@ -145,6 +144,8 @@ const kMigratedVerified = <String>[
   'form',
   // 已验收（2026-11-21 用户验收）
   'checkbox',
+  // 已验收（2026-11-21 用户验收）
+  'list',
 ];
 
 /// 迁移状态
