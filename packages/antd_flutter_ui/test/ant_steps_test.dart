@@ -348,4 +348,74 @@ void main() {
       expect(find.text('after'), findsOneWidget);
     });
   });
+
+  group('AntSteps — 连接线', () {
+    testWidgets('horizontal rail connects icon rows', (tester) async {
+      tester.view.physicalSize = const Size(760, 800);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_wrap(const Padding(
+        padding: EdgeInsets.all(16),
+        child: AntSteps(
+          current: 1,
+          items: [
+            AntStepsItem(title: '第一步'),
+            AntStepsItem(title: '第二步'),
+            AntStepsItem(title: '第三步'),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+
+      final circles = [
+        for (var i = 0; i < 3; i++)
+          tester.getRect(find.byKey(ValueKey('ant_steps_circle_$i'))),
+      ];
+      // 所有圆点在同一水平线上
+      for (var i = 1; i < circles.length; i++) {
+        expect(circles[i].center.dy, closeTo(circles[0].center.dy, 0.5));
+      }
+      // 每段连接线穿过圆点中心，并接到下一项圆点左沿
+      for (var i = 0; i < 2; i++) {
+        final rail =
+            tester.getRect(find.byKey(ValueKey('ant_steps_connector_$i')));
+        expect(rail.center.dy, closeTo(circles[i].center.dy, 0.5));
+        expect(rail.right, closeTo(circles[i + 1].left, 0.5));
+      }
+    });
+
+    testWidgets('vertical rail connects adjacent icons', (tester) async {
+      tester.view.physicalSize = const Size(760, 1200);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_wrap(const SizedBox(
+        height: 400,
+        child: AntSteps(
+          current: 1,
+          direction: AntStepsDirection.vertical,
+          items: [
+            AntStepsItem(title: '第一步', description: '第一步描述'),
+            AntStepsItem(title: '第二步', description: '第二步描述'),
+            AntStepsItem(title: '第三步', description: '第三步描述'),
+          ],
+        ),
+      ),),);
+      await tester.pumpAndSettle();
+
+      final circles = [
+        for (var i = 0; i < 3; i++)
+          tester.getRect(find.byKey(ValueKey('ant_steps_circle_$i'))),
+      ];
+      for (var i = 0; i < 2; i++) {
+        final rail =
+            tester.getRect(find.byKey(ValueKey('ant_steps_connector_$i')));
+        // 连接线与圆点同轴，且首尾相接
+        expect(rail.center.dx, closeTo(circles[i].center.dx, 0.5));
+        expect(rail.top, closeTo(circles[i].bottom, 0.5));
+        expect(rail.bottom, closeTo(circles[i + 1].top, 0.5));
+      }
+    });
+  });
 }

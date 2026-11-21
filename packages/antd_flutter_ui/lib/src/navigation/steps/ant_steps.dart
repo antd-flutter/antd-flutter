@@ -117,7 +117,10 @@ class AntSteps extends StatelessWidget {
       final isLast = i == items.length - 1;
       children.add(
         Expanded(
-          child: _buildHorizontalStep(context, i, isLast),
+          child: KeyedSubtree(
+            key: ValueKey('ant_steps_item_$i'),
+            child: _buildHorizontalStep(context, i, isLast),
+          ),
         ),
       );
     }
@@ -140,20 +143,37 @@ class AntSteps extends StatelessWidget {
     final canClick =
         onChange != null && item.disabled != true && index != current;
 
-    final titleRow = <Widget>[
-      _buildCircle(context, theme, index, stepStatus, canClick),
-      const SizedBox(width: 8),
-      Flexible(child: _buildTitle(theme, item, stepStatus)),
-      if (!isLast) ...[
-        const SizedBox(width: 8),
-        Expanded(child: _buildConnector(theme, stepStatus)),
-      ],
-    ];
+    // 图标行固定为圆点高度：所有步骤的圆点与连线都落在同一水平线上，
+    // 否则末项没有接线、行高不同会导致圆点错位、线接不上。
+    final iconRow = SizedBox(
+      height: _circleSize,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildCircle(context, theme, index, stepStatus, canClick),
+          const SizedBox(width: 8),
+          Flexible(
+            child: _buildTitle(
+              theme,
+              item,
+              stepStatus,
+              singleLine: true,
+            ),
+          ),
+          if (!isLast) ...[
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildConnector(theme, stepStatus, index: index),
+            ),
+          ],
+        ],
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: titleRow),
+        iconRow,
         if (item.description != null)
           Padding(
             padding: EdgeInsets.only(left: _circleSize + 8, top: 4),
@@ -173,7 +193,10 @@ class AntSteps extends StatelessWidget {
       final isLast = i == items.length - 1;
       children.add(
         Expanded(
-          child: _buildVerticalStep(context, i, isLast),
+          child: KeyedSubtree(
+            key: ValueKey('ant_steps_item_$i'),
+            child: _buildVerticalStep(context, i, isLast),
+          ),
         ),
       );
     }
@@ -198,12 +221,15 @@ class AntSteps extends StatelessWidget {
       _buildCircle(context, theme, index, stepStatus, canClick),
     ];
     if (!isLast) {
-      circleColumn.add(
-        const SizedBox(height: 4),
-      );
+      // 连接线从圆点下沿直接起画，与下一项圆点上沿相接
       circleColumn.add(
         Expanded(
-          child: _buildConnector(theme, stepStatus, vertical: true),
+          child: _buildConnector(
+            theme,
+            stepStatus,
+            index: index,
+            vertical: true,
+          ),
         ),
       );
     }
@@ -247,6 +273,7 @@ class AntSteps extends StatelessWidget {
     bool canClick,
   ) {
     final circle = Container(
+      key: ValueKey('ant_steps_circle_$index'),
       width: _circleSize,
       height: _circleSize,
       decoration: BoxDecoration(
@@ -329,11 +356,14 @@ class AntSteps extends StatelessWidget {
   Widget _buildTitle(
     AntThemeData theme,
     AntStepsItem item,
-    AntStepsStatus stepStatus,
-  ) {
+    AntStepsStatus stepStatus, {
+    bool singleLine = false,
+  }) {
     if (item.title == null) return const SizedBox.shrink();
     return Text(
       item.title!,
+      maxLines: singleLine ? 1 : null,
+      overflow: singleLine ? TextOverflow.ellipsis : null,
       style: TextStyle(
         fontSize: theme.fontSize,
         fontWeight: stepStatus == AntStepsStatus.process
@@ -368,19 +398,23 @@ class AntSteps extends StatelessWidget {
   Widget _buildConnector(
     AntThemeData theme,
     AntStepsStatus fromStatus, {
+    required int index,
     bool vertical = false,
   }) {
     final color = fromStatus == AntStepsStatus.finish
         ? theme.colorPrimary
         : theme.colorSplit;
 
+    final key = ValueKey('ant_steps_connector_$index');
     if (vertical) {
       return Container(
+        key: key,
         width: _connectorThickness,
         color: color,
       );
     }
     return Container(
+      key: key,
       height: _connectorThickness,
       color: color,
     );
