@@ -28,7 +28,6 @@ const kPendingVerify = <String>[
   // 批次 0-5 数据展示残余
   // 批次 0-6 导航族
   'tabs',
-  'tab_bar',
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
   'table',
@@ -144,6 +143,7 @@ const kMigratedVerified = <String>[
   'side_bar',
   'jumbo_tabs',
   'steps',
+  'tab_bar',
   // 已验收（2026-11-21 用户验收）
   'pagination',
   // 已验收（2026-11-21 用户验收）
