@@ -48,6 +48,7 @@ export 'package:antd_flutter_ui/src/navigation/anchor/ant_anchor_types.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_dropdown.dart';
 export 'package:antd_flutter_ui/src/display/popover/ant_dropdown_types.dart';
 // NavBar
+export 'package:antd_flutter_ui/src/navigation/nav_bar/ant_app_bar.dart';
 export 'package:antd_flutter_ui/src/navigation/nav_bar/ant_nav_bar.dart';
 // TabBar
 export 'package:antd_flutter_ui/src/navigation/tab_bar/ant_tab_bar.dart';

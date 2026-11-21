@@ -39,7 +39,6 @@ const kPendingVerify = <String>[
   'jumbo_tabs',
   'side_bar',
   'menu',
-  'nav_bar',
   'pagination',
   'anchor',
   'breadcrumb',
@@ -144,6 +143,8 @@ const kMigratedVerified = <String>[
   'form',
   // 已验收（2026-11-21 用户验收）
   'checkbox',
+  // 已验收（2026-11-21 用户验收，含 AntAppBar 别名）
+  'nav_bar',
   // 已验收（2026-11-21 用户验收）
   'list',
 ];

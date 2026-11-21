@@ -232,6 +232,7 @@ export 'src/navigation/menu/ant_menu.dart';
 export 'src/navigation/menu/ant_menu_types.dart';
 export 'src/navigation/anchor/ant_anchor.dart';
 export 'src/navigation/anchor/ant_anchor_types.dart';
+export 'src/navigation/nav_bar/ant_app_bar.dart';
 export 'src/navigation/nav_bar/ant_nav_bar.dart';
 export 'src/navigation/tab_bar/ant_tab_bar.dart';
 export 'src/navigation/tab_bar/ant_tab_bar_types.dart';
