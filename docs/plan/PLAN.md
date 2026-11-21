@@ -12,7 +12,7 @@
 
 ### 仓库与分支
 - 仓库：github.com/flutter-open/antd-flutter（单远程 GitHub，SSH；Gitee/GitCode 双推已取消）
-- **当前分支：`task/p08-split`**（批次 0/1/2 全部完成；领先 `develop` 199 个提交，收尾后按 R2 合并 develop）
+- **当前分支：`develop`**（P08 已合并，`task/p08-split` 按 R2 删除；`master` 待 1.0.0 发布时合并）
 - Flutter：fvm 3.50.0 stable；pub.dev 凭证已缓存（曾成功发布子包）
 - 无进行中子代理；工作区干净，最后提交 `306591c`（2026-11-20，仓库组织迁移 URL 同步）
 
@@ -143,16 +143,17 @@ packages/
 
 ## 五、进行中任务
 
-### [~] P08 批次 3 收尾（2026-11-21 接续点）
-- 分支 `task/p08-split`；文档：docs/plan/tasks/P08-组件库拆分基础库与独立组件.md（含完整执行规则与强制清单）
-- **已完成**：批次 0/1/2 全部迁移；批次 3 的组件自举替换（d56b5a1）、R37 全局热键（ad35e69 / image_viewer Esc 93a5526）、伞包 README（2e233b7）、验收清单归位（本次）
-- **剩余**：
-  1. select-like 底座收尾核查（AutoComplete / Mentions；Cascader / ColorPicker 已 ✅）
-  2. Calendar 双端一致性打磨（功能已全量实现 0236424，仍 ⏱）
-  3. 全量回归（根包 + 21 包 analyze/test + example build web）留档
-  4. 3b 全部 example 身份脚本终跑 + `scripts/gen_docs.sh` 全量重跑
-  5. 合并 `task/p08-split` → `develop`（领先 199 提交）→ 里程碑合 `master`
-- 之后：**集中验收 29 项 ⏱** → 批次 4 发布 1.0.0
+### [x] P08 批次 3 收尾 ✅（2026-11-21，已合并 develop `cc7ef4d`）
+- 组件自举替换（d56b5a1）、R37 全局热键（ad35e69 / 93a5526）、伞包 README（2e233b7）
+- 验收清单归位（`migration_status.dart` ✅ 78 / ⏱ 29）
+- select-like 底座核查：Tree/Cascader/ColorPicker/AutoComplete/Mentions 均接 AntPopupOverlay
+- Calendar 双端打磨（card 字号回退修复 + 单元格 44 高）
+- 全量回归全绿（21 包 + 根包 analyze/test、example web build）
+- example 身份统一 `com.antd.*`（9 个补齐）+ gen-docs 全量重跑（缺失/多余/残留 0）
+
+### [ ] 下一阶段：集中验收 → 发布 1.0.0
+- 用户验收剩余 29 项 ⏱（macOS 桌面 + iOS 移动双端）
+- 验收通过后：CHANGELOG 正式化 → 版本 18 包/根包去 beta → 合并 `master` → tag → 发布
 
 ### 验收状态表
 docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后更新）
@@ -223,6 +224,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **批次 3 收尾完成并合并 develop**（cc7ef4d）：select-like 核查 / Calendar 双端打磨 / 全量回归 / example 身份 + gen-docs 终态；删除 task/p08-split，当前分支 develop |
 | 2026-11-21 | **交接状态刷新**：快照更新至批次 2 全部完成（16 独立包）；验收清单按状态表归位（`migration_status.dart` 修正 14 误挂/16 误标/6 重复 → 78 ✅ / 29 ⏱）；进行中任务改为批次 3 收尾；标记 R37/自举/README 完成 |
 | 2026-11-18 | **本文件重写为独立交接文档**：现状快照/接手指南/规则汇总（R1-R34 去重）/剩余队列/强制清单/文件索引；P08 进行中状态（calendar2）与剩余队列整理；GitCode 待办取消 |
 | 2026-11-18 | 独立包拆分标准流程补充：example 创建完善（R32 全平台）+ CI 静态部署集成（deploy.yml/build_site.sh 已通用化，随包追加）
