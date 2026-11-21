@@ -33,7 +33,6 @@ const kPendingVerify = <String>[
   'jumbo_tabs',
   'side_bar',
   'menu',
-  'anchor',
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
   'table',
@@ -51,6 +50,7 @@ const kMigratedVerified = <String>[
   'auto_complete',
   'index_bar',
   'breadcrumb',
+  'anchor',
   'capsule_tabs',
   // 基础层
   'button',
