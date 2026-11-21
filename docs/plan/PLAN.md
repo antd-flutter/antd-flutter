@@ -195,10 +195,10 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 ### 批次 3：收尾（进行中）
 0. ✅ **组件自举替换**（d56b5a1：24 处替换 / 14 处登记保留）
 1. ✅ **R37 全局热键系统**（ad35e69：AntHotkeys 基础设施 + 弹层 Esc 关闭统一；image_viewer 本地 Esc 93a5526）
-2. ⏳ select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ / Cascader ✅ / ColorPicker ✅；AutoComplete、Mentions 待核查）
-2. ⏳ Calendar 完善（功能已全量实现 0236424，双 UI 一致性打磨待验收）
-3. ✅ 伞包 README（2e233b7）；⏳ 全量回归待重跑留档
-3b. ⏳ **全部 example 身份脚本终跑 + 全量 gen-docs 重新生成**（发布前终态固化；当前 API 文档生成于 11-20 00:08）
+2. ✅ select-like 族 popup_engine 底座核查（TreeSelect / Cascader / ColorPicker / AutoComplete / Mentions 均接 AntPopupOverlay）
+2. ✅ Calendar 双端打磨（修复强制 card 下字号回退 fullscreen 的 bug；card 单元格 32→44 对齐 antd-mobile），待集中验收
+3. ✅ 伞包 README（2e233b7）+ 全量回归留档（21 包 + 根包 analyze/test、example web build 全绿，见 `.temp/regress_result.txt`）
+3b. ✅ **example 身份脚本终跑 + gen-docs 全量重跑**：9 个 example 补齐 `com.antd.*`（carousel/color/floating/masonry/picker/theme/tokens/tree/upload），全部 21 个 example 身份一致；文档页面缺失/多余/人工残留均为 0
 
 ### 批次 4：发布 1.0.0
 CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
