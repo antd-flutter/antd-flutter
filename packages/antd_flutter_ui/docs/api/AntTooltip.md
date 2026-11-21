@@ -15,7 +15,7 @@ class AntTooltip
 
 ## 构造函数
 
-### `AntTooltip({super.key, required this.child, required this.tooltip, this.placement = AntTooltipPlacement.top, this.trigger, this.open, this.defaultOpen = false, this.onOpenChange, this.color, this.overlayStyle, this.arrow = true, this.mouseEnterDelay = const Duration(milliseconds: 100), this.mouseLeaveDelay = const Duration(milliseconds: 100)})`
+### `AntTooltip({super.key, required this.child, required this.tooltip, this.placement = AntTooltipPlacement.top, this.trigger, this.open, this.defaultOpen = false, this.onOpenChange, this.controller, this.color, this.overlayStyle, this.arrow = true, this.mouseEnterDelay = const Duration(milliseconds: 100), this.mouseLeaveDelay = const Duration(milliseconds: 100)})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -26,6 +26,7 @@ class AntTooltip
 | `open` | `bool?` | 可选 | — |
 | `defaultOpen` | `bool` | = false | — |
 | `onOpenChange` | `ValueChanged<bool>?` | 可选 | — |
+| `controller` | `AntTooltipController?` | 可选 | — |
 | `color` | `Color?` | 可选 | — |
 | `overlayStyle` | `BoxDecoration?` | 可选 | — |
 | `arrow` | `bool` | = true | — |
@@ -39,6 +40,7 @@ class AntTooltip
 | `arrow` | `bool` | 是否显示箭头 |
 | `child` | `Widget` | 触发元素 |
 | `color` | `Color?` | 自定义气泡背景色（文字自动取反白） |
+| `controller` | `AntTooltipController?` | 程序化控制器（可选） |
 | `defaultOpen` | `bool` | 非受控模式下的默认显示状态 |
 | `mouseEnterDelay` | `Duration` | 桌面端鼠标移入延迟 |
 | `mouseLeaveDelay` | `Duration` | 桌面端鼠标移出延迟 |

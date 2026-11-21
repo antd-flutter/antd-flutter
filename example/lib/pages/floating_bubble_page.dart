@@ -50,6 +50,11 @@ class FloatingBubblePage extends StatelessWidget {
           ),
           SizedBox(height: 16.w),
           const _Section(
+            title: '边缘吸附（拖拽松手自动贴边）',
+            child: _AutoSnapDemo(),
+          ),
+          SizedBox(height: 16.w),
+          const _Section(
             title: '自定义图标',
             child: Row(
               children: [
@@ -190,6 +195,85 @@ class _MenuDemoState extends State<_MenuDemo> {
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+// ============================================================
+// 区块：边缘吸附演示（autoSnapToEdge + Controller 手动吸附）
+// ============================================================
+
+class _AutoSnapDemo extends StatefulWidget {
+  const _AutoSnapDemo();
+
+  @override
+  State<_AutoSnapDemo> createState() => _AutoSnapDemoState();
+}
+
+class _AutoSnapDemoState extends State<_AutoSnapDemo> {
+  final AntFloatingBubbleController _controller = AntFloatingBubbleController();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AntText(
+          text:
+              '左：拖拽松手自动吸附最近左/右边缘（autoSnapToEdge）；右：拖拽后点按钮手动吸附',
+          style: TextStyle(
+            fontSize: theme.fontSizeSM.sp,
+            color: theme.colorTextSecondary,
+          ),
+        ),
+        SizedBox(height: 8.w),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 180.w,
+                decoration: BoxDecoration(
+                  color: theme.colorFillQuaternary,
+                  borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+                ),
+                child: const AntFloatingBubble(
+                  initialPos: Offset(100, 120),
+                  autoSnapToEdge: true,
+                  child: AntdIcon(AntIcons.dragOutlined),
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Container(
+                height: 180.w,
+                decoration: BoxDecoration(
+                  color: theme.colorFillQuaternary,
+                  borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+                ),
+                child: Stack(
+                  children: [
+                    AntFloatingBubble(
+                      controller: _controller,
+                      initialPos: const Offset(100, 120),
+                      child: const AntdIcon(AntIcons.dragOutlined),
+                    ),
+                    Positioned(
+                      left: 8.w,
+                      bottom: 8.w,
+                      child: OutlinedButton(
+                        onPressed: () => _controller.snapToNearestEdge(),
+                        child: const AntText(text: '吸附边缘'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

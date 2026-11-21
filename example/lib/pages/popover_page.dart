@@ -124,12 +124,19 @@ class _PopoverPageState extends State<PopoverPage> {
                 SizedBox(width: 12.w),
                 AntPopover(
                   open: _controlledOpen,
+                  onOpenChange: (open) => setState(() => _controlledOpen = open),
                   title: const Text('受控气泡'),
                   content: const Text('由外部状态控制显示与隐藏'),
                   child: const Text('受控触发元素'),
                 ),
               ],
             ),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
+            title: 'Controller 模式',
+            theme: theme,
+            child: _ControllerPopoverDemo(),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -177,6 +184,36 @@ class _PopoverPageState extends State<PopoverPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Controller 模式示例（R35.2）。
+class _ControllerPopoverDemo extends StatefulWidget {
+  @override
+  State<_ControllerPopoverDemo> createState() => _ControllerPopoverDemoState();
+}
+
+class _ControllerPopoverDemoState extends State<_ControllerPopoverDemo> {
+  final AntPopoverController _controller = AntPopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntPopover(
+          controller: _controller,
+          trigger: AntPopoverTrigger.click,
+          title: const Text('Controller 气泡'),
+          content: const Text('由 controller 程序化控制'),
+          child: const Text('Controller 触发元素'),
+        ),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.show(), child: const Text('show')),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
+      ],
     );
   }
 }

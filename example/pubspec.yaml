@@ -33,6 +33,32 @@ dependency_overrides:
     path: ../packages/antd_refresh
   antd_swipe_action:
     path: ../packages/antd_swipe_action
+  antd_splitter:
+    path: ../packages/antd_splitter
+  antd_image_viewer:
+    path: ../packages/antd_image_viewer
+  antd_calendar:
+    path: ../packages/antd_calendar
+  antd_upload:
+    path: ../packages/antd_upload
+  antd_picker:
+    path: ../packages/antd_picker
+  antd_form:
+    path: ../packages/antd_form
+  antd_tree:
+    path: ../packages/antd_tree
+  antd_carousel:
+    path: ../packages/antd_carousel
+  antd_masonry:
+    path: ../packages/antd_masonry
+  antd_floating:
+    path: ../packages/antd_floating
+  antd_keyboard:
+    path: ../packages/antd_keyboard
+  antd_table:
+    path: ../packages/antd_table
+  antd_transfer:
+    path: ../packages/antd_transfer
 
 dev_dependencies:
   flutter_test:

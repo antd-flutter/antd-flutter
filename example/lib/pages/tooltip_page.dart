@@ -143,6 +143,13 @@ class TooltipPage extends StatelessWidget {
           ),
           SizedBox(height: 16.w),
           _Section(
+            title: 'Controller 模式',
+            description: 'controller.show/hide/toggle 程序化控制，无需 GlobalKey 或外部 state。',
+            theme: theme,
+            child: const _ControllerTooltipDemo(),
+          ),
+          SizedBox(height: 16.w),
+          _Section(
             title: '点击 / 长按触发',
             description: '移动端点击切换显示、长按打开；桌面端可显式指定 click 触发。',
             theme: theme,
@@ -200,6 +207,47 @@ class _ControlledTooltipDemoState extends State<_ControlledTooltipDemo> {
             _open ? '关闭气泡' : '打开气泡',
             style: TextStyle(fontSize: 13.sp, color: theme.colorPrimary),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Controller 模式示例（R35.2）。
+class _ControllerTooltipDemo extends StatefulWidget {
+  const _ControllerTooltipDemo();
+
+  @override
+  State<_ControllerTooltipDemo> createState() => _ControllerTooltipDemoState();
+}
+
+class _ControllerTooltipDemoState extends State<_ControllerTooltipDemo> {
+  final AntTooltipController _controller = AntTooltipController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntTooltip(
+          controller: _controller,
+          tooltip: const Text('Controller 气泡'),
+          child: const Text('Controller 触发'),
+        ),
+        SizedBox(width: 16.w),
+        AntButton(
+          onTap: () => _controller.toggle(),
+          child: const Text('toggle'),
+        ),
+        SizedBox(width: 12.w),
+        AntButton(
+          onTap: () => _controller.show(),
+          child: const Text('show'),
+        ),
+        SizedBox(width: 12.w),
+        AntButton(
+          onTap: () => _controller.hide(),
+          child: const Text('hide'),
         ),
       ],
     );

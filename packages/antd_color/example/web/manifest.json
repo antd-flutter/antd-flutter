@@ -1,6 +1,6 @@
 {
-    "name": "antd_color_example",
-    "short_name": "antd_color_example",
+    "name": "AntdColor",
+    "short_name": "AntdColor",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

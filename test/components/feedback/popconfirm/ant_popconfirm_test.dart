@@ -1,8 +1,8 @@
 /// AntPopconfirm widget 测试
 library;
 
-import 'package:antd_flutter_plus/src/components/feedback/popconfirm/ant_popconfirm.dart';
-import 'package:antd_flutter_plus/src/components/feedback/popconfirm/ant_popconfirm_types.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

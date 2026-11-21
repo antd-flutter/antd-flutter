@@ -12,7 +12,10 @@
 #
 # 用法：
 #   bash scripts/setup_example_identity.sh --pkg antd_qrcode \
-#       --example packages/antd_qrcode/example --name AntdQrcode [--svg <svg路径>]
+#       --example packages/antd_qrcode/example --name AntdQrcode [--svg <svg路径>] \
+#       [--bundleid com.antd.qrcode]
+#   --bundleid 缺省时按 --pkg 派生：去 antd_ 前缀与下划线 → com.antd.<x>
+#   （组件名含语义分词时建议显式指定，如 antd_icons_flutter → com.antd.icons）
 #
 # 说明：
 #   - SVG 本地缓存于 .temp/brand/icon.svg，避免重复下载
@@ -31,6 +34,7 @@ PKG=""
 EXAMPLE=""
 NAME=""
 SVG=""
+BUNDLEID=""
 
 info() { echo "[信息] $*"; }
 ok()   { echo "[完成] $*"; }
@@ -47,6 +51,7 @@ while [[ $# -gt 0 ]]; do
     --example) EXAMPLE="$2"; shift 2 ;;
     --name)    NAME="$2"; shift 2 ;;
     --svg)     SVG="$2"; shift 2 ;;
+    --bundleid) BUNDLEID="$2"; shift 2 ;;
     -h|--help) usage ;;
     *) err "未知参数：$1（--help 查看用法）" ;;
   esac
@@ -56,6 +61,11 @@ done
 [[ -n "$EXAMPLE" ]] || err "缺少 --example <example路径>"
 [[ -n "$NAME" ]]    || err "缺少 --name <大驼峰显示名>"
 [[ -d "$EXAMPLE" ]] || err "example 路径不存在：$EXAMPLE"
+
+# bundle id：显式指定优先，否则按 pkg 派生（去 antd_ 前缀与下划线）
+if [[ -z "$BUNDLEID" ]]; then
+  BUNDLEID="com.antd.$(echo "$PKG" | sed 's/^antd_//; s/_//g')"
+fi
 
 command -v curl     >/dev/null || err "未找到 curl"
 command -v qlmanage >/dev/null || err "未找到 qlmanage（macOS 自带）"
@@ -87,17 +97,28 @@ RAW_PNG="$RENDER_DIR/$(basename "$BRAND_CACHE").png"
 
 python3 - "$RAW_PNG" "$MASTER_PNG" <<'PY'
 import sys
-from PIL import Image
+from PIL import Image, ImageChops
 raw, master = sys.argv[1], sys.argv[2]
 img = Image.open(raw).convert("RGBA")
-# 裁掉透明边，等比缩放后居中到 1024 透明方画布
-bbox = img.getbbox()
+# qlmanage 输出为不透明白底（alpha 全 255），getbbox() 无法定位内容；
+# 改用与白底的差异检测内容 bbox，裁掉空白边缘后居中到方形画布
+diff = ImageChops.difference(img.convert("RGB"), Image.new("RGB", img.size, (255, 255, 255)))
+bbox = diff.convert("L").point(lambda x: 255 if x > 10 else 0).getbbox()
 if bbox:
     img = img.crop(bbox)
 side = max(img.size)
 canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
 canvas.paste(img, ((side - img.width) // 2, (side - img.height) // 2))
 canvas = canvas.resize((1024, 1024), Image.LANCZOS)
+# 自检：非白内容 bbox 中心与画布中心偏差 ≤ 2px
+rgb = canvas.convert("RGB")
+d2 = ImageChops.difference(rgb, Image.new("RGB", rgb.size, (255, 255, 255))).convert("L")
+b2 = d2.point(lambda x: 255 if x > 10 else 0).getbbox()
+if b2:
+    ox = abs((b2[0] + b2[2]) / 2 - 512)
+    oy = abs((b2[1] + b2[3]) / 2 - 512)
+    if ox > 2 or oy > 2:
+        sys.exit(f"[错误] 母图内容未居中：偏差 ({ox:.1f}, {oy:.1f})px > 2px")
 canvas.save(master)
 PY
 ok "生成 1024 母图 → $MASTER_PNG"
@@ -234,3 +255,79 @@ print(f"共更新 {len(changed)} 项")
 PY
 
 ok "setup_example_identity 完成：${EXAMPLE}（${NAME}）"
+
+# ---------- 7. 原生项目标识符统一（默认随主流程执行） ----------
+# iOS/macOS project.pbxproj 的 PRODUCT_BUNDLE_IDENTIFIER → com.antdflutter.<name小写>
+# （RunnerTests 档保留 .RunnerTests 后缀）；Android build.gradle(.kts) 的
+# namespace + applicationId → com.antdflutter.<name小写>。
+# 幂等：目标值与现值一致时不改动。Info.plist CFBundleIdentifier 引用
+# $(PRODUCT_BUNDLE_IDENTIFIER)，随 pbxproj 自动生效。pubspec name: 不改。
+python3 - "$EXAMPLE" "$NAME" "$BUNDLEID" <<'PY'
+import glob, os, plistlib, re, sys
+
+example, name, bundleid = sys.argv[1], sys.argv[2], sys.argv[3]
+base = bundleid
+changed = []
+
+def rewrite_pbxproj(path):
+    if not os.path.exists(path):
+        return
+    def repl(m):
+        old = m.group(2)
+        new = base + ".RunnerTests" if old.endswith(".RunnerTests") else base
+        if old != new:
+            changed.append((path, old, new))
+        return m.group(1) + new
+    text = open(path, encoding="utf-8").read()
+    new_text = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER = )([^;]+)', repl, text)
+    if new_text != text:
+        open(path, "w", encoding="utf-8").write(new_text)
+
+rewrite_pbxproj(os.path.join(example, "ios/Runner.xcodeproj/project.pbxproj"))
+rewrite_pbxproj(os.path.join(example, "macos/Runner.xcodeproj/project.pbxproj"))
+
+# macOS Runner 的 bundle id 与壳产品名都在 AppInfo.xcconfig（Runner 目标引用它们）
+xc = os.path.join(example, "macos/Runner/Configs/AppInfo.xcconfig")
+if os.path.exists(xc):
+    text = open(xc, encoding="utf-8").read()
+    new_text = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER\s*=\s*)\S+',
+                      rf'\g<1>{base}', text)
+    # 壳产品名：PRODUCT_NAME → 大驼峰名（Finder/Dock 显示与窗口标题来源）
+    new_text = re.sub(r'(PRODUCT_NAME\s*=\s*)\S+', rf'\g<1>{name}', new_text)
+    if new_text != text:
+        for m in re.finditer(r'(PRODUCT_BUNDLE_IDENTIFIER|PRODUCT_NAME)\s*=\s*(\S+)', text):
+            want = base if m.group(1) == "PRODUCT_BUNDLE_IDENTIFIER" else name
+            if m.group(2) != want:
+                changed.append((xc, m.group(2), want))
+        open(xc, "w", encoding="utf-8").write(new_text)
+
+# iOS CFBundleName（短名/进程名）→ 大驼峰名
+ios_info = os.path.join(example, "ios/Runner/Info.plist")
+if os.path.exists(ios_info):
+    with open(ios_info, "rb") as f:
+        pl = plistlib.load(f)
+    dirty = False
+    for k in ("CFBundleName", "CFBundleDisplayName"):
+        if pl.get(k) != name:
+            pl[k] = name
+            dirty = True
+    if dirty:
+        with open(ios_info, "wb") as f:
+            plistlib.dump(pl, f)
+
+gradle = sorted(glob.glob(os.path.join(example, "android/app/build.gradle*")))
+for g in gradle:
+    text = open(g, encoding="utf-8").read()
+    new_text = text
+    new_text = re.sub(r'(\bnamespace\s*=\s*")[^"]*(")', rf'\g<1>{base}\g<2>', new_text)
+    new_text = re.sub(r'(\bapplicationId\s*=\s*")[^"]*(")', rf'\g<1>{base}\g<2>', new_text)
+    if new_text != text:
+        for m in re.finditer(r'(\b(?:namespace|applicationId)\s*=\s*")([^"]*)(")', text):
+            if m.group(2) != base:
+                changed.append((g, m.group(2), base))
+        open(g, "w", encoding="utf-8").write(new_text)
+
+for path, old, new in changed:
+    print(f"  {path}: {old} -> {new}")
+print(f"共更新 {len(changed)} 处原生标识符")
+PY

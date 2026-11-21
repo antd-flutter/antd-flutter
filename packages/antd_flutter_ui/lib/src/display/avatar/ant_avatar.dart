@@ -27,6 +27,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'ant_avatar_types.dart';
+import '../../feedback/loading/ant_loading.dart';
 export 'ant_avatar_types.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -230,13 +231,9 @@ class AntAvatar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: theme.colorFillQuaternary),
       alignment: Alignment.center,
-      child: SizedBox(
-        width: spinnerSize,
-        height: spinnerSize,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: theme.colorPrimary,
-        ),
+      child: AntLoading(
+        size: spinnerSize,
+        color: theme.colorPrimary,
       ),
     );
   }

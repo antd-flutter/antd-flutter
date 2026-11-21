@@ -257,7 +257,7 @@ Widget _basicSection(BuildContext context) {
   return const _DemoCard(
     title: '基础二维码',
     description: '默认参数：纠错等级 M、尺寸 96、带边框。',
-    child: AntQRCode(value: 'https://antd-flutter.github.io/'),
+    child: AntQRCode(value: 'https://flutter-open.github.io/'),
   );
 }
 

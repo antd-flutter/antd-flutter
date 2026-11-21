@@ -68,14 +68,121 @@ jobs:
         working-directory: packages/antd_swipe_action/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/swipe_action/
 
+      - name: Install antd_splitter example dependencies
+        working-directory: packages/antd_splitter/example
+        run: flutter pub get
+
+      - name: Build antd_splitter example (release)
+        working-directory: packages/antd_splitter/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/splitter/
+
+      - name: Install antd_image_viewer example dependencies
+        working-directory: packages/antd_image_viewer/example
+        run: flutter pub get
+
+      - name: Build antd_image_viewer example (release)
+        working-directory: packages/antd_image_viewer/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/image_viewer/
+
+      - name: Install antd_upload example dependencies
+        working-directory: packages/antd_upload/example
+        run: flutter pub get
+
+      - name: Build antd_upload example (release)
+        working-directory: packages/antd_upload/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/upload/
+
+      - name: Install antd_picker example dependencies
+        working-directory: packages/antd_picker/example
+        run: flutter pub get
+
+      - name: Build antd_picker example (release)
+        working-directory: packages/antd_picker/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/picker/
+
+      - name: Install antd_form example dependencies
+        working-directory: packages/antd_form/example
+        run: flutter pub get
+
+      - name: Build antd_form example (release)
+        working-directory: packages/antd_form/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/form/
+      - name: Install antd_transfer example dependencies
+        working-directory: packages/antd_transfer/example
+        run: flutter pub get
+
+      - name: Build antd_transfer example (release)
+        working-directory: packages/antd_transfer/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/transfer/
+
+      - name: Install antd_tree example dependencies
+        working-directory: packages/antd_tree/example
+        run: flutter pub get
+
+      - name: Build antd_tree example (release)
+        working-directory: packages/antd_tree/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/tree/
+
+      - name: Install antd_carousel example dependencies
+        working-directory: packages/antd_carousel/example
+        run: flutter pub get
+
+      - name: Build antd_carousel example (release)
+        working-directory: packages/antd_carousel/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/carousel/
+
+      - name: Install antd_masonry example dependencies
+        working-directory: packages/antd_masonry/example
+        run: flutter pub get
+
+      - name: Build antd_masonry example (release)
+        working-directory: packages/antd_masonry/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/masonry/
+
+      - name: Install antd_floating example dependencies
+        working-directory: packages/antd_floating/example
+        run: flutter pub get
+
+      - name: Build antd_floating example (release)
+        working-directory: packages/antd_floating/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/floating/
+
+      - name: Install antd_keyboard example dependencies
+        working-directory: packages/antd_keyboard/example
+        run: flutter pub get
+
+      - name: Build antd_keyboard example (release)
+        working-directory: packages/antd_keyboard/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/keyboard/
+
+      - name: Install antd_table example dependencies
+        working-directory: packages/antd_table/example
+        run: flutter pub get
+
+      - name: Build antd_table example (release)
+        working-directory: packages/antd_table/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/table/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/form site/tree site/carousel site/masonry site/floating site/keyboard site/table site/transfer
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
           cp -r packages/antd_refresh/example/build/web/* site/refresh/
           cp -r packages/antd_swipe_action/example/build/web/* site/swipe_action/
+          cp -r packages/antd_splitter/example/build/web/* site/splitter/
+          cp -r packages/antd_image_viewer/example/build/web/* site/image_viewer/
+          cp -r packages/antd_upload/example/build/web/* site/upload/
+          cp -r packages/antd_picker/example/build/web/* site/picker/
+          cp -r packages/antd_form/example/build/web/* site/form/
+          cp -r packages/antd_tree/example/build/web/* site/tree/
+          cp -r packages/antd_carousel/example/build/web/* site/carousel/
+          cp -r packages/antd_masonry/example/build/web/* site/masonry/
+          cp -r packages/antd_floating/example/build/web/* site/floating/
+          cp -r packages/antd_keyboard/example/build/web/* site/keyboard/
+          cp -r packages/antd_table/example/build/web/* site/table/
+          cp -r packages/antd_transfer/example/build/web/* site/transfer/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

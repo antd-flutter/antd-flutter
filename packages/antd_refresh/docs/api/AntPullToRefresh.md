@@ -22,7 +22,7 @@ Future 完成后自动回弹。
 
 ## 构造函数
 
-### `AntPullToRefresh({super.key, required this.child, this.onRefresh, this.headHeight = kAntPullToRefreshHeadHeight, this.threshold = kAntPullToRefreshThreshold, this.pullStatusChange, this.completeText, this.pullingText, this.releasingText, this.finishingText, this.locale, this.strings, this.pointer = AntPullToRefreshPointer.top, this.header, this.enableRefresh = true})`
+### `AntPullToRefresh({super.key, required this.child, this.onRefresh, this.headHeight = kAntPullToRefreshHeadHeight, this.threshold = kAntPullToRefreshThreshold, this.pullStatusChange, this.completeText, this.pullingText, this.releasingText, this.finishingText, this.locale, this.strings, this.pointer = AntPullToRefreshPointer.top, this.header, this.enableRefresh = true, this.controller})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -40,6 +40,7 @@ Future 完成后自动回弹。
 | `pointer` | `AntPullToRefreshPointer` | = AntPullToRefreshPointer.top | — |
 | `header` | `Widget?` | 可选 | — |
 | `enableRefresh` | `bool` | = true | — |
+| `controller` | `AntPullToRefreshController?` | 可选 | — |
 
 ## 字段
 
@@ -47,6 +48,7 @@ Future 完成后自动回弹。
 | --- | --- | --- |
 | `child` | `Widget` | 可滚动内容（必须是 ListView / CustomScrollView 等可滚动组件才能下拉） |
 | `completeText` | `String?` | 刷新完成文案 |
+| `controller` | `AntPullToRefreshController?` | 程序化控制器（R35.2 Controller 优先）：经 AntPullToRefreshController … |
 | `enableRefresh` | `bool` | 是否启用下拉刷新（默认 true） |
 | `finishingText` | `String?` | 刷新中文案（伴随转圈显示） |
 | `headHeight` | `double` | 头部高度（默认 40） |

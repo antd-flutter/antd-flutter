@@ -5,18 +5,18 @@ packages:
     dependency: "direct main"
     description:
       name: antd_color
-      sha256: "9a7c9ad4ed284f29d806da5ddd08c0784d9a1f2301b363df2356423e8ab131b2"
+      sha256: "4e1a1b28f99b2b2fe5e5cf4272ef5a1e6c019156b5d9d623c34033c3400752b9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0-beta.1"
+    version: "1.0.0"
   antd_tokens:
     dependency: "direct main"
     description:
       name: antd_tokens
-      sha256: "9983c0cc96db51c1db7e6f6d09965abc74e66225fd5d9ecfe1ab25fbb092965f"
+      sha256: "51ffc7cbc2d7a5de2c597faf96df783a448f400436122c022a609ae11ea013d4"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0-beta.1"
+    version: "1.0.0"
   async:
     dependency: transitive
     description:

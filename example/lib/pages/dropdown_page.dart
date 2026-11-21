@@ -26,6 +26,8 @@ class DropdownPage extends StatelessWidget {
           _ItemStyleDemo(),
           _Section(title: '受控模式', description: 'open + onOpenChange 外部控制'),
           _ControlledDemo(),
+          _Section(title: 'Controller 模式', description: 'controller.show/hide 程序化控制，无需外部 state'),
+          _ControllerDemo(),
         ],
       ),
     );
@@ -186,6 +188,45 @@ class _ItemStyleDemo extends StatelessWidget {
 // ------------------------------------------------------------
 // 受控模式
 // ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// Controller 模式（R35.2）
+// ------------------------------------------------------------
+
+class _ControllerDemo extends StatefulWidget {
+  const _ControllerDemo();
+
+  @override
+  State<_ControllerDemo> createState() => _ControllerDemoState();
+}
+
+class _ControllerDemoState extends State<_ControllerDemo> {
+  final AntDropdownController _controller = AntDropdownController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        AntDropdown(
+          items: _basicItems,
+          controller: _controller,
+          onClick: (key) => debugPrint('点击了 $key'),
+          child: AntButton(child: const AntText(text: 'Controller 下拉')),
+        ),
+        const SizedBox(width: 16),
+        AntButton(
+          child: const AntText(text: 'show'),
+          onTap: () => _controller.show(),
+        ),
+        const SizedBox(width: 12),
+        AntButton(
+          child: const AntText(text: 'hide'),
+          onTap: () => _controller.hide(),
+        ),
+      ],
+    );
+  }
+}
 
 class _ControlledDemo extends StatefulWidget {
   const _ControlledDemo();

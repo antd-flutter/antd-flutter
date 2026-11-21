@@ -2,8 +2,17 @@ import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// AntPullToRefresh 演示页
-class PullToRefreshPage extends StatelessWidget {
+class PullToRefreshPage extends StatefulWidget {
   const PullToRefreshPage({super.key});
+
+  @override
+  State<PullToRefreshPage> createState() => _PullToRefreshPageState();
+}
+
+class _PullToRefreshPageState extends State<PullToRefreshPage> {
+  /// 程序化刷新控制器（R35.2 Controller 优先，替代 GlobalKey State 直调）。
+  final AntPullToRefreshController _refreshController =
+      AntPullToRefreshController();
 
   Future<void> _mockRefresh() async {
     await Future<void>.delayed(const Duration(seconds: 1));
@@ -17,6 +26,32 @@ class PullToRefreshPage extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.all(16.w),
         children: [
+          _Section(
+            title: '程序化刷新（Controller）',
+            theme: theme,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _refreshController.callRefresh,
+                      child: const Text('callRefresh()'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.w),
+                SizedBox(
+                  height: 220.w,
+                  child: AntPullToRefresh(
+                    controller: _refreshController,
+                    onRefresh: _mockRefresh,
+                    child: _buildItems(5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16.w),
           _Section(
             title: '基础用法',
             theme: theme,

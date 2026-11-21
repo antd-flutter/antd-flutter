@@ -1,0 +1,190 @@
+/// AntCalendar 类型定义。
+library;
+
+import 'package:flutter/widgets.dart';
+
+/// 日历面板模式（antd v6 mode 对齐：月面板 / 年面板）。
+enum AntCalendarMode {
+  /// 月面板（日期网格，默认）。
+  month,
+
+  /// 年面板（12 个月网格，点击月份回到月面板）。
+  year,
+}
+
+/// 日历可见格式（吸收 table_calendar calendarFormat，参考 Apache-2.0 源码改造）。
+enum AntCalendarFormat {
+  /// 月视图（默认，固定 6 行网格）。
+  month,
+
+  /// 两周视图（锚定日期所在的两周）。
+  twoWeeks,
+
+  /// 周视图（锚定日期所在的一周）。
+  week,
+}
+
+/// 日历布局形态（双实现切换）。
+enum AntCalendarLayout {
+  /// 自动：经 AntResponsive 自适应（desktop/web → fullscreen，phone/tablet → card）。
+  auto,
+
+  /// 强制桌面形态（fullscreen 大格子 + dateCell 内容插槽 + 头部年月下拉）。
+  fullscreen,
+
+  /// 强制移动形态（紧凑面板 + 滑动手势）。
+  card,
+}
+
+/// 自定义日期单元格构建回调。
+///
+/// [date] 为单元格对应日期（已去除时分秒）；
+/// [isCurrentMonth] 表示是否属于当前展示月份（非本月补位日期为 false）；
+/// [isToday] 表示是否为今天；
+/// [isSelected] 表示是否为选中日期。
+typedef AntCalendarDateCellBuilder = Widget? Function(
+  DateTime date, {
+  required bool isCurrentMonth,
+  required bool isToday,
+  required bool isSelected,
+});
+
+/// 周起始日设置。
+enum AntCalendarWeekStartsOn {
+  /// 周一为一周起始。
+  monday,
+
+  /// 周日为一周起始（默认）。
+  sunday,
+}
+
+/// 日历选择模式。
+enum AntCalendarSelectionMode {
+  /// 单选模式。
+  single,
+
+  /// 范围选择模式。
+  range,
+}
+
+/// 有效日期范围（antd v6 validRange 对齐）。
+///
+/// 范围外日期不可交互（等同禁用），且面板导航被裁剪在范围内；
+/// 传参方式：`AntCalendarValidRange(DateTime(2024, 1, 1), DateTime(2024, 12, 31))`。
+class AntCalendarValidRange {
+  /// 创建有效范围（[start] ≤ [end]，构造时自动归一化并去除时分秒）。
+  AntCalendarValidRange(DateTime start, DateTime end)
+      : start = _dateOnly(
+          start.isBefore(end) ? start : end,
+        ),
+        end = _dateOnly(start.isBefore(end) ? end : start);
+
+  /// 范围起点（含当天）。
+  final DateTime start;
+
+  /// 范围终点（含当天）。
+  final DateTime end;
+
+  /// 判断日期是否在范围内（按天比较，含边界）。
+  bool contains(DateTime date) {
+    final d = DateTime(date.year, date.month, date.day);
+    return !d.isBefore(start) && !d.isAfter(end);
+  }
+
+  static DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  @override
+  bool operator ==(Object other) =>
+      other is AntCalendarValidRange &&
+      other.start == start &&
+      other.end == end;
+
+  @override
+  int get hashCode => Object.hash(start, end);
+}
+
+/// 单元格渲染信息（antd v6 cellRender / fullCellRender 的 info 参数对齐）。
+class AntCalendarCellRenderInfo {
+  const AntCalendarCellRenderInfo({
+    required this.isToday,
+    required this.isSelected,
+    required this.isCurrentMonth,
+    required this.isDisabled,
+    required this.isInValidRange,
+  });
+
+  /// 是否为今天。
+  final bool isToday;
+
+  /// 是否为选中日期。
+  final bool isSelected;
+
+  /// 是否属于当前展示月份。
+  final bool isCurrentMonth;
+
+  /// 是否被禁用（disabledDate / min/max / validRange 之外）。
+  final bool isDisabled;
+
+  /// 是否在 validRange 内（未配置 validRange 时恒为 true）。
+  final bool isInValidRange;
+
+  @override
+  String toString() =>
+      'AntCalendarCellRenderInfo(isToday: $isToday, isSelected: $isSelected, '
+      'isCurrentMonth: $isCurrentMonth, isDisabled: $isDisabled, '
+      'isInValidRange: $isInValidRange)';
+}
+
+/// cellRender 内容层渲染回调（antd v6 cellRender 对齐）：
+/// 返回 null 时回退默认内容（dateCell / 默认数字 + 事件点）。
+typedef AntCalendarCellRender = Widget? Function(
+  DateTime date,
+  AntCalendarCellRenderInfo info,
+);
+
+/// fullCellRender 整格渲染回调（antd v6 fullCellRender 对齐）：
+/// 返回 null 时回退 cellRender / 默认整格（含背景、边框、点击区）。
+typedef AntCalendarFullCellRender = Widget? Function(
+  DateTime date,
+  AntCalendarCellRenderInfo info,
+);
+
+/// 月面板单元格内容渲染回调（antd v6 monthCellRender 对齐）。
+typedef AntCalendarMonthCellRender = Widget? Function(DateTime month);
+
+/// 月面板整格渲染回调（antd v6 monthFullCellRender 对齐）。
+typedef AntCalendarMonthFullCellRender = Widget? Function(DateTime month);
+
+/// 面板变化回调（antd v6 onPanelChange 对齐）：
+/// 面板模式切换或展示月份变化时触发。
+typedef AntCalendarPanelChangeCallback = void Function(
+  DateTime date,
+  AntCalendarMode mode,
+);
+
+/// 年月页面（antd-mobile Page 对齐），用于 minPage/maxPage 面板导航范围限制。
+class AntCalendarPage {
+  /// 创建年月页面（month 取 1~12）。
+  const AntCalendarPage({required this.year, required this.month});
+
+  /// 年份。
+  final int year;
+
+  /// 月份（1~12）。
+  final int month;
+
+  /// 与目标月份比较：负数表示在目标之前，0 相同，正数在目标之后。
+  int compareTo(int year, int month) {
+    if (this.year != year) return this.year - year;
+    return this.month - month;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is AntCalendarPage &&
+      other.year == year &&
+      other.month == month;
+
+  @override
+  int get hashCode => Object.hash(year, month);
+}

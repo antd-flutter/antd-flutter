@@ -147,6 +147,12 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
                 ],
               ),
             ),
+            SizedBox(height: 16.w),
+            _Section(
+              title: 'Controller 模式',
+              theme: theme,
+              child: _ControllerPopconfirmDemo(record: _record),
+            ),
           ],
         ),
       ),
@@ -160,6 +166,41 @@ class _PopconfirmPageState extends State<PopconfirmPage> {
       onConfirm: () => _record('$label 确认'),
       onCancel: () => _record('$label 取消'),
       child: AntButton(child: Text(label)),
+    );
+  }
+}
+
+/// Controller 模式示例（R35.2）。
+class _ControllerPopconfirmDemo extends StatefulWidget {
+  const _ControllerPopconfirmDemo({required this.record});
+
+  final ValueChanged<String> record;
+
+  @override
+  State<_ControllerPopconfirmDemo> createState() =>
+      _ControllerPopconfirmDemoState();
+}
+
+class _ControllerPopconfirmDemoState extends State<_ControllerPopconfirmDemo> {
+  final AntPopconfirmController _controller = AntPopconfirmController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntPopconfirm(
+          controller: _controller,
+          title: 'Controller 确认',
+          onConfirm: () => widget.record('Controller 确认'),
+          onCancel: () => widget.record('Controller 取消'),
+          child: const Text('Controller 触发'),
+        ),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.show(), child: const Text('show')),
+        SizedBox(width: 12.w),
+        AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
+      ],
     );
   }
 }

@@ -1,6 +1,6 @@
 {
-    "name": "antd_tokens_example",
-    "short_name": "antd_tokens_example",
+    "name": "AntdTokens",
+    "short_name": "AntdTokens",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

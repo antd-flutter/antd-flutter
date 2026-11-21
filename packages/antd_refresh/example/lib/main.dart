@@ -212,25 +212,43 @@ class _DemoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: theme.colorBorderSecondary),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: theme.colorText,
+      // 有界宿主：内容区 Expanded 弹性填充，固定高度 demo 在小窗口下
+      // 收缩不溢出；无界宿主（如 _basicSection 的 SingleChildScrollView）
+      // 走自然高度分支（无界下 flex 子级会断言崩溃）。
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool bounded = constraints.maxHeight.isFinite;
+          final List<Widget> children = [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: theme.colorText,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: TextStyle(fontSize: 13, color: theme.colorTextSecondary),
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(fontSize: 13, color: theme.colorTextSecondary),
+            ),
+            const SizedBox(height: 16),
+            child,
+          ];
+          if (!bounded) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children,
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...children.take(4),
+              Expanded(child: child),
+            ],
+          );
+        },
       ),
     );
   }
@@ -254,7 +272,10 @@ class _RefreshBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      height: height,
+      // 高度不超过可用空间：分区内容区受窗口高度限制，固定高度超出时
+      // 以可用高度为准（避免 RenderFlex overflow 布局崩溃）。
+      height: height <= 0 ? height : null,
+      constraints: BoxConstraints(maxHeight: height),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: theme.colorBorderSecondary),
@@ -400,23 +421,25 @@ class _LocaleDemoState extends State<_LocaleDemo> {
                   selectedColor: theme.colorPrimary,
                   backgroundColor: theme.colorFillSecondary,
                   labelStyle: TextStyle(
-                    color: _locale == locale
-                        ? Colors.white
-                        : theme.colorText,
+                    color: _locale == locale ? Colors.white : theme.colorText,
                   ),
                   onSelected: (_) => setState(() => _locale = locale),
                 ),
             ],
           ),
           const SizedBox(height: 16),
-          _RefreshBox(
-            height: 300,
-            child: AntPullToRefresh(
-              locale: _locale,
-              onRefresh: _fakeRefresh,
-              child: ListView.builder(
-                itemCount: 8,
-                itemBuilder: (_, i) => _ItemTile(i),
+          // 弹性填充：语言 chips 占用高度随窗口变化，RefreshBox 以剩余
+          // 空间为准，避免小窗口溢出布局。
+          Expanded(
+            child: _RefreshBox(
+              height: 300,
+              child: AntPullToRefresh(
+                locale: _locale,
+                onRefresh: _fakeRefresh,
+                child: ListView.builder(
+                  itemCount: 8,
+                  itemBuilder: (_, i) => _ItemTile(i),
+                ),
               ),
             ),
           ),
@@ -536,7 +559,11 @@ class _ScrollViewsDemo extends StatefulWidget {
 class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
   /// 当前演示的滚动视图类型。
   int _kind = 0;
-  static const List<String> _kindNames = ['ListView', 'CustomScrollView', 'NestedScrollView'];
+  static const List<String> _kindNames = [
+    'ListView',
+    'CustomScrollView',
+    'NestedScrollView',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -558,16 +585,19 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
             ],
           ),
           const SizedBox(height: 16),
-          _RefreshBox(
-            child: AntPullToRefresh(
-              key: ValueKey(_kind),
-              onRefresh: _fakeRefresh,
-              child: switch (_kind) {
-                0 => ListView.builder(
+          // 弹性填充：chips 占用高度随窗口变化，RefreshBox 以剩余空间为准，
+          // 避免小窗口溢出布局。
+          Expanded(
+            child: _RefreshBox(
+              child: AntPullToRefresh(
+                key: ValueKey(_kind),
+                onRefresh: _fakeRefresh,
+                child: switch (_kind) {
+                  0 => ListView.builder(
                     itemCount: 12,
                     itemBuilder: (_, i) => _ItemTile(i),
                   ),
-                1 => CustomScrollView(
+                  1 => CustomScrollView(
                     slivers: [
                       const SliverAppBar(
                         title: Text('CustomScrollView'),
@@ -579,7 +609,7 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
                       ),
                     ],
                   ),
-                _ => NestedScrollView(
+                  _ => NestedScrollView(
                     headerSliverBuilder: (_, _) => [
                       const SliverAppBar(
                         title: Text('NestedScrollView'),
@@ -592,7 +622,8 @@ class _ScrollViewsDemoState extends State<_ScrollViewsDemo> {
                       itemBuilder: (_, i) => _ItemTile(i),
                     ),
                   ),
-              },
+                },
+              ),
             ),
           ),
         ],
@@ -619,9 +650,7 @@ Widget _nestedSection(BuildContext context) {
             Container(
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               height: 260,
               clipBehavior: Clip.antiAlias,
               child: AntPullToRefresh(
@@ -674,17 +703,27 @@ class _ComboDemoState extends State<_ComboDemo> {
           '下拉刷新重置数据、上拉自动加载下一页（第 4 页后提示「没有更多了」）。'
           'AntInfiniteScroll 与 PullToRefresh 同包（antd_refresh）直接使用。',
       child: _RefreshBox(
+        // 高度自适应：窗口分区不足 460 时以可用高度为准，避免溢出布局。
         height: 460,
-        child: AntPullToRefresh(
-          onRefresh: _refresh,
-          child: AntInfiniteScroll(
-            loadMore: _loadMore,
-            child: ListView(
-              children: [
-                for (var i = 0; i < _pageStart + 10; i++) _ItemTile(i),
-              ],
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double maxH = constraints.maxHeight;
+            final double boxHeight = maxH.isFinite && maxH < 460 ? maxH : 460;
+            return SizedBox(
+              height: boxHeight,
+              child: AntPullToRefresh(
+                onRefresh: _refresh,
+                child: AntInfiniteScroll(
+                  loadMore: _loadMore,
+                  child: ListView(
+                    children: [
+                      for (var i = 0; i < _pageStart + 10; i++) _ItemTile(i),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

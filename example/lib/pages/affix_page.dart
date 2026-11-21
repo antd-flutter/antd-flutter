@@ -9,7 +9,12 @@ class AffixPage extends StatefulWidget {
 }
 
 class _AffixPageState extends State<AffixPage> {
-  bool _affixed = false;
+  final Map<String, bool> _affixed = {
+    'top': false,
+    'bottom': false,
+    'callback': false,
+    'long': false,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -21,51 +26,37 @@ class _AffixPageState extends State<AffixPage> {
           _Section(
             title: '基础用法 offsetTop',
             theme: theme,
+            status: _statusText('top'),
             child: AntAffix(
               offsetTop: 16,
+              onChange: (v) => setState(() => _affixed['top'] = v),
               child: _bar(theme, '固定在顶部 16px'),
-            ),
-          ),
-          Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
-          _Section(
-            title: 'offsetBottom',
-            theme: theme,
-            child: AntAffix(
-              offsetBottom: 16,
-              child: _bar(theme, '固定在底部 16px'),
             ),
           ),
           Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
           _Section(
             title: '回调状态',
             theme: theme,
-            child: Column(
-              children: [
-                Text(
-                  _affixed ? '当前状态：已钉住' : '当前状态：未钉住',
-                  style: TextStyle(
-                    color: _affixed ? theme.colorSuccess : theme.colorTextSecondary,
-                  ),
-                ),
-                SizedBox(height: 8.w),
-                AntAffix(
-                  offsetTop: 56,
-                  onChange: (affixed) => setState(() => _affixed = affixed),
-                  child: _bar(theme, '带 onChange 回调'),
-                ),
-              ],
+            status: _statusText('callback'),
+            child: AntAffix(
+              offsetTop: 56,
+              onChange: (affixed) => setState(() => _affixed['callback'] = affixed),
+              child: _bar(theme, '带 onChange 回调'),
             ),
           ),
           Container(height: 120, alignment: Alignment.center, child: const Text('占位内容')),
           _Section(
             title: '长页面演示（占位不跳动）',
             theme: theme,
+            status: _statusText('long'),
             child: AntAffix(
               offsetTop: 0,
+              onChange: (v) => setState(() => _affixed['long'] = v),
               child: _bar(theme, '滚过顶部后钉住，下方内容不跳动'),
             ),
           ),
-          for (var i = 1; i <= 20; i++)
+          // 长滚动内容：保证每个固钉都有足够的滚动行程触发/解除
+          for (var i = 1; i <= 40; i++)
             Container(
               margin: EdgeInsets.only(bottom: 8.w),
               padding: EdgeInsets.all(16.w),
@@ -75,7 +66,35 @@ class _AffixPageState extends State<AffixPage> {
               ),
               child: Text('滚动内容块 $i'),
             ),
+          // offsetBottom 固钉放在长内容末尾：加载即钉在视口底部（原位低于
+          // 底部阈值线），向下滚过原位解除，向上滚回重新钉住
+          _Section(
+            title: 'offsetBottom（页面末尾，向上滚回即钉底）',
+            theme: theme,
+            status: _statusText('bottom'),
+            child: AntAffix(
+              offsetBottom: 16,
+              onChange: (v) => setState(() => _affixed['bottom'] = v),
+              child: _bar(theme, '固定在底部 16px'),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// 状态文案：钉住/未钉住，便于滚动观察固钉效果。
+  Widget _statusText(String key) {
+    final theme = AntTheme.of(context);
+    final affixed = _affixed[key] ?? false;
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.w),
+      child: Text(
+        affixed ? '当前状态：已固定' : '当前状态：未固定',
+        style: TextStyle(
+          fontSize: theme.fontSizeSM,
+          color: affixed ? theme.colorSuccess : theme.colorTextSecondary,
+        ),
       ),
     );
   }
@@ -92,7 +111,8 @@ class _AffixPageState extends State<AffixPage> {
         children: [
           Icon(AntIcons.pushpinOutlined, size: 16.w, color: theme.colorPrimary),
           SizedBox(width: 8.w),
-          Text(text),
+          // Expanded：窄屏/钉住宽度约束下长文本换行，不产生横向溢出
+          Expanded(child: Text(text, softWrap: true)),
         ],
       ),
     );
@@ -104,11 +124,13 @@ class _Section extends StatelessWidget {
     required this.title,
     required this.theme,
     required this.child,
+    this.status,
   });
 
   final String title;
   final AntThemeData theme;
   final Widget child;
+  final Widget? status;
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +152,7 @@ class _Section extends StatelessWidget {
               color: theme.colorTextHeading,
             ),
           ),
+          if (status != null) status!,
           SizedBox(height: 12.w),
           child,
         ],

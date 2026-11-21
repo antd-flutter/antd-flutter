@@ -5,6 +5,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
+import '../../feedback/loading/ant_loading.dart';
 
 import 'package:material_ui/material_ui.dart';
 
@@ -34,13 +35,9 @@ class AntImageDefaults {
   /// 默认加载中占位：居中圆形进度指示器。
   static Widget defaultPlaceholder(AntThemeData theme) {
     return Center(
-      child: SizedBox(
-        width: 24.w,
-        height: 24.w,
-        child: CircularProgressIndicator(
-          strokeWidth: 2.w,
-          color: theme.colorPrimary,
-        ),
+      child: AntLoading(
+        size: 24.w,
+        color: theme.colorPrimary,
       ),
     );
   }

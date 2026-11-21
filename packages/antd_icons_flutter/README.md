@@ -41,7 +41,7 @@ Icon(AntIcons.heartFilled, color: Colors.red);
 ## 文档与演示
 
 - [API 文档总览](docs/api-index.md)
-- 图标画廊（在线搜索 + TwoTone 取色）：<https://antd-flutter.github.io/antd-flutter/icons/>
+- 图标画廊（在线搜索 + TwoTone 取色）：<https://flutter-open.github.io/antd-flutter/icons/>
 
 ## License
 

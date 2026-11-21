@@ -1,0 +1,32 @@
+name: antd_table_example
+description: "Ant Design Table for Flutter - component demo gallery."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_table:
+    path: ../
+  antd_theme:
+    path: ../../antd_theme
+  material_ui: ^1.11.0
+
+  cupertino_icons: ^1.0.8
+
+dependency_overrides:
+  antd_theme:
+    path: ../../antd_theme
+  antd_table:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
