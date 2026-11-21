@@ -91,6 +91,8 @@ class AntInputField extends StatefulWidget {
     this.bordered = true,
     this.contentPadding,
     this.height,
+    this.textSize,
+    this.embeddedPadding,
     this.minLines = 1,
     this.maxLines = 1,
     this.textAlign = TextAlign.start,
@@ -139,6 +141,13 @@ class AntInputField extends StatefulWidget {
 
   /// 高度覆盖（null 时按 [size] 取 token 高度）。
   final double? height;
+
+  /// 字号覆盖（null 时按 [size] 取 token 字号）。
+  final double? textSize;
+
+  /// embedded 单行的上下内边距覆盖（null 时为 0）。
+  /// 由外层容器传入「(容器高 - 字号) / 2」以让行盒在整块内垂直居中。
+  final double? embeddedPadding;
 
   final int minLines;
   final int? maxLines;
@@ -197,7 +206,7 @@ class _AntInputFieldState extends State<AntInputField> {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final standalone = widget.mode == AntInputFieldMode.standalone;
-    final fontSize = antFieldFontSizeOf(t, widget.size).sp;
+    final fontSize = widget.textSize ?? antFieldFontSizeOf(t, widget.size).sp;
     final multiline = _isMultiline;
     final height = widget.height ?? antFieldHeightOf(t, widget.size);
 
@@ -249,18 +258,19 @@ class _AntInputFieldState extends State<AntInputField> {
           height: 1.0,
           color: t.colorTextPlaceholder,
         ),
-        contentPadding:
-            multiline
-                ? EdgeInsets.symmetric(horizontal: t.marginSM.w, vertical: t.marginSM.w)
-                // standalone 单行：上下对称内边距撑满高度锁定块
-                // （textAlignVertical.center 需对称余量执行居中；isCollapsed
-                // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）
-                : standalone
-                    ? EdgeInsets.symmetric(
-                        vertical: (height.w - fontSize) / 2,
-                      )
-                    // embedded：内容零内边距，行盒由基座 Center 垂直居中
-                    : EdgeInsets.zero,
+        contentPadding: multiline
+            ? EdgeInsets.symmetric(
+                horizontal: t.marginSM.w, vertical: t.marginSM.w)
+            // standalone 单行：上下对称内边距撑满高度锁定块
+            // （textAlignVertical.center 需对称余量执行居中；isCollapsed
+            // 会把输入区压成行盒并顶置——桌面/移动端均出现文字偏上）
+            : standalone
+                ? EdgeInsets.symmetric(
+                    vertical: (height.w - fontSize) / 2,
+                  )
+                // embedded：零内边距默认；外层可传 embeddedPadding 让行盒撑满
+                // 高度以获得严格的垂直居中（AutoComplete 等自绘边框场景）
+                : EdgeInsets.symmetric(vertical: widget.embeddedPadding ?? 0),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,

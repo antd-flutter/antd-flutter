@@ -108,14 +108,28 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
 
   String get _currentValue => widget.value ?? _internalValue ?? '';
 
-  double get _height {
+  /// 输入文字字号：桌面跟随 antd（14），移动端跟随 antd-mobile（17）。
+  double _textSizeOf(AntThemeData t, AntInputSize size, bool isMobile) {
+    final base = antFieldFontSizeOf(t, size);
+    if (!isMobile) return base;
+    switch (size) {
+      case AntInputSize.small:
+        return base + 2;
+      case AntInputSize.middle:
+        return base + 3;
+      case AntInputSize.large:
+        return base + 4;
+    }
+  }
+
+  AntInputSize get _inputSize {
     switch (widget.size) {
       case AntAutoCompleteSize.large:
-        return 40;
+        return AntInputSize.large;
       case AntAutoCompleteSize.small:
-        return 24;
+        return AntInputSize.small;
       case AntAutoCompleteSize.middle:
-        return 32;
+        return AntInputSize.middle;
     }
   }
 
@@ -289,11 +303,16 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
     final showClear =
         widget.allowClear && _currentValue.isNotEmpty && !widget.disabled;
 
+    final inputSize = _inputSize;
+    final fieldHeight = antFieldHeightOf(t, inputSize).w;
+    final isMobile = MediaQuery.sizeOf(context).width < 768;
+    final textSize = _textSizeOf(t, inputSize, isMobile);
+
     return Focus(
       onKeyEvent: _handleKeyEvent,
       child: Container(
         key: _triggerKey,
-        height: _height.h,
+        height: fieldHeight,
         decoration: BoxDecoration(
           color:
               widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
@@ -314,11 +333,10 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                 focusNode: _focusNode,
                 enabled: !widget.disabled,
                 placeholder: widget.placeholder,
-                size: widget.size == AntAutoCompleteSize.small
-                    ? AntInputSize.small
-                    : AntInputSize.middle,
+                size: inputSize,
+                textSize: textSize,
+                embeddedPadding: (fieldHeight - textSize) / 2,
                 mode: AntInputFieldMode.embedded,
-                height: _height.h,
                 onChanged: _onInputChanged,
               ),
             ),
@@ -328,21 +346,30 @@ class _AntAutoCompleteState extends State<AntAutoComplete>
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: EdgeInsets.only(left: 4.w),
-                  child: Icon(Icons.cancel,
-                      size: 14.sp, color: t.colorTextQuaternary,),
+                  child: Icon(
+                    Icons.cancel,
+                    size: 14,
+                    color: t.colorTextQuaternary,
+                  ),
                 ),
               )
             else if (_open)
               Padding(
                 padding: EdgeInsets.only(left: 4.w),
-                child: Icon(Icons.keyboard_arrow_up,
-                    size: 14.sp, color: t.colorTextQuaternary,),
+                child: Icon(
+                  Icons.keyboard_arrow_up,
+                  size: 14,
+                  color: t.colorTextQuaternary,
+                ),
               )
             else
               Padding(
                 padding: EdgeInsets.only(left: 4.w),
-                child: Icon(Icons.search,
-                    size: 14.sp, color: t.colorTextQuaternary,),
+                child: Icon(
+                  Icons.search,
+                  size: 14,
+                  color: t.colorTextQuaternary,
+                ),
               ),
           ],
         ),
