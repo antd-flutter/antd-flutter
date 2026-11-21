@@ -32,7 +32,6 @@ const kPendingVerify = <String>[
   'steps',
   'jumbo_tabs',
   'side_bar',
-  'menu',
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
   'table',
@@ -144,6 +143,7 @@ const kMigratedVerified = <String>[
   'checkbox',
   // 已验收（2026-11-21 用户验收，含 AntAppBar 别名）
   'nav_bar',
+  'menu',
   // 已验收（2026-11-21 用户验收）
   'pagination',
   // 已验收（2026-11-21 用户验收）
