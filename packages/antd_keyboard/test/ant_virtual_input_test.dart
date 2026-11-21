@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:antd_keyboard/antd_keyboard.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -211,6 +213,66 @@ void main() {
       // 桌面端：系统输入框（EditableText），无自定义键盘
       expect(find.byType(EditableText), findsOneWidget);
       expect(find.byType(AntNumberKeyboard), findsNothing);
+    });
+
+    testWidgets('desktop hover only changes border, field is not filled',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(_wrap(const AntVirtualInput(placeholder: '输入')));
+
+      // TextField 自身不填充、不叠 hover 色，底色完全由外层容器决定。
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.filled, isFalse);
+      expect(field.decoration?.fillColor, Colors.transparent);
+      expect(field.decoration?.hoverColor, Colors.transparent);
+
+      final gesture = await tester.createGesture(kind: ui.PointerDeviceKind.mouse);
+      await gesture.addPointer(location: Offset.zero);
+      addTearDown(gesture.removePointer);
+      await gesture.moveTo(tester.getCenter(find.byType(AntVirtualInput)));
+      await tester.pumpAndSettle();
+
+      final theme = AntTheme.of(tester.element(find.byType(AntVirtualInput)));
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(AntVirtualInput),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final border = (container.decoration! as BoxDecoration).border!;
+      expect(border.top.color, theme.colorPrimaryHover);
+    });
+
+    testWidgets('disabled field keeps a single uniform background',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(
+        _wrap(
+          const AntVirtualInput(
+            placeholder: '禁用',
+            disabled: true,
+            defaultValue: '123',
+          ),
+        ),
+      );
+      final theme = AntTheme.of(tester.element(find.byType(AntVirtualInput)));
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(AntVirtualInput),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = container.decoration! as BoxDecoration;
+      expect(decoration.color, theme.colorBgContainerDisabled);
+      // 内层不再覆盖一层白色填充。
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.filled, isFalse);
     });
   });
 }

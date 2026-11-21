@@ -123,6 +123,9 @@ class _AntVirtualInputState extends State<AntVirtualInput>
   late String _internalValue;
   bool _focused = false;
 
+  /// 桌面端指针是否悬停在输入框上（antd hover 仅改变边框颜色）。
+  bool _hovered = false;
+
   /// 是否桌面平台。
   late final bool _desktop = isDesktopInputPlatform();
 
@@ -371,9 +374,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
                   ),
                 ),
               ),
-              if (widget.clearable &&
-                  value.isNotEmpty &&
-                  !widget.disabled) ...[
+              if (widget.clearable && value.isNotEmpty && !widget.disabled) ...[
                 SizedBox(width: t.marginXS),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -424,70 +425,83 @@ class _AntVirtualInputState extends State<AntVirtualInput>
         ? t.colorBorder
         : _focused
             ? t.colorPrimary
-            : t.colorBorder;
+            : _hovered
+                ? t.colorPrimaryHover
+                : t.colorBorder;
 
-    return Container(
-      height: t.controlHeight,
-      padding: EdgeInsets.symmetric(horizontal: t.marginSM),
-      decoration: BoxDecoration(
-        color:
-            widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
-        border: Border.all(color: borderColor, width: t.s(1)),
-        borderRadius: BorderRadius.circular(t.borderRadius),
-      ),
-      alignment: Alignment.center,
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              enabled: !widget.disabled,
-              readOnly: false,
-              showCursor: true,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: TextStyle(
-                fontSize: t.fontSize,
-                color: widget.disabled ? t.colorTextDisabled : t.colorText,
-              ),
-              cursorColor: t.colorPrimary,
-              onSubmitted: (v) => widget.onEnterPress?.call(v),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
-                counterText: '',
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                hintStyle: TextStyle(
-                  fontSize: t.fontSize,
-                  color: t.colorTextPlaceholder,
+    return MouseRegion(
+      onEnter: widget.disabled ? null : (_) => setState(() => _hovered = true),
+      onExit: widget.disabled ? null : (_) => setState(() => _hovered = false),
+      child: Container(
+        height: t.controlHeight,
+        padding: EdgeInsets.symmetric(horizontal: t.marginSM),
+        decoration: BoxDecoration(
+          color:
+              widget.disabled ? t.colorBgContainerDisabled : t.colorBgContainer,
+          border: Border.all(color: borderColor, width: t.s(1)),
+          borderRadius: BorderRadius.circular(t.borderRadius),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                enabled: !widget.disabled,
+                readOnly: false,
+                showCursor: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                hintText: widget.placeholder,
+                style: TextStyle(
+                  fontSize: t.fontSize,
+                  color: widget.disabled ? t.colorTextDisabled : t.colorText,
+                ),
+                cursorColor: t.colorPrimary,
+                onSubmitted: (v) => widget.onEnterPress?.call(v),
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  // 输入框的底色/边框由外层 Container 统一绘制：禁用时不透明填充，
+                  // 悬停时只变边框（antd 语义），因此这里关闭 TextField 自带填充与
+                  // hover 叠色，避免内部出现一块与容器不一致的颜色。
+                  filled: false,
+                  fillColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
+                  counterText: '',
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  hintStyle: TextStyle(
+                    fontSize: t.fontSize,
+                    color: t.colorTextPlaceholder,
+                  ),
+                  hintText: widget.placeholder,
+                ),
               ),
             ),
-          ),
-          if (widget.clearable && value.isNotEmpty && !widget.disabled) ...[
-            SizedBox(width: t.marginXS),
-            GestureDetector(
-              onTap: _handleClear,
-              behavior: HitTestBehavior.opaque,
-              child: AntdIcon(
-                AntIcons.closeCircleFilled,
-                key: const ValueKey('ant-virtual-input-clear'),
-                size: t.s(16),
-                color: t.colorTextQuaternary,
-                semanticLabel: '清空',
+            if (widget.clearable && value.isNotEmpty && !widget.disabled) ...[
+              SizedBox(width: t.marginXS),
+              GestureDetector(
+                onTap: _handleClear,
+                behavior: HitTestBehavior.opaque,
+                child: AntdIcon(
+                  AntIcons.closeCircleFilled,
+                  key: const ValueKey('ant-virtual-input-clear'),
+                  size: t.s(16),
+                  color: t.colorTextQuaternary,
+                  semanticLabel: '清空',
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
