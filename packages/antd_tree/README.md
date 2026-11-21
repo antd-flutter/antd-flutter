@@ -1,84 +1,223 @@
-# antd_tree
+# antd_tree - Generic tree and tree select for Flutter
 
-Ant Design v6 Tree / TreeSelect 组件的 Flutter 实现 — 树形控件，支持展开/收起、选中、checkbox 多选（父子联动/半选态/严格模式）、连接线、缩进、禁用节点，及树形下拉选择（单选/多选、默认展开、尺寸），API 对齐 antd React Tree / TreeSelect。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_tree/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_tree/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-> R33 判定：Tree 为数据展示类组件，内部以 Column 平铺渲染节点（展开动画经 AnimatedSize），自身不是滚动集合，滚动由外层容器（SingleChildScrollView/ListView 等）负责，不需要 sliver 支持。超大树的虚拟滚动（antd React 的 virtual 能力）为后续增强项，不阻塞本次拆分。
+`antd_tree` provides two Ant Design tree controls over **your own model `T`**: `AntTree<T>` for hierarchical display with expansion, selection, and optional checkboxes, and `AntTreeSelect<T>` for choosing one or more keys from the same hierarchy in a dropdown. The hierarchy is described entirely by callbacks — `keyOf`, `titleBuilder`, `childrenOf`, `disabledOf`, `checkableOf`, and `labelOf` on the select.
 
-> R35 判定（Controller 评估）：Tree 的展开/选中/勾选均为标准受控/非受控双模式（`expandedKeys` / `selectedKeys` / `checkedKeys` + `onExpand` / `onSelect` / `onCheck`），程序化操控（expandAll / collapseAll / checkAll 等价能力）通过受控 keys + setState 即可实现（见 example「受控树」分区按钮演示），无 imperative Controller 语义需求，不引入 AntTreeController。
+Design rules:
 
-## 安装
+- **Your model is the tree.** There is no required node wrapper; children come from `childrenOf`.
+- **Keys carry state.** Expansion, selection, and checked sets contain the values returned by `keyOf`.
+- **Controlled and uncontrolled variants coexist.** `expandedKeys` / `selectedKeys` / `checkedKeys` / `value` are controlled when non-null; the matching `default*` props seed uncontrolled state.
+- **Checking follows tree semantics by default.** A parent check cascades down, a partly checked parent reports an indeterminate state, and `checkStrictly` opts out of cascading.
+- **Layout, not scrolling.** `AntTree` renders a column and does not scroll; wrap it in a scroll view when the hierarchy can exceed the viewport. `AntTreeSelect` manages its own dropdown scrolling.
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_tree: ^0.1.0-beta.1
+  antd_tree: ^1.0.0
 ```
 
-## 用法
+Wrap the subtree in `AntTheme`; row height, indentation, colors, and dropdown chrome come from the design tokens:
 
 ```dart
+AntTheme(
+  data: AntThemeData.light(),
+  child: MaterialApp(home: YourPage()),
+)
+```
+
+## Quick start
+
+```dart
+import 'package:antd_theme/antd_theme.dart';
 import 'package:antd_tree/antd_tree.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 基础树 ──────────────────────────────────────────────
-AntTree(
-  treeData: [
-    AntTreeNode(key: 'zj', title: '浙江', children: [
-      AntTreeNode(key: 'hz', title: '杭州'),
-    ]),
-  ],
-  onSelect: (selectedKeys) {},
-);
+class Region {
+  const Region(
+    this.id,
+    this.name, {
+    this.children = const <Region>[],
+  });
 
-// ── 多选 checkbox 树（父子联动） ────────────────────────
-AntTree(
-  treeData: treeData,
+  final int id;
+  final String name;
+  final List<Region> children;
+}
+
+const regions = <Region>[
+  Region(
+    1,
+    'Zhejiang',
+    children: [
+      Region(2, 'Hangzhou'),
+      Region(3, 'Ningbo'),
+    ],
+  ),
+  Region(
+    4,
+    'Jiangsu',
+    children: [
+      Region(5, 'Nanjing'),
+      Region(6, 'Suzhou'),
+    ],
+  ),
+];
+
+void main() => runApp(
+      AntTheme(
+        data: AntThemeData.light(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                height: 280,
+                child: SingleChildScrollView(
+                  child: AntTree<Region>(
+                    dataSource: regions,
+                    keyOf: (region) => region.id,
+                    titleBuilder: (context, region) => Text(region.name),
+                    childrenOf: (region) => region.children,
+                    defaultExpandAll: true,
+                    checkable: true,
+                    onCheck: (checked, halfChecked) {
+                      debugPrint('checked=$checked half=$halfChecked');
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+```
+
+The example renders an expandable, checkable region tree with every branch open. Checking `Zhejiang` selects both cities; checking only `Hangzhou` puts the parent into the half-checked state.
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_tree/docs/api-index.md)
+
+### 1. Controlled expansion and selection
+
+```dart
+class ControlledTree extends StatefulWidget {
+  const ControlledTree({super.key});
+
+  @override
+  State<ControlledTree> createState() => _ControlledTreeState();
+}
+
+class _ControlledTreeState extends State<ControlledTree> {
+  Set<Object> _expanded = <Object>{1};
+  Set<Object> _selected = <Object>{2};
+
+  @override
+  Widget build(BuildContext context) {
+    return AntTree<Region>(
+      dataSource: regions,
+      keyOf: (region) => region.id,
+      titleBuilder: (context, region) => Text(region.name),
+      childrenOf: (region) => region.children,
+      expandedKeys: _expanded,
+      onExpand: (keys) => setState(() => _expanded = keys),
+      selectedKeys: _selected,
+      onSelect: (keys) => setState(() => _selected = keys),
+    );
+  }
+}
+```
+
+The caller owns `expandedKeys` and `selectedKeys`. Returning the callback's set keeps the tree and your state in sync.
+
+### 2. Per-node rules and strict checking
+
+```dart
+AntTree<Region>(
+  dataSource: regions,
+  keyOf: (region) => region.id,
+  titleBuilder: (context, region) => Text(region.name),
+  childrenOf: (region) => region.children,
   checkable: true,
-  onCheck: (checkedKeys, halfCheckedKeys) {},
-);
+  checkStrictly: true,
+  showLine: true,
+  checkableOf: (region) => region.children.isEmpty,
+  disabledOf: (region) => region.id == 3,
+  onCheck: (checked, halfChecked) {
+    debugPrint('checked=$checked half=$halfChecked');
+  },
+)
+```
 
-// ── 严格模式（父子不联动） ──────────────────────────────
-AntTree(treeData: treeData, checkable: true, checkStrictly: true);
+`showLine` draws hierarchy guides, while only leaves show a checkbox. `Ningbo` is disabled for selection and checking. With `checkStrictly: true` the parent is no longer derived from its descendants, so `checked` contains only the directly toggled node.
 
-// ── 受控模式 ────────────────────────────────────────────
-AntTree(
-  treeData: treeData,
-  expandedKeys: _expanded,
-  onExpand: (keys) => setState(() => _expanded = keys),
-  selectedKeys: _selected,
-  checkedKeys: _checked,
-);
+### 3. Single and multiple tree select
 
-// ── TreeSelect 下拉选择 ─────────────────────────────────
-AntTreeSelect(
-  treeData: [
-    AntTreeSelectOption(value: 'zj', label: '浙江', children: [
-      AntTreeSelectOption(value: 'hz', label: '杭州'),
-    ]),
+```dart
+Column(
+  mainAxisSize: MainAxisSize.min,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    AntTreeSelect<Region>(
+      dataSource: regions,
+      keyOf: (region) => region.id,
+      labelOf: (region) => region.name,
+      childrenOf: (region) => region.children,
+      treeDefaultExpandAll: true,
+      placeholder: 'Select a region',
+      allowClear: true,
+      onChange: (value) => debugPrint('selected $value'),
+    ),
+    const SizedBox(height: 12),
+    AntTreeSelect<Region>(
+      dataSource: regions,
+      keyOf: (region) => region.id,
+      labelOf: (region) => region.name,
+      childrenOf: (region) => region.children,
+      multiple: true,
+      defaultValue: const <Object>[2, 5],
+      onChange: (value) => debugPrint('selected $value'),
+    ),
   ],
-  multiple: true,
-  onChange: (value) {},
-);
+)
 ```
 
-## 组件
+In multiple mode the trigger shows chips and `onChange` emits a `List<Object>`. In single mode it emits one key, or `null` after clearing.
 
-| 组件/类型 | 说明 |
-| --- | --- |
-| `AntTree` | 树形控件 |
-| `AntTreeNode` | 树节点数据 |
-| `AntTreeOnCheck` | 勾选回调（checkedKeys + halfCheckedKeys） |
-| `AntTreeSelect` | 树选择下拉组件 |
-| `AntTreeSelectOption` | 树选择选项 |
-| `AntTreeSelectSize` | 树选择尺寸（large / middle / small） |
-| `AntTreeSelectFieldNames` | 自定义字段名 |
+## Project structure
 
-## Example
-
-```bash
-cd packages/antd_tree/example
-flutter pub get
-flutter run -d macos   # 或 chrome / windows 等全平台
+```text
+packages/antd_tree/
+├── lib/
+│   ├── antd_tree.dart                     # barrel export
+│   └── src/
+│       ├── tree/
+│       │   ├── ant_tree.dart              # expand / select / check rendering
+│       │   └── ant_tree_types.dart        # callbacks and typedefs
+│       └── tree_select/
+│           ├── ant_tree_select.dart       # trigger and dropdown
+│           └── ant_tree_select_types.dart # size enum and callbacks
+├── example/lib/main.dart                  # runnable gallery
+├── docs/api-index.md                      # generated API index
+└── README.md
 ```
 
-demo 覆盖：基础树 / showLine / 禁用节点 / checkbox 联动与严格模式 / 受控树（程序化展开/勾选）/ 异步加载 / 默认展开 / TreeSelect 单选·多选·默认展开，含暗色切换与宽窄屏自适应（R35.4）。
+## License
+
+MIT. See the repository [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

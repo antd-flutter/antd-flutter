@@ -2,9 +2,9 @@
 
 # antd_flutter_ui API 文档总览
 
-> 自动生成时间：2026-11-21T15:01:23.130260；共 409 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-21T23:54:43.965；共 438 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
-## 类（180）
+## 类（166）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -14,36 +14,31 @@
 | [`AntAlert`](api/AntAlert.md) | 警告提示 — 展示需要用户关注的信息 |
 | [`AntAnchor`](api/AntAnchor.md) | 锚点 — 用于跳转到页面指定位置 |
 | [`AntAnchorController`](api/AntAnchorController.md) | 锚点控制器 — 管理当前激活的锚点 key |
-| [`AntAnchorItem`](api/AntAnchorItem.md) | 锚点链接项 |
 | [`AntApp`](api/AntApp.md) | 全局上下文根组件 — 为全局反馈组件提供无需页面 context 的静态入口 |
+| [`AntAppBar`](api/AntAppBar.md) | Ant Design 风格的 AppBar 别名（内部委托 AntNavBar） |
 | [`AntAppMessageConfig`](api/AntAppMessageConfig.md) | AntApp 全局 message 默认配置 |
 | [`AntAppModalConfig`](api/AntAppModalConfig.md) | AntApp 全局 modal 默认配置 |
 | [`AntAppNotificationConfig`](api/AntAppNotificationConfig.md) | AntApp 全局 notification 默认配置 |
 | [`AntAppState`](api/AntAppState.md) | AntApp 的状态，即静态 API 句柄（对应 antd App 的 useApp 返回值） |
 | [`AntAutoCenter`](api/AntAutoCenter.md) | 自动居中 — 让内容在剩余空间中自动居中 |
 | [`AntAutoComplete`](api/AntAutoComplete.md) | 自动补全输入组件 |
-| [`AntAutoCompleteOption`](api/AntAutoCompleteOption.md) | 自动补全选项 |
+| [`AntAutoCompleteOption`](api/AntAutoCompleteOption.md) | 自动补全选项（旧模型，自 1.x 起推荐直接用 AntAutoComplete<T>(options: List<… |
 | [`AntAvatar`](api/AntAvatar.md) | 头像 — 用于用户头像或品牌标识，支持图片、图标和文字 |
 | [`AntAvatarGroup`](api/AntAvatarGroup.md) | 头像组 — 多个头像堆叠展示，支持最大数量限制 |
 | [`AntBadge`](api/AntBadge.md) | 徽标 — 图标右上角展示消息数或状态点 |
 | [`AntBorderBeam`](api/AntBorderBeam.md) | 边框流光 — 圆角矩形边框上有一段渐变流光沿边框循环移动 |
 | [`AntBorderBeamPainter`](api/AntBorderBeamPainter.md) | 边框流光画笔 — 普通色边框 + 沿边框循环移动的渐变流光段 |
 | [`AntBreadcrumb`](api/AntBreadcrumb.md) | 面包屑 — 显示当前页面在系统层级结构中的位置 |
-| [`AntBreadcrumbItem`](api/AntBreadcrumbItem.md) | 面包屑项 |
 | [`AntButton`](api/AntButton.md) | Ant Design Button 组件 |
-| [`AntCapsuleTabItem`](api/AntCapsuleTabItem.md) | 胶囊选项卡项 |
-| [`AntCapsuleTabs`](api/AntCapsuleTabs.md) | 胶囊选项卡 — 圆角胶囊形选项卡组，激活项白色凸起 |
+| [`AntCapsuleTabs`](api/AntCapsuleTabs.md) | 胶囊选项卡 — 圆角胶囊形选项卡组 |
 | [`AntCard`](api/AntCard.md) | 卡片 — 通用卡片容器 |
-| [`AntCardAction`](api/AntCardAction.md) | 卡片操作按钮配置 |
-| [`AntCardCover`](api/AntCardCover.md) | 卡片封面配置 |
 | [`AntCheckList`](api/AntCheckList.md) | 复选列表 — 列表样式的单选/多选组件 |
-| [`AntCheckListItem`](api/AntCheckListItem.md) | 复选列表项 |
+| [`AntCheckListItem`](api/AntCheckListItem.md) | 复选列表项（旧模型，自 1.x 起推荐直接用 AntCheckList<T>(items: List<T>) 配合… |
 | [`AntCheckbox`](api/AntCheckbox.md) | 复选框 — 在一组备选项中进行多选 |
 | [`AntCheckboxGroup`](api/AntCheckboxGroup.md) | 复选框组 — 包裹一组 AntCheckbox，统一管理选中值 |
-| [`AntCheckboxOption`](api/AntCheckboxOption.md) | 复选框选项 |
+| [`AntCheckboxOption`](api/AntCheckboxOption.md) | 复选框选项（旧模型，自 1.x 起推荐直接用 AntCheckboxGroup<T>(options: List<… |
 | [`AntCol`](api/AntCol.md) | 栅格列 — 24 栅格系统的列容器 |
 | [`AntCollapse`](api/AntCollapse.md) | 折叠面板 — 内容分组折叠展示 |
-| [`AntCollapsePanel`](api/AntCollapsePanel.md) | 折叠面板 |
 | [`AntColorPicker`](api/AntColorPicker.md) | 颜色选择器组件 |
 | [`AntColorPreset`](api/AntColorPreset.md) | 预设颜色组 |
 | [`AntConfigData`](api/AntConfigData.md) | AntConfigProvider 注入的配置数据 |
@@ -51,7 +46,6 @@
 | [`AntConfigProvider`](api/AntConfigProvider.md) | 全局化配置入口 — 为组件树注入主题 / 国际化 / 文本方向 |
 | [`AntCopyConfig`](api/AntCopyConfig.md) | 可复制配置 — 对应 antd CopyConfig |
 | [`AntDescriptions`](api/AntDescriptions.md) | 描述列表 — 成列展示只读字段 |
-| [`AntDescriptionsItem`](api/AntDescriptionsItem.md) | 描述列表的每一项 |
 | [`AntDialog`](api/AntDialog.md) | 对话框 — 移动端模态弹窗，用于重要信息确认或内容展示 |
 | [`AntDialogAction`](api/AntDialogAction.md) | AntDialog 自定义按钮项 |
 | [`AntDivider`](api/AntDivider.md) | 分割线 — 区隔内容的分割线 |
@@ -79,17 +73,16 @@
 | [`AntImage`](api/AntImage.md) | 图片 — 可预览的图片容器，支持网络/资源图、加载占位与失败回退 |
 | [`AntImageDefaults`](api/AntImageDefaults.md) | AntImage 默认配置与公共构建器 |
 | [`AntImagePreviewGroup`](api/AntImagePreviewGroup.md) | 图片预览组 — 包裹一组 AntImage，点击任意一张 可在全屏预览内左右切换组内图片 |
-| [`AntImageUploadItem`](api/AntImageUploadItem.md) | 图片上传项 |
+| [`AntImageUploadItem`](api/AntImageUploadItem.md) | 图片上传项（现成模型） |
 | [`AntImageUploader`](api/AntImageUploader.md) | 图片上传 — 图片选择、预览与删除的网格组件 |
 | [`AntIndexBar`](api/AntIndexBar.md) | 索引栏 — 通讯录式字母索引导航 |
-| [`AntIndexBarItem`](api/AntIndexBarItem.md) | 索引栏分组项 |
+| [`AntIndexBarController`](api/AntIndexBarController.md) | AntIndexBar 的控制器，用于编程式滚动到指定索引 |
 | [`AntInput`](api/AntInput.md) | 输入框 — 通过鼠标或键盘输入内容，是最基础的表单域包装 |
 | [`AntInputGroup`](api/AntInputGroup.md) | 输入框组 — 将多个输入框组合为紧凑布局 |
 | [`AntInputNumber`](api/AntInputNumber.md) | 数字输入框 — 支持步进按钮、上下限、精度控制 |
 | [`AntInputPassword`](api/AntInputPassword.md) | 密码框 — 在输入框基础上切换明文/密文 |
 | [`AntInputSearch`](api/AntInputSearch.md) | 搜索框 — 带搜索按钮的输入框 |
 | [`AntInputTextArea`](api/AntInputTextArea.md) | 文本域 — 多行输入 |
-| [`AntJumboTabItem`](api/AntJumboTabItem.md) | 大选项卡项 |
 | [`AntJumboTabs`](api/AntJumboTabs.md) | 大选项卡 — 主标题 + 描述的大尺寸选项卡，常用于服务分类 |
 | [`AntLayout`](api/AntLayout.md) | 布局容器 — 协调侧边栏与主区域的页面骨架 |
 | [`AntLayoutContent`](api/AntLayoutContent.md) | 内容区域 — 页面主体内容容器 |
@@ -104,9 +97,8 @@
 | [`AntLoadingSpeed`](api/AntLoadingSpeed.md) | Loading 旋转速度配置（每秒旋转圈数） |
 | [`AntMask`](api/AntMask.md) | 背景遮罩 — 全屏黑色半透明遮罩，常用于加载中、内容浮层背景 |
 | [`AntMentions`](api/AntMentions.md) | 提及组件 |
-| [`AntMentionsOption`](api/AntMentionsOption.md) | 提及选项 |
+| [`AntMentionsOption`](api/AntMentionsOption.md) | 提及选项（旧模型，自 1.x 起推荐直接用 AntMentions<T>(options: List<T>) 配合… |
 | [`AntMenu`](api/AntMenu.md) | 导航菜单 — 为页面和功能提供导航的菜单列表 |
-| [`AntMenuItem`](api/AntMenuItem.md) | 菜单项 |
 | [`AntMessage`](api/AntMessage.md) | 全局提示 — 在页面顶部居中展示全局反馈信息 |
 | [`AntMessageHandle`](api/AntMessageHandle.md) | 全局提示句柄 — 可手动关闭对应提示 |
 | [`AntModal`](api/AntModal.md) | 对话框 — 模态弹窗，用于重要信息确认或内容展示 |
@@ -117,7 +109,7 @@
 | [`AntPageIndicator`](api/AntPageIndicator.md) | Ant Design 页码指示器 |
 | [`AntPagination`](api/AntPagination.md) | 分页 — 采用分页的形式分隔长列表，每次只加载一个页面 |
 | [`AntParagraph`](api/AntParagraph.md) | Ant Design 段落组件 |
-| [`AntPickerColumnItem`](api/AntPickerColumnItem.md) | 选择器列项 |
+| [`AntPickerColumn`](api/AntPickerColumn.md) | 单列滚轮数据（泛型） |
 | [`AntPickerView`](api/AntPickerView.md) | 内嵌滚轮选择器 — 多列滚轮，选中项实时回调 |
 | [`AntPopconfirm`](api/AntPopconfirm.md) | 气泡确认框 — 点击元素时弹出的确认气泡，包含确认/取消按钮 |
 | [`AntPopconfirmButtonProps`](api/AntPopconfirmButtonProps.md) | 气泡确认框按钮附加属性（简化版 buttonProps） |
@@ -137,7 +129,7 @@
 | [`AntRadio`](api/AntRadio.md) | 单选框 — 在一组备选项中进行单选 |
 | [`AntRadioButton`](api/AntRadioButton.md) | 按钮风格单选 — 搭配 AntRadioGroup 使用 |
 | [`AntRadioGroup`](api/AntRadioGroup.md) | 单选框组 — 包裹一组 AntRadio / AntRadioButton，统一管理选中值 |
-| [`AntRadioOption`](api/AntRadioOption.md) | 单选框选项 |
+| [`AntRadioOption`](api/AntRadioOption.md) | 单选框选项（旧模型，自 1.x 起推荐直接用 AntRadioGroup<T>(options: List<T>)… |
 | [`AntRate`](api/AntRate.md) | 评分 — 评分组件，支持半星与自定义图标 |
 | [`AntResult`](api/AntResult.md) | 结果页 — 用于反馈一系列操作任务的处理结果 |
 | [`AntResultPage`](api/AntResultPage.md) | 页面级结果页 — 用于反馈一整套操作流程的最终处理结果 |
@@ -145,19 +137,18 @@
 | [`AntSafeArea`](api/AntSafeArea.md) | 安全区 — 适配层实现，继承 Flutter SafeArea，兼容原生位置 |
 | [`AntSearchBar`](api/AntSearchBar.md) | 搜索栏 — 移动端搜索场景的输入组件 |
 | [`AntSegmented`](api/AntSegmented.md) | 分段控制器 — 展示多个选项并允许用户选择其中单个选项 |
-| [`AntSegmentedItem`](api/AntSegmentedItem.md) | 分段控制器选项 |
+| [`AntSegmentedItem`](api/AntSegmentedItem.md) | 分段控制器选项（旧模型，自 1.x 起推荐直接用 AntSegmented<T>(options: List<T>… |
 | [`AntSelect`](api/AntSelect.md) | 选择器 — 下拉选择器，支持单选、多选与搜索 |
-| [`AntSelectOption`](api/AntSelectOption.md) | 选择器选项 |
+| [`AntSelectOption`](api/AntSelectOption.md) | 选择器选项（旧模型，自 1.x 起推荐直接用 AntSelect<T>(options: List<T>) 配合 … |
 | [`AntSelector`](api/AntSelector.md) | 选择组 — 标签/网格风格的单选/多选组件 |
-| [`AntSelectorOption`](api/AntSelectorOption.md) | 选择器选项 |
+| [`AntSelectorOption`](api/AntSelectorOption.md) | 选择器选项（旧模型，自 1.x 起推荐直接用 AntSelector<T>(options: List<T>) 配… |
 | [`AntSideBar`](api/AntSideBar.md) | 侧边导航栏 — 垂直排列的导航菜单，常用于分类筛选 |
-| [`AntSideBarItem`](api/AntSideBarItem.md) | 侧边导航栏项 |
 | [`AntSkeleton`](api/AntSkeleton.md) | 骨架屏 — 在需要等待加载内容的位置提供一个占位图形组合 |
 | [`AntSkeletonAvatar`](api/AntSkeletonAvatar.md) | 骨架屏头像配置 |
 | [`AntSkeletonParagraph`](api/AntSkeletonParagraph.md) | 骨架屏段落配置 |
 | [`AntSkeletonTitle`](api/AntSkeletonTitle.md) | 骨架屏标题行配置 |
 | [`AntSlider`](api/AntSlider.md) | 滑动输入条 — 滑动型输入器，展示当前值和可选范围 |
-| [`AntSliderMark`](api/AntSliderMark.md) | 滑动输入条刻度标记 |
+| [`AntSliderMark`](api/AntSliderMark.md) | 滑动输入条刻度标记（现成模型） |
 | [`AntSpace`](api/AntSpace.md) | 间距 — 组件间设置间距，支持排列方向、间距大小和分隔符 |
 | [`AntSpaceSize`](api/AntSpaceSize.md) | Space 间距配置 |
 | [`AntSpin`](api/AntSpin.md) | 加载中 — 用于页面或区块的等待状态 |
@@ -165,16 +156,12 @@
 | [`AntStatisticCountdown`](api/AntStatisticCountdown.md) | 倒计时统计 — 倒计时显示组件 |
 | [`AntStepper`](api/AntStepper.md) | 步进器 — 移动端数值调节组件 |
 | [`AntSteps`](api/AntSteps.md) | 步骤条 — 引导用户按照流程完成任务的导航条 |
-| [`AntStepsItem`](api/AntStepsItem.md) | 步骤项 |
 | [`AntSwitch`](api/AntSwitch.md) | 开关组件 — 对齐 antd React Switch |
 | [`AntTabBar`](api/AntTabBar.md) | 底部标签栏 — 移动端页面底部 Tab 切换 |
-| [`AntTabBarItem`](api/AntTabBarItem.md) | 底部标签栏项 |
 | [`AntTabs`](api/AntTabs.md) | 选项卡 — 对内容进行分区切换的导航组件 |
-| [`AntTabsItem`](api/AntTabsItem.md) | 选项卡项 |
 | [`AntTag`](api/AntTag.md) | 标签 — 进行标记和分类的小标签 |
 | [`AntText`](api/AntText.md) | Ant Design 文本组件 |
 | [`AntTimeline`](api/AntTimeline.md) | 时间轴 — 垂直展示的时间流信息 |
-| [`AntTimelineItem`](api/AntTimelineItem.md) | 时间轴的每一项 |
 | [`AntTitle`](api/AntTitle.md) | Ant Design 标题组件 |
 | [`AntToast`](api/AntToast.md) | 轻提示 — 在屏幕中央（或指定位置）展示深色半透明圆角卡片反馈 |
 | [`AntToastHandle`](api/AntToastHandle.md) | 轻提示句柄 — 可手动关闭当前提示 |
@@ -182,14 +169,13 @@
 | [`AntTooltipControlDelegate`](api/AntTooltipControlDelegate.md) | Controller 与 State 之间的内部绑定协议（组件内部使用，勿自行实现） |
 | [`AntTooltipController`](api/AntTooltipController.md) | AntTooltip 的程序化控制器（R35.2 受控操作 Controller 化） |
 | [`AntTour`](api/AntTour.md) | 漫游式引导 — 分步引导用户了解产品功能的气泡卡片组件 |
-| [`AntTourStep`](api/AntTourStep.md) | 漫游式引导的单个步骤 |
 | [`AntTypography`](api/AntTypography.md) | Ant Design Typography 基础组件 |
 | [`AntWatermark`](api/AntWatermark.md) | 水印 — 给页面指定区域添加水印 |
 | [`HotkeyRegistry`](api/HotkeyRegistry.md) | 热键注册中心（全局单例） |
 | [`PopupEngine`](api/PopupEngine.md) | 统一弹层位置计算引擎 |
 | [`WheelPickerColumn`](api/WheelPickerColumn.md) | 单列滚轮引擎组件 — 基于 CupertinoPicker 的 iOS 风格滚轮 |
 
-## 枚举（112）
+## 枚举（113）
 
 | 名称 | 说明 |
 | --- | --- |
@@ -247,6 +233,7 @@
 | [`AntMenuItemType`](api/AntMenuItemType.md) | 菜单项类型 |
 | [`AntMenuMode`](api/AntMenuMode.md) | 菜单模式 |
 | [`AntMenuTheme`](api/AntMenuTheme.md) | 菜单主题 |
+| [`AntMenuTrigger`](api/AntMenuTrigger.md) | 子菜单触发方式 |
 | [`AntMessageType`](api/AntMessageType.md) | 全局提示类型 |
 | [`AntNoticeBarBorder`](api/AntNoticeBarBorder.md) | 通告栏边框模式 |
 | [`AntNoticeBarColor`](api/AntNoticeBarColor.md) | 通告栏语义颜色类型 |
@@ -440,11 +427,53 @@
 | [`kCalendarDaysPerWeek`](api/kCalendarDaysPerWeek.md) | 一周的列数 |
 | [`kCalendarMaxWeeks`](api/kCalendarMaxWeeks.md) | 每个日期网格的最大单元格数量（6 行 × 7 列，月视图） |
 
-## 类型定义（3）
+## 类型定义（45）
 
 | 名称 | 说明 |
 | --- | --- |
-| [`AntPickerColumn`](api/AntPickerColumn.md) | 选择器列 |
-| [`AntPickerValue`](api/AntPickerValue.md) | 选择器值类型 |
+| [`AntAnchorTitleBuilder`](api/AntAnchorTitleBuilder.md) | 锚点标题构建器 |
+| [`AntBreadcrumbIconBuilder`](api/AntBreadcrumbIconBuilder.md) | 面包屑图标构建器 |
+| [`AntBreadcrumbTitleBuilder`](api/AntBreadcrumbTitleBuilder.md) | 面包屑标题构建器 |
+| [`AntCapsuleTabsChildBuilder`](api/AntCapsuleTabsChildBuilder.md) | 面板内容构建器 |
+| [`AntCapsuleTabsTitleBuilder`](api/AntCapsuleTabsTitleBuilder.md) | 标题构建器 |
+| [`AntCardActionBuilder`](api/AntCardActionBuilder.md) | 卡片底部操作构建器 |
+| [`AntCollapseChildBuilder`](api/AntCollapseChildBuilder.md) | 面板内容构建器 |
+| [`AntCollapseExtraBuilder`](api/AntCollapseExtraBuilder.md) | 面板右侧附加内容构建器 |
+| [`AntCollapseLabelBuilder`](api/AntCollapseLabelBuilder.md) | 面板标题构建器 |
+| [`AntDescriptionsContentBuilder`](api/AntDescriptionsContentBuilder.md) | 描述内容构建器 |
+| [`AntDescriptionsLabelBuilder`](api/AntDescriptionsLabelBuilder.md) | 描述标签构建器 |
+| [`AntIndexBarBriefBuilder`](api/AntIndexBarBriefBuilder.md) | 右侧索引字母构建器 |
+| [`AntIndexBarChildBuilder`](api/AntIndexBarChildBuilder.md) | 分组内容构建器 |
+| [`AntIndexBarTitleBuilder`](api/AntIndexBarTitleBuilder.md) | 分组标题构建器 |
+| [`AntJumboTabsDescriptionBuilder`](api/AntJumboTabsDescriptionBuilder.md) | 描述构建器（套用胶囊底） |
+| [`AntJumboTabsTitleBuilder`](api/AntJumboTabsTitleBuilder.md) | 主标题构建器 |
+| [`AntListItemBuilder`](api/AntListItemBuilder.md) | 列表条目构建器 |
+| [`AntMenuExtraBuilder`](api/AntMenuExtraBuilder.md) | 菜单右侧附加内容构建器 |
+| [`AntMenuIconBuilder`](api/AntMenuIconBuilder.md) | 菜单图标构建器 |
+| [`AntMenuLabelBuilder`](api/AntMenuLabelBuilder.md) | 菜单标题构建器 |
+| [`AntMenuTooltipTitleOf`](api/AntMenuTooltipTitleOf.md) | 折叠态 Tooltip 标题提取器 |
+| [`AntPaginationPageItemBuilder`](api/AntPaginationPageItemBuilder.md) | 页码项内容构建器 |
+| [`AntPaginationTotalBuilder`](api/AntPaginationTotalBuilder.md) | 总条数构建器，替换默认的「共 N 条」文案 |
 | [`AntPopconfirmOpenChange`](api/AntPopconfirmOpenChange.md) | 显示状态变化回调签名 |
+| [`AntSideBarTitleBuilder`](api/AntSideBarTitleBuilder.md) | 标题构建器 |
+| [`AntStepsDescriptionBuilder`](api/AntStepsDescriptionBuilder.md) | 步骤描述构建器 |
+| [`AntStepsIconBuilder`](api/AntStepsIconBuilder.md) | 步骤自定义图标构建器 |
+| [`AntStepsTitleBuilder`](api/AntStepsTitleBuilder.md) | 步骤标题构建器 |
+| [`AntTabBarActiveIconBuilder`](api/AntTabBarActiveIconBuilder.md) | 激活态图标构建器 |
+| [`AntTabBarIconBuilder`](api/AntTabBarIconBuilder.md) | 图标构建器 |
+| [`AntTabBarTitleBuilder`](api/AntTabBarTitleBuilder.md) | 标题构建器 |
+| [`AntTabsChildBuilder`](api/AntTabsChildBuilder.md) | 选项卡内容构建器 |
+| [`AntTabsIconBuilder`](api/AntTabsIconBuilder.md) | 选项卡图标构建器 |
+| [`AntTabsLabelBuilder`](api/AntTabsLabelBuilder.md) | 选项卡标题构建器 |
+| [`AntTimelineContentBuilder`](api/AntTimelineContentBuilder.md) | 内容构建器 |
+| [`AntTimelineDotBuilder`](api/AntTimelineDotBuilder.md) | 自定义节点构建器 |
+| [`AntTimelineLabelBuilder`](api/AntTimelineLabelBuilder.md) | 时间标签构建器 |
+| [`AntTourArrowOf`](api/AntTourArrowOf.md) | 步骤是否显示箭头提取器（覆盖 Tour 级 arrow） |
+| [`AntTourCoverBuilder`](api/AntTourCoverBuilder.md) | 步骤封面构建器（返回 null 时不展示封面） |
+| [`AntTourDescriptionBuilder`](api/AntTourDescriptionBuilder.md) | 步骤描述构建器（返回 null 时不展示描述） |
+| [`AntTourMaskOf`](api/AntTourMaskOf.md) | 步骤是否显示遮罩提取器（覆盖 Tour 级 mask） |
+| [`AntTourPlacementOf`](api/AntTourPlacementOf.md) | 步骤位置提取器（覆盖 Tour 级 placement） |
+| [`AntTourTargetOf`](api/AntTourTargetOf.md) | 步骤目标元素提取器（用于挖孔定位，返回 null 时卡片居中） |
+| [`AntTourTitleBuilder`](api/AntTourTitleBuilder.md) | 步骤标题构建器（返回 null 时不展示标题） |
+| [`AntdAppBar`](api/AntdAppBar.md) | 兼容命名：AntdAppBar 与 AntAppBar 等价 |
 

@@ -22,7 +22,7 @@ AntPagination(
 
 ## 构造函数
 
-### `AntPagination({super.key, this.current, this.defaultCurrent = 1, this.total = 0, this.pageSize, this.defaultPageSize = 10, this.showSizeChanger = false, this.showQuickJumper = false, this.showTotal = false, this.simple = false, this.disabled = false, this.size = AntPaginationSize.normal, this.pageSizeOptions = const [10, 20, 50, 100], this.onChange, this.onPageSizeChange})`
+### `AntPagination({super.key, this.current, this.defaultCurrent = 1, this.total = 0, this.pageSize, this.defaultPageSize = 10, this.showSizeChanger = false, this.showQuickJumper = false, this.showTotal = false, this.pageItemBuilder, this.totalBuilder, this.simple = false, this.disabled = false, this.size = AntPaginationSize.normal, this.pageSizeOptions = const [10, 20, 50, 100], this.onChange, this.onPageSizeChange})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -34,6 +34,8 @@ AntPagination(
 | `showSizeChanger` | `bool` | = false | — |
 | `showQuickJumper` | `bool` | = false | — |
 | `showTotal` | `bool` | = false | — |
+| `pageItemBuilder` | `AntPaginationPageItemBuilder?` | 可选 | — |
+| `totalBuilder` | `AntPaginationTotalBuilder?` | 可选 | — |
 | `simple` | `bool` | = false | — |
 | `disabled` | `bool` | = false | — |
 | `size` | `AntPaginationSize` | = AntPaginationSize.normal | — |
@@ -51,6 +53,7 @@ AntPagination(
 | `disabled` | `bool` | 是否禁用 |
 | `onChange` | `ValueChanged<int>?` | 页码改变回调 |
 | `onPageSizeChange` | `ValueChanged<int>?` | 每页条数改变回调 |
+| `pageItemBuilder` | `AntPaginationPageItemBuilder?` | 页码项内容构建器，渲染在既有页码按钮容器内 |
 | `pageSize` | `int?` | 每页条数（受控） |
 | `pageSizeOptions` | `List<int>` | 每页条数选项 |
 | `showQuickJumper` | `bool` | 是否显示快速跳转输入框 |
@@ -59,6 +62,7 @@ AntPagination(
 | `simple` | `bool` | 简单模式 |
 | `size` | `AntPaginationSize` | 尺寸 |
 | `total` | `int` | 总条数 |
+| `totalBuilder` | `AntPaginationTotalBuilder?` | 总条数构建器，替换默认「共 N 条」文案 |
 
 ## 方法
 

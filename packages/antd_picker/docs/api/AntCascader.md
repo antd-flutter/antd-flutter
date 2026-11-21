@@ -14,14 +14,18 @@ class AntCascader
 
 ## 构造函数
 
-### `AntCascader({super.key, this.options = const [], this.value, this.defaultValue, this.onChange, this.placeholder, this.disabled = false, this.allowClear = false, this.changeOnSelect = false, this.size = AntCascaderSize.middle, this.expandTrigger = AntCascaderExpandTrigger.click})`
+### `AntCascader({super.key, required this.keyOf, this.dataSource = const [], this.childrenOf, this.labelBuilder, this.disabledOf, this.value, this.defaultValue, this.onChange, this.placeholder, this.disabled = false, this.allowClear = false, this.changeOnSelect = false, this.size = AntCascaderSize.middle, this.expandTrigger = AntCascaderExpandTrigger.click})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `options` | `List<AntCascaderOption>` | = const [] | — |
-| `value` | `List<String>?` | 可选 | — |
-| `defaultValue` | `List<String>?` | 可选 | — |
-| `onChange` | `ValueChanged<List<String>>?` | 可选 | — |
+| `keyOf` | `AntCascaderKeyOf<T>` | 可选 | — |
+| `dataSource` | `List<T>` | = const [] | — |
+| `childrenOf` | `AntCascaderChildrenOf<T>?` | 可选 | — |
+| `labelBuilder` | `AntCascaderLabelBuilder<T>?` | 可选 | — |
+| `disabledOf` | `AntCascaderDisabledOf<T>?` | 可选 | — |
+| `value` | `List<Object>?` | 可选 | — |
+| `defaultValue` | `List<Object>?` | 可选 | — |
+| `onChange` | `ValueChanged<List<T>>?` | 可选 | — |
 | `placeholder` | `String?` | 可选 | — |
 | `disabled` | `bool` | = false | — |
 | `allowClear` | `bool` | = false | — |
@@ -35,18 +39,22 @@ class AntCascader
 | --- | --- | --- |
 | `allowClear` | `bool` | 是否显示清除按钮 |
 | `changeOnSelect` | `bool` | 允许选择任意层级（否则仅叶子节点触发 onChange） |
-| `defaultValue` | `List<String>?` | 非受控默认值 |
+| `childrenOf` | `AntCascaderChildrenOf<T>?` | 从模型取子节点 |
+| `dataSource` | `List<T>` | 级联选项树 |
+| `defaultValue` | `List<Object>?` | 非受控默认值（路径数组，元素可为 T 或 key） |
 | `disabled` | `bool` | 是否禁用 |
+| `disabledOf` | `AntCascaderDisabledOf<T>?` | 选项禁用判断 |
 | `expandTrigger` | `AntCascaderExpandTrigger` | 次级菜单展开触发方式 |
-| `onChange` | `ValueChanged<List<String>>?` | 值变化回调 |
-| `options` | `List<AntCascaderOption>` | 级联选项树 |
+| `keyOf` | `AntCascaderKeyOf<T>` | 从模型取唯一标识 |
+| `labelBuilder` | `AntCascaderLabelBuilder<T>?` | 选项自定义渲染 |
+| `onChange` | `ValueChanged<List<T>>?` | 值变化回调（返回选中的模型路径） |
 | `placeholder` | `String?` | 占位文本 |
 | `size` | `AntCascaderSize` | 尺寸 |
-| `value` | `List<String>?` | 受控值（路径数组，如 'zj', 'hz', 'xh'） |
+| `value` | `List<Object>?` | 受控值（路径数组，元素可为 T 或 key） |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntCascader>` | — |
+| `createState` | `State<AntCascader<T>>` | — |
 

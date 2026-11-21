@@ -8,11 +8,14 @@
 class AntUploadFile
 ```
 
-上传文件信息
+上传文件信息。
+
+它描述的是「实际文件」而不是业务模型；业务侧额外字段放到泛型
+`extra` 槽里（或使用 `AntUpload<T>` 的 `itemBuilder` 自行渲染）。
 
 ## 构造函数
 
-### `AntUploadFile({required this.uid, required this.name, this.status = AntUploadStatus.done, this.size, this.url, this.thumbUrl, this.percent = 0, this.response})`
+### `AntUploadFile({required this.uid, required this.name, this.status = AntUploadStatus.done, this.size, this.url, this.thumbUrl, this.percent = 0, this.response, this.extra})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -24,11 +27,13 @@ class AntUploadFile
 | `thumbUrl` | `String?` | 可选 | — |
 | `percent` | `int` | = 0 | — |
 | `response` | `dynamic` | 可选 | — |
+| `extra` | `T?` | 可选 | — |
 
 ## 字段
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `extra` | `T?` | 业务侧额外数据（不参与 ==/hashCode） |
 | `name` | `String` | 文件名 |
 | `percent` | `int` | 上传进度（0-100） |
 | `response` | `dynamic` | 服务端响应数据 |
@@ -49,5 +54,5 @@ class AntUploadFile
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `==` | `bool` | — |
-| `copyWith` | `AntUploadFile` | 复制并修改属性 |
+| `copyWith` | `AntUploadFile<T>` | 复制并修改属性 |
 

@@ -14,7 +14,7 @@ class AntDatePicker
 
 ## 构造函数
 
-### `AntDatePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntDatePickerSize.middle, this.format = 'yyyy-MM-dd', this.autofocus = false})`
+### `AntDatePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntDatePickerSize.middle, this.format = 'yyyy-MM-dd', this.autofocus = false, this.labelBuilder})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -27,6 +27,7 @@ class AntDatePicker
 | `size` | `AntDatePickerSize` | = AntDatePickerSize.middle | — |
 | `format` | `String` | = 'yyyy-MM-dd' | — |
 | `autofocus` | `bool` | = false | — |
+| `labelBuilder` | `Widget Function(BuildContext context, DateTime date)?` | 可选 | — |
 
 ## 字段
 
@@ -37,6 +38,7 @@ class AntDatePicker
 | `defaultValue` | `DateTime?` | 非受控初始日期 |
 | `disabled` | `bool` | 是否禁用 |
 | `format` | `String` | 日期显示格式（目前支持 yyyy-MM-dd） |
+| `labelBuilder` | `Widget Function(BuildContext context, DateTime date)?` | 触发器日期自定义渲染 |
 | `onChange` | `ValueChanged<DateTime?>?` | 日期变化回调 |
 | `placeholder` | `String?` | 占位文本 |
 | `size` | `AntDatePickerSize` | 尺寸 |

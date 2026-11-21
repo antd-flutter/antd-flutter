@@ -14,23 +14,30 @@ class AntCheckboxGroup
 
 ```dart
 AntCheckboxGroup<String>(
-  options: [
-    AntCheckboxOption(value: 'a', label: Text('A')),
-    AntCheckboxOption(value: 'b', label: Text('B')),
-  ],
+  options: const ['A', 'B'],
   onChange: (vals) => print(vals),
+)
+
+AntCheckboxGroup<Tag>(
+  options: tags,                        // List<Tag>
+  labelOf: (tag) => tag.name,
+  onChange: (tags) => print(tags),
 )
 ```
 
 ## 构造函数
 
-### `AntCheckboxGroup({super.key, this.value, this.defaultValue = const [], this.options = const [], this.disabled = false, this.onChange, this.direction = AntCheckboxGroupDirection.horizontal, this.children})`
+### `AntCheckboxGroup({super.key, this.value, this.defaultValue = const [], this.options = const [], this.labelOf, this.labelBuilder, this.itemBuilder, this.disabledOf, this.disabled = false, this.onChange, this.direction = AntCheckboxGroupDirection.horizontal, this.children})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `value` | `List<T>?` | 可选 | — |
 | `defaultValue` | `List<T>` | = const [] | — |
-| `options` | `List<AntCheckboxOption<T>>` | = const [] | — |
+| `options` | `List<T>` | = const [] | — |
+| `labelOf` | `String Function(T item)?` | 可选 | — |
+| `labelBuilder` | `Widget Function(BuildContext context, T item)?` | 可选 | — |
+| `itemBuilder` | `Widget Function(BuildContext context, T item, int index)?` | 可选 | — |
+| `disabledOf` | `bool Function(T item)?` | 可选 | — |
 | `disabled` | `bool` | = false | — |
 | `onChange` | `ValueChanged<List<T>>?` | 可选 | — |
 | `direction` | `AntCheckboxGroupDirection` | = AntCheckboxGroupDirection.horizontal | — |
@@ -44,8 +51,12 @@ AntCheckboxGroup<String>(
 | `defaultValue` | `List<T>` | 非受控初始选中值集合 |
 | `direction` | `AntCheckboxGroupDirection` | 排列方向 |
 | `disabled` | `bool` | 是否整体禁用 |
+| `disabledOf` | `bool Function(T item)?` | 选项是否禁用 |
+| `itemBuilder` | `Widget Function(BuildContext context, T item, int index)?` | 整项自定义渲染（含复选框外观），优先级最高 |
+| `labelBuilder` | `Widget Function(BuildContext context, T item)?` | 选项 label 的自定义渲染 |
+| `labelOf` | `String Function(T item)?` | 选项的字符串 label 简写（未提供 labelBuilder 时作为文本渲染） |
 | `onChange` | `ValueChanged<List<T>>?` | 变化回调 |
-| `options` | `List<AntCheckboxOption<T>>` | 选项列表 |
+| `options` | `List<T>` | 选项列表（任意模型） |
 | `value` | `List<T>?` | 受控选中值集合 |
 
 ## 方法

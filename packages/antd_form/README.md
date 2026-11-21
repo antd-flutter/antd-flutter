@@ -1,67 +1,201 @@
-# antd_form
+# antd_form - Form state, validation and layout for Ant Design Flutter
 
-Ant Design (antd-mobile) Form 表单的 Flutter 实现 — AntForm（表单容器）、AntFormItem（字段校验与标签）、AntFormFieldRule（required / pattern / 长度 / 数值范围 / 自定义 validator）与 AntFormController（编程式读写值、校验、提交、重置），API 对齐 antd-mobile。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_form/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_form/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-> R33 判定：表单类组件为常规布局组件，非滚动场景，不需要 sliver 支持。
+`antd_form` adds form state, validation and antd-mobile-style layout on top of [`antd_flutter_ui`](../antd_flutter_ui/README.md). `AntForm` owns the values, `AntFormItem` binds a single field, and `AntFormController` exposes values, errors, validation and reset. The package is deliberately small: two dependencies, no state-management library, and any widget can participate through a builder.
 
-> 归属边界（读码评估）：AutoComplete / Mentions 为独立输入联想组件，Form 源码未引用它们（ant_form.dart 仅依赖 antd_theme / material_ui / 自身 types），留在 `antd_flutter_ui`（data_entry/auto_complete、data_entry/mentions）不迁；Form 与 Input 系组件（AntInput / AntCheckbox / AntSwitch / AntStepper）的联动发生在业务层（builder 组合），本包经 ui barrel 引用。
+- **State lives in one controller.** `AntFormController` stores `name → value`, `name → error` and `name → rules`. Fields register themselves on mount and unregister on dispose, so rebuilding or partially removing a form does not leak values.
+- **Controlled outside, uncontrolled inside.** Pass `controller` to operate the form from elsewhere; without one, `AntForm` creates and owns a controller. `initialValues` supplies defaults by field name.
+- **Validation is data, not widgets.** Rules are plain `AntFormFieldRule` objects covering `required`, `pattern`, `min` / `max`, `minLength` / `maxLength`, `type` and a custom `validator`. The same rules work for inline validation and for programmatic `validate()`.
+- **Per-field validation moment.** `AntFormValidateTrigger.onChange` validates while the user types; `onSubmit` validates only when the form is submitted.
+- **Binding through a builder.** `AntFormItem<T>` passes an `AntFormField<T>` with `value`, `errorText` and `didChange`, so the package stays agnostic about the control you use and avoids a parallel `TextEditingController` lifecycle.
+- **Layout belongs to the form.** `vertical`, `horizontal` (with `labelWidth`) and `inline` are form-level settings; items read them from the surrounding `AntForm` scope.
+- **No hidden submit button.** The form never renders actions. Choose where submit and reset live and call `AntForm.controllerOf(context)?.submit()` or your own controller reference.
 
-## 安装
+## Installation
+
+Requires Dart `>=3.0.0 <4.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_form: ^0.1.0-beta.1
+  antd_form: ^1.0.0
+  antd_flutter_ui: ^1.0.0
+  antd_theme: ^1.0.0
+  material_ui: ^1.11.0
 ```
 
-## 用法
+`antd_flutter_ui` supplies the field widgets such as `AntInput`, `antd_theme` supplies `AntTheme` / `AntThemeData`, and `material_ui` provides `MaterialApp` and `Scaffold`.
+
+## Quick start
+
+A complete, runnable form:
 
 ```dart
-import 'package:antd_form/antd_form.dart';
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_form/antd_form.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-AntForm(
-  onFinish: (values) => print(values),
-  onFinishFailed: (errors) => print(errors),
-  child: Column(children: [
-    // ── 基础校验 ────────────────────────────────────────
-    AntFormItem<String>(
-      name: 'username',
-      label: '用户名',
-      required: true,
-      rules: [
-        const AntFormFieldRule.required(message: '请输入用户名'),
-        const AntFormFieldRule(minLength: 3, maxLength: 12),
-      ],
-      builder: (field) => AntInput(
-        value: field.value ?? '',
-        onChange: field.didChange,
+void main() => runApp(const FormDemoApp());
+
+class FormDemoApp extends StatelessWidget {
+  const FormDemoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: MaterialApp(
+        theme: AntThemeData.light().toThemeData(),
+        home: const FormDemoPage(),
       ),
-    ),
-    // ── 自定义校验器 ────────────────────────────────────
-    AntFormFieldRule(
-      validator: (value) =>
-          (value as String).startsWith('AF') ? null : '邀请码需以 AF 开头',
-    ),
-  ]),
-)
+    );
+  }
+}
 
-// ── 受控：AntFormController 编程式操作 ──────────────────
-final controller = AntFormController();
-controller.setValue('username', 'antd', validate: true);
-final ok = await controller.validate();
-controller.reset();
+class FormDemoPage extends StatelessWidget {
+  const FormDemoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(45),
+        child: AntAppBar(title: const Text('Ant Form')),
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(theme.s(16)),
+        children: [
+          AntForm(
+            initialValues: const {'username': 'antd'},
+            onFinish: (values) {},
+            onFinishFailed: (errors) {},
+            children: [
+              AntFormItem<String>(
+                name: 'username',
+                label: 'Username',
+                required: true,
+                rules: [
+                  AntFormFieldRule.required(
+                    message: 'Username is required',
+                  ),
+                  AntFormFieldRule(
+                    minLength: 3,
+                    maxLength: 12,
+                    message: 'Use 3 to 12 characters',
+                  ),
+                ],
+                builder: (field) => AntInput(
+                  value: field.value ?? '',
+                  placeholder: 'Enter username',
+                  onChange: field.didChange,
+                ),
+              ),
+              Builder(
+                builder: (buttonContext) => AntButton(
+                  type: AntButtonType.primary,
+                  block: true,
+                  onTap: () => AntForm.controllerOf(buttonContext)?.submit(),
+                  child: const Text('Submit'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 ```
 
-完整演示见 `example/`（基础校验 / 受控 / 自定义校验器 / 动态增减表单项 / Form 与 Input 系联动，R35.4 断点适配 + 暗色切换）。
+`onFinish` receives the validated values; `onFinishFailed` receives the error map.
 
-## 迁移说明（P08 批次 2）
+## API
 
-- 从 `antd_flutter_ui`（data_entry/form）迁出，`///` 文档注释完整随迁，源码零修改（仅 import 调整）。
-- 主包 `antd_flutter_plus` 经 re-export 保持符号兼容。
-- 依赖方向：antd_form → antd_flutter_ui → antd_theme/tokens/color/icons，不依赖其他独立组件包。
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_form/docs/api-index.md)
+
+Import `package:antd_form/antd_form.dart` for the form widgets. The snippets use `AntInput`, `AntTheme` and Material widgets from the packages listed above.
+
+### Field with a custom validator
+
+Any widget can be a field; the builder receives the current value and `didChange`.
+
+```dart
+AntFormItem<String>(
+  name: 'email',
+  label: 'Email',
+  required: true,
+  rules: [
+    AntFormFieldRule(
+      validator: (value) {
+        final text = value as String? ?? '';
+        return text.contains(' ') ? 'Spaces are not allowed' : null;
+      },
+    ),
+  ],
+  builder: (field) => AntInput(
+    value: field.value ?? '',
+    onChange: field.didChange,
+  ),
+);
+```
+
+### Form with an external controller
+
+```dart
+final form = AntFormController();
+
+AntForm(
+  controller: form,
+  layout: AntFormLayout.horizontal,
+  labelWidth: 96,
+  children: [/* AntFormItem widgets */],
+);
+```
+
+### Validate and reset programmatically
+
+```dart
+Future<void> save(AntFormController form) async {
+  final valid = await form.validate();
+  if (!valid) {
+    debugPrint('${form.getErrors()}');
+    return;
+  }
+  debugPrint('${form.getValues()}');
+  form.reset();
+}
+```
+
+## Project structure
+
+```text
+packages/antd_form/
+├── lib/
+│   ├── antd_form.dart                # Public barrel
+│   └── src/form/
+│       ├── ant_form.dart             # AntForm, AntFormItem, AntFormField, AntFormController
+│       └── ant_form_types.dart       # Layouts, triggers, rules, rule types
+├── example/                          # Gallery app for manual verification
+├── docs/api-index.md                 # Generated API index
+├── test/ant_form_test.dart
+├── CHANGELOG.md
+├── README.md
+├── README_CN.md
+└── pubspec.yaml
+```
 
 ## License
 
-MIT
+MIT. See the repository root [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

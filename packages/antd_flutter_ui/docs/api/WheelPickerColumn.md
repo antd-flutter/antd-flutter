@@ -11,8 +11,7 @@ class WheelPickerColumn
 单列滚轮引擎组件 — 基于 CupertinoPicker 的 iOS 风格滚轮。
 
 职责：按 `column` 渲染选项、经 `controller` 定位选中项、
-滚动停止时通过 `onSelected` 回报选中索引；样式（字号/文字色/分割线）
-由调用方注入，引擎自身不读主题。
+滚动停止时通过 `onSelected` 回报选中索引。
 
 ## 构造函数
 
@@ -20,7 +19,7 @@ class WheelPickerColumn
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `column` | `AntPickerColumn` | 可选 | — |
+| `column` | `AntPickerColumn<T>` | 可选 | — |
 | `controller` | `FixedExtentScrollController` | 可选 | — |
 | `itemHeight` | `double` | 可选 | — |
 | `fontSize` | `double` | 可选 | — |
@@ -32,7 +31,7 @@ class WheelPickerColumn
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `colorText` | `Color` | 选项文字颜色 |
-| `column` | `AntPickerColumn` | 列数据 |
+| `column` | `AntPickerColumn<T>` | 列数据 |
 | `controller` | `FixedExtentScrollController` | 滚轮滚动控制器（选中项定位） |
 | `fontSize` | `double` | 选项文字字号 |
 | `itemHeight` | `double` | 单项高度 |

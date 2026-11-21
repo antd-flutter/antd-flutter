@@ -8,7 +8,8 @@
 class AntSelectOption
 ```
 
-选择器选项
+选择器选项（旧模型，自 1.x 起推荐直接用 `AntSelect<T>(options: List<T>)`
+配合 `labelOf` / `valueExtractor`）。
 
 ## 构造函数
 

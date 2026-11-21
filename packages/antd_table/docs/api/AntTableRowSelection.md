@@ -8,7 +8,7 @@
 class AntTableRowSelection
 ```
 
-行选择配置（对齐 antd `rowSelection`）。
+行选择配置（对齐 antd `rowSelection`），泛型 `T` 为用户行模型。
 
 ## 构造函数
 
@@ -19,7 +19,7 @@ class AntTableRowSelection
 | `selectedRowKeys` | `List<Object>?` | 可选 | — |
 | `defaultSelectedRowKeys` | `List<Object>?` | 可选 | — |
 | `onChange` | `ValueChanged<List<Object>>?` | 可选 | — |
-| `getCheckboxProps` | `AntTableRowCheckboxProps Function(Map<String, dynamic> record)?` | 可选 | — |
+| `getCheckboxProps` | `AntTableRowCheckboxProps Function(T record)?` | 可选 | — |
 | `selections` | `List<AntTableRowSelectionItem>?` | 可选 | — |
 | `columnWidth` | `double` | = 48 | — |
 | `fixed` | `bool` | = false | — |
@@ -34,7 +34,7 @@ class AntTableRowSelection
 | `columnWidth` | `double` | 选择列宽度 |
 | `defaultSelectedRowKeys` | `List<Object>?` | 非受控初始选中行 key 集合 |
 | `fixed` | `bool` | 选择列是否固定在左侧 |
-| `getCheckboxProps` | `AntTableRowCheckboxProps Function(Map<String, dynamic> record)?` | 行复选框属性（禁用等） |
+| `getCheckboxProps` | `AntTableRowCheckboxProps Function(T record)?` | 行复选框属性（禁用等） |
 | `hideSelectAll` | `bool` | 是否隐藏表头全选框 |
 | `onChange` | `ValueChanged<List<Object>>?` | 选中项变化回调 |
 | `selectedRowKeys` | `List<Object>?` | 受控选中行 key 集合（非 null 时进入受控模式） |

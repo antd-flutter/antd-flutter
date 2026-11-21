@@ -15,6 +15,7 @@ enum AntMenuItemType
 | 名称 | 说明 |
 | --- | --- |
 | `item` | 普通菜单项 |
+| `submenu` | 子菜单（带 children |
 | `group` | 分组标题 |
 | `divider` | 分割线 |
 

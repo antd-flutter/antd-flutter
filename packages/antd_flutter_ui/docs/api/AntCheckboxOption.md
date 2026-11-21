@@ -8,7 +8,8 @@
 class AntCheckboxOption
 ```
 
-复选框选项
+复选框选项（旧模型，自 1.x 起推荐直接用
+`AntCheckboxGroup<T>(options: List<T>)` 配合 `labelOf` / `labelBuilder`）。
 
 ## 构造函数
 

@@ -42,7 +42,7 @@ Ant Design 悬浮气泡。
 | `child` | `Widget?` | 自定义图标内容 |
 | `constraint` | `bool` | 是否约束在父容器边界内（默认 true） |
 | `controller` | `AntFloatingBubbleController?` | 程序化控制器（R35）：显示/隐藏/移动/边缘吸附/重置位置 |
-| `initialPos` | `Offset` | 初始位置（逻辑像素，内部 .w 缩放） |
+| `initialPos` | `Offset` | 初始位置（设计逻辑像素，内部按缩放因子缩放） |
 | `menu` | `List<AntFloatingBubbleMenuAction>?` | 菜单项列表（非空时点击气泡展开/收起菜单） |
 | `onClick` | `VoidCallback?` | 气泡点击回调（配置 menu 时在展开/收起切换之外仍会触发） |
 | `size` | `double?` | 气泡尺寸（逻辑像素，默认 48） |

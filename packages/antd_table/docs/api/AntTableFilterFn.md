@@ -8,5 +8,5 @@
 typedef AntTableFilterFn
 ```
 
-列过滤函数。
+列过滤函数（筛选项值 + 行模型）。
 

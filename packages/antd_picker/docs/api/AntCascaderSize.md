@@ -8,13 +8,13 @@
 enum AntCascaderSize
 ```
 
-级联选择尺寸
+级联尺寸。
 
 ## 枚举值
 
 | 名称 | 说明 |
 | --- | --- |
-| `large` | 大尺寸 |
-| `middle` | 中尺寸（默认） |
-| `small` | 小尺寸 |
+| `large` | — |
+| `middle` | — |
+| `small` | — |
 

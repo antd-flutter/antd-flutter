@@ -8,7 +8,8 @@
 class AntRadioOption
 ```
 
-单选框选项
+单选框选项（旧模型，自 1.x 起推荐直接用 `AntRadioGroup<T>(options: List<T>)`
+配合 `labelOf` / `labelBuilder` / `disabledOf`）。
 
 ## 构造函数
 

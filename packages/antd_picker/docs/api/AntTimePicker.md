@@ -14,7 +14,7 @@ class AntTimePicker
 
 ## 构造函数
 
-### `AntTimePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntTimePickerSize.middle, this.hourStep = 1, this.minuteStep = 1, this.secondStep = 1, this.autofocus = false})`
+### `AntTimePicker({super.key, this.value, this.defaultValue, this.onChange, this.allowClear = false, this.placeholder, this.disabled = false, this.size = AntTimePickerSize.middle, this.hourStep = 1, this.minuteStep = 1, this.secondStep = 1, this.autofocus = false, this.labelBuilder})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ class AntTimePicker
 | `minuteStep` | `int` | = 1 | — |
 | `secondStep` | `int` | = 1 | — |
 | `autofocus` | `bool` | = false | — |
+| `labelBuilder` | `Widget Function(BuildContext context, TimeOfDay time)?` | 可选 | — |
 
 ## 字段
 
@@ -39,6 +40,7 @@ class AntTimePicker
 | `defaultValue` | `TimeOfDay?` | 非受控初始时间 |
 | `disabled` | `bool` | 是否禁用 |
 | `hourStep` | `int` | 小时步长 |
+| `labelBuilder` | `Widget Function(BuildContext context, TimeOfDay time)?` | 触发器时间自定义渲染 |
 | `minuteStep` | `int` | 分钟步长 |
 | `onChange` | `ValueChanged<TimeOfDay?>?` | 时间变化回调 |
 | `placeholder` | `String?` | 占位文本 |

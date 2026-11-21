@@ -17,4 +17,5 @@ enum AntTabsType
 | `line` | 线条样式（默认） |
 | `card` | 卡片样式 |
 | `editableCard` | 可编辑卡片样式（支持增删） |
+| `outlined` | 外边框分段样式（整组一枚圆角外框，内部以分隔线切分，选中段主色描边） |
 

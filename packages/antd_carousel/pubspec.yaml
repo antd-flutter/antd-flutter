@@ -1,6 +1,6 @@
 name: antd_carousel
 description: Ant Design v6 Carousel (走马灯) component for Flutter. PageView-based carousel with autoplay, loop, dots indicators (four positions), arrows, vertical mode, and controller (goTo), aligned with antd React Carousel API.
-version: 0.1.0-beta.1
+version: 1.0.0
 homepage: https://flutter-open.github.io/antd-flutter/
 repository: https://github.com/flutter-open/antd-flutter
 issue_tracker: https://github.com/flutter-open/antd-flutter/issues
@@ -30,9 +30,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-dependency_overrides:
-  antd_theme:
-    path: ../antd_theme
-  antd_icons_flutter:
-    path: ../antd_icons_flutter

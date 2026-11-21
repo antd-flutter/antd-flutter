@@ -1,119 +1,189 @@
-# antd_calendar
+# antd_calendar - Ant Design calendar and date picker for Flutter
 
-Ant Design v6 日历组件族的 Flutter 实现 — 包含月视图日历（AntCalendar，双端形态自适应 + 格式切换/范围与多选/事件点标记/年月快速跳转）与移动端日历选择器（AntCalendarPicker），API 对齐 antd React Calendar 与 antd-mobile CalendarPicker。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_calendar/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_calendar/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-## 安装
+`antd_calendar` renders a month or year panel with Ant Design visuals and ships three coordinated pieces: `AntCalendar` for inline or full-screen display, `AntCalendarPicker` for a bottom-sheet date picker anchored to a trigger widget, and `AntCalendarController` for driving page navigation from outside the widget. A single `platform` switch selects the desktop renderer (year/month dropdowns, week numbers, mode switching) or the mobile renderer (touch-sized cells, range selection), so the same calendar declaration adapts to both form factors.
+
+Design rules:
+
+- **One state model, two renderers.** Selection, page bounds, and disabled dates are declared once; the renderer only changes presentation.
+- **Selection is explicit.** `value` makes the calendar controlled, `defaultValue` seeds uncontrolled state, and `onSelect` / `onChange` / `onRangeChange` report what changed.
+- **Cell content is composable.** `cellRender` decorates the default cell, `fullCellRender` replaces it entirely, and both fall back to the built-in rendering when they return `null`.
+- **Locale is injected, not hard-coded.** `AntCalendarLocaleProvider` supplies weekday labels, month patterns, and button text; presets cover 15 languages and individual fields can be overridden.
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_calendar: ^0.1.0-beta.1
+  antd_calendar: ^1.0.0
 ```
 
-## 组件
+Wrap the subtree in `AntTheme`; day cells, panel headers, and popup chrome come from the design tokens:
 
-- **AntCalendar** — 月视图日历面板（桌面 fullscreen 大格子 / 移动 card 紧凑面板，经 AntResponsive 自适应，可手动指定）
-- **AntCalendarPicker** — 移动端日历选择器（内嵌视图 AntCalendarPickerView + 底部弹窗，单选/范围选择）
+```dart
+AntTheme(
+  data: AntThemeData.light(),
+  child: MaterialApp(home: YourPage()),
+)
+```
 
-> AntPickerView（通用滚轮选择视图）已沉淀于 [antd_flutter_ui](../antd_flutter_ui) 基础库，经本包 barrel 保持符号兼容。
-
-## 用法
+## Quick start
 
 ```dart
 import 'package:antd_calendar/antd_calendar.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 基础月视图 ────────────────────────────────────────────
-AntCalendar(
-  defaultValue: DateTime(2024, 6, 1),
-  onSelect: (date) => print(date),
-);
+void main() => runApp(
+      AntTheme(
+        data: AntThemeData.light(),
+        child: const MaterialApp(home: CalendarPage()),
+      ),
+    );
 
-// ── 桌面/移动双端形态（auto 经 AntResponsive 自适应） ───────
-AntCalendar(layout: AntCalendarLayout.auto);     // desktop/web→fullscreen，phone→card
-AntCalendar(layout: AntCalendarLayout.fullscreen); // 强制桌面形态（大格子 + dateCell 插槽）
-AntCalendar(layout: AntCalendarLayout.card);       // 强制移动形态（滑动手势翻月）
+class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
 
-// ── 格式切换（月 / 两周 / 周，table_calendar 对齐） ─────────
-AntCalendar(
-  showFormatSwitcher: true, // 切换按钮可隐藏（默认 false）
-  onFormatChanged: (f) => print(f), // AntCalendarFormat.month/twoWeeks/week
-);
+  @override
+  State<CalendarPage> createState() => _CalendarPageState();
+}
 
-// ── 范围选择 ──────────────────────────────────────────────
-AntCalendar(
-  selectionMode: AntCalendarSelectionMode.range,
-  onRangeSelected: (start, end) => print('$start ~ $end'),
-);
+class _CalendarPageState extends State<CalendarPage> {
+  DateTime _selected = DateTime(2025, 3, 18);
 
-// ── 多选 ──────────────────────────────────────────────────
-AntCalendar(
-  multiSelect: true,
-  onSelectMulti: (days) => print(days),
-);
-
-// ── 事件点标记（table_calendar eventLoader 对齐） ───────────
-AntCalendar(
-  eventLoader: (day) => events.where((e) => isSameDay(e, day)).toList(),
-);
-
-// ── 头部年月快速跳转（antd v6 行为，点击年月弹滚轮面板） ─────
-AntCalendar(enableYearMonthDropdown: true); // 默认开启
-
-// ── 国际化（内建 15 语言预设 + 自定义覆盖） ──────────────────
-AntCalendar(locale: AntCalendarLocale.en);
-AntCalendar(locale: AntCalendarLocale.fromLanguageCode('ja'));
-// 或全局注入：
-AntCalendarLocaleProvider(
-  locale: AntCalendarLocale.zhTw,
-  child: AntCalendar(),
-);
-
-// ── 移动端日历选择器（底部弹窗） ────────────────────────────
-AntCalendarPicker(
-  selectionMode: AntCalendarSelectionMode.range,
-  onConfirm: (dates) => print(dates),
-  child: Text('选择日期'),
-);
-
-// ── 内嵌日历视图（支持左右滑动手势翻月） ────────────────────
-AntCalendarPickerView(
-  selectionMode: AntCalendarSelectionMode.single,
-  onChange: (dates) => print(dates),
-);
-
-// ── 通用滚轮选择视图（沉淀于 antd_flutter_ui） ──────────────
-AntPickerView(
-  columns: [
-    [AntPickerColumnItem(label: '周一', value: 'mon')],
-  ],
-  onChange: (vals) => print(vals),
-);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Calendar')),
+      body: AntCalendar(
+        value: _selected,
+        weekStartsOn: AntCalendarWeekStartsOn.monday,
+        fullscreen: true,
+        onSelect: (date) => setState(() => _selected = date),
+      ),
+    );
+  }
+}
 ```
 
-## 向后兼容
+The page shows a full-width month panel with the selected day highlighted. `fullscreen: true` forces the large calendar form; omit it for the compact card form.
 
-主包 `antd_flutter_plus` 经 re-export 保持既有用法不变：
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_calendar/docs/api-index.md)
+
+### 1. Disabled dates and custom day content
 
 ```dart
-import 'package:antd_flutter_plus/antd_flutter_plus.dart';
-
-AntCalendar(value: ..., onSelect: ...); // 既有 value/defaultValue/onSelect/
-                                        // weekStartsOn/disabledDate/dateCell/
-                                        // fullscreen 等参数全部保持
+AntCalendar(
+  value: _selected,
+  onSelect: (date) => setState(() => _selected = date),
+  disabledDate: (date) => date.weekday == DateTime.saturday || date.weekday == DateTime.sunday,
+  validRange: AntCalendarValidRange(DateTime(2025, 1, 1), DateTime(2025, 12, 31)),
+  cellRender: (date, info) {
+    if (date.day != 1) return null;
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        width: 6,
+        height: 6,
+        decoration: const BoxDecoration(
+          color: Colors.orange,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  },
+)
 ```
 
-## 说明
+`disabledDate` blocks interaction per day, `validRange` also clips panel navigation to the year. `cellRender` returning `null` keeps the default cell, so the marker only decorates the first day of each month.
 
-- 格式切换 / 范围多选 / 事件点等增强能力参考 [table_calendar](https://pub.dev/packages/table_calendar) 3.3.0 的 API 设计（Apache-2.0，仅 API 设计研究参考，未复用其源码）；桌面形态参考 antd v6 Calendar，移动形态参考 antd-mobile CalendarPicker。
-- 日历网格计算引擎与通用滚轮视图沉淀于 antd_flutter_ui（`src/engines/calendar_grid_engine.dart`、`src/display/picker_view/`）。
-- 依赖方向：antd_calendar → antd_flutter_ui → antd_theme/tokens/color，独立包之间无互相依赖。
+### 2. Range selection on the mobile renderer
 
-## 文档与演示
+```dart
+AntCalendar(
+  platform: AntCalendarPlatform.mobile,
+  selectionMode: AntCalendarSelectionMode.range,
+  defaultRangeValue: [DateTime(2025, 3, 3), DateTime(2025, 3, 9)],
+  weekStartsOn: AntCalendarWeekStartsOn.monday,
+  onRangeChange: (range) => debugPrint('range=$range'),
+)
+```
 
-- [API 文档总览](docs/api-index.md)
-- 在线演示：<https://flutter-open.github.io/antd-flutter/calendar_picker/>
+The mobile renderer paints the start, end, and in-between days as one band. `rangeValue` / `onRangeChange` are range-mode only, and range state is supported by the mobile renderer.
+
+### 3. Bottom-sheet picker attached to a field
+
+```dart
+class PickDateField extends StatefulWidget {
+  const PickDateField({super.key});
+
+  @override
+  State<PickDateField> createState() => _PickDateFieldState();
+}
+
+class _PickDateFieldState extends State<PickDateField> {
+  List<DateTime> _dates = <DateTime>[];
+
+  @override
+  Widget build(BuildContext context) {
+    return AntCalendarPicker(
+      title: 'Deadline',
+      defaultValue: _dates,
+      weekStartsOn: AntCalendarWeekStartsOn.monday,
+      onConfirm: (dates) => setState(() => _dates = dates),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: const BoxDecoration(
+          border: Border.fromBorderSide(BorderSide(color: Colors.grey)),
+        ),
+        child: Text(
+          _dates.isEmpty ? 'Select a date' : _dates.first.toString(),
+        ),
+      ),
+    );
+  }
+}
+```
+
+Tapping the child opens a modal bottom sheet; confirm reports the picked list through `onConfirm`, while `onChange` fires on every in-sheet selection. `onCancel`, `onClose`, and `onMaskClick` distinguish the dismissal paths.
+
+Wrap any subtree in `AntCalendarLocaleProvider(locale: AntCalendarLocale.en, child: ...)` to switch weekday and button text without touching individual widgets.
+
+## Project structure
+
+```text
+packages/antd_calendar/
+├── lib/
+│   ├── antd_calendar.dart                  # barrel export
+│   └── src/
+│       ├── calendar/
+│       │   ├── ant_calendar.dart           # public calendar widget
+│       │   ├── ant_calendar_controller.dart# month/page navigation
+│       │   ├── ant_calendar_types.dart     # modes, layouts, callbacks
+│       │   ├── calendar_core/              # state, locale, shared math
+│       │   ├── desktop/                    # desktop renderer
+│       │   └── mobile/                     # mobile renderer
+│       └── calendar_picker/
+│           └── ant_calendar_picker.dart    # bottom-sheet picker
+├── example/lib/main.dart                   # runnable gallery
+├── docs/api-index.md                       # generated API index
+└── README.md
+```
 
 ## License
 
-MIT License，详见仓库根 [LICENSE](../../LICENSE)。
+MIT. See the repository [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

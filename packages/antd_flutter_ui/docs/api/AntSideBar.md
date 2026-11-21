@@ -14,38 +14,46 @@ class AntSideBar
 白色背景 + colorPrimary 文字；非激活项灰色背景。
 
 ```dart
-AntSideBar(
-  items: [
-    AntSideBarItem(key: 'a', title: '选项一'),
-    AntSideBarItem(key: 'b', title: '选项二'),
-  ],
-  onChange: (key) => print(key),
+AntSideBar<Category>(
+  items: categories,
+  keyOf: (category) => category.id,
+  titleBuilder: (context, category, index) => Text(category.name),
 )
 ```
 
 ## 构造函数
 
-### `AntSideBar({super.key, required this.items, this.activeKey, this.defaultActiveKey, this.onChange})`
+### `AntSideBar({super.key, required this.items, this.keyOf, this.titleBuilder, this.badgeTextOf, this.badgeDotOf, this.disabledOf, this.activeKey, this.defaultActiveKey, this.onChange})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `items` | `List<AntSideBarItem>` | 可选 | — |
-| `activeKey` | `String?` | 可选 | — |
-| `defaultActiveKey` | `String?` | 可选 | — |
-| `onChange` | `ValueChanged<String>?` | 可选 | — |
+| `items` | `List<T>` | 可选 | — |
+| `keyOf` | `Object Function(T item)?` | 可选 | — |
+| `titleBuilder` | `AntSideBarTitleBuilder<T>?` | 可选 | — |
+| `badgeTextOf` | `String? Function(T item)?` | 可选 | — |
+| `badgeDotOf` | `bool Function(T item)?` | 可选 | — |
+| `disabledOf` | `bool Function(T item)?` | 可选 | — |
+| `activeKey` | `Object?` | 可选 | — |
+| `defaultActiveKey` | `Object?` | 可选 | — |
+| `onChange` | `ValueChanged<T>?` | 可选 | — |
 
 ## 字段
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `activeKey` | `String?` | 受控激活项 key |
-| `defaultActiveKey` | `String?` | 非受控默认激活项 key |
-| `items` | `List<AntSideBarItem>` | 导航项列表 |
-| `onChange` | `ValueChanged<String>?` | 切换回调 |
+| `activeKey` | `Object?` | 受控激活项 key |
+| `badgeDotOf` | `bool Function(T item)?` | 圆点角标 |
+| `badgeTextOf` | `String? Function(T item)?` | 文字角标 |
+| `defaultActiveKey` | `Object?` | 非受控默认激活项 key |
+| `disabledOf` | `bool Function(T item)?` | 是否禁用某项 |
+| `items` | `List<T>` | 导航项列表 |
+| `keyOf` | `Object Function(T item)?` | 提取唯一标识，默认使用下标 |
+| `onChange` | `ValueChanged<T>?` | 切换回调 |
+| `titleBuilder` | `AntSideBarTitleBuilder<T>?` | 标题构建器，未提供时回退为 Text('$item') |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntSideBar>` | — |
+| `createState` | `State<AntSideBar<T>>` | — |
 

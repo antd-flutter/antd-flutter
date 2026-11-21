@@ -2,7 +2,7 @@
 
 # antd_upload API 文档总览
 
-> 自动生成时间：2026-11-21T15:01:24.392357；共 5 个公开 API，详情见 `api/<名称>.md` 独立页面。
+> 自动生成时间：2026-11-21T23:54:46.812047；共 6 个公开 API，详情见 `api/<名称>.md` 独立页面。
 
 ## 类（3）
 
@@ -18,4 +18,10 @@
 | --- | --- |
 | [`AntUploadListType`](api/AntUploadListType.md) | 上传列表展示类型 |
 | [`AntUploadStatus`](api/AntUploadStatus.md) | 上传文件状态 |
+
+## 类型定义（1）
+
+| 名称 | 说明 |
+| --- | --- |
+| [`AntUploadItemBuilder`](api/AntUploadItemBuilder.md) | 上传列表项自定义渲染 |
 

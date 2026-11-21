@@ -8,5 +8,7 @@
 typedef AntTreeOnCheck
 ```
 
-勾选回调：`checkedKeys` 全选节点，`halfCheckedKeys` 半选节点。
+勾选回调。
+
+两个集合中的元素均为 `AntTreeKeyOf` 从用户模型上提取的 key。
 

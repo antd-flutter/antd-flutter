@@ -8,7 +8,10 @@
 class AntTreeNode
 ```
 
-树节点数据。
+旧版树节点模型。
+
+已废弃：`AntTree` 现在通过 `dataSource` + `keyOf` / `titleBuilder` /
+`childrenOf` / `disabledOf` 直接消费用户模型。该类型仅为兼容存量引用保留。
 
 ## 构造函数
 
@@ -26,11 +29,11 @@ class AntTreeNode
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `checkable` | `bool` | 是否显示复选框（仅 checkable 开启时生效） |
+| `checkable` | `bool` | 是否显示勾选框 |
 | `children` | `List<AntTreeNode>?` | 子节点 |
-| `disabled` | `bool` | 是否禁用（不可选中/不可勾选/不可展开） |
-| `key` | `String` | 节点唯一标识 |
-| `title` | `String` | 节点显示文本 |
+| `disabled` | `bool` | 是否禁用 |
+| `key` | `String` | 唯一标识 |
+| `title` | `String` | 标题文本 |
 
 ## 属性
 

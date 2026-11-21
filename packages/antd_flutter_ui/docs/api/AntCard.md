@@ -14,15 +14,18 @@ class AntCard
 
 ## 构造函数
 
-### `AntCard({super.key, this.title, this.extra, required this.child, this.cover, this.actions, this.bordered = true, this.hoverable = false, this.size = AntCardSize.standard, this.loading = false, this.onTap})`
+### `AntCard({super.key, this.title, this.extra, required this.child, this.cover, this.coverHeight, this.actions, this.actionBuilder, this.onActionTap, this.bordered = true, this.hoverable = false, this.size = AntCardSize.standard, this.loading = false, this.onTap})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `title` | `Widget?` | 可选 | — |
 | `extra` | `Widget?` | 可选 | — |
 | `child` | `Widget` | 可选 | — |
-| `cover` | `AntCardCover?` | 可选 | — |
-| `actions` | `List<AntCardAction>?` | 可选 | — |
+| `cover` | `Widget?` | 可选 | — |
+| `coverHeight` | `double?` | 可选 | — |
+| `actions` | `List<T>?` | 可选 | — |
+| `actionBuilder` | `AntCardActionBuilder<T>?` | 可选 | — |
+| `onActionTap` | `ValueChanged<T>?` | 可选 | — |
 | `bordered` | `bool` | = true | — |
 | `hoverable` | `bool` | = false | — |
 | `size` | `AntCardSize` | = AntCardSize.standard | — |
@@ -33,13 +36,16 @@ class AntCard
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `actions` | `List<AntCardAction>?` | 底部操作列表 |
+| `actionBuilder` | `AntCardActionBuilder<T>?` | 操作项构建器 |
+| `actions` | `List<T>?` | 底部操作列表（任意用户模型） |
 | `bordered` | `bool` | 是否有边框 |
 | `child` | `Widget` | 卡片内容 |
-| `cover` | `AntCardCover?` | 封面图 |
+| `cover` | `Widget?` | 封面内容（通常为图片） |
+| `coverHeight` | `double?` | 封面高度 |
 | `extra` | `Widget?` | 右上角操作区 |
 | `hoverable` | `bool` | 是否可悬浮（悬浮时阴影加深） |
 | `loading` | `bool` | 是否加载中 |
+| `onActionTap` | `ValueChanged<T>?` | 操作项点击回调 |
 | `onTap` | `VoidCallback?` | 点击回调 |
 | `size` | `AntCardSize` | 尺寸 |
 | `title` | `Widget?` | 卡片标题 |
@@ -48,5 +54,5 @@ class AntCard
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntCard>` | — |
+| `createState` | `State<AntCard<T>>` | — |
 

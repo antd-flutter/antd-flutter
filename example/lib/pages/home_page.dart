@@ -151,14 +151,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 分组进度标题：验收数/可见组件数，存在待验证项时追加提示
-  String _groupProgressLabel(NavGroup group) {
-    final visibleItems = group.items.where((item) => item.visible);
-    final verified = visibleItems.where((item) => item.verified).length;
-    final pending = visibleItems.length - verified;
-    final suffix = pending > 0 ? ' ·$pending 待验证' : '';
-    return '${group.title} ($verified/${visibleItems.length}$suffix)';
-  }
+  /// 分组标题（开发阶段的验收进度标记已随正式版移除）
+  String _groupProgressLabel(NavGroup group) => group.title;
 
   /// 单个导航项
   Widget _buildNavItem(
@@ -167,7 +161,6 @@ class _HomePageState extends State<HomePage> {
     bool closeOnTap = false,
   }) {
     final selected = _selected == item;
-    final antTheme = AntTheme.of(context);
     return GestureDetector(
       onTap: () {
         setState(() => _selected = item);
@@ -179,37 +172,8 @@ class _HomePageState extends State<HomePage> {
             : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          // 直接用 Text.rich（TextSpan + WidgetSpan）内联渲染标记，
-          // 单行 + 溢出省略，保证 ✅ / ⏱ 标记与 label 同一行不换行。
-          child: Text.rich(
-            TextSpan(
-              text: item.label,
-              children: [
-                // 已验收：✅ 后缀；已迁移未验收：⏱ + 橙色小标「待验证」
-                if (item.verified)
-                  const TextSpan(text: ' ✅')
-                else ...[
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        AntIcons.fieldTimeOutlined,
-                        size: 14,
-                        color: antTheme.colorWarning,
-                      ),
-                    ),
-                  ),
-                  TextSpan(
-                    text: ' 待验证',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: antTheme.colorWarning,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+          child: Text(
+            item.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
@@ -262,7 +226,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             AntText(
-              text: '共 ${navGroups.length} 大分类 · $count 个组件规划中',
+              text: '共 ${navGroups.length} 大分类 · $count 个组件',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.outline,
               ),

@@ -1,68 +1,156 @@
-# antd_image_viewer
+# antd_image_viewer - Fullscreen image viewer with zoom and paging
 
-antd-mobile ImageViewer 组件的 Flutter 实现 — 全屏图片查看器，支持多图预览、双指缩放、平移、双击缩放（锚定点击位置）、PageView 左右切换、页码指示与受控开关，API 对齐 antd-mobile v5 ImageViewer / MultiImageViewer。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_image_viewer/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_image_viewer/README_CN.md)
 
-> 当前为预览版本。
+`antd_image_viewer` is a Flutter port of antd-mobile's ImageViewer / MultiImageViewer: a fullscreen dark overlay with pinch zoom, pan, double-tap zoom, horizontal paging between images, a page counter, a close button and a controlled open state.
 
-> R33 判定：弹层预览类组件（Overlay 全屏浮层，非滚动场景），不需要 sliver 支持。
+It is a display component, not a camera or a gallery grid. You give it a list of image sources and an `open` flag; it inserts itself into the root overlay, and the host keeps ownership of the flag through `onClose`. Network images are loaded through `cached_network_image`; anything whose source does not start with `http` is treated as an asset.
 
-> R30.1 轮子决策：photo_view（License: MIT）仅作缩放手势算法参考，缩放/平移/双击缩放引擎已在包内基于 `InteractiveViewer` 完全吸收改造（双击缩放锚定点击位置），不直接依赖 photo_view，保持零额外三方依赖（仅 cached_network_image 用于网络图缓存加载）。
+## Positioning & design
 
-## 安装
+| Aspect | Decision |
+| --- | --- |
+| Presentation | Root `OverlayEntry`, full-screen `Material` barrier at 85% black, 200 ms fade in/out |
+| Host contract | `open` is fully controlled; the viewer never flips it itself and calls `onClose` instead |
+| Paging | `PageView.builder`, one image per page, counter `n / total` |
+| Zoom | `InteractiveViewer` bounded by `maxZoomRatio`; double tap toggles between 1× and `maxZoomRatio` |
+| Image loading | `cached_network_image` for `http…` sources, `Image.asset` otherwise, shared placeholder/error widgets |
+| Dismissal | Close button, single tap at 1×, and the Escape key |
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`. Network images require platform network permission as usual; local images must be declared in your app's `pubspec.yaml` assets.
 
 ```yaml
 dependencies:
-  antd_image_viewer: ^0.1.0-beta.1
+  antd_image_viewer: ^1.0.0
 ```
 
-## 用法
+Inside this monorepo:
+
+```yaml
+dependencies:
+  antd_image_viewer:
+    path: ../packages/antd_image_viewer
+```
+
+## Quick start
 
 ```dart
 import 'package:antd_image_viewer/antd_image_viewer.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 多图预览（PreviewGroup 语义：一次传入多张，左右切换） ──
-bool open = false;
+void main() => runApp(const ViewerApp());
 
+class ViewerApp extends StatefulWidget {
+  const ViewerApp({super.key});
+
+  @override
+  State<ViewerApp> createState() => _ViewerAppState();
+}
+
+class _ViewerAppState extends State<ViewerApp> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: AntImageViewer(
+              images: const [
+                'https://picsum.photos/id/1015/1200/800',
+                'https://picsum.photos/id/1016/1200/800',
+                'https://picsum.photos/id/1018/1200/800',
+              ],
+              open: _open,
+              onClose: () => setState(() => _open = false),
+              afterClose: () => debugPrint('viewer closed'),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => setState(() => _open = true),
+            child: const Icon(Icons.image_outlined),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+The widget itself occupies no space (`SizedBox.shrink`); the visible UI lives in the root overlay.
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_image_viewer/docs/api-index.md)
+
+Open the viewer at a specific image:
+
+```dart
 AntImageViewer(
-  images: [
-    'https://example.com/a.png',
-    'https://example.com/b.png',
+  images: const [
+    'https://picsum.photos/id/1015/1200/800',
+    'https://picsum.photos/id/1016/1200/800',
   ],
-  open: open,
-  onClose: () => setState(() => open = false),
-);
+  defaultIndex: 1,
+  open: true,
+  onClose: () {},
+)
+```
 
-// ── 单图预览 + 自定义初始页 + 关闭后回调 ─────────────────
+Limit the zoom range and disable double-tap zoom:
+
+```dart
 AntImageViewer(
-  images: const ['assets/images/demo.png'],
-  open: open,
-  defaultIndex: 0,
+  images: const ['https://picsum.photos/id/1015/1200/800'],
+  open: true,
   maxZoomRatio: 5,
-  enableCompositeZoom: true,
-  onClose: () => setState(() => open = false),
-  afterClose: () {},
-);
+  enableCompositeZoom: false,
+  onClose: () {},
+)
 ```
 
-## 关键形态
+Run cleanup work after the closing animation has finished:
 
-| 形态 | 说明 |
-| --- | --- |
-| 单图预览 | 缩放 / 平移 / 双击缩放 / 轻点关闭 |
-| 多图切换（PreviewGroup 语义） | images 列表 + PageView 左右切换 + 页码指示 |
-| 受控开关 | `open` 受控 + `onClose` / `afterClose` 回调 |
-| 自定义初始页 | `defaultIndex` 指定初始展示下标 |
-| 缩放能力 | 双指缩放 / 平移（InteractiveViewer 引擎）+ 双击缩放（锚定点击位置，photo_view 算法吸收） |
-| 自定义 UI 关闭交互 | 关闭按钮 / 遮罩轻点 / 单图轻点 / `maxZoomRatio` / `enableCompositeZoom` 配置 |
-
-## 运行 example
-
-```bash
-cd packages/antd_image_viewer/example
-flutter pub get
-flutter run -d macos   # 或 -d chrome / 其他设备
+```dart
+AntImageViewer(
+  images: const ['https://picsum.photos/id/1015/1200/800'],
+  open: true,
+  onClose: () {},
+  afterClose: () => debugPrint('overlay removed'),
+)
 ```
 
-## 与主包的关系
+## Project structure
 
-本组件已从主包 `antd_flutter_plus` 拆分（P08）；主包经 re-export 保持符号兼容，直接 `import 'package:antd_flutter_plus/antd_flutter_plus.dart'` 的存量代码无需改动。
+```text
+antd_image_viewer/
+├── lib/
+│   ├── antd_image_viewer.dart                  # Public barrel
+│   └── src/image_viewer/
+│       ├── ant_image_viewer.dart               # Overlay viewer + zoomable page
+│       └── ant_image_viewer_types.dart         # Defaults and shared builders
+├── example/lib/main.dart                       # Demo gallery
+├── test/ant_image_viewer_test.dart             # Widget tests
+├── docs/api-index.md
+├── README.md
+├── README_CN.md
+├── CHANGELOG.md
+└── pubspec.yaml
+```
+
+## License
+
+MIT. See the repository root [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

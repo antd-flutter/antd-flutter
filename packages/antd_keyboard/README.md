@@ -1,38 +1,213 @@
-# antd_keyboard
+# antd_keyboard - Ant Design keyboards and virtual input fields for Flutter
 
-Ant Design（antd-mobile）虚拟键盘族独立组件包：通用键盘引擎 + 三组件，从 `antd_flutter_ui` 迁出（参照 `antd_picker` 拆分先例）。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_keyboard/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_keyboard/README_CN.md)
 
-## 组件
+## Positioning & design
 
-| 组件 | 说明 |
-| --- | --- |
-| `AntKeyboard` | 通用屏上键盘引擎：numeric / decimal / text / symbol / email 五布局预设 + 自定义布局（`AntKeyboardLayout`），长按变体气泡、长按连删、主题从 `AntTheme` 派生或 `AntKeyboardThemeData` 覆盖 |
-| `AntNumberKeyboard` | 数字键盘（antd-mobile 兼容用法）：受控 value、maxLength、confirmText、randomOrder 乱序、customKey 槽位键、desktop 桌面形态 |
-| `AntPasscodeInput` | 密码格子输入：length、plain 明文、separated 分隔、error、受控/非受控，keyboard: true 时唤起数字键盘 |
-| `AntVirtualInput` | 虚拟输入框：placeholder、clearable、confirmText、keyboardLayout 自定义布局、keyboardDesktop 桌面键盘 |
+`antd_keyboard` supplies on-screen keyboards and the input fields that use them. The building blocks are `AntKeyboard` (render any layout of rows and keys), `AntNumberKeyboard` (a ready-made numeric pad panel), `AntPasscodeInput` (PIN cells that open a keyboard), and `AntVirtualInput` (a form field whose text is entered through a keyboard rather than the system IME). Layouts are plain data — rows of `AntKeyboardKey` — so a custom keypad is a declaration, not a widget tree.
 
-## 引擎（随包迁出 ui engines）
+Design rules:
 
-- `lib/src/engines/ant_keyboard/`：`AntKeyboard` / `AntKeyboardLayout` / `AntKeyboardThemeData`
-- `lib/src/engines/keyboard_input_model.dart` / `input_platform.dart` / `keyboard_overlay.dart`：键盘族共享文件（grep 核实仅键盘族使用，随包自持）
+- **Layout is data.** `AntKeyboardLayout` holds `AntKeyboardRow`s of `AntKeyboardKey.text` / `AntKeyboardKey.action`; presets (`numeric`, `decimal`, `text`, `symbol`, `email`, `qwertyDesktop`) are just prebuilt declarations.
+- **The field owns the value.** Keyboards emit intent (`onTextInput`, `onBackspace`, `onConfirm`, `onKey`); the field or your state supplies the string.
+- **Controls are optional.** Control bars, backspace auto-repeat, and hardware-key handling are opt-in, so the same keyboard serves both kiosk-style and desktop-style input.
+- **Overlays are explicit.** `AntKeyboardOverlayController.show` attaches a keyboard to a position on screen when a layout must float above content.
 
-## 依赖方向
+## Installation
 
-`antd_keyboard` → `antd_theme` / `material_ui`（引擎零 `antd_flutter_ui` 依赖），不依赖其他独立组件包。
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
-## 移动端形态与 R36 安全区
+```yaml
+dependencies:
+  antd_keyboard: ^1.0.0
+```
 
-- 移动端（iOS/Android）固定触控形态：键触控目标 ≥44（自定义过小 keyHeight 自动钳制）、无 hover 反馈（MouseRegion 仅桌面注入）、按压态反馈；桌面端未传主题时自动桌面密度（48 键高 + hover），显式 `desktop: false` 保持移动形态（API 兼容）。
-- R36：引擎贴底时经 `MediaQuery` bottom inset 避让 home indicator/手势条；经 `AntKeyboardOverlayController` 弹出时外层 SafeArea 已消费 inset，不重复避让。
+Wrap the subtree in `AntTheme`; key surfaces, pressed states, and the passcode cells follow the design tokens:
 
-## R33 判定
+```dart
+AntTheme(
+  data: AntThemeData.light(),
+  child: MaterialApp(home: YourPage()),
+)
+```
 
-键盘为**浮层唤起类**组件（Overlay 弹出键盘，非滚动场景），**不需要 sliver 支持**（R33）。
+## Quick start
 
-## 主包兼容
+```dart
+import 'package:antd_keyboard/antd_keyboard.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-主包 `antd_flutter_plus` 对三组件 re-export `package:antd_keyboard/...`，对外零符号破坏；`antd_flutter_ui` 已移除对应目录与 barrel 导出。
+void main() => runApp(
+      AntTheme(
+        data: AntThemeData.light(),
+        child: const MaterialApp(home: NumericPadPage()),
+      ),
+    );
 
-## 运行 example
+class NumericPadPage extends StatefulWidget {
+  const NumericPadPage({super.key});
 
-见 [example/README.md](example/README.md)。
+  @override
+  State<NumericPadPage> createState() => _NumericPadPageState();
+}
+
+class _NumericPadPageState extends State<NumericPadPage> {
+  String _amount = '';
+
+  void _append(String text) {
+    setState(() => _amount += text);
+  }
+
+  void _backspace() {
+    if (_amount.isEmpty) return;
+    setState(() => _amount = _amount.substring(0, _amount.length - 1));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Amount')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              _amount.isEmpty ? '0' : _amount,
+              style: const TextStyle(fontSize: 32),
+            ),
+          ),
+          Expanded(
+            child: AntKeyboard(
+              layout: AntKeyboardLayout.numeric(),
+              confirmText: 'Done',
+              onTextInput: _append,
+              onBackspace: _backspace,
+              onConfirm: () => debugPrint('confirmed $_amount'),
+              onKey: (key) => debugPrint('key ${key.action}'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+The pad renders the standard 3×4 numeric grid with a confirm key. `onTextInput` receives one character at a time, and backspace auto-repeat is enabled by default for held presses.
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_keyboard/docs/api-index.md)
+
+### 1. A custom layout built from rows and keys
+
+```dart
+AntKeyboard(
+  layout: AntKeyboardLayout(
+    rows: [
+      AntKeyboardRow([
+        AntKeyboardKey.text('7'),
+        AntKeyboardKey.text('8'),
+        AntKeyboardKey.text('9'),
+      ]),
+      AntKeyboardRow([
+        AntKeyboardKey.text('4'),
+        AntKeyboardKey.text('5'),
+        AntKeyboardKey.text('6'),
+      ]),
+      AntKeyboardRow([
+        AntKeyboardKey.text('1'),
+        AntKeyboardKey.text('2'),
+        AntKeyboardKey.text('3'),
+        AntKeyboardKey.action(AntKeyAction.backspace, actionLabel: '⌫'),
+      ]),
+      AntKeyboardRow([
+        AntKeyboardKey.text('0', flex: 2),
+        AntKeyboardKey.action(AntKeyAction.confirm, actionLabel: 'Pay', flex: 2),
+      ]),
+    ],
+  ),
+  showControlBar: true,
+  onTextInput: _append,
+  onBackspace: _backspace,
+  onConfirm: () => debugPrint('pay $_amount'),
+)
+```
+
+`flex` distributes width within a row, so a wide zero and a wide confirm key sit next to each other. Action keys route to `onBackspace`, `onConfirm`, or the generic `onKey`, depending on their `AntKeyAction`.
+
+### 2. A ready-made numeric pad panel
+
+```dart
+AntNumberKeyboard(
+  title: 'Verification code',
+  maxLength: 6,
+  confirmText: 'Submit',
+  randomOrder: false,
+  onChange: (value) => debugPrint('value $value'),
+  onInput: (key) => debugPrint('pressed $key'),
+  onDelete: () => debugPrint('deleted'),
+  onConfirm: (value) => debugPrint('submit $value'),
+  onClose: () => debugPrint('closed'),
+)
+```
+
+`AntNumberKeyboard` is the whole panel: title, value display, keys, confirm, and a close button. It manages its own buffer when `value` is omitted, so it can be dropped inside a bottom sheet as-is.
+
+### 3. Passcode cells and a virtual input
+
+```dart
+Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    AntPasscodeInput(
+      length: 6,
+      separated: true,
+      error: false,
+      onFill: (code) => debugPrint('filled $code'),
+      onChange: (code) => debugPrint('typed $code'),
+    ),
+    const SizedBox(height: 24),
+    AntVirtualInput(
+      placeholder: 'Search',
+      clearable: true,
+      keyboardPreset: AntKeyboardPreset.text,
+      onEnterPress: (value) => debugPrint('submit $value'),
+    ),
+  ],
+)
+```
+
+`AntPasscodeInput` opens its numeric keyboard on tap and reports `onFill` when all cells are filled. `AntVirtualInput` looks like a text field but suppresses the system IME, showing the preset keyboard (or `keyboardLayout`) instead, which keeps input predictable on kiosk and embedded devices.
+
+## Project structure
+
+```text
+packages/antd_keyboard/
+├── lib/
+│   ├── antd_keyboard.dart              # barrel export
+│   └── src/
+│       ├── engines/
+│       │   ├── ant_keyboard/           # layout model, keys, renderer
+│       │   ├── keyboard_overlay.dart   # floating keyboard controller
+│       │   └── keyboard_input_model.dart
+│       ├── number_keyboard/            # numeric pad panel
+│       ├── passcode_input/             # PIN cells + keyboard
+│       └── virtual_input/              # form field + keyboard
+├── example/lib/main.dart               # runnable gallery
+├── docs/api-index.md                   # generated API index
+└── README.md
+```
+
+## License
+
+MIT. See the repository [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

@@ -1,86 +1,174 @@
-# antd_masonry
+# antd_masonry - Greedy-column masonry layout and sliver variant
 
-Ant Design v6 Masonry 组件的 Flutter 实现 — 瀑布流布局，支持贪心最短列分配（瀑布流效果）、轮询交错分配、响应式列数、列/行间距、跨列 span 项，及 sliver 变体 AntSliverMasonry（供 CustomScrollView 使用），API 对齐 antd React Masonry。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_masonry/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_masonry/README_CN.md)
 
-> 当前为预览版本。
+`antd_masonry` lays out widgets of different heights in balanced columns, following the antd React Masonry API. Items placed with `AntMasonryItem` declare a height and a column span; the layout engine puts each item into the currently shortest column, and a sliver variant composes with `CustomScrollView`.
 
-> R33 判定：Masonry 是滚动集合类组件——按规则必须提供 sliver 变体 [AntSliverMasonry]，供 CustomScrollView 与 SliverAppBar 等其他 sliver 组合使用。
-> **sliver 支持形态**：AntSliverMasonry 基于共享瀑布流布局引擎（最短列优先 + span 跨列）计算各项绝对位置，以 sliver 形式（SliverToBoxAdapter 承载布局容器）参与 CustomScrollView 组合；当前为非懒加载实现（全部子项一次性布局），懒加载虚拟化（对照 flutter_staggered_grid_view 的 RenderSliverMasonryGrid）为后续增强项，API 已按 sliver 形态对齐，后续升级不破坏调用方。
+The package is a pure layout container. It holds no scroll state and no controller: scrolling belongs to whatever scroll view hosts it, and changing the content means rebuilding with a different `children` list.
 
-> R30.1 轮子参考（迁移即改造评估）：flutter_staggered_grid_view（MIT）。**未引入三方依赖，自绘实现对照吸收**，详见下方「轮子对照」。
+## Positioning & design
 
-> R35 判定（Controller 评估）：Masonry 为纯布局容器，无内部程序化操作语义——滚动到指定位置由外层滚动容器（CustomScrollView / SingleChildScrollView 的 `ScrollController`）承担；刷新（动态添加/清空）通过数据列表 setState 替换实现（见 example「动态添加」分区）。无 imperative Controller 语义需求，**不引入 AntMasonryController**。
+| Aspect | Decision |
+| --- | --- |
+| Model | Stateless layout container driven entirely by its `children` list |
+| Height source | `AntMasonryItem.height`; it is both the placement input and the rendered box height |
+| Placement | Greedy shortest column when any item declares a height; round-robin when none does |
+| Span | `AntMasonryItem.span` columns wide; a full-width item takes the tallest column as its baseline |
+| Responsive | `AntMasonryResponsive` resolves the column count from the container width using antd grid breakpoints |
+| Sliver | `AntSliverMasonry` wraps the same engine in a `SliverToBoxAdapter`; non-lazy by design |
+| Spacing | `gutter` / `verticalGutter` scale with the theme's `s()` factor; item heights are exact logical pixels |
 
-## 安装
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_masonry: ^0.1.0-beta.1
+  antd_masonry: ^1.0.0
 ```
 
-## 用法
+Inside this monorepo:
+
+```yaml
+dependencies:
+  antd_masonry:
+    path: ../packages/antd_masonry
+```
+
+## Quick start
 
 ```dart
 import 'package:antd_masonry/antd_masonry.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 基础瀑布流（贪心最短列分配） ────────────────────────
+void main() => runApp(const MasonryApp());
+
+class MasonryApp extends StatelessWidget {
+  const MasonryApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: AntMasonry(
+              columns: 3,
+              gutter: 12,
+              children: const [
+                AntMasonryItem(
+                  height: 120,
+                  child: ColoredBox(color: Color(0xFF1677FF)),
+                ),
+                AntMasonryItem(
+                  height: 180,
+                  child: ColoredBox(color: Color(0xFF52C41A)),
+                ),
+                AntMasonryItem(
+                  height: 90,
+                  child: ColoredBox(color: Color(0xFFFAAD14)),
+                ),
+                AntMasonryItem(
+                  height: 220,
+                  child: ColoredBox(color: Color(0xFFFF4D4F)),
+                ),
+                AntMasonryItem(
+                  height: 140,
+                  child: ColoredBox(color: Color(0xFF722ED1)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_masonry/docs/api-index.md)
+
+Resolve the column count from the container width:
+
+```dart
+AntMasonry(
+  responsiveColumns: const AntMasonryResponsive(xs: 1, sm: 2, lg: 3, xl: 4),
+  gutter: 16,
+  children: const [
+    AntMasonryItem(height: 120, child: Card(child: Text('A'))),
+    AntMasonryItem(height: 180, child: Card(child: Text('B'))),
+  ],
+)
+```
+
+Let an item span multiple columns, including a full-width row:
+
+```dart
 AntMasonry(
   columns: 3,
   gutter: 16,
-  children: [
-    AntMasonryItem(height: 100, child: Card(child: Text('A'))),
-    AntMasonryItem(height: 150, child: Card(child: Text('B'))),
-    AntMasonryItem(height: 80, child: Card(child: Text('C'))),
+  children: const [
+    AntMasonryItem(height: 120, child: Card(child: Text('A'))),
+    AntMasonryItem(height: 160, span: 2, child: Card(child: Text('Wide'))),
+    AntMasonryItem(height: 100, span: 3, child: Card(child: Text('Full row'))),
   ],
-);
+)
+```
 
-// ── 响应式列数（断点对齐 antd 栅格 xs/sm/md/lg/xl/xxl） ──
-AntMasonry(
-  responsiveColumns: AntMasonryResponsive(xs: 1, sm: 2, lg: 3, xl: 4),
-  gutter: 16,
-  children: items,
-);
+Compose the sliver variant with a `CustomScrollView`:
 
-// ── 跨列 span 项 ────────────────────────────────────────
-AntMasonry(
-  columns: 3,
-  gutter: 16,
-  children: [
-    AntMasonryItem(height: 120, child: ...),
-    AntMasonryItem(height: 160, span: 2, child: WideCard()), // 占 2 列
-  ],
-);
-
-// ── sliver 变体：CustomScrollView + SliverAppBar 组合 ────
+```dart
 CustomScrollView(
   slivers: [
-    const SliverAppBar(title: Text('瀑布流')),
+    const SliverAppBar(title: Text('Masonry')),
     AntSliverMasonry(
       columns: 3,
       gutter: 16,
-      children: [
-        AntMasonryItem(height: 100, child: ...),
-        AntMasonryItem(height: 160, span: 2, child: ...),
+      fallbackItemHeight: 120,
+      children: const [
+        AntMasonryItem(height: 100, child: Card(child: Text('A'))),
+        AntMasonryItem(height: 160, span: 2, child: Card(child: Text('B'))),
       ],
     ),
   ],
-);
+)
 ```
 
-## 轮子对照（R30.1：flutter_staggered_grid_view + masonry_kit，均 MIT）
+## Project structure
 
-| 能力 | flutter_staggered_grid_view | masonry_kit | antd_masonry 现状 | 处置 |
-| --- | --- | --- | --- | --- |
-| 列分配算法 | 最短列优先（逐项放置） | 最短列优先（测量后永久定位） | 有高度项贪心最短列优先，无高度项 round-robin 交错 | 已对齐，自绘实现 |
-| 跨列 span | StaggeredTile.count(w, h) 跨列 tile | —（仅纯瀑布流） | `AntMasonryItem.span`，跨列窗口取最大高度对齐放置 | 已吸收（staggered 语义） |
-| 项高度约束 | tile 声明式 | 由子项自身测量 | `AntMasonryItem.height` 同时作分配依据与实际高度约束（SizedBox 包裹） | 已落地 |
-| 响应式列数 | 需手工按宽度传列数 | 需手工 | `AntMasonryResponsive` 断点列数 | 原生更强 |
-| sliver 懒加载 | RenderSliverMasonryGrid 增量挂载 | 真·懒加载 sliver（测量一次永久缓存，不发 scrollOffsetCorrection，多 sliver 同视口不回跳） | sliver 形态组合可用，非懒加载（一次全量布局，位置由声明高度确定、无修正回跳风险，但不虚拟化） | 缺口：懒加载虚拟化（对照 masonry_kit 的 measure-once 缓存 + builder 无限流）为后续增强项，API 已按 sliver 形态对齐不破坏调用方 |
-| 无限流 builder | itemBuilder 委托 | itemCount 可省略，builder 返回 null 即末尾（分页 feed） | children 列表式，增量加载走 setState 替换（example「动态添加」） | 中等列表（数百项）场景无感知差异；超长 feed 为增强项 |
-| 间距 | mainAxisSpacing/crossAxisSpacing | mainAxisSpacing/crossAxisSpacing | gutter / verticalGutter | 语义等价 |
+```text
+antd_masonry/
+├── lib/
+│   ├── antd_masonry.dart                  # Public barrel
+│   └── src/masonry/
+│       ├── ant_masonry.dart               # Masonry widget + AntMasonryItem
+│       ├── ant_masonry_layout.dart        # Shared placement engine
+│       ├── ant_masonry_types.dart         # AntMasonryResponsive
+│       └── ant_sliver_masonry.dart        # Sliver variant
+├── example/lib/main.dart                  # Demo gallery
+├── test/
+│   ├── masonry/ant_masonry_test.dart
+│   └── masonry/ant_sliver_masonry_test.dart
+├── docs/api-index.md
+├── README.md
+├── README_CN.md
+├── CHANGELOG.md
+└── pubspec.yaml
+```
 
-**结论**：antd_masonry 定位为 antd 组件体系内的轻量瀑布流（声明高度 + 贪心分配，零三方依赖），数百项以内的常规场景覆盖完整；masonry_kit 的核心价值（真懒加载 sliver、多 grid 同视口稳定滚动、诚实滚动条）在其超大 feed 场景，作为 R33 增强方向记录，暂不引依赖。
+## License
 
-## 依赖方向
+MIT. See the repository root [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
 
-antd_masonry → antd_theme、material_ui；不依赖主包 antd_flutter_plus。主包通过 export re-export 保持符号兼容。
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

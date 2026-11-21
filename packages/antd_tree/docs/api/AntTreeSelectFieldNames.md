@@ -8,7 +8,7 @@
 class AntTreeSelectFieldNames
 ```
 
-自定义字段名（与 antd React fieldNames 对齐）
+自定义字段名（历史类型，组件泛型化后不再使用）。
 
 ## 构造函数
 
@@ -24,7 +24,7 @@ class AntTreeSelectFieldNames
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `children` | `String` | children 字段名 |
-| `label` | `String` | label 字段名 |
-| `value` | `String` | value 字段名 |
+| `children` | `String` | 子节点字段名 |
+| `label` | `String` | 标签字段名 |
+| `value` | `String` | 值字段名 |
 

@@ -26,5 +26,5 @@ class AntTableFilterItem
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `text` | `String` | 筛选项展示文本 |
-| `value` | `Object` | 筛选项值（传给 AntTableColumn.onFilter） |
+| `value` | `Object` | 筛选项值（传给 AntTableColumn.onFilter 的第一个参数） |
 

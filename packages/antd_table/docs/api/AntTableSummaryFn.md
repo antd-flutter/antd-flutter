@@ -8,5 +8,5 @@
 typedef AntTableSummaryFn
 ```
 
-汇总行构建函数（对齐 antd `summary`）。
+汇总行构建函数（对齐 antd `summary`；参数为处理后的顶层 `T` 列表）。
 

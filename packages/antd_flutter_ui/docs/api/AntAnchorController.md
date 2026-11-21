@@ -24,13 +24,13 @@ scrollController.addListener(() {
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `_activeKey` | `String?` | — |
+| `_activeKey` | `Object?` | — |
 
 ## 属性
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `activeKey` | `String?` | 当前激活的锚点 key |
+| `activeKey` | `Object?` | 当前激活的锚点 key |
 
 ## 方法
 

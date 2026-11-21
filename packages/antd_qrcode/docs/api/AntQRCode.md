@@ -40,7 +40,7 @@ class AntQRCode
 | `icon` | `bool` | 是否在二维码中心显示图标 |
 | `iconSize` | `double` | 中间图标尺寸 |
 | `onRefresh` | `VoidCallback?` | 过期后点击刷新回调 |
-| `size` | `double` | 尺寸（逻辑像素，内部按 .w 缩放） |
+| `size` | `double` | 尺寸（设计逻辑像素，内部按 theme.s 统一因子缩放） |
 | `status` | `AntQRCodeStatus` | 二维码状态 |
 | `value` | `String` | 二维码内容 |
 

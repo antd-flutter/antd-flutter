@@ -1,84 +1,245 @@
-# antd_picker
+# antd_picker - Wheel pickers, cascader, and date/time pickers for Flutter
 
-Ant Design (antd-mobile) 弹层选择器族的 Flutter 实现 — Picker（滚轮选择器，单列/多列联动）、DatePicker（日期选择器）、TimePicker（时间选择器）、Cascader（级联选择）与 CascaderView（内嵌级联视图），API 对齐 antd-mobile。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_picker/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_picker/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-> R33 判定：弹层选择器类组件（Picker 族经 Popup 弹层选择，CascaderView 为内嵌面板），均非滚动场景，不需要 sliver 支持。
+`antd_picker` groups the selection surfaces that share a modal bottom-sheet or overlay container: `AntPicker<T>` for one or more wheel columns, `AntCascader<T>` for hierarchical drill-down selection, and `AntDatePicker` / `AntTimePicker` for formatted date and time fields. All generic pickers read **your model `T`** through `dataSource`, `keyOf`, and `labelBuilder`; nothing is flattened into string labels.
 
-> 归属边界：AntPickerView（通用滚轮视图）留在 `antd_flutter_ui`（display/picker_view），本包经 ui barrel 引用。
+Design rules:
 
-## 安装
+- **Values are typed.** `AntPicker<T>` confirms a `List<T>` — one selected object per column — while cascaders report the selected path.
+- **Wheels are data-driven.** A column is `AntPickerColumn<T>`; column count and item rendering are declarations.
+- **The trigger is yours.** Pickers accept a `child` widget that opens the sheet, so any button, field, or card can be the entry point.
+- **Date and time stay separate.** `AntDatePicker` works in `DateTime`, `AntTimePicker` in `TimeOfDay`, each with its own display `format` / step controls.
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_picker: ^0.1.0-beta.1
+  antd_picker: ^1.0.0
 ```
 
-## 用法
+Wrap the subtree in `AntTheme`; wheel highlight, sheet chrome, and field borders come from the design tokens:
+
+```dart
+AntTheme(
+  data: AntThemeData.light(),
+  child: MaterialApp(home: YourPage()),
+)
+```
+
+## Quick start
 
 ```dart
 import 'package:antd_picker/antd_picker.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── Picker 单列选择 ─────────────────────────────────────
-final value = await AntPicker.pick(
-  context,
-  columns: [
-    ['周一', '周二', '周三', '周四', '周五'],
-  ],
-  onConfirm: (values) {},
-);
+class Season {
+  const Season(this.id, this.name);
 
-// ── 多列联动 ────────────────────────────────────────────
-AntPicker(
-  columns: _linkedColumns(selected),
-  value: _value,
-  onChange: (values) => setState(() => _value = values),
-)
+  final int id;
+  final String name;
+}
 
-// ── DatePicker 年月日 ───────────────────────────────────
-AntDatePicker(
-  value: _date,
-  min: DateTime(2020),
-  max: DateTime(2030),
-  precision: AntDatePickerPrecision.day,
-  onConfirm: (date) => setState(() => _date = date),
-)
+const seasons = <Season>[
+  Season(1, 'Spring'),
+  Season(2, 'Summer'),
+  Season(3, 'Autumn'),
+  Season(4, 'Winter'),
+];
 
-// ── TimePicker 时分秒 ───────────────────────────────────
-AntTimePicker(
-  value: _time,
-  precision: AntTimePickerPrecision.second,
-  onConfirm: (time) => setState(() => _time = time),
-)
+void main() => runApp(
+      AntTheme(
+        data: AntThemeData.light(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: AntPicker<Season>(
+                title: 'Season',
+                columns: [
+                  AntPickerColumn<Season>(
+                    dataSource: seasons,
+                    keyOf: (season) => season.id,
+                    labelBuilder: (context, season) => Text(season.name),
+                  ),
+                ],
+                onConfirm: (values) {
+                  debugPrint('picked ${values.first.name}');
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text('Pick a season'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+```
 
-// ── Cascader 级联选择（弹层） ────────────────────────────
-AntCascader(
-  options: _options,
-  value: _cascaderValue,
-  onConfirm: (value) => setState(() => _cascaderValue = value),
-)
+Tapping the child opens the wheel sheet. Confirm reports the selected `Season` objects in column order, and cancel dismisses without a value.
 
-// ── CascaderView 内嵌（不弹层） ──────────────────────────
-AntCascaderView(
-  options: _options,
-  value: _cascaderValue,
-  onChange: (value) => setState(() => _cascaderValue = value),
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_picker/docs/api-index.md)
+
+### 1. A two-column year/month picker
+
+```dart
+class MonthPicker extends StatefulWidget {
+  const MonthPicker({super.key});
+
+  @override
+  State<MonthPicker> createState() => _MonthPickerState();
+}
+
+class _MonthPickerState extends State<MonthPicker> {
+  int _year = 2025;
+  int _month = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    return AntPicker<int>(
+      title: 'Month',
+      confirmText: 'OK',
+      cancelText: 'Cancel',
+      defaultValue: <int>[_year, _month],
+      columns: [
+        AntPickerColumn<int>(
+          dataSource: List<int>.generate(10, (index) => 2021 + index),
+          keyOf: (year) => year,
+          labelBuilder: (context, year) => Text('$year'),
+        ),
+        AntPickerColumn<int>(
+          dataSource: List<int>.generate(12, (index) => index + 1),
+          keyOf: (month) => month,
+          labelBuilder: (context, month) => Text('$month'),
+        ),
+      ],
+      onConfirm: (values) => setState(() {
+        _year = values[0];
+        _month = values[1];
+      }),
+      child: Text('$_year-$_month'),
+    );
+  }
+}
+```
+
+Each column confirms exactly one `T`, and the result keeps column order. `defaultValue` entries may be either `T` values or the keys returned by `keyOf`.
+
+### 2. Cascading selection with a tree
+
+```dart
+class Region {
+  const Region(this.code, this.name, {this.children = const <Region>[]});
+
+  final String code;
+  final String name;
+  final List<Region> children;
+}
+
+const regions = <Region>[
+  Region(
+    'zj',
+    'Zhejiang',
+    children: [
+      Region('hz', 'Hangzhou'),
+      Region('nb', 'Ningbo'),
+    ],
+  ),
+  Region(
+    'js',
+    'Jiangsu',
+    children: [
+      Region('nj', 'Nanjing'),
+    ],
+  ),
+];
+
+AntCascader<Region>(
+  dataSource: regions,
+  keyOf: (region) => region.code,
+  childrenOf: (region) => region.children,
+  labelBuilder: (context, region) => Text(region.name),
+  placeholder: 'Select a region',
+  allowClear: true,
+  changeOnSelect: false,
+  onChange: (path) => debugPrint(path.map((r) => r.name).join(' / ')),
 )
 ```
 
-## 组件清单
+The cascader drills through `childrenOf`; with `changeOnSelect: false` a parent tab only expands the next column, and the value is committed when a leaf is chosen. `AntCascaderView` renders the same columns inline when you need the panel without a popup.
 
-| 组件 | 说明 | 对齐 API |
-| --- | --- | --- |
-| `AntPicker` | 滚轮选择器（单列/多列联动、受控） | antd-mobile `Picker` |
-| `AntDatePicker` | 日期选择器（年/月/日精度） | antd-mobile `DatePicker` |
-| `AntTimePicker` | 时间选择器（时/分/秒精度） | antd-mobile `DatePicker`（precision time） |
-| `AntCascader` | 级联选择器（弹层） | antd-mobile `Cascader` |
-| `AntCascaderView` | 内嵌级联视图 | antd-mobile `CascaderView` |
+### 3. Date and time fields
 
-## 依赖方向
+```dart
+class DateTimeForm extends StatefulWidget {
+  const DateTimeForm({super.key});
 
-`antd_picker → antd_flutter_ui`（滚轮引擎 + AntPickerView）`→ antd_theme`；不依赖其他独立组件包。主包 `antd_flutter_plus` 经 re-export 保持对外兼容。
+  @override
+  State<DateTimeForm> createState() => _DateTimeFormState();
+}
 
-完整 demo 见 [example](example/)（全平台，含 R35.4 多平台响应式适配与暗色切换）。
+class _DateTimeFormState extends State<DateTimeForm> {
+  DateTime? _date = DateTime(2025, 3, 18);
+  TimeOfDay? _time = const TimeOfDay(hour: 9, minute: 30);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntDatePicker(
+          value: _date,
+          format: 'yyyy-MM-dd',
+          placeholder: 'Pick a date',
+          onChange: (date) => setState(() => _date = date),
+        ),
+        const SizedBox(height: 12),
+        AntTimePicker(
+          value: _time,
+          minuteStep: 5,
+          placeholder: 'Pick a time',
+          onChange: (time) => setState(() => _time = time),
+        ),
+      ],
+    );
+  }
+}
+```
+
+Both fields open their own sheet and report `null` when cleared (`allowClear: true` enables the clear affordance). `minuteStep` / `hourStep` thin out the wheel options for coarse scheduling.
+
+## Project structure
+
+```text
+packages/antd_picker/
+├── lib/
+│   ├── antd_picker.dart                 # barrel export
+│   └── src/
+│       ├── picker/                      # wheel sheet and column model
+│       ├── cascader/                    # cascading field and inline view
+│       ├── date_picker/                 # DateTime field
+│       └── time_picker/                 # TimeOfDay field
+├── example/lib/main.dart                # runnable gallery
+├── docs/api-index.md                    # generated API index
+└── README.md
+```
+
+## License
+
+MIT. See the repository [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

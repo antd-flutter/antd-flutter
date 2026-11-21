@@ -8,5 +8,5 @@
 typedef AntTableSorter
 ```
 
-列比较函数。
+列比较函数（直接比较两个 `T`）。
 

@@ -239,8 +239,12 @@ class _AntKeyboardOverlayDockState extends State<_AntKeyboardOverlayDock>
     final desktop = isDesktopInputPlatform();
     final keyboard = Padding(
       padding: desktop
-          ? EdgeInsets.fromLTRB(AntTheme.of(context).s(24), 0,
-              AntTheme.of(context).s(24), AntTheme.of(context).s(24))
+          ? EdgeInsets.fromLTRB(
+              AntTheme.of(context).s(24),
+              0,
+              AntTheme.of(context).s(24),
+              AntTheme.of(context).s(24),
+            )
           : EdgeInsets.zero,
       child: widget.keyboard,
     );

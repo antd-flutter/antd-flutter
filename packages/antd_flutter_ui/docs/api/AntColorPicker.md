@@ -12,7 +12,7 @@ class AntColorPicker
 
 ## 构造函数
 
-### `AntColorPicker({super.key, this.value, this.defaultValue, this.onChange, this.onChangeComplete, this.disabled = false, this.size = AntColorPickerSize.middle, this.showText = false, this.format = AntColorFormat.hex, this.presets = const [], this.disabledAlpha = false, this.allowClear = false, this.open, this.defaultOpen = false, this.onOpenChange})`
+### `AntColorPicker({super.key, this.value, this.defaultValue, this.onChange, this.onChangeComplete, this.disabled = false, this.size = AntColorPickerSize.middle, this.showText = false, this.format = AntColorFormat.hex, this.presets = const [], this.presetLabelOf, this.presetColorsOf, this.disabledAlpha = false, this.allowClear = false, this.open, this.defaultOpen = false, this.onOpenChange})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -24,7 +24,9 @@ class AntColorPicker
 | `size` | `AntColorPickerSize` | = AntColorPickerSize.middle | — |
 | `showText` | `bool` | = false | — |
 | `format` | `AntColorFormat` | = AntColorFormat.hex | — |
-| `presets` | `List<AntColorPreset>` | = const [] | — |
+| `presets` | `List<T>` | = const [] | — |
+| `presetLabelOf` | `String Function(T preset)?` | 可选 | — |
+| `presetColorsOf` | `List<String> Function(T preset)?` | 可选 | — |
 | `disabledAlpha` | `bool` | = false | — |
 | `allowClear` | `bool` | = false | — |
 | `open` | `bool?` | 可选 | — |
@@ -45,7 +47,9 @@ class AntColorPicker
 | `onChangeComplete` | `void Function(String? color)?` | 颜色选择完成回调（面板关闭或松手时触发） |
 | `onOpenChange` | `void Function(bool open)?` | 面板打开/关闭回调 |
 | `open` | `bool?` | 受控：面板是否打开 |
-| `presets` | `List<AntColorPreset>` | 预设颜色 |
+| `presetColorsOf` | `List<String> Function(T preset)?` | 预设分组的颜色列表（hex，如 '#1677ff'），缺省： T 是 AntColorPreset 时取其 col… |
+| `presetLabelOf` | `String Function(T preset)?` | 预设分组标题，缺省：T 是 AntColorPreset 时取其 label，否则 '$item' |
+| `presets` | `List<T>` | 预设颜色组（任意模型） |
 | `showText` | `bool` | 是否显示颜色文本 |
 | `size` | `AntColorPickerSize` | 尺寸 |
 | `value` | `String?` | 受控：颜色值（hex 格式，如 '#1677ff'） |
@@ -54,5 +58,5 @@ class AntColorPicker
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntColorPicker>` | — |
+| `createState` | `State<AntColorPicker<T>>` | — |
 

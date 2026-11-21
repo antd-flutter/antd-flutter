@@ -13,20 +13,24 @@ class AntBreadcrumb
 对齐 antd React Breadcrumb 组件，支持自定义分隔符、图标和点击回调。
 
 ```dart
-AntBreadcrumb(items: [
-  AntBreadcrumbItem(title: 'Home', onClick: () => goHome()),
-  AntBreadcrumbItem(title: 'List', onClick: () => goList()),
-  AntBreadcrumbItem(title: 'App'), // 当前页面
-])
+AntBreadcrumb<Crumb>(
+  items: crumbs,
+  titleBuilder: (context, crumb, index) => Text(crumb.title),
+  onTap: (crumb) => go(crumb.path),
+)
 ```
 
 ## 构造函数
 
-### `AntBreadcrumb({super.key, this.items = const [], this.separator = '/', this.separatorWidget})`
+### `AntBreadcrumb({super.key, this.items = const [], this.titleBuilder, this.iconBuilder, this.onTap, this.clickableOf, this.separator = '/', this.separatorWidget})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `items` | `List<AntBreadcrumbItem>` | = const [] | — |
+| `items` | `List<T>` | = const [] | — |
+| `titleBuilder` | `AntBreadcrumbTitleBuilder<T>?` | 可选 | — |
+| `iconBuilder` | `AntBreadcrumbIconBuilder<T>?` | 可选 | — |
+| `onTap` | `ValueChanged<T>?` | 可选 | — |
+| `clickableOf` | `bool Function(T item)?` | 可选 | — |
 | `separator` | `String` | = '/' | — |
 | `separatorWidget` | `Widget?` | 可选 | — |
 
@@ -34,14 +38,19 @@ AntBreadcrumb(items: [
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `items` | `List<AntBreadcrumbItem>` | 面包屑项列表 |
+| `clickableOf` | `bool Function(T item)?` | 指定某些项是否可点击（仍受最后一项不可点击限制） |
+| `iconBuilder` | `AntBreadcrumbIconBuilder<T>?` | 图标构建器，显示在标题左侧 |
+| `items` | `List<T>` | 面包屑项列表 |
+| `onTap` | `ValueChanged<T>?` | 点击回调 |
 | `separator` | `String` | 分隔符文字 |
 | `separatorWidget` | `Widget?` | 自定义分隔符 Widget |
+| `titleBuilder` | `AntBreadcrumbTitleBuilder<T>?` | 标题构建器，未提供时回退为 Text('$item') |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `_buildContent` | `Widget` | — |
 | `_buildItem` | `Widget` | — |
 | `_buildSeparator` | `Widget` | — |
 | `build` | `Widget` | — |

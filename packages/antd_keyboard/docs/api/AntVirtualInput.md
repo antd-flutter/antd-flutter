@@ -8,10 +8,7 @@
 class AntVirtualInput
 ```
 
-虚拟输入 — 通过内置数字键盘输入的只读输入框。
-
-对齐 antd-mobile React VirtualInput。点击输入框展开数字键盘，
-不唤起系统软键盘，适用于安全输入场景。
+虚拟输入 — 通过内置键盘输入的只读输入框。
 
 ## 构造函数
 
@@ -49,8 +46,8 @@ class AntVirtualInput
 | `customKey` | `String?` | 键盘自定义按键 |
 | `defaultValue` | `String` | 非受控初始值 |
 | `disabled` | `bool` | 是否禁用 |
-| `keyboardAlignTop` | `bool` | 键盘弹出对齐：贴底（默认）/贴顶（桌面展示形态可切换） |
-| `keyboardDesktop` | `bool` | 键盘桌面密度（展示形态由调用方决定） |
+| `keyboardAlignTop` | `bool` | 键盘弹出对齐：贴底（默认）/贴顶 |
+| `keyboardDesktop` | `bool` | 兼容参数：桌面端现已默认弹出 QWERTY 软键盘，此字段仅保留签名兼容 |
 | `keyboardLayout` | `AntKeyboardLayout?` | 通用键盘布局（优先级高于 keyboardPreset |
 | `keyboardPreset` | `AntKeyboardPreset?` | 键盘预设类型（便捷参数 |
 | `keyboardShowControlBar` | `bool` | 桌面展示形态下显示控制条（贴底/贴顶切换按钮） |

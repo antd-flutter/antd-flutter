@@ -14,39 +14,48 @@ class AntSteps
 自定义图标和点击切换。
 
 ```dart
-AntSteps(
+AntSteps<Step>(
   current: 1,
-  items: [
-    AntStepsItem(title: 'Finished', description: 'Step 1 done'),
-    AntStepsItem(title: 'In Progress', description: 'Step 2 running'),
-    AntStepsItem(title: 'Waiting', description: 'Step 3 pending'),
-  ],
+  items: steps,
+  titleBuilder: (context, step, index) => Text(step.title),
+  descriptionBuilder: (context, step, index) => Text(step.description),
+  statusOf: (step) => step.status,
 )
 ```
 
 ## 构造函数
 
-### `AntSteps({super.key, this.current = 0, this.items = const [], this.direction = AntStepsDirection.horizontal, this.status = AntStepsStatus.process, this.size = AntStepsSize.normal, this.onChange})`
+### `AntSteps({super.key, this.current = 0, this.items = const [], this.titleBuilder, this.descriptionBuilder, this.iconBuilder, this.statusOf, this.disabledOf, this.direction = AntStepsDirection.horizontal, this.status = AntStepsStatus.process, this.size = AntStepsSize.normal, this.onChange})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `current` | `int` | = 0 | — |
-| `items` | `List<AntStepsItem>` | = const [] | — |
+| `items` | `List<T>` | = const [] | — |
+| `titleBuilder` | `AntStepsTitleBuilder<T>?` | 可选 | — |
+| `descriptionBuilder` | `AntStepsDescriptionBuilder<T>?` | 可选 | — |
+| `iconBuilder` | `AntStepsIconBuilder<T>?` | 可选 | — |
+| `statusOf` | `AntStepsStatus? Function(T item)?` | 可选 | — |
+| `disabledOf` | `bool Function(T item)?` | 可选 | — |
 | `direction` | `AntStepsDirection` | = AntStepsDirection.horizontal | — |
 | `status` | `AntStepsStatus` | = AntStepsStatus.process | — |
 | `size` | `AntStepsSize` | = AntStepsSize.normal | — |
-| `onChange` | `ValueChanged<int>?` | 可选 | — |
+| `onChange` | `ValueChanged<T>?` | 可选 | — |
 
 ## 字段
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `current` | `int` | 当前步骤索引，从 0 开始 |
+| `descriptionBuilder` | `AntStepsDescriptionBuilder<T>?` | 描述构建器，返回 null 时不展示描述 |
 | `direction` | `AntStepsDirection` | 排列方向 |
-| `items` | `List<AntStepsItem>` | 步骤项列表 |
-| `onChange` | `ValueChanged<int>?` | 点击切换步骤回调 |
+| `disabledOf` | `bool Function(T item)?` | 是否禁用点击 |
+| `iconBuilder` | `AntStepsIconBuilder<T>?` | 自定义图标构建器，优先于自动生成的圆圈内容 |
+| `items` | `List<T>` | 步骤项列表 |
+| `onChange` | `ValueChanged<T>?` | 点击切换步骤回调 |
 | `size` | `AntStepsSize` | 尺寸 |
 | `status` | `AntStepsStatus` | 当前步骤的状态 |
+| `statusOf` | `AntStepsStatus? Function(T item)?` | 自定义状态，覆盖自动计算的状态 |
+| `titleBuilder` | `AntStepsTitleBuilder<T>?` | 标题构建器，未提供时回退为 Text('$item') |
 
 ## 属性
 
@@ -62,12 +71,13 @@ AntSteps(
 | `_buildCircle` | `Widget` | — |
 | `_buildCircleContent` | `Widget` | — |
 | `_buildConnector` | `Widget` | — |
-| `_buildDescription` | `Widget` | — |
+| `_buildDescription` | `Widget?` | — |
 | `_buildHorizontal` | `Widget` | — |
 | `_buildHorizontalStep` | `Widget` | — |
 | `_buildTitle` | `Widget` | — |
 | `_buildVertical` | `Widget` | — |
 | `_buildVerticalStep` | `Widget` | — |
+| `_isDisabled` | `bool` | — |
 | `_resolveStatus` | `AntStepsStatus` | 计算指定索引步骤的状态 |
 | `build` | `Widget` | — |
 

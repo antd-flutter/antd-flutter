@@ -1,107 +1,229 @@
-# antd_flutter_plus
+# antd_flutter_plus - Umbrella package for Ant Design Flutter
 
-[![pub package](https://img.shields.io/pub/v/antd_flutter_plus.svg)](https://pub.dev/packages/antd_flutter_plus)
+[English](https://github.com/flutter-open/antd-flutter/blob/master/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/README_CN.md)
 
-Ant Design v6 Flutter 组件库的**全量伞包** — 106 个组件经 re-export 一站式接入，一次依赖获得完整组件能力（含主题 / Design Token / 颜色 / 图标基础能力）。
+`antd_flutter_plus` is the umbrella package of the Ant Design Flutter suite. One dependency brings in the design tokens, the theme engine, the icon font, the base component layer and 21 independently published packages, with a single version line to upgrade.
 
-> 拆分后的组件库以「基础库 + 独立单组件包」形式维护，本伞包经 re-export 聚合全部组件，对外 API 符号保持兼容（零符号破坏）。
+The suite is built for Flutter on mobile, desktop and web. Desktop styling follows **Ant Design v6**, mobile styling follows **antd-mobile v5**, and sizing flows through `AntScale` so the same widget tree adapts to phone, tablet and desktop windows. The umbrella package only aggregates and re-exports; each package under `packages/` remains usable on its own.
 
-## 安装
+## Positioning and design trade-offs
+
+- **One dependency, many packages.** `antd_flutter_plus` depends on and re-exports the whole suite, so an application can start with a single line in `pubspec.yaml` instead of wiring 21 packages by hand.
+- **Aggregation, not duplication.** The umbrella contains no component implementations. It re-exports each package's public library and adds a small platform layer (`lib/src/platform/`). Fixes and features live in the owning package.
+- **Standalone packages stay first-class.** Nothing in the suite requires the umbrella. Any package can be depended on directly, which keeps the dependency graph small for applications that need only one or two capabilities.
+- **One version line.** All packages ship on the unified `1.0.0` line (`antd_icons_flutter` is the only patch release, `1.0.1`, for icon assets), and the umbrella constrains them with `^1.0.0` ranges. Upgrading the umbrella upgrades the suite together.
+- **Layered dependencies.** Foundations (`antd_color`, `antd_tokens`, `antd_theme`, `antd_icons_flutter`) → base layer (`antd_flutter_ui`) → standalone feature packages. Feature packages never depend on each other.
+- **Two style sources, one API.** Form-factor decides whether a widget follows antd v6 or antd-mobile v5; application code does not branch on platform for styling.
+- **Tree shaking still applies.** Importing the umbrella does not force every package into the binary; unused Dart code is removed by the compiler. The trade-off is a larger dependency graph and longer `pub get`/analysis, not a larger release binary.
+
+## Installation
+
+Requires Dart `>=3.0.0 <4.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_flutter_plus: ^1.0.0-beta.2
+  antd_flutter_plus: ^1.0.0
+  material_ui: ^1.11.0
 ```
 
-## 用法
+`material_ui` is listed explicitly because the examples import `MaterialApp` and `Scaffold` from it.
 
-### 方式一：伞包接入（推荐快速试用 / 完整体验）
-
-一次引入，全部组件直接可用：
+## Quick start
 
 ```dart
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
+import 'package:material_ui/material_ui.dart';
 
-AntButton(
-  child: const Text('按钮'),
-  onPressed: () {},
-)
+void main() => runApp(const PlusDemoApp());
 
-AntPicker(
-  columns: [
-    ['周一', '周二', '周三'],
-  ],
-  onConfirm: (values) {},
-)
+class PlusDemoApp extends StatelessWidget {
+  const PlusDemoApp({super.key});
 
-AntImageViewer(
-  images: ['https://example.com/a.png'],
-  open: visible,
-  onClose: () => setState(() => visible = false),
-)
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: MaterialApp(
+        theme: AntThemeData.light().toThemeData(),
+        home: const PlusDemoPage(),
+      ),
+    );
+  }
+}
+
+class PlusDemoPage extends StatelessWidget {
+  const PlusDemoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.colorBgLayout,
+      appBar: AntAppBar(title: const Text('Ant Design Flutter')),
+      body: ListView(
+        padding: EdgeInsets.all(theme.s(16)),
+        children: [
+          AntButton(
+            type: AntButtonType.primary,
+            onTap: () {},
+            child: const Text('Primary button'),
+          ),
+          SizedBox(height: theme.s(12)),
+          AntInput(
+            value: '',
+            placeholder: 'Type something',
+            onChange: (value) {},
+          ),
+          SizedBox(height: theme.s(12)),
+          AntSwitch(
+            defaultChecked: true,
+            onChange: (checked) {},
+          ),
+        ],
+      ),
+    );
+  }
+}
 ```
 
-### 方式二：单组件包接入（对包体积与依赖面敏感的生产项目）
+> `AntTheme` must wrap the application (above `MaterialApp`). It injects the Ant scope and a derived Flutter `Theme`; `AntThemeData.light().toThemeData()` keeps Material widgets on the same tokens.
 
-只引入所需组件对应的包，依赖面最小化：
+## Packages
 
-```yaml
-dependencies:
-  antd_flutter_ui: ^0.1.0-beta.1 # 基础库（必引，含主题/令牌与通用组件）
-  antd_picker: ^0.1.0-beta.1     # 按需组件包
-```
+The umbrella aggregates the following 21 packages. Paths are relative to the repository root.
+
+### Foundations and base layer
+
+| Package | What it provides | Path |
+| --- | --- | --- |
+| `antd_color` | Color model, palettes and color parsing | `packages/antd_color` |
+| `antd_tokens` | Seed tokens, token algorithms, color maps and shadows | `packages/antd_tokens` |
+| `antd_theme` | `AntThemeData`, `AntScale`/`AntTheme`, shadows, breakpoints and screen adaptation | `packages/antd_theme` |
+| `antd_icons_flutter` | 850+ outlined/filled icon font, two-tone SVG support and `AntdIcon` | `packages/antd_icons_flutter` |
+| `antd_flutter_ui` | Base component layer and shared engines (popup, wheel picker, hotkeys) | `packages/antd_flutter_ui` |
+
+### Data entry and forms
+
+| Package | What it provides | Path |
+| --- | --- | --- |
+| `antd_form` | `AntForm` / `AntFormItem` / `AntFormController` with declarative validation | `packages/antd_form` |
+| `antd_picker` | Picker, date picker, time picker and cascader | `packages/antd_picker` |
+| `antd_upload` | File upload list with progress, preview and removal | `packages/antd_upload` |
+| `antd_keyboard` | Number keyboard, passcode input and virtual input | `packages/antd_keyboard` |
+| `antd_calendar` | Calendar, calendar picker and picker view | `packages/antd_calendar` |
+
+### Data display
+
+| Package | What it provides | Path |
+| --- | --- | --- |
+| `antd_table` | Sorting, filtering, fixed columns, selection, expansion, tree data, pagination, summaries and grouped headers | `packages/antd_table` |
+| `antd_tree` | Tree and tree-select with checkable nodes | `packages/antd_tree` |
+| `antd_transfer` | Transfer list and tree transfer | `packages/antd_transfer` |
+| `antd_carousel` | PageView carousel with autoplay, loop, dots, arrows, vertical mode and controller | `packages/antd_carousel` |
+| `antd_masonry` | Greedy-column masonry layout and sliver variant | `packages/antd_masonry` |
+| `antd_qrcode` | QR rendering with error levels, status overlays and center icon | `packages/antd_qrcode` |
+| `antd_image_viewer` | Fullscreen image preview with zoom, pan and paging | `packages/antd_image_viewer` |
+
+### Interaction and overlays
+
+| Package | What it provides | Path |
+| --- | --- | --- |
+| `antd_refresh` | Pull-to-refresh gesture state machine and indicator | `packages/antd_refresh` |
+| `antd_swipe_action` | Swipe action cells with configurable action buttons | `packages/antd_swipe_action` |
+| `antd_splitter` | Resizable split panels with constraints | `packages/antd_splitter` |
+| `antd_floating` | Floating panel and floating bubble | `packages/antd_floating` |
+
+The umbrella also re-exports selected entry points that are convenient at application level: `AntDatePicker` / `AntTimePicker` / `AntCascader` from `antd_picker`, `AntPullToRefresh` from `antd_refresh`, `AntTable`, `AntForm`, and `AntSwipeAction`.
+
+## Umbrella or standalone packages?
+
+| Situation | Recommendation |
+| --- | --- |
+| Application uses several component families | Use `antd_flutter_plus` — one dependency, one version to upgrade |
+| Prototype, demo or internal tool | Use `antd_flutter_plus` — fastest path from `pub get` to a running UI |
+| Only one capability is needed (e.g. QR codes, a table) | Depend on that package directly and skip the rest |
+| Sensitive to dependency graph, `pub get` time or package publishing constraints | Use standalone packages; add `antd_theme` and `antd_flutter_ui` only when the widgets need them |
+| You already depend on individual packages | Keep them; the umbrella is additive, not a replacement |
+
+Both paths share the same widgets and tokens, so migrating between them is a `pubspec.yaml` change plus import updates.
+
+## Theme and scaling
 
 ```dart
-import 'package:antd_flutter_ui/antd_flutter_ui.dart';
-import 'package:antd_picker/antd_picker.dart';
-
-AntButton(
-  child: const Text('按钮'),
-  onPressed: () {},
+AntTheme(
+  data: AntThemeData.light(scale: const AntScale(1.1)),
+  child: MaterialApp(
+    theme: AntThemeData.light().toThemeData(),
+    home: const HomePage(),
+  ),
 )
 ```
 
-## 包清单
+| API | Role |
+| --- | --- |
+| `AntThemeData.light()` / `.dark()` | Light or dark theme from the default seed |
+| `AntThemeData.fromSeed(seed, isDark: ...)` | Theme from a custom `AntSeedToken` |
+| `AntScale(factor)` | Fixed scale factor; `AntScale.none` equals `1.0` |
+| `AntScale.auto(context)` | Factor from the shortest side (base 375, clamped 0.9–1.2); desktop returns `AntScale.none` |
+| `AntTheme.of(context)` | Nearest `AntThemeData`, falling back to light |
+| `theme.s(value)` | Design value × scale factor |
 
-### 基础设施
+Size-related seed tokens are scaled once when `AntThemeData` is built; widgets call `theme.s(...)` for their own spacing and dimensions. Changing the factor in one place rescales typography, control heights, radii and spacing together — do not mix in `ScreenUtil` or hard-coded pixels.
 
-| 包 | 版本 | 说明 |
-| --- | --- | --- |
-| [antd_flutter_ui](packages/antd_flutter_ui/README.md) | 0.1.0-beta.1 | 基础库：共享引擎 + 通用组件层 |
-| [antd_tokens](packages/antd_tokens/README.md) | 1.0.0 | Design Token 系统（seed token / 令牌生成算法） |
-| [antd_theme](packages/antd_theme/README.md) | 1.0.0 | 主题系统（主题数据 / 阴影 / 断点 / 屏幕适配） |
-| [antd_color](packages/antd_color/README.md) | 1.0.0 | 颜色系统（FastColor / 色板生成 / 颜色解析） |
-| [antd_icons_flutter](packages/antd_icons_flutter/README.md) | 1.0.1 | 图标库（850+ 图标：outlined / filled / twotone） |
+## Example
 
-### 独立组件包
+The `example/` application is a gallery built with the umbrella package and `device_preview`. It has its own `pubspec.yaml`.
 
-| 包 | 版本 | 说明 |
-| --- | --- | --- |
-| [antd_calendar](packages/antd_calendar/README.md) | 0.1.0-beta.1 | Calendar 日历（月面板，桌面/移动双形态） |
-| [antd_carousel](packages/antd_carousel/README.md) | 0.1.0-beta.1 | Carousel 走马灯（自动播放 / 循环 / 指示点） |
-| [antd_floating](packages/antd_floating/README.md) | 0.1.0-beta.1 | Floating 浮动面板（拖拽 / 锚点吸附） |
-| [antd_form](packages/antd_form/README.md) | 0.1.0-beta.1 | Form 表单（受控/非受控 + 校验规则） |
-| [antd_image_viewer](packages/antd_image_viewer/README.md) | 0.1.0-beta.1 | ImageViewer 图片预览（双指缩放 / 平移 / 多图切换） |
-| [antd_keyboard](packages/antd_keyboard/README.md) | 0.1.0-beta.1 | 虚拟键盘族（通用键盘引擎 / NumberKeyboard 等） |
-| [antd_masonry](packages/antd_masonry/README.md) | 0.1.0-beta.1 | Masonry 瀑布流（最短列贪心分布） |
-| [antd_picker](packages/antd_picker/README.md) | 0.1.0-beta.1 | Picker 选择器族（Picker / DatePicker / TimePicker / Cascader） |
-| [antd_qrcode](packages/antd_qrcode/README.md) | 0.1.0-beta.1 | QRCode 二维码（纠错级别 / 状态遮罩） |
-| [antd_refresh](packages/antd_refresh/README.md) | 0.1.0-beta.1 | PullToRefresh 下拉刷新（手势状态机） |
-| [antd_splitter](packages/antd_splitter/README.md) | 0.1.0-beta.1 | Splitter 分隔面板（拖拽分割 / 最小尺寸约束） |
-| [antd_swipe_action](packages/antd_swipe_action/README.md) | 0.1.0-beta.1 | SwipeAction 滑动操作（左滑/右滑操作按钮） |
-| [antd_table](packages/antd_table/README.md) | 0.1.0-beta.1 | Table 表格（排序 / 筛选 / 固定列头 / 行选择） |
-| [antd_transfer](packages/antd_transfer/README.md) | 0.1.0-beta.1 | Transfer 穿梭框（双面板多选） |
-| [antd_tree](packages/antd_tree/README.md) | 0.1.0-beta.1 | Tree / TreeSelect（展开折叠 / 选择 / 复选） |
-| [antd_upload](packages/antd_upload/README.md) | 0.1.0-beta.1 | Upload 上传（文件列表 / 进度） |
+```bash
+cd example
+flutter pub get
+flutter run -d chrome    # or: flutter run -d macos
+```
 
-## 文档
+## Resources
 
-- [官网](https://flutter-open.github.io/antd-flutter/)
-- [图标 Gallery](https://flutter-open.github.io/antd-flutter/icons/)
-- [GitHub](https://github.com/flutter-open/antd-flutter)
-- [GitCode](https://gitcode.com/antd-flutter/antd-flutter)
-- [问题反馈](https://github.com/flutter-open/antd-flutter/issues)
+| Resource | URL |
+| --- | --- |
+| Documentation site | https://flutter-open.github.io/antd-flutter/ |
+| Icon gallery | https://flutter-open.github.io/antd-flutter/icons/ |
+| Repository | https://github.com/flutter-open/antd-flutter |
+| Issue tracker | https://github.com/flutter-open/antd-flutter/issues |
+
+## Project structure
+
+```text
+antd-flutter/
+├── lib/
+│   ├── antd_flutter_plus.dart        # Umbrella barrel
+│   └── src/platform/                 # AntPlatform and OHOS channel bridge
+├── packages/                         # 21 packages
+│   ├── antd_color/
+│   ├── antd_tokens/
+│   ├── antd_theme/
+│   ├── antd_icons_flutter/
+│   ├── antd_flutter_ui/
+│   ├── antd_form/
+│   ├── antd_picker/
+│   ├── antd_table/
+│   └── ...
+├── example/                          # Gallery application
+├── test/                             # Platform and cross-package integration tests
+├── pubspec.yaml
+└── README.md
+```
+
+## Versioning
+
+The suite follows one version line: every package is released at `1.0.0` (`antd_icons_flutter` at `1.0.1` for an icon-asset patch), and the umbrella declares `^1.0.0` dependencies plus path overrides for the monorepo. Breaking changes to any package bump the suite together.
 
 ## License
 
-MIT
+MIT License. See [LICENSE](LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

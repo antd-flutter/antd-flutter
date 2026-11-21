@@ -8,7 +8,10 @@
 class AntTreeSelectOption
 ```
 
-树节点数据结构
+旧版树选择选项模型。
+
+已废弃：`AntTreeSelect` 现在通过 `dataSource` + `keyOf` / `labelOf` /
+`titleBuilder` / `childrenOf` / `disabledOf` 直接消费用户模型。
 
 ## 构造函数
 
@@ -25,14 +28,14 @@ class AntTreeSelectOption
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `children` | `List<AntTreeSelectOption>?` | 子节点 |
+| `children` | `List<AntTreeSelectOption>?` | 子选项 |
 | `disabled` | `bool` | 是否禁用 |
-| `label` | `String` | 节点显示文本 |
-| `value` | `String` | 节点值 |
+| `label` | `String` | 选项文本 |
+| `value` | `String` | 选项值 |
 
 ## 属性
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `isLeaf` | `bool` | 是否叶子节点（无子节点或子节点为空） |
+| `isLeaf` | `bool` | 是否叶子 |
 

@@ -8,7 +8,8 @@
 class AntCheckListItem
 ```
 
-复选列表项
+复选列表项（旧模型，自 1.x 起推荐直接用
+`AntCheckList<T>(items: List<T>)` 配合 `labelOf` / `labelBuilder`）。
 
 ## 构造函数
 

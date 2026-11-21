@@ -1,3 +1,10 @@
-# 更新日志
+# Changelog
 
-正式版本更新记录将在此处维护。
+## 1.0.0
+
+- Initial stable release of `antd_flutter_plus`, the umbrella package for Ant Design Flutter.
+- Aggregates 21 packages: `antd_color`, `antd_tokens`, `antd_theme`, `antd_icons_flutter`, `antd_flutter_ui`, `antd_qrcode`, `antd_refresh`, `antd_swipe_action`, `antd_calendar`, `antd_splitter`, `antd_image_viewer`, `antd_upload`, `antd_picker`, `antd_form`, `antd_tree`, `antd_carousel`, `antd_masonry`, `antd_floating`, `antd_keyboard`, `antd_table` and `antd_transfer`.
+- Re-exports the public libraries of every aggregated package, plus selected application-level entry points for pickers, refresh, table, form and swipe actions.
+- Unified version line: all packages release at `1.0.0`, with `antd_icons_flutter` at `1.0.1` for icon assets; the umbrella constrains dependencies with `^1.0.0`.
+- Platform layer: `AntPlatform` runtime classification (web, mobile, desktop, OHOS), the OHOS fold-state channel bridge, and `AntResponsiveInit` for wiring responsive state.
+- Layered dependency model: foundations → `antd_flutter_ui` → independent feature packages, with no dependencies between feature packages.

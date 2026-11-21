@@ -8,5 +8,5 @@
 const double kAntKeyboardMinTouchTarget
 ```
 
-移动端触控目标下限（iOS HIG / Material 无障碍最低触控尺寸）
+触控目标最小尺寸（移动端可点击区域不得小于 44×44）。
 

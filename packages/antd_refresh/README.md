@@ -1,82 +1,192 @@
-# antd_refresh
+# antd_refresh - Pull-to-refresh and infinite scroll for touch and desktop
 
-Ant Design 滚动刷新的 Flutter 组件包，API 对齐 antd-mobile v5 — 包含下拉刷新（`AntPullToRefresh`）与无限滚动加载（`AntInfiniteScroll`）两个独立控件。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_refresh/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_refresh/README_CN.md)
 
-> 当前为预览版本。
+`antd_refresh` provides two independent, composable scroll interactions:
 
-## 安装
+- `AntPullToRefresh` — pull down (or up) to refresh, aligned with antd-mobile v5 PullToRefresh. It never loads more pages.
+- `AntInfiniteScroll` — load the next page when the scroll reaches the bottom, aligned with the InfiniteScroll pattern. It never refreshes.
+
+Either works alone; wrapping an `AntInfiniteScroll` in an `AntPullToRefresh` gives the familiar "pull to refresh + scroll to load" list. Both drive the scroll view you supply as `child`, so they work with `ListView`, `CustomScrollView`, `NestedScrollView` and `SingleChildScrollView` without replacing your list implementation.
+
+## Positioning & design
+
+| Aspect | Decision |
+| --- | --- |
+| Scope | Refresh and load-more are separate widgets; compose them instead of configuring one mega-widget |
+| Direction | `pointer` selects a top or bottom pull edge for refresh; load-more always reacts at the scroll end |
+| Input | Touch overscroll on mobile; accumulated mouse-wheel overscroll with a 400 ms settle on desktop and web |
+| Constraints | Both are wrappers: `child` must contain a bounded, scrollable widget |
+| Slivers | Not required. The widgets wrap a scroll view, they do not build slivers |
+| Physics | Platform physics are preserved; `AlwaysScrollableScrollPhysics` is added so short or empty lists still pull |
+| Text | Built-in strings in 11 languages, with per-instance overrides |
+| Control | `AntPullToRefreshController.callRefresh()` and `AntInfiniteScrollController.callLoadMore()` / `reset()` |
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_refresh: ^0.1.0-beta.1
+  antd_refresh: ^1.0.0
 ```
 
-## 用法
+Inside this monorepo:
+
+```yaml
+dependencies:
+  antd_refresh:
+    path: ../packages/antd_refresh
+```
+
+## Quick start
 
 ```dart
 import 'package:antd_refresh/antd_refresh.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 下拉刷新（只刷新） ───────────────────────────────────
-AntPullToRefresh(
-  onRefresh: () async {
-    await Future<void>.delayed(const Duration(seconds: 1));
-  },
-  child: ListView(children: const [Text('item')]),
-);
+void main() => runApp(const RefreshApp());
 
-// ── 上拉加载（只加载更多） ───────────────────────────────
-AntInfiniteScroll(
-  loadMore: () async => items.addAll(await fetchPage()),
-  child: Column(children: [...]),
-);
+class RefreshApp extends StatelessWidget {
+  const RefreshApp({super.key});
 
-// ── 组合：下拉刷新 + 上拉加载 ────────────────────────────
-AntPullToRefresh(
-  onRefresh: _refresh,
-  child: AntInfiniteScroll(
-    loadMore: _loadMore,
-    child: ListView(children: items.map(Text.new).toList()),
-  ),
-);
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: const MaterialApp(home: FeedPage()),
+    );
+  }
+}
 
-// ── 下拉刷新关键参数 ─────────────────────────────────────
-AntPullToRefresh(
-  onRefresh: _refresh,
-  headHeight: 60,                     // 头部高度
-  threshold: 80,                      // 触发刷新的下拉阈值
-  pointer: AntPullToRefreshPointer.top, // 顶部下拉（支持桌面滚轮）
-  enableRefresh: true,
-  child: _list,
-);
+class FeedPage extends StatefulWidget {
+  const FeedPage({super.key});
 
-// ── 国际化（内建轻量 locale 机制，默认中文，未命中回退中文）──
-// 1. 跟随系统语言（locale 不传即跟随 platformDispatcher.locale）
-AntPullToRefresh(onRefresh: _refresh, child: _list);
+  @override
+  State<FeedPage> createState() => _FeedPageState();
+}
 
-// 2. 显式指定语言（zh / en / ja / ko / fr / de / es / ru / pt / it / ar）
-AntPullToRefresh(locale: Locale('en'), onRefresh: _refresh, child: _list);
+class _FeedPageState extends State<FeedPage> {
+  List<int> _items = List<int>.generate(20, (i) => i);
 
-// 3. 显式文案最优先，仅覆盖对应字段
-AntPullToRefresh(
-  locale: Locale('en'),
-  pullingText: 'Pull!',
-  onRefresh: _refresh,
-  child: _list,
-);
+  Future<void> _refresh() async {
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    setState(() => _items = List<int>.generate(20, (i) => -i - 1));
+  }
 
-// 4. 整体自定义文案（可基于 copyWith 覆写个别字段）
-AntPullToRefresh(
-  strings: AntRefreshStrings.en.copyWith(completeText: 'Done!'),
-  onRefresh: _refresh,
-  child: _list,
-);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Feed')),
+      body: AntPullToRefresh(
+        onRefresh: _refresh,
+        child: ListView.builder(
+          itemCount: _items.length,
+          itemBuilder: (context, index) => ListTile(
+            title: Text('Item ${_items[index]}'),
+          ),
+        ),
+      ),
+    );
+  }
+}
 ```
 
-## 文档与演示
+Pull down on the list: the header expands, `onRefresh` runs, the spinner shows while the future is pending, then the header bounces back.
 
-- [API 文档总览](docs/api-index.md)
-- 在线演示：<https://flutter-open.github.io/antd-flutter/refresh/>
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_refresh/docs/api-index.md)
+
+Refresh an existing scroll view:
+
+```dart
+AntPullToRefresh(
+  onRefresh: () async {
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+  },
+  child: ListView(
+    children: const [ListTile(title: Text('Item'))],
+  ),
+)
+```
+
+Load more pages at the end of the list:
+
+```dart
+AntInfiniteScroll(
+  loadMore: () async {
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    return false; // no more pages
+  },
+  child: ListView.builder(
+    itemCount: 20,
+    itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+  ),
+)
+```
+
+Trigger a refresh programmatically through a controller:
+
+```dart
+final AntPullToRefreshController _controller =
+    AntPullToRefreshController();
+
+Future<void> refreshNow() => _controller.callRefresh();
+
+Widget buildFeed() {
+  return AntPullToRefresh(
+    controller: _controller,
+    onRefresh: () async {},
+    child: ListView(
+      children: const [ListTile(title: Text('Item'))],
+    ),
+  );
+}
+```
+
+## Project structure
+
+```text
+antd_refresh/
+├── lib/
+│   ├── antd_refresh.dart                        # Public barrel
+│   └── src/
+│       ├── ant_refresh_controller.dart          # Controller hierarchy
+│       ├── pull_to_refresh/
+│       │   ├── ant_pull_to_refresh.dart         # AntPullToRefresh
+│       │   ├── ant_pull_to_refresh_header.dart  # Head layout + indicator
+│       │   ├── ant_pull_to_refresh_notifier.dart# Gesture state machine
+│       │   └── ant_pull_to_refresh_types.dart   # Status/pointer enums, constants
+│       ├── infinite_scroll/
+│       │   ├── ant_infinite_scroll.dart         # AntInfiniteScroll
+│       │   └── ant_infinite_scroll_types.dart   # Defaults
+│       └── l10n/
+│           └── ant_refresh_strings.dart         # 11 built-in languages
+├── example/lib/main.dart                        # Demo gallery
+├── test/
+│   ├── ant_pull_to_refresh_test.dart
+│   ├── ant_refresh_controller_test.dart
+│   ├── ant_refresh_strings_test.dart
+│   ├── combo_ptr_infinite_test.dart
+│   └── infinite_scroll/ant_infinite_scroll_test.dart
+├── docs/api-index.md
+├── README.md
+├── README_CN.md
+├── CHANGELOG.md
+└── pubspec.yaml
+```
 
 ## License
 
-MIT License，详见仓库根 [LICENSE](../../LICENSE)。
+MIT. See the repository root [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

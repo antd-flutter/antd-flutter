@@ -8,7 +8,10 @@
 class AntImageUploadItem
 ```
 
-图片上传项
+图片上传项（现成模型）。
+
+也可以直接传 `List<String>`（图片地址）或任意业务模型，配合
+`AntImageUploader<T>(urlOf: ..., statusOf: ..., itemBuilder: ...)`。
 
 ## 构造函数
 

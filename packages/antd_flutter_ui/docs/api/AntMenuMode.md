@@ -14,7 +14,7 @@ enum AntMenuMode
 
 | 名称 | 说明 |
 | --- | --- |
-| `inline` | 内嵌模式（子菜单展开/折叠） |
-| `vertical` | 垂直模式 |
-| `horizontal` | 水平模式 |
+| `vertical` | 垂直模式（子菜单以浮层展开） |
+| `inline` | 内嵌模式（子菜单就地展开/折叠） |
+| `horizontal` | 水平模式（顶部导航，子菜单以浮层展开） |
 

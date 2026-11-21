@@ -15,14 +15,18 @@ class AntCascaderView
 
 ## 构造函数
 
-### `AntCascaderView({super.key, this.options = const [], this.value, this.defaultValue = const [], this.onChange, this.placeholder = '请选择', this.onTabsChange, this.activeIcon, this.height})`
+### `AntCascaderView({super.key, required this.keyOf, this.dataSource = const [], this.childrenOf, this.labelBuilder, this.disabledOf, this.value, this.defaultValue = const [], this.onChange, this.placeholder = '请选择', this.onTabsChange, this.activeIcon, this.height})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `options` | `List<AntCascaderOption>` | = const [] | — |
-| `value` | `List<String>?` | 可选 | — |
-| `defaultValue` | `List<String>` | = const [] | — |
-| `onChange` | `void Function(List<String> value, List<AntCascaderOption?> items)?` | 可选 | — |
+| `keyOf` | `AntCascaderKeyOf<T>` | 可选 | — |
+| `dataSource` | `List<T>` | = const [] | — |
+| `childrenOf` | `AntCascaderChildrenOf<T>?` | 可选 | — |
+| `labelBuilder` | `AntCascaderLabelBuilder<T>?` | 可选 | — |
+| `disabledOf` | `AntCascaderDisabledOf<T>?` | 可选 | — |
+| `value` | `List<Object>?` | 可选 | — |
+| `defaultValue` | `List<Object>` | = const [] | — |
+| `onChange` | `AntCascaderViewOnChange<T>?` | 可选 | — |
 | `placeholder` | `String` | = '请选择' | — |
 | `onTabsChange` | `ValueChanged<int>?` | 可选 | — |
 | `activeIcon` | `Widget?` | 可选 | — |
@@ -33,17 +37,21 @@ class AntCascaderView
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
 | `activeIcon` | `Widget?` | 自定义选中图标 |
-| `defaultValue` | `List<String>` | 非受控默认值 |
+| `childrenOf` | `AntCascaderChildrenOf<T>?` | 从模型取子节点 |
+| `dataSource` | `List<T>` | 级联选项树 |
+| `defaultValue` | `List<Object>` | 非受控默认值（路径数组，元素可为 T 或 key） |
+| `disabledOf` | `AntCascaderDisabledOf<T>?` | 选项禁用判断 |
 | `height` | `double?` | 内容区高度 |
-| `onChange` | `void Function(List<String> value, List<AntCascaderOption?> items)?` | 值变化回调，附带已选选项数组（未选层级为 null） |
+| `keyOf` | `AntCascaderKeyOf<T>` | 从模型取唯一标识 |
+| `labelBuilder` | `AntCascaderLabelBuilder<T>?` | 选项自定义渲染 |
+| `onChange` | `AntCascaderViewOnChange<T>?` | 值变化回调，附带逐层已选模型（未选层级为 null） |
 | `onTabsChange` | `ValueChanged<int>?` | 切换层级 Tab 回调 |
-| `options` | `List<AntCascaderOption>` | 级联选项树 |
 | `placeholder` | `String` | 未选择层级的占位文本 |
-| `value` | `List<String>?` | 受控值（路径数组，如 'zj', 'hz'） |
+| `value` | `List<Object>?` | 受控值（路径数组，元素可为 T 或 key） |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntCascaderView>` | — |
+| `createState` | `State<AntCascaderView<T>>` | — |
 

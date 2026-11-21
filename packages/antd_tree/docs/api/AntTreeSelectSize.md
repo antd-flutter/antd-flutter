@@ -8,13 +8,13 @@
 enum AntTreeSelectSize
 ```
 
-树选择尺寸
+选择器尺寸。
 
 ## 枚举值
 
 | 名称 | 说明 |
 | --- | --- |
-| `large` | 大号 |
-| `middle` | 中号（默认） |
-| `small` | 小号 |
+| `large` | 大 |
+| `middle` | 中 |
+| `small` | 小 |
 

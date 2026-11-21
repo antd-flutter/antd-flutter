@@ -8,12 +8,12 @@
 enum AntCascaderExpandTrigger
 ```
 
-次级菜单展开触发方式
+次级菜单展开触发方式。
 
 ## 枚举值
 
 | 名称 | 说明 |
 | --- | --- |
-| `click` | 点击展开 |
-| `hover` | 悬停展开 |
+| `click` | — |
+| `hover` | — |
 

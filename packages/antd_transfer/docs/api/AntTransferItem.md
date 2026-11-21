@@ -8,9 +8,10 @@
 class AntTransferItem
 ```
 
-穿梭框数据项
+旧版穿梭框数据项。
 
-传入 `children` 即为树形（TreeTransfer）模式；不传则保持扁平列表模式。
+已废弃：`AntTransfer` 现在直接消费用户模型 `T`，通过 `keyOf` /
+`titleBuilder` / `descriptionOf` / `childrenOf` / `disabledOf` 读取数据。
 
 ## 构造函数
 

@@ -223,8 +223,12 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 > 用户 2026-11-21 指定：**所有任务完成后**再开始；先产出/细化任务书 `docs/plan/tasks/P09-calendar-platform-split.md`，按 C0 调研矩阵 → C1 抽共享核心 → C2 桌面（antd v6）→ C3 移动（antd-mobile v5）→ C4 兼容与整合判定 → C5 双端示例与视觉验收 → C6 收口 逐阶段执行，每阶段独立提交可验收。
 > 关键约束：逻辑共享、渲染分平台（禁止在渲染代码里 `if (isMobile)` 打补丁）；现有 week/twoWeeks/multiSelect 等非 antd 增强收敛为扩展能力；桌面无 CalendarPicker。
 
-### 批次 4：发布 1.0.0
-CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
+### 批次 4：发布 1.0.0 —— 准备完成，待用户决定发布
+- 版本：21 包 `1.0.0`（`antd_icons_flutter` 1.0.1），根伞包 `1.0.0`；依赖约束统一 `^1.0.0`
+- 文档：21 包双语 README + 英文 CHANGELOG；`gen_docs` 全量通过（缺失 0/多余 0/人工残留 0）
+- 可发布性：每包补 LICENSE、`.pubignore`（排除 build/doc/example 产物），`publish_to: none` 仅保留在 example；`dependency_overrides` 迁至 `pubspec_overrides.yaml`（不入发布包）
+- 校验：22 个包 analyze 全绿、测试全绿；22 个包 `dart pub publish --dry-run` 无阻断项
+- 待办：合并 develop → master、CI 全绿后由用户决定是否 `pub publish`
 
 
 ## 七、遗留问题登记
@@ -246,6 +250,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-22 | **1.0.0 发布准备**：文档体系重写（21 包双语 README、英文 CHANGELOG、API 仅链到本包 docs/api-index.md、去除测试/注意事项章节、补咖啡段）；版本统一 1.0.0；补 LICENSE 与 .pubignore；`dependency_overrides` 迁至 `pubspec_overrides.yaml`；gitignore 忽略 pubspec.lock；example 去开发状态标；gen_docs 全绿；22 包 analyze/test 全绿、publish dry-run 无阻断 |
 | 2026-11-21 | **移除 flutter_screenutil，改用 AntScale 统一缩放因子**：新增 `AntScale`/`AntThemeData.s()`，seed 尺寸 token 随因子缩放；全库 2323 处 `.w/.h/.sp/.r` 清零（components/examples/tests），删除 `flutter_screenutil` 依赖与 `AntScreenUtilInit` 实际逻辑（保留 deprecated 直通包装），删除 ScreenUtil 演示页；新增规则 R41。ui 1540、root example 59、21 包与 20 个示例 analyze/test 全绿 |
 | 2026-11-21 | **P09 Calendar 双端拆分立项（排队）**：用户要求按平台各实现一套 UI、功能分别对齐 antd v6 / antd-mobile v5，等全部任务完成后开始；任务书 `P09-calendar-platform-split.md`（C0–C6 分阶段） |
 | 2026-11-21 | **数据参数全面泛型化（破坏性）**：Table/Tree/TreeSelect/Transfer/Picker/Cascader/PickerView/Upload/Select/Radio/Checkbox/CheckList/Selector/Segmented/AutoComplete/Mentions/Slider/ColorPicker/ImageUploader/Tabs 家族/SideBar/IndexBar/Menu/Steps/Anchor/Breadcrumb/List/Timeline/Descriptions/Collapse/Tour/Card 改为 `<T>` + builder 数据源，删除 dataIndex/Ant*Item 强约束；新增规则 R40 与两份任务文档；ui 测试 1540、root example 59、各独立包全绿 |

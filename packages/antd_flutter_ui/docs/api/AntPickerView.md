@@ -16,10 +16,10 @@ class AntPickerView
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `columns` | `List<AntPickerColumn>` | 可选 | — |
-| `value` | `List<AntPickerValue>?` | 可选 | — |
-| `defaultValue` | `List<AntPickerValue>` | = const [] | — |
-| `onChange` | `ValueChanged<List<AntPickerValue>>?` | 可选 | — |
+| `columns` | `List<AntPickerColumn<T>>` | 可选 | — |
+| `value` | `List<Object?>?` | 可选 | — |
+| `defaultValue` | `List<Object?>` | = const [] | — |
+| `onChange` | `ValueChanged<List<T>>?` | 可选 | — |
 | `itemHeight` | `double` | = 40 | — |
 | `height` | `double` | = 240 | — |
 
@@ -27,16 +27,16 @@ class AntPickerView
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `columns` | `List<AntPickerColumn>` | 列数据 |
-| `defaultValue` | `List<AntPickerValue>` | 非受控初始值 |
+| `columns` | `List<AntPickerColumn<T>>` | 列数据 |
+| `defaultValue` | `List<Object?>` | 非受控初始值（元素可为 T 或 key） |
 | `height` | `double` | 整体高度 |
 | `itemHeight` | `double` | 单项高度 |
-| `onChange` | `ValueChanged<List<AntPickerValue>>?` | 选中变化回调 |
-| `value` | `List<AntPickerValue>?` | 受控值（各列选中值） |
+| `onChange` | `ValueChanged<List<T>>?` | 选中变化回调（返回各列选中的模型） |
+| `value` | `List<Object?>?` | 受控值（各列选中值，元素可为 T 或 key） |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntPickerView>` | — |
+| `createState` | `State<AntPickerView<T>>` | — |
 

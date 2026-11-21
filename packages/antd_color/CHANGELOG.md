@@ -1,12 +1,11 @@
-# 更新日志
+# Changelog
 
 ## 1.0.0
 
-首个正式版（stable）。API 与 0.1.0-beta.1 相比**无破坏性变更**。
-
-- **AntFastColor** — [`@ant-design/fast-color`](https://github.com/ant-design/fast-color) v3 精确移植：hex / rgb / hsl / hsv 解析，lighten / darken / mix / tint / shade / alpha 调整与各格式互转
-- **antGeneratePalette** — Ant Design 标志性 10 阶色板生成（step1 ~ step10），支持暗色主题（dark + backgroundColor）
-- **预设色板** — 13 组 Ant Design 预设色（red / volcano / orange / gold / yellow / lime / green / cyan / blue / geekblue / purple / magenta / grey），含暗色变体
-- **AntColor** — 色板包装类：fromSeed / fromSeedDark，按 step（1-10）访问 hex 与 Flutter `Color`
-- **antParseColor** — CSS 颜色字符串 → Flutter `Color`
-- 测试：33 个测试用例全量通过（与移植源测试基线一致）
+- Added `AntFastColor`, a mutable RGBA color type with parsing for hex (`#rgb`, `#rrggbb`, `#rrggbbaa`, optional `#`), `rgb()`/`rgba()`, `hsl()`/`hsla()`, and `hsv()`/`hsb()` values, plus `AntRgb`/`AntHsl`/`AntHsv` models and polymorphic `AntFastColor.of` construction.
+- Added color manipulation and inspection on `AntFastColor`: `lighten`, `darken`, `mix`, `tint`, `shade`, `onBackground`, `setR`/`setG`/`setB`/`setA`, luminance, hue, saturation, lightness, value, brightness, `isDark`/`isLight`, `clone`, and hex/rgb/hsl/hsv conversions.
+- Added `antGeneratePalette` for 10-step light and dark palettes derived from antd's fixed mapping tables, with the main color at index 5.
+- Added `AntPaletteOptions` to select the dark mapping table and override its background color.
+- Added `AntColor` with `fromSeed`, `fromSeedDark`, `fromRawPalette`, `fromRawPaletteDark`, and `fromMapped`, exposing `step1`–`step10`, `step1Color`–`step10Color`, `main`, `mainColor`, `palette`, and step indexing.
+- Added `AntPresetColors` with the 13 antd preset seeds and `antGeneratePresetPalettes` for bulk light or dark preset maps.
+- Added `antParseColor` for `#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`, and `rgba()` strings, falling back to opaque black for unsupported input.

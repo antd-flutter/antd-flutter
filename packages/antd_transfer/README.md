@@ -1,60 +1,219 @@
-# antd_transfer
+# antd_transfer - Generic transfer and tree transfer for Flutter
 
-Ant Design (antd-mobile) Transfer 穿梭框的 Flutter 实现 — AntTransfer（双栏穿梭）、AntTransferItem（数据项，携带 children 即为树形 TreeTransfer 模式），支持多选、受控/非受控、搜索过滤、禁用项、oneWay 单向模式，以及多级树形穿梭（父子勾选联动、半选 indeterminate、禁用子树联动、树模式搜索过滤），API 对齐 antd Transfer / TreeTransfer。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_transfer/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_transfer/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-> R33 判定：穿梭框为固定布局类组件（双栏列表，非滚动场景），不需要 sliver 支持。
+`antd_transfer` implements the Ant Design Transfer interaction over **your own model `T`**. It renders a source pane and a target pane with checkbox selection, move and return operations, optional search, and one-way mode. When an item exposes children through `childrenOf`, the same widget becomes a tree transfer with parent/child check cascading, an indeterminate half-checked state, and subtree moves.
 
-> 归属边界（读码评估）：AntCheckbox（含 indeterminate 半选状态）为 ui 共享基础组件，留在 `antd_flutter_ui` 不迁，本包经 ui barrel 引用（依赖核对结论：AntCheckbox 依赖无法解除，保留 antd_flutter_ui 依赖）。
+The data layer is deliberately thin. There is no wrapper item class and no `Map` row: the widget reads your objects through small callbacks (`keyOf`, `titleBuilder`, `descriptionOf`, `childrenOf`, `disabledOf`, `searchTextOf`), and every callback and controlled prop speaks in keys rather than object instances.
 
-## 安装
+Design rules:
+
+- **Keys carry state.** `targetKeys`, `selectedKeys`, and every move callback use the values returned by `keyOf`.
+- **The widget never mutates your data.** `targetKeys` and `selectedKeys` are controlled when non-null; the matching `default*` props seed uncontrolled usage.
+- **Tree mode is inferred.** A node whose `childrenOf` returns a non-empty list becomes a branch; there is no separate tree widget or mode switch.
+- **Rendering is self-contained.** Pane chrome, borders, and metrics come from `AntTheme`; the package depends on `antd_theme`, `antd_icons_flutter`, and `antd_flutter_ui` for the shared checkbox primitive.
+
+## Installation
+
+Requires Dart `>=3.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_transfer: ^0.1.0-beta.1
+  antd_transfer: ^1.0.0
 ```
 
-## 用法
+Wrap the app (or the subtree that uses the widget) in `AntTheme` so the panes pick up colors, borders, and scaling:
 
 ```dart
-import 'package:antd_transfer/antd_transfer.dart';
-
-// ── 基础穿梭 ────────────────────────────────────────────
-AntTransfer(
-  dataSource: [
-    AntTransferItem(key: 'a', title: '选项 A'),
-    AntTransferItem(key: 'b', title: '选项 B'),
-    AntTransferItem(key: 'c', title: '选项 C'),
-  ],
-  onChange: (targetKeys, direction, moveKeys) => print(targetKeys),
-)
-
-// ── 多级树形穿梭（TreeTransfer）：数据项携带 children 即树形模式 ──
-AntTransfer(
-  dataSource: [
-    AntTransferItem(key: 'g1', title: '分组 1', children: [
-      AntTransferItem(key: 'a', title: '选项 A'),
-      AntTransferItem(key: 'b', title: '选项 B'),
-    ]),
-    AntTransferItem(key: 'g2', title: '分组 2', children: [
-      AntTransferItem(key: 'c', title: '选项 C'),
-    ]),
-  ],
-  defaultExpandAll: true,
-  showSearch: true,
-  onChange: (targetKeys, direction, moveKeys) => print(targetKeys),
+AntTheme(
+  data: AntThemeData.light(),
+  child: MaterialApp(home: YourPage()),
 )
 ```
 
-完整演示见 `example/`（基础穿梭 / 多选 / 受控 / 禁用项 / 多级树形穿梭（勾父带子/半选/树形展示）/ 搜索过滤 / 自定义渲染，R35.4 断点适配 + 暗色切换）。
+## Quick start
 
-## 迁移说明（P08 批次）
+```dart
+import 'package:antd_theme/antd_theme.dart';
+import 'package:antd_transfer/antd_transfer.dart';
+import 'package:material_ui/material_ui.dart';
 
-- 从 `antd_flutter_ui`（data_entry/transfer）迁出，多级 TreeTransfer 增强随迁，`///` 文档注释完整随迁，源码零修改（仅 import 调整）。
-- 主包 `antd_flutter_plus` 经 re-export 保持符号兼容。
-- 依赖方向：antd_transfer → antd_flutter_ui → antd_theme/tokens/color/icons，不依赖其他独立组件包。
+class FileItem {
+  const FileItem(
+    this.id,
+    this.name, {
+    this.description,
+    this.disabled = false,
+    this.children = const <FileItem>[],
+  });
+
+  final int id;
+  final String name;
+  final String? description;
+  final bool disabled;
+  final List<FileItem> children;
+}
+
+const source = <FileItem>[
+  FileItem(1, 'Design.fig', description: 'Figma'),
+  FileItem(2, 'Spec.md', description: 'Markdown'),
+  FileItem(3, 'Budget.xlsx', description: 'Spreadsheet', disabled: true),
+];
+
+void main() => runApp(
+      AntTheme(
+        data: AntThemeData.light(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                height: 320,
+                child: AntTransfer<FileItem>(
+                  dataSource: source,
+                  keyOf: (item) => item.id,
+                  titleBuilder: (context, item) => Text(item.name),
+                  descriptionOf: (item) => item.description,
+                  defaultTargetKeys: const <Object>[2],
+                  onChange: (targetKeys, direction, moveKeys) {
+                    debugPrint('$direction moved $moveKeys -> $targetKeys');
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+```
+
+The widget shows two panes with a transfer button. `Spec.md` starts on the target side, and the disabled `Budget.xlsx` row can neither be selected nor moved.
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_transfer/docs/api-index.md)
+
+### 1. Controlled target keys and selection
+
+```dart
+class ControlledTransfer extends StatefulWidget {
+  const ControlledTransfer({super.key});
+
+  @override
+  State<ControlledTransfer> createState() => _ControlledTransferState();
+}
+
+class _ControlledTransferState extends State<ControlledTransfer> {
+  List<Object> _targetKeys = <Object>[2];
+  List<Object> _selectedKeys = <Object>[];
+
+  @override
+  Widget build(BuildContext context) {
+    return AntTransfer<FileItem>(
+      dataSource: source,
+      keyOf: (item) => item.id,
+      titleBuilder: (context, item) => Text(item.name),
+      targetKeys: _targetKeys,
+      selectedKeys: _selectedKeys,
+      onChange: (targetKeys, direction, moveKeys) {
+        setState(() => _targetKeys = targetKeys);
+      },
+      onSelectChange: (sourceSelected, targetSelected) {
+        setState(() {
+          _selectedKeys = <Object>[...sourceSelected, ...targetSelected];
+        });
+      },
+    );
+  }
+}
+```
+
+Once `targetKeys` is supplied the owner must write the next list back in `onChange`; otherwise the panes keep rendering the previous ownership.
+
+### 2. Tree transfer from a custom model
+
+```dart
+const tree = <FileItem>[
+  FileItem(
+    10,
+    'Design',
+    children: [
+      FileItem(11, 'UI.fig'),
+      FileItem(12, 'Icons.svg'),
+    ],
+  ),
+  FileItem(
+    20,
+    'Engineering',
+    children: [
+      FileItem(21, 'API.md'),
+      FileItem(22, 'Schema.sql', disabled: true),
+    ],
+  ),
+];
+
+AntTransfer<FileItem>(
+  dataSource: tree,
+  keyOf: (item) => item.id,
+  titleBuilder: (context, item) => Text(item.name),
+  childrenOf: (item) => item.children,
+  disabledOf: (item) => item.disabled,
+  defaultExpandAll: true,
+  defaultTargetKeys: const <Object>[11, 21],
+  onChange: (targetKeys, direction, moveKeys) {
+    debugPrint('tree move $direction: $moveKeys');
+  },
+)
+```
+
+Checking `Design` checks both of its children. A partly checked branch reports the indeterminate state. Moving a branch moves its whole subtree, while the disabled `Schema.sql` is excluded from selection and moves.
+
+### 3. Search and one-way mode
+
+```dart
+AntTransfer<FileItem>(
+  dataSource: source,
+  keyOf: (item) => item.id,
+  titleBuilder: (context, item) => Text(item.name),
+  descriptionOf: (item) => item.description,
+  titles: const ['Available files', 'Attached'],
+  operations: const ['Attach', ''],
+  showSearch: true,
+  oneWay: true,
+  filterOption: (input, item) =>
+      item.name.toLowerCase().contains(input.toLowerCase()),
+  onChange: (targetKeys, direction, moveKeys) {
+    debugPrint('attached $moveKeys');
+  },
+)
+```
+
+`oneWay: true` hides the return operation so items can only move to the target pane. An empty string in `operations` keeps the icon-only button for that direction.
+
+## Project structure
+
+```text
+packages/antd_transfer/
+├── lib/
+│   ├── antd_transfer.dart              # barrel export
+│   └── src/transfer/
+│       ├── ant_transfer.dart           # panes, selection, moves, tree logic
+│       └── ant_transfer_types.dart     # direction enum and callback typedefs
+├── example/lib/main.dart               # runnable gallery
+├── docs/api-index.md                   # generated API index
+└── README.md
+```
 
 ## License
 
-MIT
+MIT. See the repository [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

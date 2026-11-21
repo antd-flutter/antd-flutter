@@ -1,60 +1,157 @@
-# antd_carousel
+# antd_carousel - Ant Design carousel built on PageView
 
-Ant Design v6 Carousel（走马灯）组件的 Flutter 实现 — 基于 PageView 的轮播组件，支持自动播放、循环模式、指示点（四种位置）、切换箭头、垂直轮播、受控/非受控模式与程序化控制器（goTo），API 对齐 antd React Carousel。
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_carousel/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_carousel/README_CN.md)
 
-> 当前为预览版本。
+## Positioning & design
 
-> R33 判定：轮播为固定布局展示类组件（固定高度容器内的页面切换，非滚动列表场景），不需要 sliver 支持。
+`antd_carousel` brings the Ant Design Carousel to Flutter: a fixed-height page switcher with autoplay, infinite loop, dots in four positions, arrows, vertical mode, a controlled or uncontrolled index, and a controller for programmatic jumps. Its API follows the antd React Carousel, so concepts map one-to-one.
 
-> R30.1 轮子参考：对照评估 [carousel_slider](https://pub.dev/packages/carousel_slider)（MIT）— 现有实现已覆盖其核心能力（自动播放 / 无限循环 / 指示器 / 手势切换 / 箭头 / 垂直方向）；吸收其**无限循环实现细节**（PageView.builder + 页码取模模拟无限页，循环时向任意方向连续滑动不回弹），自绘实现落地，不引入三方依赖（R30.3）。视差/页面变换效果（transform / parallax）属增强能力，antd React Carousel 本体不提供，暂不吸收（可经自定义 item 自行实现，见 example「自定义 item」页）。
+- **Built on `PageView`.** The package is a layout and state wrapper around `PageView` / `PageView.builder`, not a custom render object.
+- **Loop without cloning.** Infinite loop uses `PageView.builder` with a large page offset and index modulo mapping, so continuous swiping in either direction never bounces at the ends and pages are not duplicated.
+- **Pages stay plain widgets.** The carousel never wraps pages in its own transforms; custom transitions and parallax effects belong in your page widgets.
+- **Fixed-height overlay.** Pages fill the box while dots and arrows are positioned on top in a `Stack`, so the widget always needs a bounded height — pass `height` or place it in a fixed-height parent.
+- **One implementation for every platform.** Mobile, desktop and web share the same code; only `pauseOnHover` and arrow opacity are pointer-aware.
+- **Theme-aware.** Colors and sizing come from the nearest `AntThemeData`, falling back to the light theme when no `AntTheme` is present.
 
-## 安装
+## Installation
+
+Requires Dart `>=3.0.0 <4.0.0` and Flutter `>=3.10.0`.
 
 ```yaml
 dependencies:
-  antd_carousel: ^0.1.0-beta.1
+  antd_carousel: ^1.0.0
 ```
 
-## 用法
+## Quick start
+
+The following application is complete and runnable:
 
 ```dart
 import 'package:antd_carousel/antd_carousel.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
 
-// ── 基础轮播 ────────────────────────────────────────────
-AntCarousel(children: [Text('1'), Text('2'), Text('3')]);
+void main() => runApp(const CarouselApp());
 
-// ── 自动播放 + 无限循环 ─────────────────────────────────
-AntCarousel(children: [...], autoplay: true, loop: true);
+class CarouselApp extends StatelessWidget {
+  const CarouselApp({super.key});
 
-// ── 指示点位置 + 箭头 + 垂直 ────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    return AntTheme(
+      data: AntThemeData.light(),
+      child: MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 480,
+              height: 200,
+              child: AntCarousel(
+                autoplay: true,
+                loop: true,
+                children: const [
+                  ColoredBox(
+                    color: Color(0xFF1677FF),
+                    child: Center(child: Text('1')),
+                  ),
+                  ColoredBox(
+                    color: Color(0xFF52C41A),
+                    child: Center(child: Text('2')),
+                  ),
+                  ColoredBox(
+                    color: Color(0xFFFAAD14),
+                    child: Center(child: Text('3')),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## API
+
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_carousel/docs/api-index.md)
+
+Import `package:antd_carousel/antd_carousel.dart` for `AntCarousel`, `AntCarouselController` and `AntCarouselDotPosition`.
+
+### Pages and a fixed height
+
+`children` and `items` are interchangeable; exactly one is required.
+
+```dart
+final pages = <Widget>[
+  const ColoredBox(color: Color(0xFF1677FF)),
+  const ColoredBox(color: Color(0xFF52C41A)),
+  const ColoredBox(color: Color(0xFFFAAD14)),
+];
+
 AntCarousel(
-  children: [...],
-  dotPosition: AntCarouselDotPosition.left,
-  arrows: true,
-  vertical: true,
   height: 200,
+  children: pages,
+);
+```
+
+### Autoplay, loop and arrows
+
+```dart
+AntCarousel(
+  autoplay: true,
+  autoplayInterval: const Duration(seconds: 3),
+  loop: true,
+  arrows: true,
+  height: 220,
+  children: pages,
+);
+```
+
+### Controller and page changes
+
+```dart
+final controller = AntCarouselController();
+
+AntCarousel(
+  controller: controller,
+  onChange: (index) {},
+  height: 200,
+  children: pages,
 );
 
-// ── 受控 Controller ─────────────────────────────────────
-final controller = AntCarouselController();
-AntCarousel(children: [...], controller: controller);
+// From a button or a keyboard shortcut:
 controller.goTo(2);
+controller.goTo(0, animate: false);
 ```
 
-## 组件
+## Project structure
 
-| 组件/类型 | 说明 |
-| --- | --- |
-| `AntCarousel` | 走马灯组件 |
-| `AntCarouselController` | 外部控制器（goTo 跳转） |
-| `AntCarouselDotPosition` | 指示点位置枚举（top / bottom / left / right） |
-
-## Example
-
-```bash
-cd example
-flutter pub get
-flutter run -d macos   # 或 -d chrome / 其他已连接设备
+```text
+packages/antd_carousel/
+├── lib/
+│   ├── antd_carousel.dart               # Public barrel
+│   └── src/carousel/
+│       ├── ant_carousel.dart            # PageView-based carousel widget
+│       └── ant_carousel_types.dart      # Dot position enum and controller
+├── example/lib/main.dart                # Demo gallery
+├── docs/api-index.md                    # Generated API index
+├── test/carousel/ant_carousel_test.dart # Widget tests
+├── CHANGELOG.md
+├── README.md
+├── README_CN.md
+└── pubspec.yaml
 ```
 
-demo 覆盖：基础轮播 / 自动播放 / 无限循环 / 指示点样式与位置 / 箭头 / 垂直轮播 / 手势切换 / 受控 Controller / 自定义 item / 视差与页面变换（自定义 item 演示）。
+## License
+
+MIT. See the repository root [LICENSE](https://github.com/flutter-open/antd-flutter/blob/master/LICENSE).
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" /> |

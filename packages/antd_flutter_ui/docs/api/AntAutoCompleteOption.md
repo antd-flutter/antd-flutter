@@ -8,7 +8,8 @@
 class AntAutoCompleteOption
 ```
 
-自动补全选项
+自动补全选项（旧模型，自 1.x 起推荐直接用
+`AntAutoComplete<T>(options: List<T>)` 配合 `labelOf` / `valueOf`）。
 
 ## 构造函数
 

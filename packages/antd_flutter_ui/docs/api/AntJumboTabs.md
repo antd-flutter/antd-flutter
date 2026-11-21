@@ -14,38 +14,45 @@ class AntJumboTabs
 激活项主标题高亮 + 底部指示条。
 
 ```dart
-AntJumboTabs(
-  items: [
-    AntJumboTabItem(key: 'a', title: '全部', description: '所有订单'),
-    AntJumboTabItem(key: 'b', title: '待付款', description: '等待付款'),
-  ],
-  onChange: (key) => print(key),
+AntJumboTabs<Category>(
+  items: categories,
+  keyOf: (category) => category.id,
+  titleBuilder: (context, category, index) => Text(category.name),
+  descriptionBuilder: (context, category, index) => Text(category.desc),
 )
 ```
 
 ## 构造函数
 
-### `AntJumboTabs({super.key, required this.items, this.activeKey, this.defaultActiveKey, this.onChange})`
+### `AntJumboTabs({super.key, required this.items, this.keyOf, this.titleBuilder, this.descriptionBuilder, this.disabledOf, this.activeKey, this.defaultActiveKey, this.onChange})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `items` | `List<AntJumboTabItem>` | 可选 | — |
-| `activeKey` | `String?` | 可选 | — |
-| `defaultActiveKey` | `String?` | 可选 | — |
-| `onChange` | `ValueChanged<String>?` | 可选 | — |
+| `items` | `List<T>` | 可选 | — |
+| `keyOf` | `Object Function(T item)?` | 可选 | — |
+| `titleBuilder` | `AntJumboTabsTitleBuilder<T>?` | 可选 | — |
+| `descriptionBuilder` | `AntJumboTabsDescriptionBuilder<T>?` | 可选 | — |
+| `disabledOf` | `bool Function(T item)?` | 可选 | — |
+| `activeKey` | `Object?` | 可选 | — |
+| `defaultActiveKey` | `Object?` | 可选 | — |
+| `onChange` | `ValueChanged<T>?` | 可选 | — |
 
 ## 字段
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `activeKey` | `String?` | 受控激活项 key |
-| `defaultActiveKey` | `String?` | 非受控默认激活项 key |
-| `items` | `List<AntJumboTabItem>` | 选项卡项列表 |
-| `onChange` | `ValueChanged<String>?` | 切换回调 |
+| `activeKey` | `Object?` | 受控激活项 key |
+| `defaultActiveKey` | `Object?` | 非受控默认激活项 key |
+| `descriptionBuilder` | `AntJumboTabsDescriptionBuilder<T>?` | 描述构建器，返回 null 时不展示描述 |
+| `disabledOf` | `bool Function(T item)?` | 是否禁用某项 |
+| `items` | `List<T>` | 选项卡项列表 |
+| `keyOf` | `Object Function(T item)?` | 提取唯一标识，默认使用下标 |
+| `onChange` | `ValueChanged<T>?` | 切换回调 |
+| `titleBuilder` | `AntJumboTabsTitleBuilder<T>?` | 主标题构建器，未提供时回退为 Text('$item') |
 
 ## 方法
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
-| `createState` | `State<AntJumboTabs>` | — |
+| `createState` | `State<AntJumboTabs<T>>` | — |
 
