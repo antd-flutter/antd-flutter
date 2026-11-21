@@ -28,6 +28,7 @@ AntCalendar _calendar({
   AntCalendarDateCellBuilder? dateCell,
   bool Function(DateTime)? disabledDate,
   AntCalendarLayout? layout,
+  bool showFormatSwitcher = false,
   Key? key,
 }) {
   return AntCalendar(
@@ -40,6 +41,7 @@ AntCalendar _calendar({
     fullscreen: fullscreen,
     dateCell: dateCell,
     disabledDate: disabledDate,
+    showFormatSwitcher: showFormatSwitcher,
   );
 }
 
@@ -66,31 +68,16 @@ void main() {
       expect(text.style!.color, Colors.white);
     });
 
-    testWidgets('today is highlighted with primary color border',
+    testWidgets('today is highlighted with primary color text',
         (tester) async {
       final now = DateTime.now();
       // 选中同月 1 日，保证今天本身未被选中但仍展示在网格中。
       await tester.pumpWidget(
         _wrap(_calendar(value: DateTime(now.year, now.month, 1))),
       );
-      // 找到今天数字所在单元格容器，验证今天有主色边框高亮。
+      // antd-mobile v5：今天用主色文字（无边框）。
       final todayText = tester.widget<Text>(find.text('${now.day}').first);
-      final container = tester.widget<Container>(
-        find
-            .ancestor(
-              of: find.byWidget(todayText),
-              matching: find.byWidgetPredicate(
-                (w) => w is Container && w.decoration is BoxDecoration,
-              ),
-            )
-            .first,
-      );
-      final decoration = container.decoration! as BoxDecoration;
-      expect(decoration.border, isNotNull);
-      expect(
-        (decoration.border! as Border).top.color,
-        AntThemeData.light().colorPrimary,
-      );
+      expect(todayText.style!.color, AntThemeData.light().colorPrimary);
     });
 
     testWidgets('tap a day fires onSelect and updates selection',
@@ -157,7 +144,10 @@ void main() {
     testWidgets('current month button returns to today month',
         (tester) async {
       final now = DateTime.now();
-      await tester.pumpWidget(_wrap(_calendar(value: june2024)));
+      // 「本月」按钮属兼容分支能力（antd-mobile 默认头部无该按钮）。
+      await tester.pumpWidget(
+        _wrap(_calendar(value: june2024, showFormatSwitcher: true)),
+      );
       await tester.tap(find.byIcon(AntIcons.rightOutlined));
       await tester.pump();
       expect(find.text('2024年7月'), findsOneWidget);
@@ -282,22 +272,22 @@ void main() {
           ),
         ),
       );
-      final containers = tester.widgetList<Container>(
-        find.byWidgetPredicate(
-          (w) => w is Container && w.constraints?.minHeight != null,
-        ),
+      // 默认路径对齐 antd-mobile v5：日期格高 48。
+      final cells = find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>)
+                .value
+                .startsWith('ant-calendar-mobile-cell-'),
       );
-      // 默认紧凑模式单元格最小高度为 44（antd-mobile 比例，默认因子 1.0）。
-      expect(
-        containers.any((c) => c.constraints!.minHeight == 44),
-        isTrue,
-      );
+      expect(cells, findsWidgets);
+      expect(tester.getSize(cells.first).height, 48);
     });
 
     testWidgets('forced card layout keeps compact typography on desktop',
         (tester) async {
-      // 回归：桌面/测试环境（auto 解析为 desktop）下显式 layout=card 时，
-      // 单元格内容不得回退到 fullscreen 字号。
+      // 回归：显式 layout=card 时使用 antd-mobile 默认日期字号 19。
       await tester.pumpWidget(
         _wrap(_calendar(value: june2024, layout: AntCalendarLayout.card)),
       );
@@ -309,7 +299,7 @@ void main() {
       final t = AntThemeData.light();
       expect(dayTexts, isNotEmpty);
       for (final text in dayTexts) {
-        expect(text.style?.fontSize, t.fontSizeSM);
+        expect(text.style?.fontSize, t.s(19));
       }
     });
 

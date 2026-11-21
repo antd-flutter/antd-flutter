@@ -32,6 +32,7 @@ class AntCalendarCoreConfig {
     this.showWeek = false,
     this.renderDate,
     this.renderLabel,
+    this.mobileCellRender,
     required this.weekStartsOnMonday,
     this.disabledDate,
     this.validRange,
@@ -48,13 +49,16 @@ class AntCalendarCoreConfig {
     this.onModeChanged,
     this.onPanelChange,
     this.onPageChange,
-    required this.selectionMode,
+    this.selectionMode,
     required this.allowClear,
     required this.multiSelect,
     this.selectedDays,
     required this.defaultSelectedDays,
     this.onSelectMulti,
     this.onRangeSelected,
+    this.rangeValue,
+    this.defaultRangeValue,
+    this.onRangeChange,
     this.eventLoader,
     required this.showYearNavButtons,
     required this.enableYearMonthDropdown,
@@ -114,6 +118,9 @@ class AntCalendarCoreConfig {
   /// 日卡子标题渲染（antd-mobile renderLabel）。
   final Widget? Function(DateTime date)? renderLabel;
 
+  /// 移动端整格包裹渲染（antd-mobile cellRender 包裹语义）。
+  final AntCalendarMobileCellRender? mobileCellRender;
+
   // ---- 范围 / 禁用 ----
 
   /// 周起始是否为周一（由 [AntCalendarWeekStartsOn] 归一化）。
@@ -168,8 +175,8 @@ class AntCalendarCoreConfig {
 
   // ---- 选择模式 ----
 
-  /// 单选 / 范围选择。
-  final AntCalendarSelectionMode selectionMode;
+  /// 单选 / 范围选择；null 表示仅展示、不可点击。
+  final AntCalendarSelectionMode? selectionMode;
 
   /// 点击已选日期是否清除选择。
   final bool allowClear;
@@ -188,6 +195,16 @@ class AntCalendarCoreConfig {
 
   /// 范围选择完成回调。
   final void Function(DateTime start, DateTime end)? onRangeSelected;
+
+  /// 受控范围值（长度 2、已排序；同日表示选择中）。
+  final List<DateTime>? rangeValue;
+
+  /// 非受控初始范围值（长度 2、已排序；同日表示选择中）。
+  final List<DateTime>? defaultRangeValue;
+
+  /// 范围值变化回调（选择中为 [date, date]，完成为 [begin, end]，
+  /// 清空为 null）。
+  final ValueChanged<List<DateTime>?>? onRangeChange;
 
   /// 事件点加载器。
   final List<DateTime> Function(DateTime day)? eventLoader;

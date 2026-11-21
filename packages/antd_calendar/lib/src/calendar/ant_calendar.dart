@@ -6,8 +6,10 @@
 /// 双端形态（经 [AntCalendarLayout] 自适应或手动指定）：
 /// - fullscreen（桌面，参考 antd v6）：大格子 + dateCell 内容插槽 +
 ///   头部年月下拉快速跳转 + 月/年面板切换（mode/onPanelChange）；
-/// - card（移动，参考 antd-mobile）：紧凑面板 + 滑动手势翻页 +
-///   年导航按钮 + renderDate/renderLabel 分层渲染。
+/// - card（移动，参考 antd-mobile v5）：居中月份标题 + 四向箭头翻页 +
+///   renderDate/renderLabel/mobileCellRender 分层渲染。
+///   扩展能力（week/twoWeeks、multiSelect、eventLoader、格式/模式切换）
+///   仍可用，但仅在参数启用时走兼容渲染分支。
 ///
 /// 增强能力（吸收 table_calendar 3.3.0，Apache-2.0 源码研究改造）：
 /// - 格式切换：month / twoWeeks / week（[AntCalendarFormat]）；
@@ -37,6 +39,7 @@ import 'package:antd_calendar/src/calendar/calendar_core/calendar_locale.dart';
 import 'package:antd_calendar/src/calendar/calendar_core/calendar_state.dart';
 import 'package:antd_calendar/src/calendar/desktop/ant_calendar_desktop.dart';
 import 'package:antd_calendar/src/calendar/mobile/ant_calendar_mobile.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/widgets.dart';
 
@@ -57,7 +60,7 @@ class AntCalendar extends StatefulWidget {
     this.onSelect,
     this.onSelectWithInfo,
     this.onChange,
-    this.weekStartsOn = AntCalendarWeekStartsOn.monday,
+    this.weekStartsOn,
     this.fullscreen = false,
     this.dateCell,
     this.cellRender,
@@ -69,6 +72,7 @@ class AntCalendar extends StatefulWidget {
     this.monthCellRender,
     this.monthFullCellRender,
     this.disabledDate,
+    this.shouldDisableDate,
     this.validRange,
     this.min,
     this.max,
@@ -88,9 +92,21 @@ class AntCalendar extends StatefulWidget {
     this.onPageChange,
     this.renderDate,
     this.renderLabel,
-    this.allowClear = false,
+    this.mobileCellRender,
+    this.allowClear,
     this.selectionMode = AntCalendarSelectionMode.single,
     this.onRangeSelected,
+    this.rangeValue,
+    this.defaultRangeValue,
+    this.onRangeChange,
+    this.prevYearButton =
+        const AntCalendarBuiltInNavButton(AntIcons.doubleLeftOutlined),
+    this.prevMonthButton =
+        const AntCalendarBuiltInNavButton(AntIcons.leftOutlined),
+    this.nextMonthButton =
+        const AntCalendarBuiltInNavButton(AntIcons.rightOutlined),
+    this.nextYearButton =
+        const AntCalendarBuiltInNavButton(AntIcons.doubleRightOutlined),
     this.multiSelect = false,
     this.selectedDays,
     this.defaultSelectedDays = const [],
@@ -100,7 +116,34 @@ class AntCalendar extends StatefulWidget {
     this.enableYearMonthDropdown = true,
     this.locale,
     this.controller,
-  });
+  })  : assert(
+          rangeValue == null || rangeValue.length == 2,
+          'rangeValue 必须是长度为 2 的列表',
+        ),
+        assert(
+          defaultRangeValue == null || defaultRangeValue.length == 2,
+          'defaultRangeValue 必须是长度为 2 的列表',
+        ),
+        assert(
+          rangeValue == null ||
+              selectionMode == AntCalendarSelectionMode.range ||
+              selectionMode == null,
+          'rangeValue 仅 range 模式可用',
+        ),
+        assert(
+          defaultRangeValue == null ||
+              selectionMode == AntCalendarSelectionMode.range ||
+              selectionMode == null,
+          'defaultRangeValue 仅 range 模式可用',
+        ),
+        assert(
+          rangeValue == null || platform != AntCalendarPlatform.desktop,
+          'rangeValue 仅移动端渲染器支持',
+        ),
+        assert(
+          defaultRangeValue == null || platform != AntCalendarPlatform.desktop,
+          'defaultRangeValue 仅移动端渲染器支持',
+        );
 
   /// 受控选中日期（单选模式）。
   final DateTime? value;
@@ -123,8 +166,9 @@ class AntCalendar extends StatefulWidget {
   /// 下传本次点击的日期。
   final ValueChanged<DateTime?>? onChange;
 
-  /// 周起始日。
-  final AntCalendarWeekStartsOn weekStartsOn;
+  /// 周起始日；null 时按渲染器取默认（移动端周日、桌面周一，
+  /// 对齐 antd-mobile v5 / antd v6 各自默认）。
+  final AntCalendarWeekStartsOn? weekStartsOn;
 
   /// 是否全屏模式（大格子），默认 false 为 card 紧凑模式。
   ///
@@ -170,6 +214,10 @@ class AntCalendar extends StatefulWidget {
   /// 判断日期是否不可选。
   final bool Function(DateTime date)? disabledDate;
 
+  /// [disabledDate] 的别名（antd-mobile `shouldDisableDate` 对齐）：
+  /// 两者任一命中即禁用；与 min/max/validRange 叠加生效。
+  final bool Function(DateTime date)? shouldDisableDate;
+
   /// 有效日期范围（antd v6 validRange 对齐）：范围外日期不可交互，
   /// 面板导航裁剪在范围内。
   final AntCalendarValidRange? validRange;
@@ -186,7 +234,8 @@ class AntCalendar extends StatefulWidget {
   /// 面板导航最大年月页（antd-mobile maxPage 对齐）。
   final AntCalendarPage? maxPage;
 
-  /// 自定义头部内容，为 null 时使用默认头部（年月标题 + 导航 + 本月按钮）。
+  /// 自定义头部内容，为 null 时使用默认头部
+  /// （移动端：居中月份标题 + 四向箭头；桌面端：年月下拉 + 模式切换）。
   final Widget? header;
 
   /// 布局形态：auto 经 AntResponsive 自适应（desktop/web → fullscreen，
@@ -223,7 +272,8 @@ class AntCalendar extends StatefulWidget {
   /// 展示月份变化或面板模式切换时触发。
   final AntCalendarPanelChangeCallback? onPanelChange;
 
-  /// 展示月份变化回调（antd-mobile onPageChange 对齐）。
+  /// 展示月份变化回调（antd-mobile onPageChange 对齐）：
+  /// 仅在翻页/跳转后触发，初始渲染不触发（对齐 useUpdateEffect）。
   final void Function(int year, int month)? onPageChange;
 
   /// 日期数字位自定义渲染（antd-mobile renderDate 对齐），
@@ -231,18 +281,55 @@ class AntCalendar extends StatefulWidget {
   final Widget? Function(DateTime date)? renderDate;
 
   /// 日卡子标题渲染（antd-mobile renderLabel 对齐，日期数字下方
-  /// 子标题位，如农历/节日），null 时渲染事件点标记。
+  /// 子标题位，如农历/节日）；null 时移动默认路径留空，兼容分支
+  /// （启用 [eventLoader]）降级为事件点标记。
   final Widget? Function(DateTime date)? renderLabel;
 
-  /// 点击已选日期是否清除选择（antd-mobile allowClear 对齐），
-  /// 仅单选模式生效；清除时 [onChange] 收到 null、[onSelect] 不触发。
-  final bool allowClear;
+  // ---- 移动端专属：整格包裹渲染（C3） ----
 
-  /// 选择模式：单选或范围选择。
-  final AntCalendarSelectionMode selectionMode;
+  /// 移动端整格包裹渲染（C3 新增，antd-mobile `cellRender` 包裹语义）：
+  /// 与桌面替换式 [cellRender] 不同，本回调接收默认单元格后包裹返回，
+  /// 点击仍由组件统一处理。用于给整格加边框/角标/自定义布局。
+  final AntCalendarMobileCellRender? mobileCellRender;
+
+  /// 点击已选日期是否清除选择（antd-mobile allowClear 对齐），
+  /// 单选与范围模式生效；清除时 [onChange] 收到 null、[onSelect] 不触发。
+  /// null 时按渲染器取默认：移动端 true、桌面 false。
+  final bool? allowClear;
+
+  /// 选择模式：单选 / 范围选择；null 表示仅展示、不可点击
+  /// （此时 [allowClear] 等选择语义均不生效）。
+  final AntCalendarSelectionMode? selectionMode;
 
   /// 范围选择完成回调（第二次点击结束时触发；start ≤ end）。
   final void Function(DateTime start, DateTime end)? onRangeSelected;
+
+  // ---- 移动端专属：范围值（C3，受控/非受控） ----
+
+  /// 受控范围值（移动端 range 模式）：长度 2、已排序；
+  /// `[date, date]` 表示「已选起点、待选终点」，传 null 表示未选择。
+  final List<DateTime>? rangeValue;
+
+  /// 非受控初始范围值（长度 2、已排序）。
+  final List<DateTime>? defaultRangeValue;
+
+  /// 范围值变化回调（移动端 range 模式）：选择中回传 `[date, date]`，
+  /// 完成回传 `[begin, end]`，清空回传 null；与 [onChange] 同时派发。
+  final ValueChanged<List<DateTime>?>? onRangeChange;
+
+  // ---- 移动端专属：头部四向导航按钮（C3） ----
+
+  /// 上一年按钮；null 隐藏，默认内置双左箭头。
+  final Widget? prevYearButton;
+
+  /// 上一月按钮；null 隐藏，默认内置左箭头。
+  final Widget? prevMonthButton;
+
+  /// 下一月按钮；null 隐藏，默认内置右箭头。
+  final Widget? nextMonthButton;
+
+  /// 下一年按钮；null 隐藏，默认内置双右箭头。
+  final Widget? nextYearButton;
 
   /// 是否多选模式（与 range 互斥，multiSelect 优先）。
   final bool multiSelect;
@@ -316,6 +403,18 @@ class _AntCalendarState extends State<AntCalendar>
 
   /// 把公开参数归一化为共享状态机配置（构造参数不变）。
   AntCalendarCoreConfig _coreConfig() {
+    final isDesktop = _isDesktopPlatform;
+    final bool weekStartsOnMonday;
+    switch (widget.weekStartsOn) {
+      case AntCalendarWeekStartsOn.monday:
+        weekStartsOnMonday = true;
+      case AntCalendarWeekStartsOn.sunday:
+        weekStartsOnMonday = false;
+      case null:
+        // 移动端默认周日起始（antd-mobile v5），桌面默认周一（antd v6）。
+        weekStartsOnMonday = isDesktop;
+    }
+    final disabledDate = _combinedDisabledDate();
     return AntCalendarCoreConfig(
       value: widget.value,
       defaultValue: widget.defaultValue,
@@ -333,8 +432,9 @@ class _AntCalendarState extends State<AntCalendar>
       monthFullCellRender: widget.monthFullCellRender,
       renderDate: widget.renderDate,
       renderLabel: widget.renderLabel,
-      weekStartsOnMonday: widget.weekStartsOn == AntCalendarWeekStartsOn.monday,
-      disabledDate: widget.disabledDate,
+      mobileCellRender: widget.mobileCellRender,
+      weekStartsOnMonday: weekStartsOnMonday,
+      disabledDate: disabledDate,
       validRange: widget.validRange,
       min: widget.min,
       max: widget.max,
@@ -356,16 +456,37 @@ class _AntCalendarState extends State<AntCalendar>
       onPanelChange: widget.onPanelChange,
       onPageChange: widget.onPageChange,
       selectionMode: widget.selectionMode,
-      allowClear: widget.allowClear,
+      allowClear: widget.allowClear ?? !isDesktop,
       multiSelect: widget.multiSelect,
       selectedDays: widget.selectedDays,
       defaultSelectedDays: widget.defaultSelectedDays,
       onSelectMulti: widget.onSelectMulti,
       onRangeSelected: widget.onRangeSelected,
+      rangeValue: _normalizeRange(widget.rangeValue),
+      defaultRangeValue: _normalizeRange(widget.defaultRangeValue),
+      onRangeChange: widget.onRangeChange,
       eventLoader: widget.eventLoader,
       showYearNavButtons: widget.showYearNavButtons,
       enableYearMonthDropdown: widget.enableYearMonthDropdown,
     );
+  }
+
+  /// 合并 [AntCalendar.disabledDate] 与 [AntCalendar.shouldDisableDate] 别名。
+  bool Function(DateTime)? _combinedDisabledDate() {
+    final disabledDate = widget.disabledDate;
+    final shouldDisableDate = widget.shouldDisableDate;
+    if (disabledDate == null) return shouldDisableDate;
+    if (shouldDisableDate == null) return disabledDate;
+    return (date) => disabledDate(date) || shouldDisableDate(date);
+  }
+
+  /// 范围值去时分秒并按时间排序（长度 2 已由构造断言保证）。
+  List<DateTime>? _normalizeRange(List<DateTime>? value) {
+    if (value == null) return null;
+    return value
+        .map((date) => DateTime(date.year, date.month, date.day))
+        .toList()
+      ..sort((a, b) => a.compareTo(b));
   }
 
   /// 是否走桌面渲染器（与 build 中 platform 解析保持一致）。
@@ -423,6 +544,10 @@ class _AntCalendarState extends State<AntCalendar>
         fullscreen: fullscreen,
         locale: locale,
         header: widget.header,
+        prevYearButton: widget.prevYearButton,
+        prevMonthButton: widget.prevMonthButton,
+        nextMonthButton: widget.nextMonthButton,
+        nextYearButton: widget.nextYearButton,
       );
     }
     return AntCalendarDesktop(

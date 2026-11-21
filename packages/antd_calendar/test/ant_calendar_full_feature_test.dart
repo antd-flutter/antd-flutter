@@ -46,6 +46,8 @@ void main() {
         AntCalendar(
           fullscreen: true,
           defaultValue: _date(2024, 6, 10),
+          // 移动端 allowClear 默认 true；此用例验证点击命中，关闭清除。
+          allowClear: false,
           fullCellRender: (date, info) => Container(
             key: ValueKey('full-${date.day}'),
             height: 40,
@@ -152,6 +154,7 @@ void main() {
         AntCalendar(
           fullscreen: true,
           defaultValue: _date(2024, 6, 10),
+          allowClear: false,
           validRange: AntCalendarValidRange(_date(2024, 6, 5), _date(2024, 6, 20)),
           onSelect: (d) => tapped = d,
         ),

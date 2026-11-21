@@ -101,8 +101,9 @@ void main() {
         AntCalendar(defaultValue: DateTime(2024, 6, 10)),
       ),);
       expect(find.text('2024年6月'), findsOneWidget);
-      expect(find.text('本月'), findsOneWidget);
-      expect(find.text('一'), findsOneWidget); // 周一起始周一标签
+      // 移动端默认周日起始，默认头部无「本月」按钮（四向箭头翻页）。
+      expect(find.text('本月'), findsNothing);
+      expect(find.text('日'), findsOneWidget);
     });
 
     testWidgets('locale 参数：英文预设生效', (tester) async {
@@ -113,8 +114,8 @@ void main() {
         ),
       ),);
       expect(find.text('6/2024'), findsOneWidget);
-      expect(find.text('Today'), findsOneWidget);
-      expect(find.text('Mon'), findsOneWidget);
+      expect(find.text('Today'), findsNothing);
+      expect(find.text('Sun'), findsOneWidget);
       expect(find.text('一'), findsNothing);
     });
 
@@ -124,8 +125,8 @@ void main() {
         injected: AntCalendarLocale.ja,
       ),);
       expect(find.text('2024年6月'), findsOneWidget);
-      expect(find.text('今月'), findsOneWidget);
-      expect(find.text('月'), findsWidgets); // 周一标签 + 月后缀
+      expect(find.text('今月'), findsNothing);
+      expect(find.text('日'), findsOneWidget);
     });
 
     testWidgets('周日起始时英文周标签轮转', (tester) async {

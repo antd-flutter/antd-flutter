@@ -240,6 +240,32 @@ typedef AntCalendarFullCellRender = Widget? Function(
   AntCalendarCellRenderInfo info,
 );
 
+/// 移动端整格包裹渲染回调（C3 新增，antd-mobile `cellRender` 包裹语义）。
+///
+/// 与桌面替换式 [AntCalendarCellRender] 不同：本回调接收已渲染好的默认
+/// 单元格 [oriNode]，在其外层包裹装饰/布局后返回（返回的 Widget 仍由组件
+/// 统一处理点击）。默认渲染链为 renderDate → renderLabel → 默认内容，
+/// 最后再用本回调包裹整格。
+typedef AntCalendarMobileCellRender = Widget Function(
+  Widget oriNode, {
+  required DateTime date,
+});
+
+/// 移动端头部内置导航按钮标记（[AntCalendar.prevMonthButton] 等默认值）。
+///
+/// 渲染器识别该类型后按主题缩放绘制内置图标；传 `null` 表示隐藏该按钮；
+/// 也可传入任意自定义 Widget 完全替换按钮外观。
+class AntCalendarBuiltInNavButton extends StatelessWidget {
+  /// 创建内置导航按钮标记。
+  const AntCalendarBuiltInNavButton(this.icon, {super.key});
+
+  /// 内置图标。
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Icon(icon);
+}
+
 /// 月面板单元格内容渲染回调（antd v6 monthCellRender 对齐）。
 typedef AntCalendarMonthCellRender = Widget? Function(DateTime month);
 

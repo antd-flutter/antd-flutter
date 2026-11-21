@@ -51,6 +51,7 @@ void main() {
         AntCalendar(
           defaultValue: _date(2024, 6, 10),
           calendarFormat: AntCalendarFormat.week,
+          weekStartsOn: AntCalendarWeekStartsOn.monday,
         ),
       ),);
       // 2024-06-10 为周一，周一起始 → 该周为 6/10~6/16。
@@ -64,6 +65,7 @@ void main() {
         AntCalendar(
           defaultValue: _date(2024, 6, 10),
           calendarFormat: AntCalendarFormat.twoWeeks,
+          weekStartsOn: AntCalendarWeekStartsOn.monday,
         ),
       ),);
       // 两周：6/10~6/23。
@@ -228,6 +230,8 @@ void main() {
         AntCalendar(
           defaultValue: _date(2024, 6, 10),
           layout: AntCalendarLayout.card,
+          // 兼容分支保留滑动翻页；默认路径只支持箭头（见 calendar_mobile_test）。
+          showFormatSwitcher: true,
         ),
       ),);
       // drag 不产生速度，用 fling 触发滑动翻月。

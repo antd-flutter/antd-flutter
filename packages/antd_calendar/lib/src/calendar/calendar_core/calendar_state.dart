@@ -34,6 +34,14 @@ class AntCalendarCoreState extends ChangeNotifier {
     ).map(calendarDateOnly).toList();
     _focusedDate = calendarDateOnly(initial);
     _currentMonth = DateTime(initial.year, initial.month);
+    final initialRange = config.rangeValue ?? config.defaultRangeValue;
+    if (initialRange != null) {
+      _applyRange(initialRange);
+    } else if (config.selectionMode == AntCalendarSelectionMode.range &&
+        config.value != null) {
+      _internalRangeStart = calendarDateOnly(config.value!);
+      _internalRangeEnd = null;
+    }
   }
 
   AntCalendarCoreConfig _config;
@@ -60,10 +68,28 @@ class AntCalendarCoreState extends ChangeNotifier {
       _config.value != null ? calendarDateOnly(_config.value!) : _internalValue;
 
   /// range 起点（过程态/完成态）。
-  DateTime? get rangeStart => _internalRangeStart;
+  ///
+  /// 受控 [AntCalendarCoreConfig.rangeValue] 优先；未受控时使用内部状态。
+  DateTime? get rangeStart {
+    final controlled = _config.rangeValue;
+    if (controlled == null) return _internalRangeStart;
+    if (controlled.isEmpty) return null;
+    final sorted = controlled.map(calendarDateOnly).toList()
+      ..sort((a, b) => a.compareTo(b));
+    return sorted.first;
+  }
 
   /// range 终点（完成态才非空）。
-  DateTime? get rangeEnd => _internalRangeEnd;
+  ///
+  /// 受控 [AntCalendarCoreConfig.rangeValue] 优先；未受控时使用内部状态。
+  DateTime? get rangeEnd {
+    final controlled = _config.rangeValue;
+    if (controlled == null) return _internalRangeEnd;
+    if (controlled.length < 2) return null;
+    final sorted = controlled.map(calendarDateOnly).toList()
+      ..sort((a, b) => a.compareTo(b));
+    return calendarIsSameDay(sorted.first, sorted.last) ? null : sorted.last;
+  }
 
   /// range 选择是否处于「已选起点、待选终点」的过程态。
   bool get isRangePending =>
@@ -114,7 +140,8 @@ class AntCalendarCoreState extends ChangeNotifier {
 
   /// 日期是否处于选中态（range / multi / single 各自语义）。
   bool isSelected(DateTime day) {
-    if (_config.selectionMode == AntCalendarSelectionMode.range) {
+    final selectionMode = _config.selectionMode;
+    if (selectionMode == AntCalendarSelectionMode.range) {
       return calendarIsSameDay(day, _internalRangeStart) ||
           calendarIsSameDay(day, _internalRangeEnd);
     }
@@ -159,12 +186,44 @@ class AntCalendarCoreState extends ChangeNotifier {
         next.selectedDays!,
       ).map(calendarDateOnly).toList();
     }
+    if (!listEquals(next.rangeValue, old.rangeValue)) {
+      if (next.rangeValue == null) {
+        // 受控范围被清除（或被移除）：同步清空内部残留。
+        if (old.rangeValue != null) {
+          _internalRangeStart = null;
+          _internalRangeEnd = null;
+        }
+      } else {
+        _applyRange(next.rangeValue!);
+      }
+    }
     _config = next;
+  }
+
+  /// 归一化并写入范围值：同日表示「已选起点、待选终点」。
+  void _applyRange(List<DateTime> value) {
+    if (value.isEmpty) {
+      _internalRangeStart = null;
+      _internalRangeEnd = null;
+      return;
+    }
+    final sorted = value.map(calendarDateOnly).toList()
+      ..sort((a, b) => a.compareTo(b));
+    final start = sorted.first;
+    final end = sorted.length > 1 ? sorted.last : start;
+    _internalRangeStart = start;
+    _internalRangeEnd = calendarIsSameDay(start, end) ? null : end;
+    if (_internalRangeEnd != null) {
+      _focusedDate = end;
+      _currentMonth = DateTime(end.year, end.month);
+    }
   }
 
   /// 点击日期（选择状态机入口）。
   void handleDayTap(DateTime day) {
     final dayOnly = calendarDateOnly(day);
+    // selectionMode 为 null 时仅展示，不响应点击（allowClear 等均失效）。
+    if (_config.selectionMode == null) return;
     if (isDisabled(dayOnly)) return;
 
     if (_config.multiSelect) {
@@ -187,33 +246,59 @@ class AntCalendarCoreState extends ChangeNotifier {
     }
 
     if (_config.selectionMode == AntCalendarSelectionMode.range) {
-      if (_internalRangeStart != null &&
-          _internalRangeEnd == null &&
-          !calendarIsSameDay(_internalRangeStart, dayOnly)) {
-        final start = _internalRangeStart!;
-        final end = dayOnly;
-        final lo = start.isBefore(end) ? start : end;
-        final hi = start.isBefore(end) ? end : start;
-        if (_config.value == null) {
-          _internalRangeStart = lo;
-          _internalRangeEnd = hi;
-          _focusedDate = hi;
-          _currentMonth = DateTime(hi.year, hi.month);
+      final start = _internalRangeStart;
+      final end = _internalRangeEnd;
+
+      // 已完成范围：allowClear 下点击首/尾清空（antd-mobile shouldClear）。
+      if (_config.allowClear &&
+          start != null &&
+          end != null &&
+          (calendarIsSameDay(start, dayOnly) ||
+              calendarIsSameDay(end, dayOnly))) {
+        _internalRangeStart = null;
+        _internalRangeEnd = null;
+        notifyListeners();
+        _config.onChange?.call(null);
+        _config.onRangeChange?.call(null);
+        return;
+      }
+
+      if (start != null && end == null) {
+        if (calendarIsSameDay(start, dayOnly)) {
+          // 选择中再次点击同一天 = 重设起点（保持 intermediate）。
+          _internalRangeStart = dayOnly;
+          _internalRangeEnd = null;
+          notifyListeners();
+          _emitSelect(dayOnly, AntCalendarSelectSource.date);
+          _config.onChange?.call(dayOnly);
+          _config.onRangeChange?.call([dayOnly, dayOnly]);
+          return;
         }
+        final lo = start.isBefore(dayOnly) ? start : dayOnly;
+        final hi = start.isBefore(dayOnly) ? dayOnly : start;
+        _internalRangeStart = lo;
+        _internalRangeEnd = hi;
+        _focusedDate = hi;
+        _currentMonth = DateTime(hi.year, hi.month);
         notifyListeners();
         _emitSelect(dayOnly, AntCalendarSelectSource.date);
         _config.onChange?.call(dayOnly);
         _config.onRangeSelected?.call(lo, hi);
+        _config.onRangeChange?.call([lo, hi]);
         return;
       }
-      // 开始新一轮范围选择。
-      if (_config.value == null) {
-        _internalRangeStart = dayOnly;
-        _internalRangeEnd = null;
+
+      // 开始新一轮范围选择（intermediate，同日占位表示选择中）。
+      _internalRangeStart = dayOnly;
+      _internalRangeEnd = null;
+      if (!calendarIsSameMonth(dayOnly, _currentMonth)) {
+        _focusedDate = dayOnly;
+        _currentMonth = DateTime(dayOnly.year, dayOnly.month);
       }
       notifyListeners();
       _emitSelect(dayOnly, AntCalendarSelectSource.date);
       _config.onChange?.call(dayOnly);
+      _config.onRangeChange?.call([dayOnly, dayOnly]);
       return;
     }
 
