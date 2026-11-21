@@ -36,6 +36,18 @@ enum AntCalendarLayout {
   card,
 }
 
+/// 日历平台渲染器选择（C1 引入；auto 按 [AntPlatform] 分派）。
+enum AntCalendarPlatform {
+  /// 自动：移动端 → mobile 渲染器，其余 → desktop 渲染器。
+  auto,
+
+  /// 强制桌面渲染器（antd v6 形态，C1 阶段兼容 fullscreen/card 两种布局）。
+  desktop,
+
+  /// 强制移动渲染器（antd-mobile v5 形态）。
+  mobile,
+}
+
 /// 自定义日期单元格构建回调。
 ///
 /// [date] 为单元格对应日期（已去除时分秒）；
@@ -181,9 +193,7 @@ class AntCalendarPage {
 
   @override
   bool operator ==(Object other) =>
-      other is AntCalendarPage &&
-      other.year == year &&
-      other.month == month;
+      other is AntCalendarPage && other.year == year && other.month == month;
 
   @override
   int get hashCode => Object.hash(year, month);
