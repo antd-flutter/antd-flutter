@@ -180,6 +180,39 @@ flutter pub get
 flutter run -d chrome    # or: flutter run -d macos
 ```
 
+## Demos
+
+Every package ships an interactive web demo, built from its own `example/` app and deployed with the documentation site.
+
+| Demo | URL | What it shows |
+| --- | --- | --- |
+| Umbrella gallery (all UI components) | https://flutter-open.github.io/antd-flutter/ | 101+ components |
+| antd_icons_flutter | https://flutter-open.github.io/antd-flutter/icons/ | Icon gallery |
+| antd_color | https://flutter-open.github.io/antd-flutter/color/ | Color palette |
+| antd_tokens | https://flutter-open.github.io/antd-flutter/tokens/ | Design tokens |
+| antd_theme | https://flutter-open.github.io/antd-flutter/theme/ | Theming and AntScale |
+| antd_calendar | https://flutter-open.github.io/antd-flutter/calendar/ | Calendar and CalendarPicker |
+| antd_form | https://flutter-open.github.io/antd-flutter/form/ | Form validation |
+| antd_picker | https://flutter-open.github.io/antd-flutter/picker/ | Picker / Cascader / Date / Time |
+| antd_upload | https://flutter-open.github.io/antd-flutter/upload/ | Upload |
+| antd_transfer | https://flutter-open.github.io/antd-flutter/transfer/ | Transfer |
+| antd_tree | https://flutter-open.github.io/antd-flutter/tree/ | Tree and TreeSelect |
+| antd_table | https://flutter-open.github.io/antd-flutter/table/ | Table |
+| antd_keyboard | https://flutter-open.github.io/antd-flutter/keyboard/ | Number / Passcode / Virtual keyboard |
+| antd_qrcode | https://flutter-open.github.io/antd-flutter/qr_code/ | QR code |
+| antd_refresh | https://flutter-open.github.io/antd-flutter/refresh/ | Pull to refresh |
+| antd_splitter | https://flutter-open.github.io/antd-flutter/splitter/ | Splitter |
+| antd_swipe_action | https://flutter-open.github.io/antd-flutter/swipe_action/ | Swipe action |
+| antd_image_viewer | https://flutter-open.github.io/antd-flutter/image_viewer/ | Image viewer |
+| antd_carousel | https://flutter-open.github.io/antd-flutter/carousel/ | Carousel |
+| antd_masonry | https://flutter-open.github.io/antd-flutter/masonry/ | Masonry |
+| antd_floating | https://flutter-open.github.io/antd-flutter/floating/ | Floating UI |
+
+## Issues
+
+- Bug reports and feature requests: [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+- Documentation site: https://flutter-open.github.io/antd-flutter/
+
 ## Resources
 
 | Resource | URL |

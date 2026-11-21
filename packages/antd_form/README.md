@@ -170,6 +170,11 @@ Future<void> save(AntFormController form) async {
 }
 ```
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/form/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

@@ -232,6 +232,11 @@ AntTable<Team>(
 
 `childrenOf` 返回非空列表的行成为可折叠父行。`Members` 列是由两个叶子列组成的表头分组，`summary` 按叶子列下标返回页脚单元格。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/table/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

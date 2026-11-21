@@ -216,6 +216,11 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 Both fields open their own sheet and report `null` when cleared (`allowClear: true` enables the clear affordance). `minuteStep` / `hourStep` thin out the wheel options for coarse scheduling.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/picker/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

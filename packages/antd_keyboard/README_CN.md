@@ -181,6 +181,11 @@ Column(
 
 `AntPasscodeInput` 点击后唤起数字键盘，填满所有格子时回调 `onFill`。`AntVirtualInput` 外观是文本框，但屏蔽系统输入法，改为展示预设键盘（或 `keyboardLayout`），让自助终端与嵌入式设备上的输入保持可控。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/keyboard/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

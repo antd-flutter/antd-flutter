@@ -192,6 +192,11 @@ AntTransfer<FileItem>(
 
 `oneWay: true` hides the return operation so items can only move to the target pane. An empty string in `operations` keeps the icon-only button for that direction.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/transfer/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

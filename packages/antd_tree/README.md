@@ -192,6 +192,11 @@ Column(
 
 In multiple mode the trigger shows chips and `onChange` emits a `List<Object>`. In single mode it emits one key, or `null` after clearing.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/tree/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

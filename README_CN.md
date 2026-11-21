@@ -180,6 +180,39 @@ flutter pub get
 flutter run -d chrome    # 或：flutter run -d macos
 ```
 
+## 演示
+
+每个子包都提供可交互的 Web 演示，由各自的 `example/` 应用构建，随文档站一起部署。
+
+| 演示 | 地址 | 内容 |
+| --- | --- | --- |
+| 伞包画廊（全部 UI 组件） | https://flutter-open.github.io/antd-flutter/ | 伞包画廊（全部 UI 组件） |
+| 图标画廊 | https://flutter-open.github.io/antd-flutter/icons/ | 图标画廊 |
+| 色板 | https://flutter-open.github.io/antd-flutter/color/ | 色板 |
+| 设计变量 | https://flutter-open.github.io/antd-flutter/tokens/ | 设计变量 |
+| 主题与 AntScale | https://flutter-open.github.io/antd-flutter/theme/ | 主题与 AntScale |
+| 日历与日历选择器 | https://flutter-open.github.io/antd-flutter/calendar/ | 日历与日历选择器 |
+| 表单校验 | https://flutter-open.github.io/antd-flutter/form/ | 表单校验 |
+| 选择器 / 级联 / 日期 / 时间 | https://flutter-open.github.io/antd-flutter/picker/ | 选择器 / 级联 / 日期 / 时间 |
+| 上传 | https://flutter-open.github.io/antd-flutter/upload/ | 上传 |
+| 穿梭框 | https://flutter-open.github.io/antd-flutter/transfer/ | 穿梭框 |
+| 树与树选择 | https://flutter-open.github.io/antd-flutter/tree/ | 树与树选择 |
+| 表格 | https://flutter-open.github.io/antd-flutter/table/ | 表格 |
+| 数字 / 密码 / 虚拟键盘 | https://flutter-open.github.io/antd-flutter/keyboard/ | 数字 / 密码 / 虚拟键盘 |
+| 二维码 | https://flutter-open.github.io/antd-flutter/qr_code/ | 二维码 |
+| 下拉刷新 | https://flutter-open.github.io/antd-flutter/refresh/ | 下拉刷新 |
+| 分割面板 | https://flutter-open.github.io/antd-flutter/splitter/ | 分割面板 |
+| 滑动操作 | https://flutter-open.github.io/antd-flutter/swipe_action/ | 滑动操作 |
+| 图片预览 | https://flutter-open.github.io/antd-flutter/image_viewer/ | 图片预览 |
+| 走马灯 | https://flutter-open.github.io/antd-flutter/carousel/ | 走马灯 |
+| 瀑布流 | https://flutter-open.github.io/antd-flutter/masonry/ | 瀑布流 |
+| 浮层 | https://flutter-open.github.io/antd-flutter/floating/ | 浮层 |
+
+## 问题反馈
+
+- Bug 与需求：[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+- 文档站：https://flutter-open.github.io/antd-flutter/
+
 ## 相关链接
 
 | 资源 | 地址 |

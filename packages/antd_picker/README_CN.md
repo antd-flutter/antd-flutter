@@ -216,6 +216,11 @@ class _DateTimeFormState extends State<DateTimeForm> {
 
 两个字段各自打开弹层，清除时回报 `null`（`allowClear: true` 启用清除入口）。`minuteStep` / `hourStep` 可稀疏化滚轮选项，适合粗粒度排期。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/picker/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

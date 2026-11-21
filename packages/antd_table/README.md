@@ -232,6 +232,11 @@ AntTable<Team>(
 
 Rows whose `childrenOf` returns a non-empty list become collapsible parents. The `Members` column is a header group spanning its two leaf columns, and `summary` returns footer cells positioned by leaf column index.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/table/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

@@ -192,6 +192,11 @@ Column(
 
 多选模式下触发器展示 chip，`onChange` 发出 `List<Object>`；单选模式发出单个 key，清空后发出 `null`。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/tree/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

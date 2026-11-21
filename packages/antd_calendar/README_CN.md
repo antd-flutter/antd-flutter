@@ -155,6 +155,11 @@ class _PickDateFieldState extends State<PickDateField> {
 
 用 `AntCalendarLocaleProvider(locale: AntCalendarLocale.en, child: ...)` 包裹子树即可切换星期与按钮文案，无需改动单个组件。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/calendar/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

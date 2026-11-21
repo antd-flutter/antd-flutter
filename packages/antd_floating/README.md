@@ -131,6 +131,11 @@ AntFloatingBubble(
 );
 ```
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/floating/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

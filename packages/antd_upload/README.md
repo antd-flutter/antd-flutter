@@ -204,6 +204,11 @@ AntUpload<Attachment>(
 
 A row returned with `AntUploadStatus.error` stays visible in its failed state, so an unsupported file is shown with its reason instead of being silently dropped.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/upload/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

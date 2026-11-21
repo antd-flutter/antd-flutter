@@ -192,6 +192,11 @@ AntTransfer<FileItem>(
 
 `oneWay: true` 隐藏返回操作，数据只能移动至目标面板；`operations` 中对应位置传空字符串可保留纯图标按钮。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/transfer/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

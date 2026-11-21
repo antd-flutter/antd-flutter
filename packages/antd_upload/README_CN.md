@@ -204,6 +204,11 @@ AntUpload<Attachment>(
 
 以 `AntUploadStatus.error` 返回的行会以失败状态留在列表里，让不支持的文件带着原因可见，而不是被静默丢弃。
 
+## 演示
+
+- 在线演示：https://flutter-open.github.io/antd-flutter/upload/
+- 发现问题或有疑问？[提交 Issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## 项目结构
 
 ```text

@@ -126,6 +126,11 @@ controller.goTo(2);
 controller.goTo(0, animate: false);
 ```
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/carousel/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

@@ -163,9 +163,41 @@ jobs:
         working-directory: packages/antd_table/example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/table/
 
+      - name: Install antd_calendar example dependencies
+        working-directory: packages/antd_calendar/example
+        run: flutter pub get
+
+      - name: Build antd_calendar example (release)
+        working-directory: packages/antd_calendar/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/calendar/
+
+      - name: Install antd_color example dependencies
+        working-directory: packages/antd_color/example
+        run: flutter pub get
+
+      - name: Build antd_color example (release)
+        working-directory: packages/antd_color/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/color/
+
+      - name: Install antd_theme example dependencies
+        working-directory: packages/antd_theme/example
+        run: flutter pub get
+
+      - name: Build antd_theme example (release)
+        working-directory: packages/antd_theme/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/theme/
+
+      - name: Install antd_tokens example dependencies
+        working-directory: packages/antd_tokens/example
+        run: flutter pub get
+
+      - name: Build antd_tokens example (release)
+        working-directory: packages/antd_tokens/example
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/tokens/
+
       - name: Merge sites into Pages artifact
         run: |
-          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/form site/tree site/carousel site/masonry site/floating site/keyboard site/table site/transfer
+          mkdir -p site/icons site/qr_code site/refresh site/swipe_action site/splitter site/image_viewer site/upload site/picker site/form site/tree site/carousel site/masonry site/floating site/keyboard site/table site/transfer site/calendar site/color site/theme site/tokens
           cp -r example/build/web/* site/
           cp -r packages/antd_icons_flutter/example/build/web/* site/icons/
           cp -r packages/antd_qrcode/example/build/web/* site/qr_code/
@@ -183,6 +215,10 @@ jobs:
           cp -r packages/antd_keyboard/example/build/web/* site/keyboard/
           cp -r packages/antd_table/example/build/web/* site/table/
           cp -r packages/antd_transfer/example/build/web/* site/transfer/
+          cp -r packages/antd_calendar/example/build/web/* site/calendar/
+          cp -r packages/antd_color/example/build/web/* site/color/
+          cp -r packages/antd_theme/example/build/web/* site/theme/
+          cp -r packages/antd_tokens/example/build/web/* site/tokens/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

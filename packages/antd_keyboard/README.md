@@ -181,6 +181,11 @@ Column(
 
 `AntPasscodeInput` opens its numeric keyboard on tap and reports `onFill` when all cells are filled. `AntVirtualInput` looks like a text field but suppresses the system IME, showing the preset keyboard (or `keyboardLayout`) instead, which keeps input predictable on kiosk and embedded devices.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/keyboard/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text

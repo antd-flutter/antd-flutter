@@ -155,6 +155,11 @@ Tapping the child opens a modal bottom sheet; confirm reports the picked list th
 
 Wrap any subtree in `AntCalendarLocaleProvider(locale: AntCalendarLocale.en, child: ...)` to switch weekday and button text without touching individual widgets.
 
+## Demo
+
+- Live demo: https://flutter-open.github.io/antd-flutter/calendar/
+- Found a bug or have a question? [Open an issue](https://github.com/flutter-open/antd-flutter/issues/new/choose)
+
 ## Project structure
 
 ```text
