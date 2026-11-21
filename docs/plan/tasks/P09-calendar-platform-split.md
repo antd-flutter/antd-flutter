@@ -2,7 +2,9 @@
 
 > 用户指令（m04587，逐字）："Calendar UI按照各自平台实现一套，功能也按各自antd平台对齐实现，如果能整合就整合到一起，不能的话就做一下不同平台的区分适配 **这个任务等所有任务完成后再开始，也生成任务来逐步进行**"。
 >
-> 状态：**排队中**。等当前全部任务（剩余验收项、ScreenUtil/AntScale 改造、其它修复）完成后再启动；启动前先重读本文件与两端源码。
+> 状态：**进行中**（2026-11-21 启动）。C0 对齐矩阵已完成（`docs/plan/tasks/calendar-parity-matrix.md`）；
+> C1 共享核心 + 双端渲染器骨架（`2c50923`）、C2 桌面渲染器（`6cfd378`）、C3 移动渲染器（`090f85f`）已提交。
+> 下一步：C4 兼容收敛与迁移说明、C5 示例与视觉验收、C6 收口。
 
 ## 1. 现状
 
@@ -135,3 +137,16 @@ lib/src/calendar/
 
 - 当前队列全部完成：剩余 23 项组件终验、ScreenUtil/AntScale 改造（待用户拍板）、以及期间用户新增的所有修复。
 - 启动第一步：重读本文件 → `git log` 确认 develop 状态 → 跑 calendar 基线测试 → 产出细化矩阵（C0）。
+
+## 8. C4 迁移说明（破坏性变更）
+
+1. **周起始默认改为周日**：`AntCalendar.weekStartsOn` 默认值由周一改为周日（antd v6 / antd-mobile v5 双端默认）；需要周一起始请显式传 `AntCalendarWeekStartsOn.monday`。
+2. **移动端选择语义**：`selectionMode` 改为可空，`null` 表示「仅展示不可选」；此前默认单选，现在必须显式传 `single`/`range` 才能点选。
+3. **移动端 allowClear 默认 true**：点击已选日期会取消选择；如需保留旧行为显式传 `allowClear: false`（桌面默认 false，不受影响）。
+4. **range 值类型**：移动端范围选择新增 `rangeValue/defaultRangeValue/onRangeChange`（`List<DateTime>`，长度 2、已排序）；`onChange` 仍派发本次点击的日期，范围结果以 `onRangeChange` 为准。`rangeValue` 仅移动端可用，桌面渲染器会 assert。
+5. **桌面 onSelect 带来源**：保留 `onSelect(DateTime)` 兼容；需要 `source`（date/year/month/customize）时用新增的 `onSelectWithInfo(date, info)`。
+6. **cellRender 语义分平台**：桌面 `cellRender(date, info)` 是「内容替换」；移动新增 `mobileCellRender(oriNode, {date})` 是「整格包裹」（避免与桌面同名签名冲突）。
+7. **桌面形态与能力**：桌面同时支持 `fullscreen: true`（antd 全屏面板）与 `fullscreen: false`（card 迷你面板）；旧的 `showFormatSwitcher/showModeSwitcher/showYearNavButtons/enableYearMonthDropdown` 在桌面默认路径不再生效（移动端与扩展兼容分支保留）。
+8. **扩展能力**：`calendarFormat`(week/twoWeeks)、`multiSelect`、`eventLoader`、`showFormatSwitcher` 保留为非 antd 扩展；使用这些参数时移动端走兼容渲染分支。
+9. **CalendarPicker**：仅移动端；内部复用 `AntCalendarMobile`。
+10. **新增桌面能力**：`showWeek`、`headerRender`、`cellRender info.type/originNode`、`dateCellRender/dateFullCellRender`（deprecated 映射）。

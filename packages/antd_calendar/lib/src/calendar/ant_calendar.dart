@@ -166,8 +166,8 @@ class AntCalendar extends StatefulWidget {
   /// 下传本次点击的日期。
   final ValueChanged<DateTime?>? onChange;
 
-  /// 周起始日；null 时按渲染器取默认（移动端周日、桌面周一，
-  /// 对齐 antd-mobile v5 / antd v6 各自默认）。
+  /// 周起始日；null 时默认 **周日**（antd v6 / antd-mobile v5 双端默认）。
+  /// 如需周一起始显式传 [AntCalendarWeekStartsOn.monday]。
   final AntCalendarWeekStartsOn? weekStartsOn;
 
   /// 是否全屏模式（大格子），默认 false 为 card 紧凑模式。
@@ -411,8 +411,8 @@ class _AntCalendarState extends State<AntCalendar>
       case AntCalendarWeekStartsOn.sunday:
         weekStartsOnMonday = false;
       case null:
-        // 移动端默认周日起始（antd-mobile v5），桌面默认周一（antd v6）。
-        weekStartsOnMonday = isDesktop;
+        // 双端 antd 默认：周日为一周起始（antd v6 / antd-mobile v5）。
+        weekStartsOnMonday = false;
     }
     final disabledDate = _combinedDisabledDate();
     return AntCalendarCoreConfig(
