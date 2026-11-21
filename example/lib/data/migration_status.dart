@@ -19,7 +19,6 @@ library;
 const kPendingVerify = <String>[
   // 日历族（独立包 antd_calendar，双端一致性打磨中）
   'calendar',
-  'calendar_picker',
   // 键盘族（独立包 antd_keyboard）
   'number_keyboard',
   'passcode_input',
@@ -143,6 +142,7 @@ const kMigratedVerified = <String>[
   'side_bar',
   'jumbo_tabs',
   'steps',
+  'calendar_picker',
   'tab_bar',
   // 已验收（2026-11-21 用户验收）
   'pagination',
