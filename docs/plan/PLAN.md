@@ -8,29 +8,32 @@
 
 ---
 
-## 一、现状快照（2026-11-18）
+## 一、现状快照（2026-11-21）
 
 ### 仓库与分支
 - 仓库：github.com/flutter-open/antd-flutter（单远程 GitHub，SSH；Gitee/GitCode 双推已取消）
-- **当前分支：`task/p08-split`**（P08 进行中，未合并 master）；master 停在 P08 前状态
+- **当前分支：`task/p08-split`**（批次 0/1/2 全部完成；领先 `develop` 199 个提交，收尾后按 R2 合并 develop）
 - Flutter：fvm 3.50.0 stable；pub.dev 凭证已缓存（曾成功发布子包）
-- 进行中子代理：task-p08-calendar2（antd_calendar 独立包，见「进行中」节）
+- 无进行中子代理；工作区干净，最后提交 `306591c`（2026-11-20，仓库组织迁移 URL 同步）
 
 ### 组件总量与进度
-- 全库 106 个组件（含族内合并实现）；已迁移到独立包/ui 并**用户验收 ✅ 21 个**（详见 `docs/plan/tasks/P08-验收状态表.md`）
-- 基础层 10/10 ✅、通用展示+反馈约 12 ✅、独立包：antd_qrcode ✅ / antd_pull_to_refresh ✅（已更名 antd_refresh 并入 InfiniteScroll）
-- 测试基线：packages/antd_refresh 59+ / antd_flutter_ui 445+ / 根包 1700+ 全过
+- 全库 107 个组件（含族内合并实现）；迁移状态清单：**已验收 ✅ 78 项 / 待验收 ⏱ 29 项**（详见 `docs/plan/tasks/P08-验收状态表.md`）
+- 批次 0（基础组件迁 ui）✅ 全部完成；批次 1/2（独立包拆分）✅ 全部完成，`packages/` 现为 **基础层 4 + ui + 独立包 16**
+- 批次 3：组件自举替换 ✅ / R37 全局热键 ✅ / 伞包 README ✅；剩余 select-like 核查、Calendar 双端打磨、全量回归、3b 终态固化
+- 验收清单已于 2026-11-21 按状态表归位（`example/lib/data/migration_status.dart`：修正 14 项误挂待验证、16 项误标已验收、6 项重复）
+- 测试基线：根包 analyze 归零 + 98 测试；antd_flutter_ui 1469 测试、antd_calendar 92、antd_keyboard 81、antd_picker 62 全过（11-19 全量回归留档，发布前重跑）
 
 ### 包结构现状
 ```
 packages/
 ├── antd_color / antd_tokens / antd_theme / antd_icons_flutter   （已发布 1.0.0/1.0.1 stable）
-├── antd_flutter_ui        （基础库，19 组件已迁入 + engines/ 滚轮/键盘引擎）
-├── antd_qrcode            （独立包 ✅ 验收通过，零三方依赖——qr 引擎已吸收 src/engines/qr/）
-├── antd_refresh           （独立包：AntPullToRefresh 下拉刷新 + AntInfiniteScroll 上拉加载，easy_refresh 架构自研重写）
-├── antd_calendar          （🚧 task-p08-calendar2 构建中：Calendar/CalendarPicker/PickerView 三组件）
-└── antd_pull_to_refresh   （已删除，被 antd_refresh 替代——若目录残留属历史，删除即可）
-主包 antd_flutter_plus      ← 伞包：未迁移组件仍在 lib/src/components/，已迁移组件 re-export 独立包
+├── antd_flutter_ui        （基础库：批次 0 全部组件 + engines/ 滚轮/键盘/热键等）
+├── 独立组件包（16 个）：
+│   antd_calendar / antd_carousel / antd_floating / antd_form / antd_image_viewer /
+│   antd_keyboard / antd_masonry / antd_picker / antd_qrcode / antd_refresh /
+│   antd_splitter / antd_swipe_action / antd_table / antd_transfer / antd_tree / antd_upload
+│   （均 0.1.0-beta.1，待发布 1.0.0；antd_pull_to_refresh 已并入 antd_refresh）
+主包 antd_flutter_plus      ← 伞包：re-export 全部 packages（1.0.0-beta.2）
 ```
 
 ### 关键环境事实
@@ -140,10 +143,16 @@ packages/
 
 ## 五、进行中任务
 
-### [~] P08-组件库拆分（task-p08-calendar2 子代理执行中）
-- 分支 task/p08-split；文档：docs/plan/tasks/P08-组件库拆分基础库与独立组件.md（含完整执行规则与强制清单）
-- **本子任务范围**：建包 packages/antd_calendar（Calendar/CalendarPicker/PickerView 三组件合入，用户裁决）+ 双实现（桌面 fullscreen/移动 card 经 AntResponsive）+ 增强能力全做（月/两周/周格式切换、range 范围选择、多选、事件点标记、头部年月下拉快速跳转；吸收 table_calendar 源码，Apache-2.0）+ 主包 re-export 切换 + gen-docs + example 兼容
-- 完成后：验收状态表更新 → 用户验收 → 继续下方队列
+### [~] P08 批次 3 收尾（2026-11-21 接续点）
+- 分支 `task/p08-split`；文档：docs/plan/tasks/P08-组件库拆分基础库与独立组件.md（含完整执行规则与强制清单）
+- **已完成**：批次 0/1/2 全部迁移；批次 3 的组件自举替换（d56b5a1）、R37 全局热键（ad35e69 / image_viewer Esc 93a5526）、伞包 README（2e233b7）、验收清单归位（本次）
+- **剩余**：
+  1. select-like 底座收尾核查（AutoComplete / Mentions；Cascader / ColorPicker 已 ✅）
+  2. Calendar 双端一致性打磨（功能已全量实现 0236424，仍 ⏱）
+  3. 全量回归（根包 + 21 包 analyze/test + example build web）留档
+  4. 3b 全部 example 身份脚本终跑 + `scripts/gen_docs.sh` 全量重跑
+  5. 合并 `task/p08-split` → `develop`（领先 199 提交）→ 里程碑合 `master`
+- 之后：**集中验收 29 项 ⏱** → 批次 4 发布 1.0.0
 
 ### 验收状态表
 docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后更新）
@@ -172,22 +181,24 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 ### 批次 2 前插（用户指定，优先级最高）：antd_keyboard 独立包
 键盘族功能增强后功能强大（通用 AntKeyboard 引擎 + 全布局吸收 + 桌面形态），**单独成包**：packages/antd_keyboard/——从 ui 迁出（通用键盘引擎 + AntNumberKeyboard/PasscodeInput/VirtualInput 三组件；引擎随包走不入 ui engines），标准五件套（example R35.4 多平台适配 + R32.2 AntdKeyboard + CI + re-export 链调整 + R33 判定 + R35.3 macos 验证）。**批次 0-3 迁移任务（a23）完成后立即执行（同文件域串行）**，其后才继续批次 2 其余项。
 
-### 批次 2：独立包直接从主包拆分（逐个串行）
+### 批次 2：独立包直接从主包拆分（逐个串行）✅ 全部完成
 1. **antd_tree** ✅（Tree/TreeSelect）
 2. **antd_carousel** ✅
 3. **antd_masonry** ✅（含 AntSliverMasonry sliver 变体 R33）
-4. **antd_floating** 🔧 进行中
-5. **antd_form**（表单相关独立包评估——0-8 已将 form/transfer 迁 ui，此处从 ui 拆出）
-5b. **antd_transfer**（用户指定追加：从 ui 拆出，标准五件套 + R32.2 AntdTransfer）
-6. **antd_table**（压轴，从 ui 拆出；pluto_grid 参考）
+4. **antd_floating** ✅（FloatingPanel/FloatingBubble，Controller 化验收通过）
+5. **antd_form** ✅（从 ui 拆出；ui 本体 Form 已验收，包级 example 待验收）
+5b. **antd_transfer** ✅（从 ui 拆出，标准五件套 + R32.2 AntdTransfer）
+6. **antd_table** ✅（压轴，从 ui 拆出；自包含零 ui 依赖）
 
-### 批次 3：收尾
-0. **组件自举替换（用户指定，验收前必做）**：排查所有组件内部使用的非 antd 组件（Material/Cupertino 原生 widget，如内部按钮用了 Material ElevatedButton/IconButton、开关用了 Material Switch 等），**存在对应 antd 实现的一律替换为 antd 组件**（自举），行为保持不变；无对应 antd 实现的保留原生并登记清单
-1. **R37 全局热键系统**：全部迁移完成后统一落地（弹层类 Esc 关闭优先，ui 层统一基础设施）
-2. select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ 已接；Cascader/AutoComplete/ColorPicker/Mentions 核查）
-2. Calendar 完善（⏱：双 UI 一致性打磨）
-3. 全量回归 + 伞包 antd_flutter_plus README（全量伞包/单组件包两种接入方式）
-3b. **全部 example 身份脚本终跑 + 全量 gen-docs 重新生成（用户指定）**：所有 example（含根 example/伞包）统一跑 setup_example_identity.sh（icon/BundleID com.antd.<x>/显示名/壳名）+ scripts/gen_docs.sh 全量重跑（API 文档与代码同步终态）——发布前终态固化
+> 批次 2 期间另新增：antd_keyboard / antd_image_viewer / antd_picker / antd_splitter / antd_upload（共 16 独立包）
+
+### 批次 3：收尾（进行中）
+0. ✅ **组件自举替换**（d56b5a1：24 处替换 / 14 处登记保留）
+1. ✅ **R37 全局热键系统**（ad35e69：AntHotkeys 基础设施 + 弹层 Esc 关闭统一；image_viewer 本地 Esc 93a5526）
+2. ⏳ select-like 族统一 popup_engine 底座收尾核查（TreeSelect ✅ / Cascader ✅ / ColorPicker ✅；AutoComplete、Mentions 待核查）
+2. ⏳ Calendar 完善（功能已全量实现 0236424，双 UI 一致性打磨待验收）
+3. ✅ 伞包 README（2e233b7）；⏳ 全量回归待重跑留档
+3b. ⏳ **全部 example 身份脚本终跑 + 全量 gen-docs 重新生成**（发布前终态固化；当前 API 文档生成于 11-20 00:08）
 
 ### 批次 4：发布 1.0.0
 CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
@@ -212,6 +223,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **交接状态刷新**：快照更新至批次 2 全部完成（16 独立包）；验收清单按状态表归位（`migration_status.dart` 修正 14 误挂/16 误标/6 重复 → 78 ✅ / 29 ⏱）；进行中任务改为批次 3 收尾；标记 R37/自举/README 完成 |
 | 2026-11-18 | **本文件重写为独立交接文档**：现状快照/接手指南/规则汇总（R1-R34 去重）/剩余队列/强制清单/文件索引；P08 进行中状态（calendar2）与剩余队列整理；GitCode 待办取消 |
 | 2026-11-18 | 独立包拆分标准流程补充：example 创建完善（R32 全平台）+ CI 静态部署集成（deploy.yml/build_site.sh 已通用化，随包追加）
 | 2026-11-17 | P08 争议组件裁决：Carousel/Masonry/ColorPicker/Select/Transfer 独立成包，Ellipsis 留 ui
