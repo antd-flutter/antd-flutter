@@ -19,12 +19,17 @@ class AntCalendarCoreConfig {
     this.value,
     this.defaultValue,
     this.onSelect,
+    this.onSelectWithInfo,
     this.onChange,
     this.dateCell,
     this.cellRender,
     this.fullCellRender,
+    this.dateCellRender,
+    this.dateFullCellRender,
     this.monthCellRender,
     this.monthFullCellRender,
+    this.headerRender,
+    this.showWeek = false,
     this.renderDate,
     this.renderLabel,
     required this.weekStartsOnMonday,
@@ -66,6 +71,11 @@ class AntCalendarCoreConfig {
   /// 日期选中回调（兼容旧 API）。
   final ValueChanged<DateTime>? onSelect;
 
+  /// 带来源的选中回调（antd v6 `onSelect(date, info)` 对齐）。
+  /// 与 [onSelect] 同时触发，来源见 [AntCalendarSelectInfo.source]。
+  final void Function(DateTime date, AntCalendarSelectInfo info)?
+      onSelectWithInfo;
+
   /// 选中变化回调（allowClear 清除时为 null）。
   final ValueChanged<DateTime?>? onChange;
 
@@ -79,6 +89,18 @@ class AntCalendarCoreConfig {
 
   /// 整格渲染（fullCellRender，最高优先级）。
   final AntCalendarFullCellRender? fullCellRender;
+
+  /// 已废弃：antd v6 的 `dateCellRender`，桌面路径映射到 [cellRender]。
+  final Widget? Function(DateTime date)? dateCellRender;
+
+  /// 已废弃：antd v6 的 `dateFullCellRender`，桌面路径映射到 [fullCellRender]。
+  final Widget? Function(DateTime date)? dateFullCellRender;
+
+  /// 自定义头部（antd v6 `headerRender`，仅桌面渲染器生效）。
+  final AntCalendarHeaderRender? headerRender;
+
+  /// 是否展示周序号列（antd v6 `showWeek`，仅桌面渲染器生效）。
+  final bool showWeek;
 
   /// 月面板单元格内容渲染。
   final AntCalendarMonthCellRender? monthCellRender;

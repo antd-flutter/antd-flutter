@@ -55,12 +55,17 @@ class AntCalendar extends StatefulWidget {
     this.value,
     this.defaultValue,
     this.onSelect,
+    this.onSelectWithInfo,
     this.onChange,
     this.weekStartsOn = AntCalendarWeekStartsOn.monday,
     this.fullscreen = false,
     this.dateCell,
     this.cellRender,
     this.fullCellRender,
+    this.headerRender,
+    this.showWeek = false,
+    @Deprecated('Use cellRender instead (antd v6)') this.dateCellRender,
+    @Deprecated('Use fullCellRender instead (antd v6)') this.dateFullCellRender,
     this.monthCellRender,
     this.monthFullCellRender,
     this.disabledDate,
@@ -107,6 +112,12 @@ class AntCalendar extends StatefulWidget {
   /// allowClear 清除选择时不触发）。
   final ValueChanged<DateTime>? onSelect;
 
+  /// 带选择来源的选中回调（antd v6 `onSelect(date, info)` 对齐）：
+  /// [AntCalendarSelectInfo.source] 区分日期点击 / 年下拉 / 月下拉 /
+  /// 自定义头部；与 [onSelect] 同时触发，二者可任选其一使用。
+  final void Function(DateTime date, AntCalendarSelectInfo info)?
+      onSelectWithInfo;
+
   /// 选中变化回调（antd v6 onChange / antd-mobile onChange 对齐）：
   /// 单选选中时传日期，allowClear 清除时传 null；range/multi 模式
   /// 下传本次点击的日期。
@@ -131,6 +142,24 @@ class AntCalendar extends StatefulWidget {
   /// 整格渲染回调（antd v6 fullCellRender 对齐）：完全接管单元格
   /// 渲染（含背景/边框/选择态视觉，点击仍由组件处理）。
   final AntCalendarFullCellRender? fullCellRender;
+
+  /// 自定义头部渲染（antd v6 `headerRender` 对齐，仅桌面渲染器生效）：
+  /// 传 null 时使用桌面默认头部（年/月下拉 + 月年模式切换）；
+  /// 优先级高于 [header]。
+  final AntCalendarHeaderRender? headerRender;
+
+  /// 是否展示周序号列（antd v6 `showWeek` 对齐，仅桌面渲染器生效）。
+  final bool showWeek;
+
+  /// 已废弃：请使用 [cellRender]（antd v6 将 dateCellRender 并入
+  /// cellRender，原有 dateCell 插槽继续可用）。
+  @Deprecated('Use cellRender instead (antd v6)')
+  final Widget? Function(DateTime date)? dateCellRender;
+
+  /// 已废弃：请使用 [fullCellRender]（antd v6 将 dateFullCellRender
+  /// 并入 fullCellRender）。
+  @Deprecated('Use fullCellRender instead (antd v6)')
+  final Widget? Function(DateTime date)? dateFullCellRender;
 
   /// 月面板单元格内容渲染回调（antd v6 monthCellRender 对齐）。
   final AntCalendarMonthCellRender? monthCellRender;
@@ -291,10 +320,15 @@ class _AntCalendarState extends State<AntCalendar>
       value: widget.value,
       defaultValue: widget.defaultValue,
       onSelect: widget.onSelect,
+      onSelectWithInfo: widget.onSelectWithInfo,
       onChange: widget.onChange,
       dateCell: widget.dateCell,
       cellRender: widget.cellRender,
       fullCellRender: widget.fullCellRender,
+      dateCellRender: widget.dateCellRender,
+      dateFullCellRender: widget.dateFullCellRender,
+      headerRender: widget.headerRender,
+      showWeek: widget.showWeek,
       monthCellRender: widget.monthCellRender,
       monthFullCellRender: widget.monthFullCellRender,
       renderDate: widget.renderDate,
@@ -309,10 +343,13 @@ class _AntCalendarState extends State<AntCalendar>
       calendarFormat: widget.calendarFormat,
       onFormatChanged: widget.onFormatChanged,
       showFormatSwitcher: widget.showFormatSwitcher,
-      // 兼容语义：showModeSwitcher 未显式指定时，仅 fullscreen 形态展示
-      // （按参数判定，不随 auto 解析出的实际形态变化）。
+      // 兼容语义：showModeSwitcher 未显式指定时，桌面渲染器恒展示
+      // （card 形态也保留月/年切换）；移动渲染器沿用 fullscreen 判定。
       showModeSwitcher: widget.showModeSwitcher ??
-          (widget.fullscreen || widget.layout == AntCalendarLayout.fullscreen),
+          (_isDesktopPlatform
+              ? true
+              : (widget.fullscreen ||
+                  widget.layout == AntCalendarLayout.fullscreen)),
       mode: widget.mode,
       initialMode: widget.initialMode,
       onModeChanged: widget.onModeChanged,
@@ -329,6 +366,18 @@ class _AntCalendarState extends State<AntCalendar>
       showYearNavButtons: widget.showYearNavButtons,
       enableYearMonthDropdown: widget.enableYearMonthDropdown,
     );
+  }
+
+  /// 是否走桌面渲染器（与 build 中 platform 解析保持一致）。
+  bool get _isDesktopPlatform {
+    switch (widget.platform) {
+      case AntCalendarPlatform.desktop:
+        return true;
+      case AntCalendarPlatform.mobile:
+        return false;
+      case AntCalendarPlatform.auto:
+        return !AntPlatform.isMobile;
+    }
   }
 
   /// 当前生效的布局形态（C1 保持旧 fullscreen/layout 语义）。

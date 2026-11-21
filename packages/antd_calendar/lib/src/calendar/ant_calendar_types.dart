@@ -115,6 +115,70 @@ class AntCalendarValidRange {
   int get hashCode => Object.hash(start, end);
 }
 
+/// 单元格类型（antd v6 `info.type` 对齐）：日期格 / 月格。
+enum AntCalendarCellType {
+  /// 日期面板的日期格。
+  date,
+
+  /// 年面板的月份格。
+  month,
+}
+
+/// 选择来源（antd v6 `SelectInfo.source` 对齐）。
+enum AntCalendarSelectSource {
+  /// 点击日期格（月面板默认来源）。
+  date,
+
+  /// 头部年份下拉切换（antd v6 `source: 'year'`）。
+  year,
+
+  /// 头部月份下拉切换（antd v6 `source: 'month'`）。
+  month,
+
+  /// 自定义头部 `headerRender` 触发（antd v6 `source: 'customize'`）。
+  customize,
+}
+
+/// 选中事件附加信息（antd v6 `onSelect(date, info)` 的 info 对齐）。
+class AntCalendarSelectInfo {
+  /// 创建选择信息。
+  const AntCalendarSelectInfo({required this.source});
+
+  /// 本次选择的来源。
+  final AntCalendarSelectSource source;
+
+  @override
+  String toString() => 'AntCalendarSelectInfo(source: $source)';
+}
+
+/// 自定义头部渲染配置（antd v6 `headerRender` 的 config 对齐）。
+class AntCalendarHeaderRenderConfig {
+  /// 创建头部渲染配置。
+  const AntCalendarHeaderRenderConfig({
+    required this.value,
+    required this.type,
+    required this.onChange,
+    required this.onTypeChange,
+  });
+
+  /// 当前值（选中日期，未选中时回退焦点日）。
+  final DateTime value;
+
+  /// 当前面板模式（month / year）。
+  final AntCalendarMode type;
+
+  /// 头部改动日期时调用（对应 antd v6 `onChange(date)`）。
+  final ValueChanged<DateTime> onChange;
+
+  /// 头部切换面板模式时调用（对应 antd v6 `onTypeChange(type)`）。
+  final ValueChanged<AntCalendarMode> onTypeChange;
+}
+
+/// 自定义头部渲染回调（antd v6 `headerRender` 对齐，仅桌面渲染器生效）。
+typedef AntCalendarHeaderRender = Widget Function(
+  AntCalendarHeaderRenderConfig config,
+);
+
 /// 单元格渲染信息（antd v6 cellRender / fullCellRender 的 info 参数对齐）。
 class AntCalendarCellRenderInfo {
   const AntCalendarCellRenderInfo({
@@ -123,6 +187,8 @@ class AntCalendarCellRenderInfo {
     required this.isCurrentMonth,
     required this.isDisabled,
     required this.isInValidRange,
+    this.type = AntCalendarCellType.date,
+    this.originNode,
   });
 
   /// 是否为今天。
@@ -140,11 +206,24 @@ class AntCalendarCellRenderInfo {
   /// 是否在 validRange 内（未配置 validRange 时恒为 true）。
   final bool isInValidRange;
 
+  /// 单元格类型（antd v6 `info.type`）：日期格为 [AntCalendarCellType.date]，
+  /// 月面板的月格为 [AntCalendarCellType.month]。
+  final AntCalendarCellType type;
+
+  /// 默认渲染节点（antd v6 `info.originNode` 的降级近似）：
+  /// `cellRender` / `fullCellRender` 中可直接包裹或作为替换参考。
+  ///
+  /// 说明：与 antd 一致，`cellRender` 的 originNode 为默认「内容层」节点
+  /// （日期数字 + 内容插槽），`fullCellRender` 的 originNode 为默认「整格」
+  /// 节点（含分隔线、选中背景、内边距）；两者均为惰性构建的普通 Widget，
+  /// 但未挂载 Element，不可通过 GlobalKey 读取其状态。
+  final Widget? originNode;
+
   @override
   String toString() =>
       'AntCalendarCellRenderInfo(isToday: $isToday, isSelected: $isSelected, '
       'isCurrentMonth: $isCurrentMonth, isDisabled: $isDisabled, '
-      'isInValidRange: $isInValidRange)';
+      'isInValidRange: $isInValidRange, type: $type)';
 }
 
 /// cellRender 内容层渲染回调（antd v6 cellRender 对齐）：

@@ -20,6 +20,24 @@ export 'package:antd_flutter_ui/antd_flutter_ui.dart'
         kCalendarDaysPerWeek,
         kCalendarMaxWeeks;
 
+/// 周序号（antd v6 showWeek 对齐）：一年中第几周。
+///
+/// 以 [weekStartsOnMonday] 决定周起始；每周从周起始日算起，
+/// 含 1 月 1 日的那一周记为第 1 周（antd/dayjs week-of-year 语义）。
+int calendarWeekNumber(
+  DateTime date, {
+  required bool weekStartsOnMonday,
+}) {
+  final day = calendarDateOnly(date);
+  final firstDayIndex = weekStartsOnMonday ? DateTime.monday : DateTime.sunday;
+  int offset(DateTime value) => (value.weekday - firstDayIndex) % 7;
+  final weekStart = day.subtract(Duration(days: offset(day)));
+  final firstWeekStart = DateTime(day.year).subtract(
+    Duration(days: offset(DateTime(day.year))),
+  );
+  return weekStart.difference(firstWeekStart).inDays ~/ 7 + 1;
+}
+
 /// 两个日期是否属于同一展示月份（仅比较年/月）。
 bool calendarIsSameMonth(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month;

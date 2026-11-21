@@ -181,7 +181,7 @@ class AntCalendarCoreState extends ChangeNotifier {
       }
       notifyListeners();
       _config.onSelectMulti?.call(next);
-      _config.onSelect?.call(dayOnly);
+      _emitSelect(dayOnly, AntCalendarSelectSource.date);
       _config.onChange?.call(dayOnly);
       return;
     }
@@ -201,7 +201,7 @@ class AntCalendarCoreState extends ChangeNotifier {
           _currentMonth = DateTime(hi.year, hi.month);
         }
         notifyListeners();
-        _config.onSelect?.call(dayOnly);
+        _emitSelect(dayOnly, AntCalendarSelectSource.date);
         _config.onChange?.call(dayOnly);
         _config.onRangeSelected?.call(lo, hi);
         return;
@@ -212,7 +212,7 @@ class AntCalendarCoreState extends ChangeNotifier {
         _internalRangeEnd = null;
       }
       notifyListeners();
-      _config.onSelect?.call(dayOnly);
+      _emitSelect(dayOnly, AntCalendarSelectSource.date);
       _config.onChange?.call(dayOnly);
       return;
     }
@@ -237,8 +237,56 @@ class AntCalendarCoreState extends ChangeNotifier {
       _currentMonth = DateTime(dayOnly.year, dayOnly.month);
     }
     notifyListeners();
-    _config.onSelect?.call(dayOnly);
+    _emitSelect(dayOnly, AntCalendarSelectSource.date);
     _config.onChange?.call(dayOnly);
+  }
+
+  /// 头部（年份/月份下拉、自定义 headerRender）改动日期。
+  ///
+  /// 对齐 antd v6：更新展示年月与值（非受控单选），并按 [source] 派发
+  /// onSelect/onSelectWithInfo、onChange、onPanelChange。
+  void selectFromHeader(DateTime date, AntCalendarSelectSource source) {
+    final year = date.year;
+    var month = date.month;
+    if (isMonthBlocked(DateTime(year, month))) return;
+    final range = _config.validRange;
+    if (range != null) {
+      if (year == range.start.year && month < range.start.month) {
+        month = range.start.month;
+      }
+      if (year == range.end.year && month > range.end.month) {
+        month = range.end.month;
+      }
+    }
+    final maxDay = DateTime(year, month + 1, 0).day;
+    var next = DateTime(year, month, date.day > maxDay ? maxDay : date.day);
+    if (range != null) {
+      if (next.isBefore(range.start)) {
+        next = range.start;
+      } else if (next.isAfter(range.end)) {
+        next = range.end;
+      }
+    }
+    _focusedDate = next;
+    _currentMonth = DateTime(next.year, next.month);
+    if (!_config.multiSelect &&
+        _config.selectionMode == AntCalendarSelectionMode.single &&
+        _config.value == null) {
+      _internalValue = next;
+    }
+    notifyListeners();
+    _emitSelect(next, source);
+    _config.onChange?.call(next);
+    _notifyPanelChanged(next, mode);
+  }
+
+  /// 同时派发兼容的 [AntCalendarCoreConfig.onSelect] 与带来源回调。
+  void _emitSelect(DateTime date, AntCalendarSelectSource source) {
+    _config.onSelect?.call(date);
+    _config.onSelectWithInfo?.call(
+      date,
+      AntCalendarSelectInfo(source: source),
+    );
   }
 
   /// 切换可见格式（calendarFormat 增强能力）。
