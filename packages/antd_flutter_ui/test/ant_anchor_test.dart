@@ -4,6 +4,7 @@ library;
 import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
@@ -252,6 +253,8 @@ void main() {
     });
   });
 
+  group('AntAnchor — 滚动联动', _scrollLinkTests);
+
   group('AntAnchorController', () {
     test('setActive 相同值不通知', () {
       final controller = AntAnchorController();
@@ -271,5 +274,128 @@ void main() {
       final controller = AntAnchorController();
       expect(controller.activeKey, isNull);
     });
+  });
+}
+// ============================================================
+// 滚动联动
+// ============================================================
+
+Widget _linkedHarness({
+  required ScrollController scrollController,
+  required AntAnchorController anchorController,
+  required Map<String, GlobalKey> keys,
+  double topOffset = 0,
+}) {
+  return _wrap(
+    SizedBox(
+      height: 300,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 160,
+            child: AntAnchor(
+              controller: anchorController,
+              scrollController: scrollController,
+              targetKeys: keys,
+              topOffset: topOffset,
+              scrollDuration: const Duration(milliseconds: 50),
+              items: const [
+                AntAnchorItem(key: 'a', title: 'A'),
+                AntAnchorItem(key: 'b', title: 'B'),
+                AntAnchorItem(key: 'c', title: 'C'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                children: [
+                  for (final key in ['a', 'b', 'c'])
+                    Container(
+                      key: keys[key],
+                      height: 400,
+                      color: Colors.grey.shade100,
+                      alignment: Alignment.topLeft,
+                      child: Text('Section ${key.toUpperCase()}'),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+void _scrollLinkTests() {
+  testWidgets('点击锚点滚动到目标区块', (tester) async {
+    final scroll = ScrollController();
+    final anchor = AntAnchorController();
+    final keys = {'a': GlobalKey(), 'b': GlobalKey(), 'c': GlobalKey()};
+    addTearDown(scroll.dispose);
+    addTearDown(anchor.dispose);
+
+    await tester.pumpWidget(
+      _linkedHarness(scrollController: scroll, anchorController: anchor, keys: keys),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+
+    expect(anchor.activeKey, 'b');
+    expect(scroll.offset, greaterThanOrEqualTo(399));
+  });
+
+  testWidgets('滚动页面时高亮跟随可视区块', (tester) async {
+    final scroll = ScrollController();
+    final anchor = AntAnchorController();
+    final keys = {'a': GlobalKey(), 'b': GlobalKey(), 'c': GlobalKey()};
+    addTearDown(scroll.dispose);
+    addTearDown(anchor.dispose);
+
+    await tester.pumpWidget(
+      _linkedHarness(scrollController: scroll, anchorController: anchor, keys: keys),
+    );
+    await tester.pumpAndSettle();
+    expect(anchor.activeKey, 'a');
+
+    scroll.jumpTo(410);
+    await tester.pump();
+    expect(anchor.activeKey, 'b');
+
+    scroll.jumpTo(810);
+    await tester.pump();
+    expect(anchor.activeKey, 'c');
+  });
+
+  testWidgets('topOffset 预留顶部偏移', (tester) async {
+    final scroll = ScrollController();
+    final anchor = AntAnchorController();
+    final keys = {'a': GlobalKey(), 'b': GlobalKey(), 'c': GlobalKey()};
+    addTearDown(scroll.dispose);
+    addTearDown(anchor.dispose);
+
+    await tester.pumpWidget(
+      _linkedHarness(
+        scrollController: scroll,
+        anchorController: anchor,
+        keys: keys,
+        topOffset: 40,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('C'));
+    await tester.pumpAndSettle();
+
+    expect(anchor.activeKey, 'c');
+    final target = keys['c']!.currentContext!.findRenderObject()!;
+    final viewport = RenderAbstractViewport.of(target);
+    final reveal = viewport.getOffsetToReveal(target, 0).offset;
+    expect((scroll.offset - (reveal - 40)).abs(), lessThan(1));
   });
 }

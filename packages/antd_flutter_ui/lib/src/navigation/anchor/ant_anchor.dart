@@ -9,6 +9,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_anchor_types.dart';
@@ -39,6 +40,11 @@ class AntAnchor extends StatefulWidget {
     this.controller,
     this.onClick,
     this.onChange,
+    this.scrollController,
+    this.targetKeys = const {},
+    this.topOffset = 0,
+    this.autoScroll = true,
+    this.scrollDuration = const Duration(milliseconds: 300),
   });
 
   /// 锚点链接项列表。
@@ -56,12 +62,34 @@ class AntAnchor extends StatefulWidget {
   /// 激活项变化回调。
   final ValueChanged<String?>? onChange;
 
+  /// 页面内容区的滚动控制器。
+  ///
+  /// 提供后锚点会监听滚动、自动高亮当前可视区块，并在点击时滚动到目标区块。
+  final ScrollController? scrollController;
+
+  /// 锚点 key → 内容区块 [GlobalKey] 的映射。
+  ///
+  /// 用于定位各区块位置；缺失的 key 只参与高亮切换，不触发滚动。
+  final Map<String, GlobalKey> targetKeys;
+
+  /// 滚动定位时预留的顶部偏移（例如固定导航栏高度）。
+  final double topOffset;
+
+  /// 点击锚点后是否自动滚动到目标区块。
+  final bool autoScroll;
+
+  /// 点击后滚动动画时长。
+  final Duration scrollDuration;
+
   @override
   State<AntAnchor> createState() => _AntAnchorState();
 }
 
 class _AntAnchorState extends State<AntAnchor> {
   AntAnchorController? _internalController;
+
+  /// 点击触发的滚动期间忽略滚动监听，避免高亮抖动。
+  bool _programmaticScroll = false;
 
   AntAnchorController get _controller =>
       widget.controller ?? _internalController!;
@@ -73,6 +101,10 @@ class _AntAnchorState extends State<AntAnchor> {
       _internalController = AntAnchorController();
     }
     _controller.addListener(_handleControllerChange);
+    widget.scrollController?.addListener(_handleScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncActiveFromScroll();
+    });
   }
 
   @override
@@ -85,11 +117,19 @@ class _AntAnchorState extends State<AntAnchor> {
       }
       _controller.addListener(_handleControllerChange);
     }
+    if (oldWidget.scrollController != widget.scrollController) {
+      oldWidget.scrollController?.removeListener(_handleScroll);
+      widget.scrollController?.addListener(_handleScroll);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _syncActiveFromScroll();
+      });
+    }
   }
 
   @override
   void dispose() {
     _controller.removeListener(_handleControllerChange);
+    widget.scrollController?.removeListener(_handleScroll);
     _internalController?.dispose();
     super.dispose();
   }
@@ -102,6 +142,92 @@ class _AntAnchorState extends State<AntAnchor> {
   void _handleClick(AntAnchorItem item) {
     widget.onClick?.call(item.key);
     _controller.setActive(item.key);
+    _scrollTo(item.key);
+  }
+
+  // ------------------------------------------------------------
+  // 滚动联动
+  // ------------------------------------------------------------
+
+  void _handleScroll() {
+    if (_programmaticScroll) return;
+    _syncActiveFromScroll();
+  }
+
+  /// 区块顶部在滚动内容坐标系中的偏移。
+  double? _revealOffset(GlobalKey key) {
+    final renderObject = key.currentContext?.findRenderObject();
+    if (renderObject == null) return null;
+    final viewport = RenderAbstractViewport.maybeOf(renderObject);
+    if (viewport == null) return null;
+    return viewport.getOffsetToReveal(renderObject, 0).offset;
+  }
+
+  /// 按内容顺序取「最后一个顶部已滚过阈值」的区块作为激活项。
+  void _syncActiveFromScroll() {
+    final controller = widget.scrollController;
+    if (controller == null || !controller.hasClients) return;
+    if (widget.targetKeys.isEmpty) return;
+
+    final threshold = controller.position.pixels + widget.topOffset + 0.5;
+    String? active;
+    for (final item in _flattenItems(widget.items)) {
+      final key = widget.targetKeys[item.key];
+      if (key == null) continue;
+      final offset = _revealOffset(key);
+      if (offset == null) continue;
+      if (offset <= threshold) active = item.key;
+    }
+    if (active != null) _controller.setActive(active);
+  }
+
+  Future<void> _scrollTo(String key) async {
+    if (!widget.autoScroll) return;
+    final targetContext = widget.targetKeys[key]?.currentContext;
+    if (targetContext == null) return;
+
+    final controller = widget.scrollController;
+    if (controller == null || !controller.hasClients) {
+      // 没有显式控制器时退化为 Scrollable.ensureVisible。
+      await Scrollable.ensureVisible(
+        targetContext,
+        duration: widget.scrollDuration,
+        curve: Curves.easeInOutCubic,
+      );
+      return;
+    }
+
+    final reveal = _revealOffset(widget.targetKeys[key]!);
+    if (reveal == null) return;
+    final position = controller.position;
+    final desired = (reveal - widget.topOffset).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+    if ((desired - position.pixels).abs() < 0.5) return;
+
+    _programmaticScroll = true;
+    try {
+      await controller.animateTo(
+        desired.toDouble(),
+        duration: widget.scrollDuration,
+        curve: Curves.easeInOutCubic,
+      );
+    } finally {
+      _programmaticScroll = false;
+      if (mounted) _syncActiveFromScroll();
+    }
+  }
+
+  List<AntAnchorItem> _flattenItems(List<AntAnchorItem> items) {
+    final result = <AntAnchorItem>[];
+    for (final item in items) {
+      result.add(item);
+      if (item.children.isNotEmpty) {
+        result.addAll(_flattenItems(item.children));
+      }
+    }
+    return result;
   }
 
   bool _isActive(AntAnchorItem item) =>
