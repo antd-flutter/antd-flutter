@@ -41,7 +41,16 @@ jobs:
         run: flutter analyze
 
       - name: Run tests
-        run: flutter test
+        run: |
+          if [ -d test ]; then
+            flutter test
+          fi
+          for d in packages/*; do
+            if [ -d "$d/test" ]; then
+              echo "flutter test in $d"
+              (cd "$d" && flutter test)
+            fi
+          done
 
   build:
     name: Build ${{ matrix.target }}
