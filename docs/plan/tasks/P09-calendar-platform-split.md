@@ -2,10 +2,10 @@
 
 > 用户指令（m04587，逐字）："Calendar UI按照各自平台实现一套，功能也按各自antd平台对齐实现，如果能整合就整合到一起，不能的话就做一下不同平台的区分适配 **这个任务等所有任务完成后再开始，也生成任务来逐步进行**"。
 >
-> 状态：**进行中**（2026-11-21 启动）。C0 对齐矩阵已完成（`docs/plan/tasks/calendar-parity-matrix.md`）；
+> 状态：**已完成**（2026-11-21 启动并收口，C0–C6）。C0 对齐矩阵已完成（`docs/plan/tasks/calendar-parity-matrix.md`）；
 > C1 共享核心 + 双端渲染器骨架（`2c50923`）、C2 桌面渲染器（`6cfd378`）、C3 移动渲染器（`090f85f`）已提交。
 > C4 兼容收敛与迁移说明已提交（`e45928c`）；C5 示例页按平台分段与双端截图验收完成（见 §9）。
-> 下一步：C6 收口（全库回归、状态表与 PLAN 更新、最终提交）。
+> C6 收口已完成（见 §10）。
 
 ## 1. 现状
 
@@ -164,3 +164,10 @@ lib/src/calendar/
   - `.temp/calendar_mobile.png`（390×844）：四向箭头、居中「2026年11月」+ 下拉、45 高星期行、48 格、19 字号、¥ 标签、选中圆角主色块。
 - 期间修复：`AntCalendarLocale.weekLabelsFor` 周日起始时错误地把周标签左移一位（`['二','三','四','五','六','日','一']`），改为 `[last, ...take(6)]` 得到 `['日','一'..'六']`；`test/calendar_compat_test.dart` 断言改为整行顺序；桌面头部年/月下拉宽度调至 104/88，避免「2026年」「11月」换行。
 - 全包 137 项测试全过、`antd_calendar` 与 root example `flutter analyze` 均无问题。
+
+## 10. C6 收口
+
+- 回归：`antd_calendar` 137 项、root example 59 项、根包 98 项测试全过；`antd_calendar` 与 root example `flutter analyze` 均无问题。
+- 破坏性变更与迁移说明见 §8；示例与截图见 §9。
+- 文档：`P08-验收状态表.md` 的 Calendar / CalendarPicker 行更新为 P09 架构说明；`PLAN.md` 批次 4 标记完成并记录变更。
+- 后续：日历项仍需用户最终验收（状态表保持 ⏱）；发布 1.0.0 时再合并 master。

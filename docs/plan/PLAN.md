@@ -219,7 +219,7 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 3. ✅ 伞包 README（2e233b7）+ 全量回归留档（21 包 + 根包 analyze/test、example web build 全绿，见 `.temp/regress_result.txt`）
 3b. ✅ **example 身份脚本终跑 + gen-docs 全量重跑**：9 个 example 补齐 `com.antd.*`（carousel/color/floating/masonry/picker/theme/tokens/tree/upload），全部 21 个 example 身份一致；文档页面缺失/多余/人工残留均为 0
 
-### 批次 4（排队）：P09 Calendar 双端各自实现
+### 批次 4：P09 Calendar 双端各自实现 —— ✅ 已完成（2026-11-21）
 > 用户 2026-11-21 指定：**所有任务完成后**再开始；先产出/细化任务书 `docs/plan/tasks/P09-calendar-platform-split.md`，按 C0 调研矩阵 → C1 抽共享核心 → C2 桌面（antd v6）→ C3 移动（antd-mobile v5）→ C4 兼容与整合判定 → C5 双端示例与视觉验收 → C6 收口 逐阶段执行，每阶段独立提交可验收。
 > 关键约束：逻辑共享、渲染分平台（禁止在渲染代码里 `if (isMobile)` 打补丁）；现有 week/twoWeeks/multiSelect 等非 antd 增强收敛为扩展能力；桌面无 CalendarPicker。
 
