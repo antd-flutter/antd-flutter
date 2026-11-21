@@ -257,5 +257,32 @@ void main() {
       expect(find.byType(EditableText), findsOneWidget);
       expect(find.byType(AntNumberKeyboard), findsNothing);
     });
+
+    testWidgets('desktop capture layer is invisible and does not add chrome',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(_wrap(const AntPasscodeInput()));
+      await tester.pumpAndSettle();
+
+      // 透明采集层不得参与视觉呈现（否则会在格子上方画出一条边线）。
+      final opacity = tester.widget<Opacity>(
+        find.ancestor(
+          of: find.byType(TextField),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(opacity.opacity, 0);
+
+      // 组件高度 = 格子高度 + 上下 1px 边框，不额外多出输入框高度。
+      final theme = AntTheme.of(
+        tester.element(find.byType(AntPasscodeInput)),
+      );
+      final cellSize = theme.s(40);
+      expect(
+        tester.getSize(find.byType(AntPasscodeInput)).height,
+        closeTo(cellSize + 2, 0.01),
+      );
+    });
   });
 }

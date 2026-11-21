@@ -279,9 +279,8 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
     final gap = widget.cellGap ?? ant.s(6);
     final radius = widget.borderRadius ?? ant.s(8);
     final danger = ant.colorError;
-    final borderColor = widget.error
-        ? danger
-        : (_active ? ant.colorPrimary : ant.colorBorder);
+    final borderColor =
+        widget.error ? danger : (_active ? ant.colorPrimary : ant.colorBorder);
     final cells = _buildCells(
       ant,
       cellSize: cellSize,
@@ -316,27 +315,35 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
         children: [
           body,
           Positioned.fill(
-            child: TextField(
-              controller: _desktopController,
-              focusNode: _desktopFocus,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(widget.length),
-              ],
-              showCursor: false,
-              enableSuggestions: false,
-              autocorrect: false,
-              style: TextStyle(
-                fontSize: 1,
-                color: ant.colorText.withValues(alpha: 0),
-              ),
-              cursorColor: ant.colorPrimary.withValues(alpha: 0),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                counterText: '',
-                contentPadding: EdgeInsets.zero,
+            // 透明采集层：只负责接收系统键盘输入，不参与任何视觉呈现。
+            // 桌面端 TextField 默认装饰会在格子上方画出一条边线，故整体隐藏。
+            child: Opacity(
+              opacity: 0,
+              child: Material(
+                type: MaterialType.transparency,
+                child: TextField(
+                  controller: _desktopController,
+                  focusNode: _desktopFocus,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(widget.length),
+                  ],
+                  showCursor: false,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  style: TextStyle(
+                    fontSize: 1,
+                    color: ant.colorText.withValues(alpha: 0),
+                  ),
+                  cursorColor: ant.colorPrimary.withValues(alpha: 0),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                    counterText: '',
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
               ),
             ),
           ),
