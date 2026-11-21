@@ -7,21 +7,21 @@ packages:
       path: "../../antd_color"
       relative: true
     source: path
-    version: "0.1.0-beta.1"
+    version: "1.0.0"
   antd_theme:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.1.0-beta.1"
+    version: "1.0.0"
   antd_tokens:
     dependency: "direct overridden"
     description:
       path: "../../antd_tokens"
       relative: true
     source: path
-    version: "0.1.0-beta.1"
+    version: "1.0.0"
   async:
     dependency: transitive
     description:
