@@ -364,18 +364,22 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
         ),
       ),
       child: Row(
+        mainAxisAlignment: (widget.title ?? '').isEmpty
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              widget.title ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: theme.titleFontSize ?? ant.fontSizeSM,
-                color: theme.titleColor ?? ant.colorTextSecondary,
+          if ((widget.title ?? '').isNotEmpty)
+            Expanded(
+              child: Text(
+                widget.title!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: theme.titleFontSize ?? ant.fontSizeSM,
+                  color: theme.titleColor ?? ant.colorTextSecondary,
+                ),
               ),
             ),
-          ),
           if (widget.showCloseButton &&
               (widget.onClose != null || widget.onCancel != null))
             GestureDetector(

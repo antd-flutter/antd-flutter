@@ -199,6 +199,11 @@ class _AntVirtualInputState extends State<AntVirtualInput>
     if (mounted) setState(() {});
   }
 
+  void _hideKeyboard() {
+    _kb.hide();
+    if (_focusNode.hasFocus) _focusNode.unfocus();
+  }
+
   void _handleFocusChanged() {
     final focused = _focusNode.hasFocus;
     if (focused == _focused) return;
@@ -274,6 +279,7 @@ class _AntVirtualInputState extends State<AntVirtualInput>
             customKey: widget.customKey,
             theme: widget.keyboardTheme,
             desktop: widget.keyboardDesktop,
+            onClose: _hideKeyboard,
           );
     if (useEngine) {
       _keyboardController.attach(

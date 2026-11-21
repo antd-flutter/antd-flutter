@@ -76,15 +76,17 @@ class AntKeyboardOverlayController {
     _visible = visible;
 
     final entry = OverlayEntry(
-      builder: (context) => _AntKeyboardOverlayDock(
-        keyboard: keyboard,
-        alignTop: top,
-        visible: visible,
-        barrierColor: barrierColor,
-        dismissOnTapOutside: dismissOnTapOutside,
-        duration: animationDuration,
-        onDismiss: hide,
-        onClosed: _removeEntry,
+      builder: (context) => AntOverlayMaterial(
+        child: _AntKeyboardOverlayDock(
+          keyboard: keyboard,
+          alignTop: top,
+          visible: visible,
+          barrierColor: barrierColor,
+          dismissOnTapOutside: dismissOnTapOutside,
+          duration: animationDuration,
+          onDismiss: hide,
+          onClosed: _removeEntry,
+        ),
       ),
     );
     _entry = entry;

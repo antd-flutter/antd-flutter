@@ -236,6 +236,7 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
         value: _currentValue,
         maxLength: widget.length,
         onChange: _handleChange,
+        onClose: _hideKeyboard,
       ),
       onDismiss: () {
         if (!mounted) return;
@@ -244,6 +245,21 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
       },
     );
     widget.onFocus?.call();
+    _ensureVisible();
+  }
+
+  /// 键盘占据屏幕底部时，把输入框滚到可见区域，避免被浮层遮挡。
+  void _ensureVisible() {
+    if (_desktop || !mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 200),
+        alignment: 0.2,
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _hideKeyboard() {

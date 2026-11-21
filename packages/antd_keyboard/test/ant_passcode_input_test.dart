@@ -129,6 +129,24 @@ void main() {
       expect(find.text('1'), findsOneWidget);
     });
 
+    testWidgets('keyboard header close button hides keyboard', (tester) async {
+      var blurred = false;
+      await tester.pumpWidget(
+        _wrap(AntPasscodeInput(onBlur: () => blurred = true)),
+      );
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pump();
+      expect(find.text('1'), findsOneWidget);
+      // 移动端键盘顶部有收起按钮（antd-mobile 的 DownOutline）。
+      final close = find.byKey(const ValueKey('ant-kb-collapse'));
+      expect(close, findsOneWidget);
+      await tester.tap(close);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('1'), findsNothing);
+      expect(blurred, isTrue);
+    });
+
     testWidgets('keyboard false does not show keyboard on tap', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntPasscodeInput(keyboard: false)),
