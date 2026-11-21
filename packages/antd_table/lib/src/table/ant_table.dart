@@ -45,6 +45,7 @@ library;
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 
 import 'ant_table_types.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
@@ -375,6 +376,45 @@ class _AntTableState<T> extends State<AntTable<T>> {
   // ------------------------------------------------------------
 
   /// 表头与各行滚动区共享同一控制器，任一位置滚动时同步其余位置
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent) return;
+    final positions = _hController.positions.toList();
+    if (positions.isEmpty || positions.first.maxScrollExtent <= 0) return;
+    // 触控板横向手势优先；鼠标滚轮默认纵向，Shift+滚轮映射为横向。
+    final dx = event.scrollDelta.dx;
+    final dy = event.scrollDelta.dy;
+    double? delta;
+    if (dx.abs() > 0.01) {
+      delta = dx;
+    } else if (dy.abs() > 0.01 && _shiftPressed) {
+      delta = dy;
+    }
+    if (delta == null) return;
+    GestureBinding.instance.pointerSignalResolver.register(event, (e) {
+      _scrollHorizontalBy(delta!);
+    });
+  }
+
+  bool get _shiftPressed => HardwareKeyboard.instance.logicalKeysPressed.any(
+        (key) =>
+            key == LogicalKeyboardKey.shiftLeft ||
+            key == LogicalKeyboardKey.shiftRight,
+      );
+
+  void _scrollHorizontalBy(double delta) {
+    final positions = _hController.positions.toList();
+    if (positions.isEmpty) return;
+    final target = (positions.first.pixels + delta)
+        .clamp(0.0, positions.first.maxScrollExtent);
+    if ((target - positions.first.pixels).abs() < 0.01) return;
+    _syncingH = true;
+    for (final pos in positions) {
+      pos.jumpTo(target.clamp(0.0, pos.maxScrollExtent));
+    }
+    _syncingH = false;
+    _hOffset = target;
+  }
+
   void _onHScroll() {
     if (_syncingH) return;
     final positions = _hController.positions.toList();
@@ -1022,11 +1062,14 @@ class _AntTableState<T> extends State<AntTable<T>> {
       }
     }
 
-    final total = _hasScrollX ? theme.s(widget.scrollX!) : available;
-    final effectiveTotal = total < fixedSum ? fixedSum : total;
+    // scrollX 表示期望的表格宽度：比容器大时收敛到容器宽度（内部横向滚动），
+    // 比容器小时保持该宽度，列内容超出部分同样横向滚动。
+    final desired = _hasScrollX ? theme.s(widget.scrollX!) : available;
+    final tableWidth =
+        _hasScrollX ? (desired < available ? desired : available) : available;
     final share = flexCount == 0
         ? 0.0
-        : ((effectiveTotal - fixedSum) / flexCount)
+        : ((tableWidth - fixedSum) / flexCount)
             .clamp(theme.s(48), double.infinity);
 
     final widths = <int, double>{};
@@ -1035,7 +1078,11 @@ class _AntTableState<T> extends State<AntTable<T>> {
           leaf.column.width == null ? share : theme.s(leaf.column.width!);
     }
     _leafWidths = widths;
+    _tableWidth = _hasScrollX ? tableWidth : double.infinity;
   }
+
+  /// 设置了 scrollX 时表格整体宽度收敛到该值（超出部分在内部横向滚动）。
+  double _tableWidth = double.infinity;
 
   double _widthOf(_LeafColumn<T> leaf) =>
       _leafWidths[leaf.leafIndex] ?? _kDefaultColumnWidth;
@@ -1067,31 +1114,35 @@ class _AntTableState<T> extends State<AntTable<T>> {
         _resolveWidths(theme, constraints.maxWidth);
         return ScrollConfiguration(
           behavior: const _TableScrollBehavior(),
-          child: Container(
-            width: double.infinity,
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              color: theme.colorBgContainer,
-              borderRadius: BorderRadius.circular(theme.borderRadiusLG),
-              border:
-                  widget.bordered ? Border.all(color: theme.colorSplit) : null,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(theme),
-                if (rows.isEmpty)
-                  _buildEmpty(theme)
-                else
-                  _buildBody(theme, rows),
-                if (summaryCells != null && summaryCells.isNotEmpty)
-                  _buildSummary(theme, summaryCells),
-                if (widget.pagination &&
-                    _processedForest.length > widget.pageSize &&
-                    rows.isNotEmpty)
-                  _buildPagination(theme),
-              ],
+          child: Listener(
+            onPointerSignal: _handlePointerSignal,
+            child: Container(
+              width: _tableWidth,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: theme.colorBgContainer,
+                borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                border: widget.bordered
+                    ? Border.all(color: theme.colorSplit)
+                    : null,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(theme),
+                  if (rows.isEmpty)
+                    _buildEmpty(theme)
+                  else
+                    _buildBody(theme, rows),
+                  if (summaryCells != null && summaryCells.isNotEmpty)
+                    _buildSummary(theme, summaryCells),
+                  if (widget.pagination &&
+                      _processedForest.length > widget.pageSize &&
+                      rows.isNotEmpty)
+                    _buildPagination(theme),
+                ],
+              ),
             ),
           ),
         );
@@ -2044,7 +2095,9 @@ class _AntTableState<T> extends State<AntTable<T>> {
           key: ValueKey('ant_table_page_$n'),
           margin: EdgeInsets.symmetric(horizontal: theme.s(2)),
           padding: EdgeInsets.symmetric(
-              horizontal: theme.s(8), vertical: theme.s(2),),
+            horizontal: theme.s(8),
+            vertical: theme.s(2),
+          ),
           decoration: BoxDecoration(
             color: isCurrent ? theme.colorPrimaryBg : Colors.transparent,
             borderRadius: BorderRadius.circular(theme.borderRadiusXS),

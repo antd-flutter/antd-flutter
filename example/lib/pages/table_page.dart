@@ -111,7 +111,7 @@ class TablePage extends StatelessWidget {
             title: '固定列（横向滚动吸边 + 阴影分隔）',
             theme: theme,
             child: AntTable<_Person>(
-              scrollX: 900,
+              scrollX: 820,
               columns: [
                 const AntTableColumn(
                   title: '姓名',
@@ -136,7 +136,7 @@ class TablePage extends StatelessWidget {
                 ),
                 AntTableColumn(
                   title: '备注',
-                  width: 180,
+                  width: 300,
                   cell: (_, record, _) => Text('${record.name} 的备注信息'),
                 ),
                 AntTableColumn(
