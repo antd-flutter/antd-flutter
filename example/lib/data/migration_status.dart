@@ -25,7 +25,6 @@ const kPendingVerify = <String>[
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
   // 批次 0-5 数据展示残余
   // 批次 0-6 导航族
-  'tabs',
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
   'table',
@@ -143,6 +142,7 @@ const kMigratedVerified = <String>[
   'steps',
   'calendar_picker',
   'calendar',
+  'tabs',
   'tab_bar',
   // 已验收（2026-11-21 用户验收）
   'pagination',
