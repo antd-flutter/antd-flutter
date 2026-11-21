@@ -7,11 +7,24 @@ class DescriptionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
+    final column = _columnFor(context);
     final items = const [
-      AntDescriptionsItem(label: '名称', child: AntText(text: '张三')),
-      AntDescriptionsItem(label: '手机号', child: AntText(text: '138****8888')),
-      AntDescriptionsItem(label: '城市', child: AntText(text: '杭州')),
-      AntDescriptionsItem(label: '邮箱', child: AntText(text: 'zhangsan@example.com')),
+      AntDescriptionsItem(
+        label: '名称',
+        child: AntText(text: '张三'),
+      ),
+      AntDescriptionsItem(
+        label: '手机号',
+        child: AntText(text: '138****8888'),
+      ),
+      AntDescriptionsItem(
+        label: '城市',
+        child: AntText(text: '杭州'),
+      ),
+      AntDescriptionsItem(
+        label: '邮箱',
+        child: AntText(text: 'zhangsan@example.com'),
+      ),
     ];
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
@@ -21,13 +34,17 @@ class DescriptionsPage extends StatelessWidget {
           _Section(
             title: '基础用法',
             theme: theme,
-            child: AntDescriptions(items: items),
+            child: AntDescriptions(items: items, column: column),
           ),
           SizedBox(height: 16.w),
           _Section(
             title: '带边框',
             theme: theme,
-            child: AntDescriptions(items: items, bordered: true),
+            child: AntDescriptions(
+              items: items,
+              column: column,
+              bordered: true,
+            ),
           ),
           SizedBox(height: 16.w),
           _Section(
@@ -37,7 +54,10 @@ class DescriptionsPage extends StatelessWidget {
               children: [
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '大号', child: AntText(text: 'large')),
+                    AntDescriptionsItem(
+                      label: '大号',
+                      child: AntText(text: 'large'),
+                    ),
                   ],
                   size: AntDescriptionsSize.large,
                   bordered: true,
@@ -45,7 +65,10 @@ class DescriptionsPage extends StatelessWidget {
                 SizedBox(height: 12.w),
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '中号', child: AntText(text: 'middle')),
+                    AntDescriptionsItem(
+                      label: '中号',
+                      child: AntText(text: 'middle'),
+                    ),
                   ],
                   size: AntDescriptionsSize.middle,
                   bordered: true,
@@ -53,7 +76,10 @@ class DescriptionsPage extends StatelessWidget {
                 SizedBox(height: 12.w),
                 AntDescriptions(
                   items: [
-                    AntDescriptionsItem(label: '小号', child: AntText(text: 'small')),
+                    AntDescriptionsItem(
+                      label: '小号',
+                      child: AntText(text: 'small'),
+                    ),
                   ],
                   size: AntDescriptionsSize.small,
                   bordered: true,
@@ -66,15 +92,26 @@ class DescriptionsPage extends StatelessWidget {
             title: '跨列 span',
             theme: theme,
             child: AntDescriptions(
-              column: 3,
+              column: column,
               bordered: true,
               items: [
-                AntDescriptionsItem(label: '产品', child: AntText(text: '云服务器')),
-                AntDescriptionsItem(label: '计费模式', child: AntText(text: '预付费')),
-                AntDescriptionsItem(label: '自动续费', child: AntText(text: '是')),
+                AntDescriptionsItem(
+                  label: '产品',
+                  child: AntText(text: '云服务器'),
+                ),
+                AntDescriptionsItem(
+                  label: '计费模式',
+                  child: AntText(text: '预付费'),
+                ),
+                AntDescriptionsItem(
+                  label: '自动续费',
+                  child: AntText(text: '是'),
+                ),
                 AntDescriptionsItem(
                   label: '配置',
-                  child: AntText(text: 'CPU 4 核 / 内存 8G / 磁盘 100G SSD / 带宽 5Mbps'),
+                  child: AntText(
+                    text: 'CPU 4 核 / 内存 8G / 磁盘 100G SSD / 带宽 5Mbps',
+                  ),
                   span: 3,
                 ),
               ],
@@ -86,6 +123,7 @@ class DescriptionsPage extends StatelessWidget {
             theme: theme,
             child: AntDescriptions(
               items: items,
+              column: column,
               layout: AntDescriptionsLayout.vertical,
               bordered: true,
             ),
@@ -96,13 +134,26 @@ class DescriptionsPage extends StatelessWidget {
             theme: theme,
             child: AntDescriptions(
               items: [
-                AntDescriptionsItem(label: '订单号', child: AntText(text: '202405160001')),
-                AntDescriptionsItem(label: '状态', child: AntText(text: '已支付')),
-                AntDescriptionsItem(label: '金额', child: AntText(text: '¥299.00')),
-                AntDescriptionsItem(label: '支付方式', child: AntText(text: '支付宝')),
+                AntDescriptionsItem(
+                  label: '订单号',
+                  child: AntText(text: '202405160001'),
+                ),
+                AntDescriptionsItem(
+                  label: '状态',
+                  child: AntText(text: '已支付'),
+                ),
+                AntDescriptionsItem(
+                  label: '金额',
+                  child: AntText(text: '¥299.00'),
+                ),
+                AntDescriptionsItem(
+                  label: '支付方式',
+                  child: AntText(text: '支付宝'),
+                ),
               ],
               title: AntText(text: '订单详情'),
               extra: AntText(text: '编辑'),
+              column: column,
               bordered: true,
               colon: false,
             ),
@@ -113,8 +164,20 @@ class DescriptionsPage extends StatelessWidget {
   }
 }
 
+/// 按 antd 响应式 demo 的断点选择列数：手机 1 列、平板 2 列、桌面 3 列。
+int _columnFor(BuildContext context) {
+  final width = MediaQuery.sizeOf(context).width;
+  if (width >= 992) return 3;
+  if (width >= 576) return 2;
+  return 1;
+}
+
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -133,8 +196,8 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
