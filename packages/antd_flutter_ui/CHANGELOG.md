@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Republished against antd_theme 1.0.2 so the Web platform build no longer resolves a dart:io dependency chain.
+
 ## 1.0.2
 
 - Added an example application so pub.dev can render live usage.
