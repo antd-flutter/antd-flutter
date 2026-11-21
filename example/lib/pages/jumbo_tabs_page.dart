@@ -16,7 +16,10 @@ class JumboTabsPage extends StatelessWidget {
         children: const [
           _Section(title: '基本用法', description: '主标题 + 描述，底部指示条'),
           _BasicDemo(),
-          _Section(title: '自定义描述', description: '描述文字展示附加信息'),
+          _Section(
+            title: '自定义描述',
+            description: 'description 走默认胶囊样式；descriptionWidget 可放任意内容',
+          ),
           _DescDemo(),
           _Section(title: '禁用项', description: 'disabled: true'),
           _DisabledDemo(),
@@ -79,10 +82,21 @@ class _DescDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AntJumboTabs(
-      items: const [
-        AntJumboTabItem(key: 'a', title: '水果', description: '新鲜水果'),
-        AntJumboTabItem(key: 'b', title: '蔬菜', description: '时令蔬菜'),
-        AntJumboTabItem(key: 'c', title: '肉禽', description: '优质肉禽'),
+      items: [
+        const AntJumboTabItem(key: 'a', title: '水果', description: '新鲜水果'),
+        const AntJumboTabItem(key: 'b', title: '蔬菜', description: '时令蔬菜'),
+        AntJumboTabItem(
+          key: 'c',
+          title: '肉禽',
+          descriptionWidget: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AntdIcon(AntIcons.starOutlined, size: 11),
+              const SizedBox(width: 2),
+              AntText(text: '优选', style: TextStyle(fontSize: 11)),
+            ],
+          ),
+        ),
       ],
       onChange: (key) => _showSnackbar(context, '切换到: $key'),
     );

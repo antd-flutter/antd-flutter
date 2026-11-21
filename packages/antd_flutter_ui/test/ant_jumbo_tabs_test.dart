@@ -51,6 +51,58 @@ void main() {
       expect(find.byType(Text), findsOneWidget);
     });
 
+    testWidgets('description 渲染为 antd 胶囊标签', (tester) async {
+      await tester.pumpWidget(_wrap(const AntJumboTabs(
+        items: [
+          AntJumboTabItem(key: 'a', title: '全部', description: '所有订单'),
+          AntJumboTabItem(key: 'b', title: '待付款', description: '等待付款'),
+        ],
+      ),),);
+
+      final pills = find.ancestor(
+        of: find.text('所有订单'),
+        matching: find.byType(Container),
+      );
+      final pill = tester.widget<Container>(pills.first);
+      final decoration = pill.decoration! as BoxDecoration;
+      expect(decoration.color, isNotNull);
+      expect(decoration.borderRadius, isNotNull);
+
+      // 激活项白字、非激活项次要色（通过继承的 DefaultTextStyle 生效）
+      Color? inheritedColor(String text) {
+        final def = tester.widget<DefaultTextStyle>(
+          find
+              .ancestor(
+                of: find.text(text),
+                matching: find.byType(DefaultTextStyle),
+              )
+              .first,
+        );
+        return def.style.color;
+      }
+
+      expect(inheritedColor('所有订单'),
+          AntThemeData.light().colorTextLightSolid,);
+      expect(inheritedColor('等待付款'),
+          AntThemeData.light().colorTextSecondary,);
+    });
+
+    testWidgets('descriptionWidget 优先于 description', (tester) async {
+      await tester.pumpWidget(_wrap(const AntJumboTabs(
+        items: [
+          AntJumboTabItem(
+            key: 'a',
+            title: '全部',
+            description: '不应出现',
+            descriptionWidget: Text('自定义描述'),
+          ),
+        ],
+      ),),);
+
+      expect(find.text('自定义描述'), findsOneWidget);
+      expect(find.text('不应出现'), findsNothing);
+    });
+
     testWidgets('默认激活第一项', (tester) async {
       await tester.pumpWidget(_wrap(const AntJumboTabs(
         items: [

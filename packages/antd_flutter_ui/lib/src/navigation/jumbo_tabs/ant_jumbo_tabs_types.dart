@@ -10,6 +10,7 @@ class AntJumboTabItem {
     this.title,
     this.titleWidget,
     this.description,
+    this.descriptionWidget,
     this.disabled = false,
   });
 
@@ -22,8 +23,11 @@ class AntJumboTabItem {
   /// 自定义主标题 Widget（优先于 [title]）。
   final Widget? titleWidget;
 
-  /// 描述文字（标题下方小字）。
+  /// 描述文字（标题下方胶囊小字）。
   final String? description;
+
+  /// 自定义描述 Widget（优先于 [description]，仍套用 antd 的胶囊底）。
+  final Widget? descriptionWidget;
 
   /// 是否禁用。
   final bool disabled;

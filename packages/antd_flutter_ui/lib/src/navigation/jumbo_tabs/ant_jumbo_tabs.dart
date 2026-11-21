@@ -101,6 +101,8 @@ class _AntJumboTabsState extends State<AntJumboTabs> {
                     colorText: t.colorText,
                     colorTextSecondary: t.colorTextSecondary,
                     colorTextDisabled: t.colorTextDisabled,
+                    colorTextLightSolid: t.colorTextLightSolid,
+                    colorFillContent: t.colorFillContent,
                     onTap: () => _handleTap(item),
                   ),
                 ),
@@ -124,6 +126,8 @@ class _JumboItem extends StatelessWidget {
     required this.colorText,
     required this.colorTextSecondary,
     required this.colorTextDisabled,
+    required this.colorTextLightSolid,
+    required this.colorFillContent,
     required this.onTap,
   });
 
@@ -133,6 +137,8 @@ class _JumboItem extends StatelessWidget {
   final Color colorText;
   final Color colorTextSecondary;
   final Color colorTextDisabled;
+  final Color colorTextLightSolid;
+  final Color colorFillContent;
   final VoidCallback onTap;
 
   @override
@@ -140,6 +146,11 @@ class _JumboItem extends StatelessWidget {
     final titleColor = item.disabled
         ? colorTextDisabled
         : (active ? colorPrimary : colorText);
+    final descriptionColor = item.disabled
+        ? colorTextDisabled
+        : (active ? colorTextLightSolid : colorTextSecondary);
+    final descriptionBackground =
+        active && !item.disabled ? colorPrimary : colorFillContent;
 
     return GestureDetector(
       onTap: item.disabled ? null : onTap,
@@ -166,19 +177,30 @@ class _JumboItem extends StatelessWidget {
                     item.title ?? '',
                     style: TextStyle(
                       fontSize: 17.sp,
+                      // antd-mobile 标题行高 24px
+                      height: 24 / 17,
                       fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                       color: titleColor,
                     ),
                   ),
-                if (item.description != null) ...[
+                if (item.description != null ||
+                    item.descriptionWidget != null) ...[
                   SizedBox(height: 2.w),
-                  Text(
-                    item.description!,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: item.disabled
-                          ? colorTextDisabled
-                          : colorTextSecondary,
+                  // antd-mobile：描述是胶囊标签（底 10px、水平内边距 8px），
+                  // 激活时变主色底白字；自定义节点同样套用该胶囊底。
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    decoration: BoxDecoration(
+                      color: descriptionBackground,
+                      borderRadius: BorderRadius.circular(10.w),
+                    ),
+                    child: DefaultTextStyle.merge(
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: descriptionColor,
+                      ),
+                      child: item.descriptionWidget ??
+                          Text(item.description ?? ''),
                     ),
                   ),
                 ],
