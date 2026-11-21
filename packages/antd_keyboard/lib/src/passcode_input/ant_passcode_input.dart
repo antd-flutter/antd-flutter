@@ -367,7 +367,7 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
       );
     }
 
-    return GestureDetector(
+    final input = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _toggleActive,
       child: AnimatedBuilder(
@@ -378,6 +378,16 @@ class _AntPasscodeInputState extends State<AntPasscodeInput>
         },
         child: body,
       ),
+    );
+
+    // 移动端：点击输入框外部即收起键盘（与输入框焦点联动）。
+    if (_desktop) return input;
+    return TapRegion(
+      groupId: antKeyboardTapRegionGroup,
+      onTapOutside: (_) {
+        if (_active) _hideKeyboard();
+      },
+      child: input,
     );
   }
 

@@ -385,14 +385,19 @@ class _AntNumberKeyboardState extends State<AntNumberKeyboard> {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _close,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: ant.s(4)),
-                child: AntdIcon(
-                  AntIcons.downOutlined,
-                  key: const ValueKey('ant-kb-collapse'),
-                  size: ant.s(22),
-                  color: theme.titleColor ?? ant.colorTextSecondary,
-                  semanticLabel: '收起键盘',
+              child: SizedBox(
+                // antd-mobile：收起按钮横向 12 内边距、占满头部高度；
+                // 这里给足 44×36 的触控区，视觉图标仍为 22。
+                width: ant.s(44),
+                height: double.infinity,
+                child: Center(
+                  child: AntdIcon(
+                    AntIcons.downOutlined,
+                    key: const ValueKey('ant-kb-collapse'),
+                    size: ant.s(22),
+                    color: theme.titleColor ?? ant.colorTextSecondary,
+                    semanticLabel: '收起键盘',
+                  ),
                 ),
               ),
             ),

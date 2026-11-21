@@ -89,6 +89,7 @@ import 'mentions_page.dart';
 import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
+import 'keyboard_styles_page.dart';
 import 'number_keyboard_page.dart';
 import 'pagination_page.dart';
 import 'passcode_input_page.dart';
@@ -295,6 +296,8 @@ class ComponentPage extends StatelessWidget {
         return const NavBarPage();
       case 'notice_bar':
         return const NoticeBarPage();
+      case 'keyboard_styles':
+        return const KeyboardStylesPage();
       case 'number_keyboard':
         return const NumberKeyboardPage();
       case 'pagination':

@@ -306,7 +306,14 @@ class _AntVirtualInputState extends State<AntVirtualInput>
     if (_desktop) {
       return _buildDesktopInput(t);
     }
-    return _buildVirtual(t);
+    // 移动端：点击输入框外部即收起键盘（与输入框焦点联动）。
+    return TapRegion(
+      groupId: antKeyboardTapRegionGroup,
+      onTapOutside: (_) {
+        if (_focused) _hideKeyboard();
+      },
+      child: _buildVirtual(t),
+    );
   }
 
   // ---------------------------------------------------------------------------

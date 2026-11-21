@@ -153,6 +153,7 @@ const List<NavGroup> navGroups = [
     NavItem('SearchBar 搜索框', 'search_bar'),
     NavItem('CheckList 勾选列表', 'check_list'),
     NavItem('Selector 选择器', 'selector'),
+    NavItem('键盘样式 Keyboard Styles', 'keyboard_styles'),
     NavItem('NumberKeyboard 数字键盘', 'number_keyboard'),
     NavItem('PasscodeInput 密码输入框', 'passcode_input'),
     NavItem('VirtualInput 虚拟输入框', 'virtual_input'),

@@ -147,6 +147,44 @@ void main() {
       expect(blurred, isTrue);
     });
 
+    testWidgets('tapping outside dismisses keyboard', (tester) async {
+      var blurred = false;
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              AntPasscodeInput(onBlur: () => blurred = true),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Text('outside'),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pump();
+      expect(find.text('1'), findsOneWidget);
+      await tester.tap(find.text('outside'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('1'), findsNothing);
+      expect(blurred, isTrue);
+    });
+
+    testWidgets('keyboard close button has 44 wide touch target', (tester) async {
+      await tester.pumpWidget(_wrap(const AntPasscodeInput()));
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pump();
+      final size = tester.getSize(
+        find.ancestor(
+          of: find.byKey(const ValueKey('ant-kb-collapse')),
+          matching: find.byType(SizedBox),
+        ).first,
+      );
+      expect(size.width, greaterThanOrEqualTo(44));
+    });
+
     testWidgets('keyboard false does not show keyboard on tap', (tester) async {
       await tester.pumpWidget(
         _wrap(const AntPasscodeInput(keyboard: false)),

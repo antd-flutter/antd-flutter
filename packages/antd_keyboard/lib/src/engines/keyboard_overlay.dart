@@ -4,6 +4,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'input_platform.dart';
 
+/// 输入框与键盘浮层共享的点击区域分组：落在键盘上的点击不算「点外部」，
+/// 输入框的 `TapRegion` 因此不会误收起键盘。
+const Object antKeyboardTapRegionGroup = Object();
+
 /// 键盘浮层停靠位置。
 enum AntKeyboardOverlayAlignment {
   /// 贴底（默认，移动端键盘形态）。
@@ -77,15 +81,18 @@ class AntKeyboardOverlayController {
 
     final entry = OverlayEntry(
       builder: (context) => AntOverlayMaterial(
-        child: _AntKeyboardOverlayDock(
-          keyboard: keyboard,
-          alignTop: top,
-          visible: visible,
-          barrierColor: barrierColor,
-          dismissOnTapOutside: dismissOnTapOutside,
-          duration: animationDuration,
-          onDismiss: hide,
-          onClosed: _removeEntry,
+        child: TapRegion(
+          groupId: antKeyboardTapRegionGroup,
+          child: _AntKeyboardOverlayDock(
+            keyboard: keyboard,
+            alignTop: top,
+            visible: visible,
+            barrierColor: barrierColor,
+            dismissOnTapOutside: dismissOnTapOutside,
+            duration: animationDuration,
+            onDismiss: hide,
+            onClosed: _removeEntry,
+          ),
         ),
       ),
     );
@@ -232,13 +239,13 @@ class _AntKeyboardOverlayDockState extends State<_AntKeyboardOverlayDock>
     final desktop = isDesktopInputPlatform();
     final keyboard = Padding(
       padding: desktop
-          ? EdgeInsets.fromLTRB(AntTheme.of(context).s(24), 0, AntTheme.of(context).s(24), AntTheme.of(context).s(24))
+          ? EdgeInsets.fromLTRB(AntTheme.of(context).s(24), 0,
+              AntTheme.of(context).s(24), AntTheme.of(context).s(24))
           : EdgeInsets.zero,
       child: widget.keyboard,
     );
     final dock = Align(
-      alignment:
-          widget.alignTop ? Alignment.topCenter : Alignment.bottomCenter,
+      alignment: widget.alignTop ? Alignment.topCenter : Alignment.bottomCenter,
       child: widget.duration == Duration.zero
           ? keyboard
           : SlideTransition(
