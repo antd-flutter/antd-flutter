@@ -39,12 +39,12 @@ const kPendingVerify = <String>[
   'index_bar',
   // 批次 0-7 misc/general 族
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
-  'transfer',
   'table',
 ];
 
 const kMigratedVerified = <String>[
   'mentions',
+  'transfer',
   'affix',
   'app',
   'config_provider',
