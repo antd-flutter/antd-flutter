@@ -178,7 +178,7 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 > **组件去向规则（严格遵守）**：最终归属 ui 的组件先迁入 ui；最终去向为独立包的组件不经过 ui 中转，轮到时直接从主包拆独立包。**批次 0（ui 基础组件迁移）全部完成并验收后，才开始批次 1 起的独立包拆分。**
 
 > **验收流程调整（用户指定）**：子任务完成后**不再逐批等待用户验收**，lead 按队列自动继续推进；**所有验收集中放在发布 1.0.0 前**统一进行（验收状态表照常维护 ⏱ 标记，批次 0 的「验收后才开始」语义调整为「迁移完成后」）
-> **Calendar 全量功能完善（用户指定，提前执行）**：桌面端对齐 antd v6 Calendar 全量功能 + 移动端对齐 antd-mobile Calendar 全量功能——**功能完整实现**，样式不强制完全遵循 antd 对应样式（按我们的 token 体系呈现）；提前至批次 0 收尾后立即执行
+> **Calendar 双端拆分（用户 2026-11-21 更新指令）**：Calendar 按各自平台实现一套 UI，功能分别对齐 antd v6（桌面）与 antd-mobile v5（移动），能整合的抽共享核心、不能整合的分平台渲染；**等全部任务完成后再开始**，分阶段任务见 `docs/plan/tasks/P09-calendar-platform-split.md`（C0–C6，约 9–11 天）
 
 ### 批次 0：plus 剩余基础组件迁入 ui（用户指示先行，约 55+ 组件，8 小批串行）
 > 主包 lib/src/components/ 尚有 feedback 17 / data_entry 24 / data_display 6 / navigation 12 / misc+general 5 未迁，全部 ui 归属。每小批：git mv → barrel/re-export → 三件套（nav ⏱ + demo 接线）→ analyze/test/build 全绿再下一批：
@@ -214,6 +214,10 @@ docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后�
 3. ✅ 伞包 README（2e233b7）+ 全量回归留档（21 包 + 根包 analyze/test、example web build 全绿，见 `.temp/regress_result.txt`）
 3b. ✅ **example 身份脚本终跑 + gen-docs 全量重跑**：9 个 example 补齐 `com.antd.*`（carousel/color/floating/masonry/picker/theme/tokens/tree/upload），全部 21 个 example 身份一致；文档页面缺失/多余/人工残留均为 0
 
+### 批次 4（排队）：P09 Calendar 双端各自实现
+> 用户 2026-11-21 指定：**所有任务完成后**再开始；先产出/细化任务书 `docs/plan/tasks/P09-calendar-platform-split.md`，按 C0 调研矩阵 → C1 抽共享核心 → C2 桌面（antd v6）→ C3 移动（antd-mobile v5）→ C4 兼容与整合判定 → C5 双端示例与视觉验收 → C6 收口 逐阶段执行，每阶段独立提交可验收。
+> 关键约束：逻辑共享、渲染分平台（禁止在渲染代码里 `if (isMobile)` 打补丁）；现有 week/twoWeeks/multiSelect 等非 antd 增强收敛为扩展能力；桌面无 CalendarPicker。
+
 ### 批次 4：发布 1.0.0
 CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 
@@ -237,6 +241,7 @@ CHANGELOG 正式化/去 beta/tag/发布（pub.dev 授权停下交用户）
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-21 | **P09 Calendar 双端拆分立项（排队）**：用户要求按平台各实现一套 UI、功能分别对齐 antd v6 / antd-mobile v5，等全部任务完成后开始；任务书 `P09-calendar-platform-split.md`（C0–C6 分阶段） |
 | 2026-11-21 | **数据参数全面泛型化（破坏性）**：Table/Tree/TreeSelect/Transfer/Picker/Cascader/PickerView/Upload/Select/Radio/Checkbox/CheckList/Selector/Segmented/AutoComplete/Mentions/Slider/ColorPicker/ImageUploader/Tabs 家族/SideBar/IndexBar/Menu/Steps/Anchor/Breadcrumb/List/Timeline/Descriptions/Collapse/Tour/Card 改为 `<T>` + builder 数据源，删除 dataIndex/Ant*Item 强约束；新增规则 R40 与两份任务文档；ui 测试 1540、root example 59、各独立包全绿 |
 | 2026-11-21 | **全库图标迁移 antd_icons_flutter**：58 个库文件 + 53 个测试文件 + 主示例 4 处 Material `Icons.*` 全部替换为 `AntIcons.*`，Table 单选筛选改为自绘圆点，新增规则 R39；11 个依赖图标包的独立包补充 `antd_icons_flutter` 依赖 |
 | 2026-11-21 | **批次 3 收尾完成并合并 develop**（cc7ef4d）：select-like 核查 / Calendar 双端打磨 / 全量回归 / example 身份 + gen-docs 终态；删除 task/p08-split，当前分支 develop |
