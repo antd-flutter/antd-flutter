@@ -137,6 +137,48 @@ void main() {
       expect(indicators, findsWidgets);
     });
 
+    testWidgets('line indicator slides to active tab (single moving underline)',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(AntTabs(type: AntTabsType.line, items: _sampleItems())),
+      );
+      await tester.pumpAndSettle();
+
+      final indicatorFinder = find.descendant(
+        of: find.byType(AntTabs),
+        matching: find.byType(AnimatedPositioned),
+      );
+      expect(indicatorFinder, findsOneWidget);
+
+      final before = tester.getRect(indicatorFinder);
+      expect(before.width, greaterThan(0));
+      expect(before.left, greaterThanOrEqualTo(0));
+
+      await tester.tap(find.text('Tab 2'));
+      await tester.pumpAndSettle();
+
+      final after = tester.getRect(indicatorFinder);
+      // 指示条跟随激活项向右移动，且仍只有一条
+      expect(after.left, greaterThan(before.left));
+      expect(indicatorFinder, findsOneWidget);
+    });
+
+    testWidgets('switching line tab keeps label vertical position stable',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(AntTabs(type: AntTabsType.line, items: _sampleItems())),
+      );
+      await tester.pumpAndSettle();
+
+      final before = tester.getCenter(find.text('Tab 2'));
+      await tester.tap(find.text('Tab 2'));
+      await tester.pumpAndSettle();
+      final after = tester.getCenter(find.text('Tab 2'));
+
+      // 选中态只变色 + 指示条滑动，文字不应上移/抖动
+      expect((after.dy - before.dy).abs(), lessThan(0.5));
+    });
+
     testWidgets('card type content has border', (tester) async {
       await tester.pumpWidget(
         _wrap(AntTabs(type: AntTabsType.card, items: _sampleItems())),

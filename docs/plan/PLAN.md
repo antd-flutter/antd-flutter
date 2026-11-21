@@ -56,7 +56,7 @@ packages/
 
 ---
 
-## 三、通用规则（R1-R34，全部有效）
+## 三、通用规则（R1-R38，全部有效）
 
 ### 分支与提交
 - R1 同组子任务共用一个任务分支（如 task/p08-split）；R2 本地验证通过即合并 **develop** 删分支（不等 CI）；develop 在里程碑/发布时合并 master；R3 实验分支不推远程
@@ -97,6 +97,10 @@ packages/
   - ui 层提供通用热键基础设施：`AntHotkeys` 包裹 widget / `HotkeyRegistry` 注册中心（KeyboardEvent 监听 + 热键绑定 → 触发控件动作/回调），开发者可对**任意控件**绑定任意快捷键组合
   - 组件内建默认绑定示例：弹层类 Esc 关闭（Tooltip/Popover/Popconfirm/Dropdown/Dialog/Drawer/Modal/Toast/Message/Notification/ActionSheet/TreeSelect/Cascader/CalendarPicker 等，关闭操作最常见优先）
   - 其余控件按语义提供可选热键入口；桌面端优先
+- R38 **双端样式分平台适配（用户指定，适用于所有控件）**：同一控件在桌面端与移动端样式不同时，必须分别遵循两端上游实现——桌面对齐 **antd v6**（参考 `.temp/ant-design`），移动端对齐 **antd-mobile v5**（参考 `.temp/ant-design-mobile`），禁止用一套样式糊两端。落地要求：
+  - 以 `AntPlatform.isMobile`（iOS/Android）与桌面（macOS/Windows/Linux）分支，分别定义尺寸、字号、间距、圆角、指示条、交互反馈等差异，并对两端各自断言
+  - 首个落地样例 Tab line：桌面字号 14 / 标签间距 32 / 指示条 2px 直角 / 内容 padding 16；移动字号 17 / 间距 24 / 指示条 2px 圆角 / 内容 padding 12；两端激活态均只变色不加粗
+  - 已有双端差异的控件（Calendar card 布局、Picker 滚轮/下拉等）按同一原则复核
 
 ### 轮子与实现优先级
 - R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）

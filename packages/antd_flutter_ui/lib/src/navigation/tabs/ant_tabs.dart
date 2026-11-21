@@ -96,6 +96,20 @@ class AntTabs extends StatefulWidget {
 class _AntTabsState extends State<AntTabs> {
   late String _internalActiveKey;
 
+  /// 标签栏内容（Stack 的非定位子节点）坐标基准。
+  final GlobalKey _tabBarContentKey = GlobalKey();
+
+  /// 每个标签项的测量 key（用于计算指示条位置/宽度）。
+  final List<GlobalKey> _tabKeys = <GlobalKey>[];
+
+  /// 每个标签项标题内容的测量 key（指示条对齐标题，而非整格）。
+  final List<GlobalKey> _tabLabelKeys = <GlobalKey>[];
+
+  /// 当前指示条几何信息；null 表示尚未测量完成。
+  Rect? _indicatorRect;
+
+  bool _measureScheduled = false;
+
   @override
   void initState() {
     super.initState();
@@ -126,7 +140,17 @@ class _AntTabsState extends State<AntTabs> {
     return widget.type == AntTabsType.editableCard;
   }
 
+  /// 双端样式分别对齐：桌面 antd v6、移动 antd-mobile v5。
+  bool get _isMobileStyle => AntPlatform.isMobile;
+
   double get _tabHeight {
+    if (_isMobileStyle) {
+      return switch (widget.size) {
+        AntTabsSize.large => 48,
+        AntTabsSize.normal => 44,
+        AntTabsSize.small => 32,
+      };
+    }
     return switch (widget.size) {
       AntTabsSize.large => 48,
       AntTabsSize.normal => 40,
@@ -135,6 +159,14 @@ class _AntTabsState extends State<AntTabs> {
   }
 
   double get _fontSize {
+    if (_isMobileStyle) {
+      // antd-mobile --title-font-size: 17px
+      return switch (widget.size) {
+        AntTabsSize.large => 18,
+        AntTabsSize.normal => 17,
+        AntTabsSize.small => 15,
+      };
+    }
     return switch (widget.size) {
       AntTabsSize.large => 16,
       AntTabsSize.normal => 14,
@@ -148,10 +180,131 @@ class _AntTabsState extends State<AntTabs> {
       widget.tabPosition == AntTabPosition.top ||
       widget.tabPosition == AntTabPosition.bottom;
 
+  /// 标签横向留白：antd-mobile tab-wrapper padding 0 12px；
+  /// antd 桌面相邻标签间距 32px（两侧各 16）。
+  double get _horizontalTabPadding => _isMobileStyle ? 12 : 16;
+
+  /// 保证测量 key 数量与标签项一致。
+  void _syncTabKeys() {
+    while (_tabKeys.length < widget.items.length) {
+      _tabKeys.add(GlobalKey());
+      _tabLabelKeys.add(GlobalKey());
+    }
+    while (_tabKeys.length > widget.items.length) {
+      _tabKeys.removeLast();
+      _tabLabelKeys.removeLast();
+    }
+  }
+
+  /// 在布局完成后测量激活标签的位置，驱动指示条滑动。
+  void _scheduleIndicatorMeasure() {
+    if (_measureScheduled) return;
+    _measureScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measureScheduled = false;
+      if (!mounted) return;
+      _updateIndicator();
+    });
+  }
+
+  void _updateIndicator() {
+    if (widget.type != AntTabsType.line) return;
+
+    final contentBox =
+        _tabBarContentKey.currentContext?.findRenderObject() as RenderBox?;
+    if (contentBox == null || !contentBox.hasSize) return;
+
+    final index = widget.items.indexWhere((e) => e.key == _currentKey);
+    if (index < 0 || index >= _tabKeys.length) {
+      if (_indicatorRect != null) {
+        setState(() => _indicatorRect = null);
+      }
+      return;
+    }
+
+    final tabBox =
+        _tabKeys[index].currentContext?.findRenderObject() as RenderBox?;
+    if (tabBox == null || !tabBox.hasSize) return;
+
+    final tabOrigin = tabBox.localToGlobal(Offset.zero, ancestor: contentBox);
+    final labelBox =
+        _tabLabelKeys[index].currentContext?.findRenderObject() as RenderBox?;
+    final labelOrigin = labelBox != null && labelBox.hasSize
+        ? labelBox.localToGlobal(Offset.zero, ancestor: contentBox)
+        : null;
+
+    final Rect rect;
+    if (_isHorizontal) {
+      final width = labelBox != null && labelBox.hasSize
+          ? labelBox.size.width
+          : tabBox.size.width - _horizontalTabPadding * 2;
+      final left = labelOrigin?.dx ?? (tabOrigin.dx + _horizontalTabPadding);
+      rect = Rect.fromLTWH(left, 0, width, _indicatorThickness);
+    } else {
+      final height = labelBox != null && labelBox.hasSize
+          ? labelBox.size.height
+          : tabBox.size.height - 8;
+      final top = labelOrigin?.dy ?? (tabOrigin.dy + 4);
+      rect = Rect.fromLTWH(0, top, _indicatorThickness, height);
+    }
+
+    if (_indicatorRect == rect) return;
+    setState(() => _indicatorRect = rect);
+  }
+
+  /// line 类型的滑动指示条（唯一一条，随激活项平移）。
+  Widget _buildLineIndicator(AntThemeData theme) {
+    final rect = _indicatorRect;
+    final duration =
+        widget.animated ? const Duration(milliseconds: 200) : Duration.zero;
+    final color = theme.colorPrimary;
+
+    if (_isHorizontal) {
+      return AnimatedPositioned(
+        duration: duration,
+        curve: Curves.easeInOut,
+        left: rect?.left ?? 0,
+        width: rect?.width ?? 0,
+        height: _indicatorThickness,
+        bottom: widget.tabPosition == AntTabPosition.top ? 0 : null,
+        top: widget.tabPosition == AntTabPosition.bottom ? 0 : null,
+        child: AnimatedContainer(
+          duration: duration,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: _isMobileStyle
+                ? BorderRadius.circular(_indicatorThickness)
+                : null,
+          ),
+        ),
+      );
+    }
+
+    return AnimatedPositioned(
+      duration: duration,
+      curve: Curves.easeInOut,
+      top: rect?.top ?? 0,
+      height: rect?.height ?? 0,
+      width: _indicatorThickness,
+      right: widget.tabPosition == AntTabPosition.left ? 0 : null,
+      left: widget.tabPosition == AntTabPosition.right ? 0 : null,
+      child: AnimatedContainer(
+        duration: duration,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: _isMobileStyle
+              ? BorderRadius.circular(_indicatorThickness)
+              : null,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.items.isEmpty) return const SizedBox.shrink();
 
+    _syncTabKeys();
     final tabBar = _buildTabBar(context);
     final content = _buildContent(context);
 
@@ -198,7 +351,7 @@ class _AntTabsState extends State<AntTabs> {
 
     for (var i = 0; i < widget.items.length; i++) {
       final item = widget.items[i];
-      tabs.add(_buildTabItem(context, theme, item));
+      tabs.add(_buildTabItem(context, theme, item, i));
       if (i < widget.items.length - 1 && widget.tabBarGutter != null) {
         if (_isHorizontal) {
           tabs.add(SizedBox(width: widget.tabBarGutter));
@@ -213,25 +366,43 @@ class _AntTabsState extends State<AntTabs> {
       tabs.add(_buildAddButton(theme));
     }
 
+    Widget contentBar;
+    if (_isHorizontal) {
+      contentBar = Row(
+        mainAxisAlignment: widget.centered
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.start,
+        children: tabs,
+      );
+    } else {
+      contentBar = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: tabs,
+      );
+    }
+
+    // line 类型：只保留一条指示条，作为 Stack 的定位子节点随激活项滑动。
+    if (widget.type == AntTabsType.line) {
+      _scheduleIndicatorMeasure();
+      contentBar = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          KeyedSubtree(key: _tabBarContentKey, child: contentBar),
+          _buildLineIndicator(theme),
+        ],
+      );
+    }
+
     Widget bar;
     if (_isHorizontal) {
       bar = SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment:
-              widget.centered ? MainAxisAlignment.center : MainAxisAlignment.start,
-          children: tabs,
-        ),
+        child: contentBar,
       );
     } else {
       bar = SizedBox(
         width: 140,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: tabs,
-          ),
-        ),
+        child: SingleChildScrollView(child: contentBar),
       );
     }
 
@@ -276,6 +447,7 @@ class _AntTabsState extends State<AntTabs> {
     BuildContext context,
     AntThemeData theme,
     AntTabsItem item,
+    int index,
   ) {
     final isActive = item.key == _currentKey;
     final isCard = widget.type == AntTabsType.card ||
@@ -293,7 +465,7 @@ class _AntTabsState extends State<AntTabs> {
             item.label ?? item.key,
             style: TextStyle(
               fontSize: _fontSize,
-              fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
+              fontWeight: FontWeight.w400,
               color: item.disabled
                   ? theme.colorTextDisabled
                   : isActive
@@ -324,12 +496,14 @@ class _AntTabsState extends State<AntTabs> {
     Widget tabContent;
     if (_isHorizontal) {
       tabContent = Row(
+        key: _tabLabelKeys[index],
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: labelWidgets,
       );
     } else {
       tabContent = Row(
+        key: _tabLabelKeys[index],
         children: [
           if (item.icon != null) ...[
             item.icon!,
@@ -341,7 +515,7 @@ class _AntTabsState extends State<AntTabs> {
                   item.label ?? item.key,
                   style: TextStyle(
                     fontSize: _fontSize,
-                    fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
+                    fontWeight: FontWeight.w400,
                     color: item.disabled
                         ? theme.colorTextDisabled
                         : isActive
@@ -380,45 +554,6 @@ class _AntTabsState extends State<AntTabs> {
       );
     }
 
-    // line 类型的指示条
-    Widget? indicator;
-    if (widget.type == AntTabsType.line && isActive) {
-      final indicatorColor = theme.colorPrimary;
-      if (widget.tabPosition == AntTabPosition.top) {
-        indicator = AnimatedContainer(
-          duration: widget.animated
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
-          height: _indicatorThickness,
-          color: indicatorColor,
-        );
-      } else if (widget.tabPosition == AntTabPosition.bottom) {
-        indicator = AnimatedContainer(
-          duration: widget.animated
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
-          height: _indicatorThickness,
-          color: indicatorColor,
-        );
-      } else if (widget.tabPosition == AntTabPosition.left) {
-        indicator = AnimatedContainer(
-          duration: widget.animated
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
-          width: _indicatorThickness,
-          color: indicatorColor,
-        );
-      } else {
-        indicator = AnimatedContainer(
-          duration: widget.animated
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
-          width: _indicatorThickness,
-          color: indicatorColor,
-        );
-      }
-    }
-
     // 组装标签项
     Widget tab;
     if (_isHorizontal) {
@@ -429,23 +564,12 @@ class _AntTabsState extends State<AntTabs> {
               ? SystemMouseCursors.forbidden
               : SystemMouseCursors.click,
           child: Container(
+            key: _tabKeys[index],
             height: _tabHeight,
-            padding: EdgeInsets.symmetric(horizontal: _tabHeight * 0.6),
+            padding: EdgeInsets.symmetric(horizontal: _horizontalTabPadding),
             decoration: cardDecoration,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                tabContent,
-                if (widget.type == AntTabsType.line &&
-                    widget.tabPosition == AntTabPosition.top) ...[
-                  const SizedBox(height: 2),
-                  if (indicator != null)
-                    Expanded(child: indicator)
-                  else
-                    SizedBox(height: _indicatorThickness),
-                ],
-              ],
-            ),
+            alignment: Alignment.center,
+            child: tabContent,
           ),
         ),
       );
@@ -458,38 +582,12 @@ class _AntTabsState extends State<AntTabs> {
               ? SystemMouseCursors.forbidden
               : SystemMouseCursors.click,
           child: Container(
+            key: _tabKeys[index],
             height: _tabHeight,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: cardDecoration,
-            child: Row(
-              children: [
-                if (widget.tabPosition == AntTabPosition.left &&
-                    widget.type == AntTabsType.line) ...[
-                  if (indicator != null)
-                    SizedBox(
-                      width: _indicatorThickness,
-                      height: _tabHeight,
-                      child: indicator,
-                    )
-                  else
-                    SizedBox(width: _indicatorThickness),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(child: tabContent),
-                if (widget.tabPosition == AntTabPosition.right &&
-                    widget.type == AntTabsType.line) ...[
-                  const SizedBox(width: 8),
-                  if (indicator != null)
-                    SizedBox(
-                      width: _indicatorThickness,
-                      height: _tabHeight,
-                      child: indicator,
-                    )
-                  else
-                    SizedBox(width: _indicatorThickness),
-                ],
-              ],
-            ),
+            alignment: Alignment.centerLeft,
+            child: tabContent,
           ),
         ),
       );
@@ -531,9 +629,8 @@ class _AntTabsState extends State<AntTabs> {
     final isCard = widget.type == AntTabsType.card ||
         widget.type == AntTabsType.editableCard;
 
-    final activeItem = widget.items
-        .where((e) => e.key == _currentKey)
-        .firstOrNull;
+    final activeItem =
+        widget.items.where((e) => e.key == _currentKey).firstOrNull;
 
     Widget content;
     if (activeItem?.child != null) {
@@ -552,9 +649,11 @@ class _AntTabsState extends State<AntTabs> {
       );
     }
 
+    final contentPadding = EdgeInsets.all(_isMobileStyle ? 12 : 16);
+
     if (isCard) {
       content = Container(
-        padding: const EdgeInsets.all(16),
+        padding: contentPadding,
         decoration: BoxDecoration(
           border: Border.all(color: theme.colorSplit),
           borderRadius: BorderRadius.vertical(
@@ -570,7 +669,7 @@ class _AntTabsState extends State<AntTabs> {
       );
     } else {
       content = Padding(
-        padding: const EdgeInsets.all(16),
+        padding: contentPadding,
         child: content,
       );
     }
