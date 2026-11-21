@@ -522,4 +522,46 @@ void main() {
       expect(rowCheckbox(tester, '选项A').checked, isTrue);
     });
   });
+
+  group('AntTransfer — 对齐', () {
+    testWidgets('flat list: row checkbox aligns with header select-all', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntTransfer(
+            dataSource: [
+              AntTransferItem(key: 'a', title: 'Item A'),
+              AntTransferItem(key: 'b', title: 'Item B'),
+            ],
+          ),
+        ),
+      );
+      final boxes = find.byType(AntCheckbox).evaluate().toList();
+      final headerLeft = tester.getRect(find.byWidget(boxes[0].widget)).left;
+      final rowLeft = tester.getRect(find.byWidget(boxes[1].widget)).left;
+      expect((rowLeft - headerLeft).abs(), lessThan(0.5));
+    });
+
+    testWidgets('tree list: child row keeps arrow indentation', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const AntTransfer(
+            dataSource: [
+              AntTransferItem(
+                key: 'p1',
+                title: '父级1',
+                children: [AntTransferItem(key: 'c1', title: '子节点1')],
+              ),
+            ],
+            defaultExpandAll: true,
+          ),
+        ),
+      );
+      final boxes = find.byType(AntCheckbox).evaluate().toList();
+      final headerLeft = tester.getRect(find.byWidget(boxes[0].widget)).left;
+      final parentLeft = tester.getRect(find.byWidget(boxes[1].widget)).left;
+      expect(parentLeft, greaterThan(headerLeft));
+    });
+  });
 }

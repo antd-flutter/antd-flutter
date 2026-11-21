@@ -746,6 +746,7 @@ class _TransferPanel extends StatelessWidget {
                       final row = rows[index];
                       return _TransferRowTile(
                         row: row,
+                        treeMode: rows.any((r) => r.hasChildren),
                         selectedKeys: selectedKeys,
                         disabled: disabled,
                         theme: t,
@@ -798,6 +799,7 @@ class _TransferPanel extends StatelessWidget {
 class _TransferRowTile extends StatelessWidget {
   const _TransferRowTile({
     required this.row,
+    required this.treeMode,
     required this.selectedKeys,
     required this.disabled,
     required this.theme,
@@ -807,6 +809,10 @@ class _TransferRowTile extends StatelessWidget {
   });
 
   final _TransferRow row;
+
+  /// 是否为树形数据：树形行需要为展开箭头预留占位，扁平列表不预留，
+  /// 这样扁平项的复选框才能与表头全选框左对齐（antd 行为）。
+  final bool treeMode;
   final List<String> selectedKeys;
   final bool disabled;
   final AntThemeData theme;
@@ -856,7 +862,7 @@ class _TransferRowTile extends StatelessWidget {
                   ),
                 ),
               )
-            else
+            else if (treeMode)
               SizedBox(width: 20.w),
             AntCheckbox(
               checked: checked,
