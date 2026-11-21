@@ -43,6 +43,7 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_table_types.dart';
@@ -281,6 +282,13 @@ class _AntTableState<T> extends State<AntTable<T>> {
   /// 横向滚动控制器（表头与各行共享同一控制器，监听同步位移）
   late final ScrollController _hController = ScrollController();
 
+  /// 纵向合并叠层：行 key → 测量用 GlobalKey / 已测量高度。
+  final Map<Object, GlobalKey> _rowKeys = <Object, GlobalKey>{};
+
+  /// 横向滚动的最近同步值（用于识别真正被拖动的位置）。
+  double _hOffset = 0;
+  final Map<Object, double> _rowHeights = <Object, double>{};
+
   /// 横向滚动同步标志（防止递归）
   bool _syncingH = false;
 
@@ -369,16 +377,23 @@ class _AntTableState<T> extends State<AntTable<T>> {
   /// 表头与各行滚动区共享同一控制器，任一位置滚动时同步其余位置
   void _onHScroll() {
     if (_syncingH) return;
-    _syncingH = true;
     final positions = _hController.positions.toList();
-    if (positions.isNotEmpty) {
-      final offset = positions.first.pixels;
-      for (final pos in positions) {
-        final target = offset.clamp(0.0, pos.maxScrollExtent);
-        if (pos.pixels != target) pos.jumpTo(target);
+    if (positions.isEmpty) return;
+    // 找出「本次真正被拖动」的位置：与上一次同步值不同的那个。
+    var offset = _hOffset;
+    for (final pos in positions) {
+      if ((pos.pixels - _hOffset).abs() > 0.01) {
+        offset = pos.pixels;
+        break;
       }
     }
+    _syncingH = true;
+    for (final pos in positions) {
+      final target = offset.clamp(0.0, pos.maxScrollExtent);
+      if ((pos.pixels - target).abs() > 0.01) pos.jumpTo(target);
+    }
     _syncingH = false;
+    _hOffset = offset;
   }
 
   // ------------------------------------------------------------
@@ -985,8 +1000,45 @@ class _AntTableState<T> extends State<AntTable<T>> {
   double _headerRowHeight(AntThemeData theme) =>
       _cellPaddingV(theme) * 2 + _cellFontSize(theme) * 1.5;
 
-  double _columnWidth(AntThemeData theme, AntTableColumn<T> column) =>
-      theme.s(column.width ?? _kDefaultColumnWidth);
+  /// 解析后的叶子列宽（[leafIndex] → 逻辑像素）。
+  ///
+  /// 表头与表体共用同一套宽度，避免混用 `Expanded` 与固定宽导致列错位。
+  Map<int, double> _leafWidths = const {};
+
+  /// 按可用宽度解析列宽：显式 width 原样使用，其余列均分剩余空间。
+  void _resolveWidths(AntThemeData theme, double maxWidth) {
+    final selection = _selection != null ? _selectionWidth(theme) : 0.0;
+    final border = widget.bordered ? theme.s(1) * 2 : 0.0;
+    final available = maxWidth.isFinite ? (maxWidth - selection - border) : 0.0;
+
+    var fixedSum = 0.0;
+    var flexCount = 0;
+    for (final leaf in _leaves) {
+      final width = leaf.column.width;
+      if (width == null) {
+        flexCount++;
+      } else {
+        fixedSum += theme.s(width);
+      }
+    }
+
+    final total = _hasScrollX ? theme.s(widget.scrollX!) : available;
+    final effectiveTotal = total < fixedSum ? fixedSum : total;
+    final share = flexCount == 0
+        ? 0.0
+        : ((effectiveTotal - fixedSum) / flexCount)
+            .clamp(theme.s(48), double.infinity);
+
+    final widths = <int, double>{};
+    for (final leaf in _leaves) {
+      widths[leaf.leafIndex] =
+          leaf.column.width == null ? share : theme.s(leaf.column.width!);
+    }
+    _leafWidths = widths;
+  }
+
+  double _widthOf(_LeafColumn<T> leaf) =>
+      _leafWidths[leaf.leafIndex] ?? _kDefaultColumnWidth;
 
   bool get _hasScrollX => widget.scrollX != null;
 
@@ -1010,28 +1062,40 @@ class _AntTableState<T> extends State<AntTable<T>> {
     final rows = _displayRows;
     final summaryCells = widget.summary?.call(_processedRecords);
 
-    final table = Container(
-      width: double.infinity,
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
-        border: widget.bordered ? Border.all(color: theme.colorSplit) : null,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(theme),
-          if (rows.isEmpty) _buildEmpty(theme) else _buildBody(theme, rows),
-          if (summaryCells != null && summaryCells.isNotEmpty)
-            _buildSummary(theme, summaryCells),
-          if (widget.pagination &&
-              _processedForest.length > widget.pageSize &&
-              rows.isNotEmpty)
-            _buildPagination(theme),
-        ],
-      ),
+    final table = LayoutBuilder(
+      builder: (context, constraints) {
+        _resolveWidths(theme, constraints.maxWidth);
+        return ScrollConfiguration(
+          behavior: const _TableScrollBehavior(),
+          child: Container(
+            width: double.infinity,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              color: theme.colorBgContainer,
+              borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+              border:
+                  widget.bordered ? Border.all(color: theme.colorSplit) : null,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(theme),
+                if (rows.isEmpty)
+                  _buildEmpty(theme)
+                else
+                  _buildBody(theme, rows),
+                if (summaryCells != null && summaryCells.isNotEmpty)
+                  _buildSummary(theme, summaryCells),
+                if (widget.pagination &&
+                    _processedForest.length > widget.pageSize &&
+                    rows.isNotEmpty)
+                  _buildPagination(theme),
+              ],
+            ),
+          ),
+        );
+      },
     );
 
     if (!widget.loading) return table;
@@ -1081,7 +1145,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
   double _middleWidth(AntThemeData theme) {
     var width = 0.0;
     for (final leaf in _middleLeaves) {
-      width += _columnWidth(theme, leaf.column);
+      width += _widthOf(leaf);
     }
     return width;
   }
@@ -1142,20 +1206,12 @@ class _AntTableState<T> extends State<AntTable<T>> {
         showDivider: i < nodes.length - 1,
       );
       final subtree = node.subtreeLeaves;
-      final allWidth = subtree.every((l) => l.column.width != null);
-      if (allWidth || _hasScrollX) {
-        cells.add(
-          SizedBox(
-            width: subtree.fold<double>(
-              0,
-              (w, l) => w + _columnWidth(theme, l.column),
-            ),
-            child: cell,
-          ),
-        );
-      } else {
-        cells.add(Expanded(child: cell));
-      }
+      cells.add(
+        SizedBox(
+          width: subtree.fold<double>(0, (w, l) => w + _widthOf(l)),
+          child: cell,
+        ),
+      );
     }
     return cells;
   }
@@ -1217,7 +1273,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
       if (_selection != null && selectionCell != null) selectionCell,
 
       // 固定在左侧的列
-      ..._leafSegmentCells(theme,
+      ..._leafSegmentCells(
+        theme,
         _leftLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
@@ -1236,7 +1293,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
                   width: _middleWidth(theme),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _leafSegmentCells(theme,
+                    children: _leafSegmentCells(
+                      theme,
                       _middleLeaves,
                       cellBuilder,
                       hiddenLeaves: hiddenLeaves,
@@ -1247,7 +1305,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
               )
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _leafSegmentCells(theme,
+                children: _leafSegmentCells(
+                  theme,
                   _middleLeaves,
                   cellBuilder,
                   hiddenLeaves: hiddenLeaves,
@@ -1260,7 +1319,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
       if (_rightLeaves.isNotEmpty && _hasScrollX)
         _buildShadow(theme, isLeft: false),
       // 固定在右侧的列
-      ..._leafSegmentCells(theme,
+      ..._leafSegmentCells(
+        theme,
         _rightLeaves,
         cellBuilder,
         hiddenLeaves: hiddenLeaves,
@@ -1287,8 +1347,10 @@ class _AntTableState<T> extends State<AntTable<T>> {
     for (var pos = 0; pos < leaves.length; pos++) {
       final leaf = leaves[pos];
       if (consumed.contains(leaf.leafIndex)) continue;
+      final width = _widthOf(leaf);
       if (hiddenLeaves?.contains(leaf.leafIndex) ?? false) {
-        // 被 rowSpan 合并覆盖的列不渲染
+        // 被 rowSpan 合并覆盖的列：保留占位，保证后续列不左移。
+        cells.add(SizedBox(width: width));
         continue;
       }
 
@@ -1296,22 +1358,16 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
       // colSpan 在分段内消费后续叶子列
       var effective = 1;
-      var widthSum = _columnWidth(theme, leaf.column);
-      var allWidth = leaf.column.width != null;
+      var widthSum = width;
       while (effective < colSpan && pos + effective < leaves.length) {
         final next = leaves[pos + effective];
         consumed.add(next.leafIndex);
-        widthSum += _columnWidth(theme, next.column);
-        allWidth = allWidth && next.column.width != null;
+        widthSum += _widthOf(next);
         effective++;
       }
 
       final cell = cellBuilder(leaf, effective);
-      if (allWidth || _hasScrollX) {
-        cells.add(SizedBox(width: widthSum, child: cell));
-      } else {
-        cells.add(Expanded(child: cell));
-      }
+      cells.add(SizedBox(width: widthSum, child: cell));
     }
     return cells;
   }
@@ -1323,6 +1379,18 @@ class _AntTableState<T> extends State<AntTable<T>> {
   Widget _buildBody(AntThemeData theme, List<_RowNode<T>> rows) {
     final spans = _computeRowSpans(rows);
 
+    // 纵向合并：仅在整行同段（无横向滚动/固定列）时用叠层绘制真正的跨行单元格。
+    final overlayable = spans.merges.isNotEmpty &&
+        !_hasScrollX &&
+        _leftLeaves.isEmpty &&
+        _rightLeaves.isEmpty;
+    final mergeStarts = <int, Set<int>>{};
+    if (overlayable) {
+      for (final merge in spans.merges) {
+        mergeStarts.putIfAbsent(merge.row, () => <int>{}).add(merge.leafIndex);
+      }
+    }
+
     Widget rowWidget(int index) {
       final row = rows[index];
       final key = row.key;
@@ -1333,8 +1401,14 @@ class _AntTableState<T> extends State<AntTable<T>> {
             _selection != null ? _buildSelectionBodyCell(theme, row) : null,
         hiddenLeaves: spans.hidden[index],
         colSpans: spans.colSpans[index],
-        cellBuilder: (leaf, colSpan) =>
-            _buildBodyCell(theme, leaf, row, colSpan),
+        cellBuilder: (leaf, colSpan) {
+          if (overlayable &&
+              (mergeStarts[index]?.contains(leaf.leafIndex) ?? false)) {
+            // 起始行的内容由叠层负责绘制，这里只留占位宽度。
+            return SizedBox(width: _widthOf(leaf));
+          }
+          return _buildBodyCell(theme, leaf, row, colSpan);
+        },
       );
 
       // 拉伸行高：选择列等无固有高度的单元格随行高垂直居中（antd 为垂直居中）
@@ -1347,7 +1421,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
         );
       }
 
-      return Container(
+      final rowBox = Container(
         key: ValueKey<Object?>('ant_table_row_$key'),
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: theme.colorSplit)),
@@ -1361,6 +1435,12 @@ class _AntTableState<T> extends State<AntTable<T>> {
               _buildExpandedContent(theme, row.record, index),
           ],
         ),
+      );
+      if (!overlayable) return rowBox;
+      // 叠层合并需要测量每行高度：用 GlobalKey 记录，postFrame 回填。
+      return KeyedSubtree(
+        key: _rowKeys.putIfAbsent(key, GlobalKey.new),
+        child: rowBox,
       );
     }
 
@@ -1389,10 +1469,94 @@ class _AntTableState<T> extends State<AntTable<T>> {
         ),
       );
     }
-    return Column(
+    final body = Column(
       mainAxisSize: MainAxisSize.min,
       children: [for (var i = 0; i < rows.length; i++) rowWidget(i)],
     );
+    if (!overlayable) return body;
+    return Stack(
+      children: [
+        body,
+        ..._buildSpanOverlays(theme, rows, spans, overlayable: overlayable),
+      ],
+    );
+  }
+
+  /// 叠层绘制跨行合并单元格（需要各行高度，未测量完成时返回空并触发测量）。
+  List<Widget> _buildSpanOverlays(
+    AntThemeData theme,
+    List<_RowNode<T>> rows,
+    _RowSpanInfo spans, {
+    required bool overlayable,
+  }) {
+    // 未测量完成时先用行高估算，保证首帧就能看到合并单元格，随后按实测高度修正。
+    final estimated = _cellPaddingV(theme) * 2 + _cellFontSize(theme) * 1.5;
+    final heights = <double>[];
+    var needsMeasure = false;
+    for (final row in rows) {
+      final height = _rowHeights[row.key];
+      if (height == null) {
+        needsMeasure = true;
+        heights.add(estimated);
+      } else {
+        heights.add(height);
+      }
+    }
+    if (needsMeasure) _scheduleRowMeasure(rows);
+
+    final offsets = <double>[];
+    var y = 0.0;
+    for (final height in heights) {
+      offsets.add(y);
+      y += height;
+    }
+
+    final overlays = <Widget>[];
+    for (final merge in spans.merges) {
+      final leaf = _leaves.firstWhere(
+        (l) => l.leafIndex == merge.leafIndex,
+      );
+      var left = _selection != null ? _selectionWidth(theme) : 0.0;
+      for (final l in _leaves) {
+        if (l.leafIndex == merge.leafIndex) break;
+        left += _widthOf(l);
+      }
+      final top = offsets[merge.row];
+      final endRow = merge.row + merge.span - 1;
+      final bottom =
+          endRow < rows.length ? offsets[endRow] + heights[endRow] : y;
+      overlays.add(
+        Positioned(
+          left: left,
+          top: top,
+          width: _widthOf(leaf),
+          height: bottom - top,
+          child: Container(
+            color: theme.colorBgContainer,
+            child: _buildBodyCell(theme, leaf, rows[merge.row], 1),
+          ),
+        ),
+      );
+    }
+    return overlays;
+  }
+
+  void _scheduleRowMeasure(List<_RowNode<T>> rows) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      var changed = false;
+      for (final row in rows) {
+        final box = _rowKeys[row.key]?.currentContext?.findRenderObject();
+        if (box is RenderBox && box.hasSize) {
+          final height = box.size.height;
+          if (_rowHeights[row.key] != height) {
+            _rowHeights[row.key] = height;
+            changed = true;
+          }
+        }
+      }
+      if (changed) setState(() {});
+    });
   }
 
   /// 展开行内容区
@@ -1405,7 +1569,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
     if (content == null) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
+      padding:
+          EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
       color: theme.colorFillQuaternary.withValues(alpha: 0.35),
       child: KeyedSubtree(
         key: ValueKey('ant_table_expanded_$index'),
@@ -1418,6 +1583,7 @@ class _AntTableState<T> extends State<AntTable<T>> {
   _RowSpanInfo _computeRowSpans(List<_RowNode<T>> rows) {
     final hidden = <int, Set<int>>{};
     final colSpans = <int, Map<int, int>>{};
+    final merges = <_SpanCell>[];
     final pending = <int, int>{}; // leafIndex → 剩余隐藏行数
 
     for (var r = 0; r < rows.length; r++) {
@@ -1440,13 +1606,20 @@ class _AntTableState<T> extends State<AntTable<T>> {
         if (rowSpan == 0) rowHidden.add(leaf.leafIndex);
         if (rowSpan > 1) {
           pending[leaf.leafIndex] = rowSpan - 1;
+          merges.add(
+            _SpanCell(row: r, leafIndex: leaf.leafIndex, span: rowSpan),
+          );
         }
         if (colSpan > 1) rowSpans[leaf.leafIndex] = colSpan;
       }
       if (rowHidden.isNotEmpty) hidden[r] = rowHidden;
       if (rowSpans.isNotEmpty) colSpans[r] = rowSpans;
     }
-    return _RowSpanInfo(hidden: hidden, colSpans: colSpans);
+    return _RowSpanInfo(
+      hidden: hidden,
+      colSpans: colSpans,
+      merges: merges,
+    );
   }
 
   // ------------------------------------------------------------
@@ -1870,7 +2043,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
         child: Container(
           key: ValueKey('ant_table_page_$n'),
           margin: EdgeInsets.symmetric(horizontal: theme.s(2)),
-          padding: EdgeInsets.symmetric(horizontal: theme.s(8), vertical: theme.s(2)),
+          padding: EdgeInsets.symmetric(
+              horizontal: theme.s(8), vertical: theme.s(2),),
           decoration: BoxDecoration(
             color: isCurrent ? theme.colorPrimaryBg : Colors.transparent,
             borderRadius: BorderRadius.circular(theme.borderRadiusXS),
@@ -1907,7 +2081,8 @@ class _AntTableState<T> extends State<AntTable<T>> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
+      padding:
+          EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: theme.colorSplit)),
       ),
@@ -1943,13 +2118,33 @@ class _AntTableState<T> extends State<AntTable<T>> {
 // ============================================================
 
 class _RowSpanInfo {
-  const _RowSpanInfo({required this.hidden, required this.colSpans});
+  const _RowSpanInfo({
+    required this.hidden,
+    required this.colSpans,
+    this.merges = const [],
+  });
 
   /// 行下标 → 被上方 rowSpan 合并覆盖（不渲染）的叶子列下标
   final Map<int, Set<int>> hidden;
 
   /// 行下标 → {叶子列下标: colSpan}（本行需要跨列合并的单元格）
   final Map<int, Map<int, int>> colSpans;
+
+  /// 起始于某行、横跨多行的单元格（用于表体叠层绘制真正的纵向合并）
+  final List<_SpanCell> merges;
+}
+
+/// 一个跨行合并单元格。
+class _SpanCell {
+  const _SpanCell({
+    required this.row,
+    required this.leafIndex,
+    required this.span,
+  });
+
+  final int row;
+  final int leafIndex;
+  final int span;
 }
 
 // ============================================================
@@ -2226,4 +2421,18 @@ class _FilterRadio extends StatelessWidget {
           : null,
     );
   }
+}
+
+/// 允许鼠标拖拽横向滚动（桌面端默认只有触控板/滚轮可横向滚动）。
+class _TableScrollBehavior extends MaterialScrollBehavior {
+  const _TableScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => const {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+      };
 }
