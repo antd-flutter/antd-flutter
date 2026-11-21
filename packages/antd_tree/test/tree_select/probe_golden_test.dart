@@ -84,89 +84,92 @@ void _expectGolden(String name) {
 }
 
 void main() {
-  testWidgets('probe: 默认树（单层展开）', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    await tester.pumpWidget(
-      _wrap(
-        dark: false,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: _treeSelect(value: 2),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.byType(AntTreeSelect<_Option>));
-    await tester.pumpAndSettle();
-    _expectGolden('probe_default_tree');
-  });
-
-  testWidgets('probe: 勾选树（多选勾选）', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    await tester.pumpWidget(
-      _wrap(
-        dark: false,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: _treeSelect(
-              multiple: true,
-              defaultValue: <Object>[7, 8],
+  // 基线由 macOS 生成，Linux/Windows runner 字体栅格化不同，CI 上跳过。
+  group('TreeSelect golden probes', () {
+    testWidgets('probe: 默认树（单层展开）', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpWidget(
+        _wrap(
+          dark: false,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _treeSelect(value: 2),
             ),
           ),
         ),
-      ),
-    );
-    await tester.tap(find.byType(AntTreeSelect<_Option>));
-    await tester.pumpAndSettle();
-    _expectGolden('probe_checkable_tree');
-  });
+      );
+      await tester.tap(find.byType(AntTreeSelect<_Option>));
+      await tester.pumpAndSettle();
+      _expectGolden('probe_default_tree');
+    });
 
-  testWidgets('probe: 多级展开（两级子节点全展开）', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    await tester.pumpWidget(
-      _wrap(
-        dark: false,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: _treeSelect(expandAll: true),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.byType(AntTreeSelect<_Option>));
-    await tester.pumpAndSettle();
-    _expectGolden('probe_expanded_tree');
-  });
-
-  testWidgets('probe: 暗色模式（token 正确性）', (tester) async {
-    tester.view.physicalSize = const Size(800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    await tester.pumpWidget(
-      _wrap(
-        dark: true,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: _treeSelect(
-              expandAll: true,
-              defaultValue: 7,
+    testWidgets('probe: 勾选树（多选勾选）', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpWidget(
+        _wrap(
+          dark: false,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _treeSelect(
+                multiple: true,
+                defaultValue: <Object>[7, 8],
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.tap(find.byType(AntTreeSelect<_Option>));
-    await tester.pumpAndSettle();
-    _expectGolden('probe_dark_tree');
-  });
+      );
+      await tester.tap(find.byType(AntTreeSelect<_Option>));
+      await tester.pumpAndSettle();
+      _expectGolden('probe_checkable_tree');
+    });
+
+    testWidgets('probe: 多级展开（两级子节点全展开）', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpWidget(
+        _wrap(
+          dark: false,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _treeSelect(expandAll: true),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(AntTreeSelect<_Option>));
+      await tester.pumpAndSettle();
+      _expectGolden('probe_expanded_tree');
+    });
+
+    testWidgets('probe: 暗色模式（token 正确性）', (tester) async {
+      tester.view.physicalSize = const Size(800, 900);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpWidget(
+        _wrap(
+          dark: true,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _treeSelect(
+                expandAll: true,
+                defaultValue: 7,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(AntTreeSelect<_Option>));
+      await tester.pumpAndSettle();
+      _expectGolden('probe_dark_tree');
+    });
+  }, skip: !Platform.isMacOS,);
 }
