@@ -6,8 +6,9 @@ class FloatingBubblePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -21,20 +22,14 @@ class FloatingBubblePage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(
             title: '三种拖拽轴向',
             child: Column(
               children: [
-                _AxisDemo(
-                  label: 'axis: x（仅水平）',
-                  axis: AntFloatingBubbleAxis.x,
-                ),
+                _AxisDemo(label: 'axis: x（仅水平）', axis: AntFloatingBubbleAxis.x),
                 SizedBox(height: 8),
-                _AxisDemo(
-                  label: 'axis: y（仅垂直）',
-                  axis: AntFloatingBubbleAxis.y,
-                ),
+                _AxisDemo(label: 'axis: y（仅垂直）', axis: AntFloatingBubbleAxis.y),
                 SizedBox(height: 8),
                 _AxisDemo(
                   label: 'axis: both（任意方向）',
@@ -43,12 +38,11 @@ class FloatingBubblePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
-          const _Section(
-            title: '带菜单',
-            child: _MenuDemo(),
-          ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
+          const _Section(title: '带菜单', child: _MenuDemo()),
+          SizedBox(height: theme.s(16)),
+          const _Section(title: '边缘吸附（拖拽松手自动贴边）', child: _AutoSnapDemo()),
+          SizedBox(height: theme.s(16)),
           const _Section(
             title: '自定义图标',
             child: Row(
@@ -74,7 +68,7 @@ class FloatingBubblePage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           const _Section(
             title: '初始位置',
             child: SizedBox(
@@ -107,19 +101,19 @@ class _AxisDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: 
-          label,
+        AntText(
+          text: label,
           style: TextStyle(
-            fontSize: theme.fontSizeSM.sp,
+            fontSize: theme.fontSizeSM,
             color: theme.colorTextSecondary,
           ),
         ),
-        SizedBox(height: 4.w),
+        SizedBox(height: theme.s(4)),
         Container(
-          height: 80.w,
+          height: theme.s(80),
           decoration: BoxDecoration(
             color: theme.colorFillQuaternary,
-            borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+            borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           ),
           child: AntFloatingBubble(
             axis: axis,
@@ -153,13 +147,13 @@ class _MenuDemoState extends State<_MenuDemo> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 160.w,
+          height: theme.s(160),
           decoration: BoxDecoration(
             color: theme.colorFillQuaternary,
-            borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+            borderRadius: BorderRadius.circular(theme.borderRadiusLG),
           ),
           child: AntFloatingBubble(
-            initialPos: Offset(120.w, 60),
+            initialPos: Offset(theme.s(120), 60),
             menu: [
               AntFloatingBubbleMenuAction(
                 label: '新建',
@@ -181,15 +175,93 @@ class _MenuDemoState extends State<_MenuDemo> {
           ),
         ),
         if (_lastAction != null) ...[
-          SizedBox(height: 8.w),
-          AntText(text: 
-            '最近操作：$_lastAction',
+          SizedBox(height: theme.s(8)),
+          AntText(
+            text: '最近操作：$_lastAction',
             style: TextStyle(
-              fontSize: theme.fontSizeSM.sp,
+              fontSize: theme.fontSizeSM,
               color: theme.colorTextSecondary,
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+// ============================================================
+// 区块：边缘吸附演示（autoSnapToEdge + Controller 手动吸附）
+// ============================================================
+
+class _AutoSnapDemo extends StatefulWidget {
+  const _AutoSnapDemo();
+
+  @override
+  State<_AutoSnapDemo> createState() => _AutoSnapDemoState();
+}
+
+class _AutoSnapDemoState extends State<_AutoSnapDemo> {
+  final AntFloatingBubbleController _controller = AntFloatingBubbleController();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AntText(
+          text: '左：拖拽松手自动吸附最近左/右边缘（autoSnapToEdge）；右：拖拽后点按钮手动吸附',
+          style: TextStyle(
+            fontSize: theme.fontSizeSM,
+            color: theme.colorTextSecondary,
+          ),
+        ),
+        SizedBox(height: theme.s(8)),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: theme.s(180),
+                decoration: BoxDecoration(
+                  color: theme.colorFillQuaternary,
+                  borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                ),
+                child: const AntFloatingBubble(
+                  initialPos: Offset(100, 120),
+                  autoSnapToEdge: true,
+                  child: AntdIcon(AntIcons.dragOutlined),
+                ),
+              ),
+            ),
+            SizedBox(width: theme.s(12)),
+            Expanded(
+              child: Container(
+                height: theme.s(180),
+                decoration: BoxDecoration(
+                  color: theme.colorFillQuaternary,
+                  borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                ),
+                child: Stack(
+                  children: [
+                    AntFloatingBubble(
+                      controller: _controller,
+                      initialPos: const Offset(100, 120),
+                      child: const AntdIcon(AntIcons.dragOutlined),
+                    ),
+                    Positioned(
+                      left: theme.s(8),
+                      bottom: theme.s(8),
+                      child: OutlinedButton(
+                        onPressed: () => _controller.snapToNearestEdge(),
+                        child: const AntText(text: '吸附边缘'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -210,24 +282,27 @@ class _Section extends StatelessWidget {
     final theme = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
-        border: Border.all(color: theme.colorBorderSecondary, width: theme.lineWidth),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+        border: Border.all(
+          color: theme.colorBorderSecondary,
+          width: theme.lineWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: theme.fontSize.sp,
+              fontSize: theme.fontSize,
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

@@ -1,0 +1,33 @@
+name: antd_table
+description: Ant Design v6 Table component for Flutter. Table with sorting, filtering, fixed columns/headers, row selection, merged cells, expandable rows, tree data, pagination, summary row and grouped headers, aligned with antd React Table API.
+version: 1.0.0
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
+
+topics:
+  - ui
+  - components
+  - design-system
+  - ant-design
+  - table
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
+  material_ui: ^1.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+# 本地开发 path override（antd_theme 未发布）
+flutter:
+  uses-material-design: true

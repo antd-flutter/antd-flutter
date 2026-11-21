@@ -1,0 +1,15 @@
+build/
+.dart_tool/
+doc/
+example/build/
+example/.dart_tool/
+.temp/
+.agents/
+.work/
+.claude/
+.github/
+packages/*/build/
+packages/*/.dart_tool/
+packages/*/doc/
+packages/*/example/
+packages/*/test/

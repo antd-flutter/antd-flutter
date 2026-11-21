@@ -1,126 +1,131 @@
-# antd_color
+# antd_color - Ant Design's color system for Flutter
 
-Ant Design v6 color system for Flutter — fast color manipulation, palette generation, and CSS color parsing, precisely ported from [`@ant-design/fast-color`](https://github.com/ant-design/fast-color) v3.
+[English](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_color/README.md) | [简体中文](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_color/README_CN.md)
 
-## Features
+`antd_color` is the color foundation of the `antd_flutter` stack. It ports the algorithms behind Ant Design v6 — 10-step palette generation, color manipulation, preset seeds, and CSS color parsing — into dependency-light Dart. Every downstream package (`antd_tokens`, `antd_theme`, component packages) derives its colors from this package, so the values here are the same values antd produces in the browser.
 
-- **AntFastColor** — Create colors from hex / rgb / hsl / hsv strings; lighten, darken, mix, tint, shade, adjust alpha, and convert between formats.
-- **Palette generation** — `antGeneratePalette` produces the signature Ant Design 10-step color scale (blue-1 … blue-10) from any base color, with dark theme support.
-- **Preset palettes** — All 13 Ant Design preset colors (red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta, grey) ready to use.
-- **Flutter-native** — Every color is accessible as a Flutter `Color` alongside its hex string.
-- **CSS color parsing** — `antParseColor` converts any CSS color string into a Flutter `Color`.
+The package deliberately stops at color: it contains no widgets, no `ThemeData`, and no design tokens. That boundary keeps it usable in pure-Dart tools (asset generators, CLI checks) as well as in Flutter apps. `AntColor` carries both hex strings and Flutter `Color` objects so callers do not pay for parsing on every frame; `AntFastColor` is a small mutable value type for one-off adjustments; `antParseColor` intentionally supports only the formats antd actually emits (`#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`, `rgba()`) so that unsupported input fails predictably instead of being guessed at.
 
-## Getting started
+## Positioning & design
+
+- **Algorithm fidelity over API surface.** Palette generation follows antd's fixed light and dark mapping tables, and snapshot tests pin the output of the default presets.
+- **No Flutter widgets.** The only Flutter dependency is `dart:ui`'s `Color`, which keeps the package cheap to depend on.
+- **Two color representations, one source of truth.** `AntColor` exposes `stepN` (hex) and `stepNColor` (`Color`), all computed from the same palette list.
+- **Silent fallback is a feature and a trap.** `antParseColor` returns black for unsupported strings rather than throwing. Validate user input before handing it to the parser.
+- **Strings and typed models are interchangeable.** `AntFastColor.of` accepts hex, `rgb()`/`rgba()`, `hsl()`/`hsv()` strings, `AntRgb`, `AntHsl`, `AntHsv`, or another `AntFastColor`, so callers can stay in whichever representation their data arrives in.
+
+## Installation
+
+Requires Dart 3.0+ and Flutter 3.10+.
 
 ```yaml
 dependencies:
   antd_color: ^1.0.0
 ```
 
+## Quick start
+
 ```dart
 import 'package:antd_color/antd_color.dart';
+
+void main() {
+  // Generate the raw 10-step palette; index 5 is the main color (antd step 6).
+  final palette = antGeneratePalette('#1677FF');
+  print(palette[5]); // '#1677ff'
+
+  // Wrap the palette for typed access; light and dark have separate factories.
+  final primary = AntColor.fromSeed('#1677FF');
+  print(primary.main); // '#1677ff'
+  print(primary.step5); // hover step
+
+  // One-off adjustments stay chainable.
+  print(AntFastColor(primary.step5).darken(10).toHexString());
+}
 ```
 
-## Usage
+## API
 
-### Color manipulation
+[API reference](https://github.com/flutter-open/antd-flutter/blob/master/packages/antd_color/docs/api-index.md)
+
+### Generate palettes and presets
 
 ```dart
-// Create from any CSS color string (shorthand for AntFastColor.of)
-final base = AntFastColor('#1677ff');
+import 'package:antd_color/antd_color.dart';
 
-// Lighten / darken (amount is a percentage 0-100)
-final lighter = base.lighten(20);
-final darker = base.darken(10);
+void main() {
+  final dark = antGeneratePalette(
+    AntPresetColors.purple,
+    const AntPaletteOptions(theme: 'dark'),
+  );
+  print(dark[4]);
 
-// Mix two colors (amount is a percentage 0-100)
-final mixed = base.mix('#ffffff', 50);
-
-// Tint / shade (mix with white / black)
-final tinted = base.tint(20);
-final shaded = base.shade(10);
-
-// Adjust alpha
-final semi = base.setA(0.45);
-
-// Convert
-print(base.toHexString()); // #1677ff
-print(base.toRgb());       // AntRgb(r: 22, g: 119, b: 255)
-print(base.toRgbString()); // rgb(22,119,255)
-print(base.toHsl());       // AntHsl(h: 215, s: 1.0, l: 0.54)
-print(base.toHsv());       // AntHsv(h: 215, s: 0.91, v: 1.0)
-
-// Check brightness
-print(base.isDark());      // false
-print(base.getLuminance()); // ~0.21 (WCAG relative luminance)
+  // Every antd preset seed in one call.
+  final presets = antGeneratePresetPalettes(dark: true);
+  print(presets['blue']![0]);
+}
 ```
 
-### Generate a 10-step palette
+### Walk a palette with `AntColor`
 
 ```dart
-// Light theme palette
-final palette = antGeneratePalette('#1677ff');
-// palette[0] … palette[9] — hex strings, lightest to darkest
+import 'package:antd_color/antd_color.dart';
 
-// Dark theme palette
-final darkPalette = antGeneratePalette(
-  '#1677ff',
-  AntPaletteOptions(theme: 'dark', backgroundColor: '#141414'),
-);
+void main() {
+  final palette = AntColor.fromSeed('#722ED1');
+  print(palette[1]); // lightest step
+  print(palette.mainColor);
+
+  final dark = AntColor.fromSeedDark('#722ED1', background: '#141414');
+  print(dark.step10);
+}
 ```
 
-### Preset colors
+### Manipulate and parse colors
 
 ```dart
-// All 13 preset palettes (Map<String, List<String>>)
-final presets = antGeneratePresetPalettes();
-final blue = presets['blue']!; // 10-step hex strings
+import 'package:antd_color/antd_color.dart';
 
-// Dark variants
-final darkPresets = antGeneratePresetPalettes(dark: true);
+void main() {
+  final base = AntFastColor('#1677FF');
+  print(base.lighten(10).toHexString());
+  print(base.mix('#722ED1', 50).toHexString());
+  print(base.isDark());
 
-// Or use the seed constants directly
-final seed = AntPresetColors.blue; // #1677FF
+  final parsed = antParseColor('rgba(22, 119, 255, 0.5)');
+  print(parsed);
+}
 ```
 
-### AntColor — palette wrapper
+## Project structure
 
-```dart
-// Generate from a seed color (light theme mapping)
-final antBlue = AntColor.fromSeed('#1677ff');
-
-// Access by step (1-10) as hex string
-print(antBlue.step1);  // lightest
-print(antBlue.main);   // step 6 — the primary color
-print(antBlue.step10); // darkest
-print(antBlue[5]);     // operator access by step number
-
-// Access by step (1-10) as Flutter Color
-final primary = antBlue.step6Color;
-final hover = antBlue.step5Color;
-final active = antBlue.step7Color;
-final colorAt3 = antBlue.colorAt(3);
-
-// Dark theme variant
-final antBlueDark = AntColor.fromSeedDark('#1677ff');
+```text
+antd_color/
+├── lib/
+│   ├── antd_color.dart              # Public barrel
+│   └── src/
+│       ├── ant_fast_color.dart      # Color manipulation and conversions
+│       ├── ant_color_palette.dart   # 10-step palette algorithm
+│       ├── ant_color.dart           # Palette wrapper (hex + Color)
+│       ├── ant_color_presets.dart   # Preset seeds and batch generation
+│       ├── ant_parse_color.dart     # CSS string -> Flutter Color
+│       ├── config/                  # AntPaletteOptions
+│       └── types/                   # AntRgb / AntHsl / AntHsv
+├── test/
+│   ├── ant_color_palette_test.dart
+│   └── ant_fast_color_test.dart
+└── docs/
+    ├── api-index.md
+    └── api/
 ```
-
-### Parse CSS color strings
-
-```dart
-// hex / rgb / rgba strings → Flutter Color
-final c1 = antParseColor('#1677ff');
-final c2 = antParseColor('rgba(22, 119, 255, 0.6)');
-```
-
-## Documentation
-
-- [API 文档总览](docs/api-index.md)（每个公开 API 独立页面，位于 docs/api/）
-
-## Porting fidelity
-
-The color algorithms (RGB ↔ HSL ↔ HSV conversion, palette generation with hue/saturation/brightness steps and dark theme mixing) are ported line-by-line from `@ant-design/fast-color` v3 and validated against its test fixtures to ensure visual parity with Ant Design React.
 
 ## License
 
 MIT
+
+## ☕ Buy Me a Coffee
+
+If this project has been helpful to you, you are welcome to buy me a coffee. Thank you for your support!
+
+| Alipay | WeChat |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/ali.jpg" width="260" alt="Alipay QR code" /> | <img src="https://raw.githubusercontent.com/flutter-open/resures-repository/master/docs/images/wechat.jpg" width="260" alt="WeChat QR code" />

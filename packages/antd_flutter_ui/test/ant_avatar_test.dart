@@ -3,6 +3,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 始终抛错的缓存源：模拟网络加载失败。
 class _ThrowingFileService extends FileService {
@@ -14,16 +15,14 @@ class _ThrowingFileService extends FileService {
 }
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {
@@ -35,14 +34,14 @@ void main() {
 
     testWidgets('icon avatar renders custom icon', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AntAvatar(icon: Icon(Icons.person_outline))),
+        _wrap(const AntAvatar(icon: Icon(AntIcons.userOutlined))),
       );
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+      expect(find.byIcon(AntIcons.userOutlined), findsOneWidget);
     });
 
     testWidgets('fallback shows person icon when no content', (tester) async {
       await tester.pumpWidget(_wrap(const AntAvatar()));
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byIcon(AntIcons.userOutlined), findsOneWidget);
     });
 
     testWidgets('custom size affects container dimensions', (tester) async {
@@ -140,7 +139,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
       }
       expect(errorCalled, isTrue);
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byIcon(AntIcons.userOutlined), findsOneWidget);
     });
   });
 

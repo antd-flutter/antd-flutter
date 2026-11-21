@@ -4,6 +4,43 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
+class _SideBarData {
+  const _SideBarData({
+    required this.key,
+    required this.title,
+    this.badgeText,
+    this.badgeDot = false,
+    this.disabled = false,
+  });
+
+  final String key;
+  final String title;
+  final String? badgeText;
+  final bool badgeDot;
+  final bool disabled;
+}
+
+Widget _sideBar({
+  Key? key,
+  List<_SideBarData> items = const [],
+  Object? activeKey,
+  Object? defaultActiveKey,
+  ValueChanged<_SideBarData>? onChange,
+}) {
+  return AntSideBar<_SideBarData>(
+    key: key,
+    items: items,
+    keyOf: (item) => item.key,
+    titleBuilder: (context, item, index) => Text(item.title),
+    badgeTextOf: (item) => item.badgeText,
+    badgeDotOf: (item) => item.badgeDot,
+    disabledOf: (item) => item.disabled,
+    activeKey: activeKey,
+    defaultActiveKey: defaultActiveKey,
+    onChange: onChange,
+  );
+}
+
 class SideBarPage extends StatelessWidget {
   const SideBarPage({super.key});
 
@@ -45,7 +82,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -63,12 +103,12 @@ class _BasicDemo extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AntSideBar(
+      child: _sideBar(
         items: const [
-          AntSideBarItem(key: 'a', title: '选项一'),
-          AntSideBarItem(key: 'b', title: '选项二'),
-          AntSideBarItem(key: 'c', title: '选项三'),
-          AntSideBarItem(key: 'd', title: '选项四'),
+          _SideBarData(key: 'a', title: '选项一'),
+          _SideBarData(key: 'b', title: '选项二'),
+          _SideBarData(key: 'c', title: '选项三'),
+          _SideBarData(key: 'd', title: '选项四'),
         ],
         onChange: (key) => _showSnackbar(context, '切换到: $key'),
       ),
@@ -86,11 +126,11 @@ class _BadgeDemo extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AntSideBar(
+      child: _sideBar(
         items: const [
-          AntSideBarItem(key: 'a', title: '通知', badgeDot: true),
-          AntSideBarItem(key: 'b', title: '消息', badgeText: '9'),
-          AntSideBarItem(key: 'c', title: '设置'),
+          _SideBarData(key: 'a', title: '通知', badgeDot: true),
+          _SideBarData(key: 'b', title: '消息', badgeText: '9'),
+          _SideBarData(key: 'c', title: '设置'),
         ],
         onChange: (key) => _showSnackbar(context, '切换到: $key'),
       ),
@@ -108,11 +148,11 @@ class _DisabledDemo extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AntSideBar(
+      child: _sideBar(
         items: const [
-          AntSideBarItem(key: 'a', title: '可用项'),
-          AntSideBarItem(key: 'b', title: '禁用项', disabled: true),
-          AntSideBarItem(key: 'c', title: '可用项'),
+          _SideBarData(key: 'a', title: '可用项'),
+          _SideBarData(key: 'b', title: '禁用项', disabled: true),
+          _SideBarData(key: 'c', title: '可用项'),
         ],
         onChange: (key) => _showSnackbar(context, '切换到: $key'),
       ),
@@ -142,20 +182,18 @@ class _LinkedDemoState extends State<_LinkedDemo> {
         children: [
           SizedBox(
             width: 120,
-            child: AntSideBar(
+            child: _sideBar(
               activeKey: _activeKey,
               items: const [
-                AntSideBarItem(key: 'a', title: '水果'),
-                AntSideBarItem(key: 'b', title: '蔬菜'),
-                AntSideBarItem(key: 'c', title: '肉类'),
+                _SideBarData(key: 'a', title: '水果'),
+                _SideBarData(key: 'b', title: '蔬菜'),
+                _SideBarData(key: 'c', title: '肉类'),
               ],
-              onChange: (key) => setState(() => _activeKey = key),
+              onChange: (item) => setState(() => _activeKey = item.key),
             ),
           ),
           Expanded(
-            child: Center(
-              child: AntText(text: _contentFor(_activeKey)),
-            ),
+            child: Center(child: AntText(text: _contentFor(_activeKey))),
           ),
         ],
       ),

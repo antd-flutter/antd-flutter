@@ -4,8 +4,8 @@
 /// genSizeBaseButtonStyle / genSizeSmallButtonStyle / genSizeLargeButtonStyle /
 /// genCircleButtonStyle / genBlockButtonStyle 逻辑。
 ///
-/// 缩放规范：flutter_screenutil 仅使用 `.w`（尺寸/间距）/ `.sp`（字号）/ `.r`（圆角），
-/// 禁止 `.h`。
+/// 缩放规范：尺寸/间距/字号/圆角统一走 `theme.s(设计值)`（AntScale 因子）或主题 token，
+/// 禁止再引入 flutter_screenutil 的 `.w/.h/.sp/.r` 后缀。
 library;
 
 import 'package:antd_theme/antd_theme.dart';
@@ -86,11 +86,11 @@ AntButtonSizeStyle resolveButtonSize({
   }
 
   // ---- 2. screenutil 缩放（.w 尺寸 / .sp 字号 / .r 圆角）----
-  final height = rawHeight.w;
-  final fontSize = rawFontSize.sp;
-  var borderRadius = rawBorderRadius.r;
-  var paddingInline = rawPaddingInline.w;
-  final iconGap = t.marginXS.w;
+  final height = theme.s(rawHeight);
+  final fontSize = theme.s(rawFontSize);
+  var borderRadius = theme.s(rawBorderRadius);
+  var paddingInline = theme.s(rawPaddingInline);
+  final iconGap = t.marginXS;
 
   // ---- 3. 形状覆盖 ----
   double? width;

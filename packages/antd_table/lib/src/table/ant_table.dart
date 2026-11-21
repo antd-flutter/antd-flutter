@@ -1,0 +1,2491 @@
+/// AntTable — antd React Table 的 Flutter 实现
+///
+/// 数据模型泛型化（P08）：直接消费使用者模型 `T`，无 `Map` 行、无
+/// `dataIndex` 字符串取数；一切取数走回调。
+///
+/// API 与 antd React Table 对齐（核心 + 高级能力）：
+/// - [AntTable.columns] — 列定义（排序 / 筛选 / 单元格 / 省略 / 分组 / 合并）
+/// - [AntTable.dataSource] — 行模型列表（`List<T>`，树形数据经
+///   [AntTable.childrenOf] 提供子行）
+/// - [AntTable.rowKey] — 行 key 提取函数（缺省用行下标）
+/// - 排序 — [AntTableColumn.sorter] 比较两个 `T`，点击表头
+///   升序 → 降序 → 取消；支持受控 [AntTableColumn.sortOrder]、初始
+///   [AntTableColumn.defaultSortOrder]、多列排序 [AntTableColumn.sortPriority]
+/// - 筛选 — filters 列表头弹出多选/单选筛选菜单（确定 / 重置）；
+///   [AntTableColumn.onFilter] 基于 `T` 判定；支持受控
+///   [AntTableColumn.filteredValue] / 初始 [AntTableColumn.defaultFilteredValue]
+/// - 固定列 — fixed left/right 横向滚动吸边（shadow 分隔）
+/// - 固定表头 — scrollY 时表头固定、表体纵向滚动
+/// - 虚拟滚动 — scrollY 且行数 > 50 时 `ListView.builder` 懒加载
+/// - 合并单元格 — [AntTableColumn.onCell]（rowSpan / colSpan）
+/// - 树形数据 — [AntTable.childrenOf] 缩进 + 展开穿梭，与行选择联动
+/// - 行选择 — [AntTableRowSelection]（全选 / 半选 / getCheckboxProps /
+///   selections 自定义 / 与树数据联动）
+/// - 展开行 — [AntTable.expandedRowRender]
+/// - 汇总行 — [AntTable.summary]（含固定列对齐）
+/// - 表头分组 — [AntTableColumn.children] 多级表头
+/// - pagination — 分页（页码 / 上一页 / 下一页）
+/// - size / bordered / loading / empty
+///
+/// ```dart
+/// AntTable<User>(
+///   rowKey: (user) => user.id,
+///   columns: [
+///     AntTableColumn<User>(
+///       title: '姓名',
+///       cell: (context, user, index) => Text(user.name),
+///       sorter: (a, b) => a.name.compareTo(b.name),
+///     ),
+///   ],
+///   dataSource: users,
+/// )
+/// ```
+library;
+
+import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/gestures.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
+
+import 'ant_table_types.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+
+export 'ant_table_types.dart';
+
+// ============================================================
+// 常量
+// ============================================================
+
+/// 虚拟滚动懒加载阈值（行数）
+const int _kVirtualThreshold = 50;
+
+/// 未指定宽度列的默认宽度（设计稿逻辑像素）
+const double _kDefaultColumnWidth = 120;
+
+/// 固定列分隔阴影宽度（设计稿逻辑像素）
+const double _kFixedShadowWidth = 12;
+
+/// 选择列默认宽度（设计稿逻辑像素）
+const double _kDefaultSelectionWidth = 48;
+
+/// 树形数据缩进步长（设计稿逻辑像素）
+const double _kTreeIndentStep = 16;
+
+/// 展开图标尺寸（设计稿逻辑像素）
+const double _kExpandIconSize = 14;
+
+// ============================================================
+// 列结构（叶子列 + 表头节点）
+// ============================================================
+
+/// 叶子列（columns 展开后的数据列，leafIndex 为全局叶子序号）
+class _LeafColumn<T> {
+  const _LeafColumn({
+    required this.column,
+    required this.leafIndex,
+    required this.depth,
+    this.inheritedFixed,
+  });
+
+  final AntTableColumn<T> column;
+  final int leafIndex;
+  final int depth;
+
+  /// 从祖先分组列继承的固定方向（分组列 fixed 作用于其全部叶子列）
+  final AntTableFixed? inheritedFixed;
+
+  AntTableFixed? get fixed => column.fixed ?? inheritedFixed;
+}
+
+/// 表头节点（分组列或叶子列，用于多级表头递归渲染）
+class _HeaderNode<T> {
+  const _HeaderNode({
+    required this.column,
+    required this.depth,
+    required this.children,
+    required this.subtreeLeaves,
+    this.leaf,
+  });
+
+  final AntTableColumn<T> column;
+  final int depth;
+  final List<_HeaderNode<T>> children;
+
+  /// 本节点覆盖的叶子列（含嵌套后代）
+  final List<_LeafColumn<T>> subtreeLeaves;
+
+  /// 叶子列（分组列为 null）
+  final _LeafColumn<T>? leaf;
+
+  bool get isGroup => children.isNotEmpty;
+}
+
+// ============================================================
+// 行节点（树形数据的内部结构，避免改动用户模型）
+// ============================================================
+
+/// 处理后的行节点（键与子行在每帧构建时解析）。
+class _RowNode<T> {
+  const _RowNode({
+    required this.record,
+    required this.index,
+    required this.depth,
+    required this.key,
+    required this.children,
+  });
+
+  /// 用户行模型。
+  final T record;
+
+  /// 同级行下标（传给 [AntTableCellBuilder]）。
+  final int index;
+
+  /// 树形深度（顶层为 0）。
+  final int depth;
+
+  /// 行 key（[AntTable.rowKey] 结果，缺省为深度优先序号）。
+  final Object key;
+
+  /// 子行（已筛选 / 排序）。
+  final List<_RowNode<T>> children;
+
+  _RowNode<T> withChildren(List<_RowNode<T>> next) => _RowNode<T>(
+        record: record,
+        index: index,
+        depth: depth,
+        key: key,
+        children: next,
+      );
+}
+
+// ============================================================
+// AntTable
+// ============================================================
+
+/// 表格 — 展示行列数据。
+///
+/// 对齐 antd React Table 组件核心 + 高级 API，行数据为用户模型 `T`。
+class AntTable<T> extends StatefulWidget {
+  const AntTable({
+    super.key,
+    required this.columns,
+    required this.dataSource,
+    this.rowKey,
+    this.childrenOf,
+    this.scrollX,
+    this.scrollY,
+    this.pagination = false,
+    this.pageSize = 10,
+    this.size = AntTableSize.middle,
+    this.bordered = false,
+    this.loading = false,
+    this.empty,
+    this.rowSelection,
+    this.expandedRowRender,
+    this.defaultExpandAllRows = false,
+    this.expandedRowKeys,
+    this.onExpandedRowsChange,
+    this.expandRowByClick = false,
+    this.summary,
+    this.onSortChange,
+    this.onFilterChange,
+    this.onPageChange,
+  });
+
+  /// 列定义。
+  final List<AntTableColumn<T>> columns;
+
+  /// 数据源（行模型 `T` 列表）。
+  final List<T> dataSource;
+
+  /// 行 key 提取函数（缺省按深度优先行下标，跨帧不稳定，建议显式提供）。
+  final AntTableRowKeyFn<T>? rowKey;
+
+  /// 子行提取函数（返回非空列表即为树形父行）。
+  ///
+  /// 缺省视为无树形数据；[AntTableColumn] 与行选择按父子关系联动。
+  final AntTableChildrenFn<T>? childrenOf;
+
+  /// 横向滚动内容宽度（大于可用宽度时出现横向滚动，固定列吸边）。
+  final double? scrollX;
+
+  /// 纵向滚动区域高度；行数超过阈值时启用虚拟滚动懒加载。
+  final double? scrollY;
+
+  /// 是否分页。
+  final bool pagination;
+
+  /// 每页行数。
+  final int pageSize;
+
+  /// 表格尺寸。
+  final AntTableSize size;
+
+  /// 是否显示边框。
+  final bool bordered;
+
+  /// 是否显示加载遮罩。
+  final bool loading;
+
+  /// 空数据占位（默认展示「暂无数据」）。
+  final Widget? empty;
+
+  /// 行选择配置。
+  final AntTableRowSelection<T>? rowSelection;
+
+  /// 展开行内容构建（非 null 时行首叶子列出现展开图标）。
+  final AntTableExpandedRowBuilder<T>? expandedRowRender;
+
+  /// 是否默认展开全部树形行。
+  final bool defaultExpandAllRows;
+
+  /// 受控展开行 key 集合（非 null 时展开由外部控制）。
+  final List<Object>? expandedRowKeys;
+
+  /// 展开行变化回调。
+  final AntTableExpandChangeFn? onExpandedRowsChange;
+
+  /// 点击行时切换展开态。
+  final bool expandRowByClick;
+
+  /// 汇总行构建（对齐 antd `summary`）。
+  final AntTableSummaryFn<T>? summary;
+
+  /// 排序变化回调（leafIndex 为叶子列序号，order 为 null 表示取消排序）。
+  final AntTableSortChangeFn? onSortChange;
+
+  /// 筛选变化回调（filteredValue 为 null 表示已重置）。
+  final AntTableFilterChangeFn? onFilterChange;
+
+  /// 分页变化回调。
+  final void Function(int page, int pageSize)? onPageChange;
+
+  @override
+  State<AntTable<T>> createState() => _AntTableState<T>();
+}
+
+class _AntTableState<T> extends State<AntTable<T>> {
+  /// 各叶子列排序方向（非受控；受控列以 [AntTableColumn.sortOrder] 为准）
+  Map<int, AntTableSortOrder> _sortStates = {};
+
+  /// 各叶子列已选筛选项（叶子列序号 → 值集合；非受控）
+  final Map<int, Set<Object>> _filterSelected = {};
+
+  /// 当前页码（从 1 开始）
+  int _currentPage = 1;
+
+  /// 非受控选中行 key 集合
+  Set<Object> _selectedKeys = {};
+
+  /// 非受控展开行 key 集合（树形 + expandedRowRender 共用）
+  Set<Object> _expandedKeys = {};
+
+  /// 横向滚动控制器（表头与各行共享同一控制器，监听同步位移）
+  late final ScrollController _hController = ScrollController();
+
+  /// 纵向合并叠层：行 key → 测量用 GlobalKey / 已测量高度。
+  final Map<Object, GlobalKey> _rowKeys = <Object, GlobalKey>{};
+
+  /// 横向滚动的最近同步值（用于识别真正被拖动的位置）。
+  double _hOffset = 0;
+  final Map<Object, double> _rowHeights = <Object, double>{};
+
+  /// 横向滚动同步标志（防止递归）
+  bool _syncingH = false;
+
+  /// 筛选弹层
+  OverlayEntry? _filterOverlay;
+
+  /// 各列筛选图标的 LayerLink
+  final Map<int, LayerLink> _filterLinks = {};
+
+  /// 选择列下拉菜单的 LayerLink
+  final LayerLink _selectionLink = LayerLink();
+
+  /// 选择项下拉弹层
+  OverlayEntry? _selectionOverlay;
+
+  /// 本帧行森林缓存（筛选 → 排序后的处理结果）
+  List<_RowNode<T>>? _processedCache;
+
+  @override
+  void initState() {
+    super.initState();
+    _initExpandState();
+    _initSortState();
+    _initFilterState();
+    _initSelectionState();
+    _hController.addListener(_onHScroll);
+  }
+
+  @override
+  void didUpdateWidget(covariant AntTable<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.columns, widget.columns)) {
+      _initSortState();
+      _initFilterState();
+    }
+    if (!identical(oldWidget.dataSource, widget.dataSource)) {
+      _initExpandState();
+    }
+  }
+
+  @override
+  void dispose() {
+    _removeFilterOverlay();
+    _removeSelectionOverlay();
+    _hController.dispose();
+    super.dispose();
+  }
+
+  void _initExpandState() {
+    _expandedKeys = {...?widget.expandedRowKeys};
+    if (widget.defaultExpandAllRows) {
+      _expandedKeys.addAll(_allTreeKeys(_buildForest(widget.dataSource)));
+    }
+  }
+
+  void _initSortState() {
+    final states = <int, AntTableSortOrder>{};
+    for (final leaf in _leaves) {
+      final initial = leaf.column.sortOrder ?? leaf.column.defaultSortOrder;
+      if (initial != null && leaf.column.sortOrder == null) {
+        states[leaf.leafIndex] = initial;
+      }
+    }
+    _sortStates = states;
+  }
+
+  void _initFilterState() {
+    for (final leaf in _leaves) {
+      if (_filterSelected.containsKey(leaf.leafIndex)) continue;
+      final initial =
+          leaf.column.filteredValue ?? leaf.column.defaultFilteredValue;
+      if (initial != null && leaf.column.filteredValue == null) {
+        _filterSelected[leaf.leafIndex] = Set<Object>.from(initial);
+      }
+    }
+  }
+
+  void _initSelectionState() {
+    _selectedKeys = {...?widget.rowSelection?.defaultSelectedRowKeys};
+  }
+
+  // ------------------------------------------------------------
+  // 横向滚动同步
+  // ------------------------------------------------------------
+
+  /// 表头与各行滚动区共享同一控制器，任一位置滚动时同步其余位置
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent) return;
+    final positions = _hController.positions.toList();
+    if (positions.isEmpty || positions.first.maxScrollExtent <= 0) return;
+    // 触控板横向手势优先；鼠标滚轮默认纵向，Shift+滚轮映射为横向。
+    final dx = event.scrollDelta.dx;
+    final dy = event.scrollDelta.dy;
+    double? delta;
+    if (dx.abs() > 0.01) {
+      delta = dx;
+    } else if (dy.abs() > 0.01 && _shiftPressed) {
+      delta = dy;
+    }
+    if (delta == null) return;
+    GestureBinding.instance.pointerSignalResolver.register(event, (e) {
+      _scrollHorizontalBy(delta!);
+    });
+  }
+
+  bool get _shiftPressed => HardwareKeyboard.instance.logicalKeysPressed.any(
+        (key) =>
+            key == LogicalKeyboardKey.shiftLeft ||
+            key == LogicalKeyboardKey.shiftRight,
+      );
+
+  void _scrollHorizontalBy(double delta) {
+    final positions = _hController.positions.toList();
+    if (positions.isEmpty) return;
+    final target = (positions.first.pixels + delta)
+        .clamp(0.0, positions.first.maxScrollExtent);
+    if ((target - positions.first.pixels).abs() < 0.01) return;
+    _syncingH = true;
+    for (final pos in positions) {
+      pos.jumpTo(target.clamp(0.0, pos.maxScrollExtent));
+    }
+    _syncingH = false;
+    _hOffset = target;
+  }
+
+  void _onHScroll() {
+    if (_syncingH) return;
+    final positions = _hController.positions.toList();
+    if (positions.isEmpty) return;
+    // 找出「本次真正被拖动」的位置：与上一次同步值不同的那个。
+    var offset = _hOffset;
+    for (final pos in positions) {
+      if ((pos.pixels - _hOffset).abs() > 0.01) {
+        offset = pos.pixels;
+        break;
+      }
+    }
+    _syncingH = true;
+    for (final pos in positions) {
+      final target = offset.clamp(0.0, pos.maxScrollExtent);
+      if ((pos.pixels - target).abs() > 0.01) pos.jumpTo(target);
+    }
+    _syncingH = false;
+    _hOffset = offset;
+  }
+
+  // ------------------------------------------------------------
+  // 列结构
+  // ------------------------------------------------------------
+
+  /// 列树（表头节点，叶子列序号全局递增）
+  List<_HeaderNode<T>> get _headerTree {
+    var counter = 0;
+    _HeaderNode<T> buildNode(
+      AntTableColumn<T> column,
+      int depth,
+      AntTableFixed? inheritedFixed,
+    ) {
+      final children = column.children;
+      if (children == null || children.isEmpty) {
+        final leaf = _LeafColumn<T>(
+          column: column,
+          leafIndex: counter++,
+          depth: depth,
+          inheritedFixed: inheritedFixed,
+        );
+        return _HeaderNode<T>(
+          column: column,
+          depth: depth,
+          children: const [],
+          subtreeLeaves: [leaf],
+          leaf: leaf,
+        );
+      }
+      final childNodes = [
+        for (final child in children)
+          buildNode(child, depth + 1, column.fixed ?? inheritedFixed),
+      ];
+      return _HeaderNode<T>(
+        column: column,
+        depth: depth,
+        children: childNodes,
+        subtreeLeaves: [
+          for (final node in childNodes) ...node.subtreeLeaves,
+        ],
+      );
+    }
+
+    return [for (final c in widget.columns) buildNode(c, 0, null)];
+  }
+
+  /// 叶子列（按 columns 顺序展开 children）
+  List<_LeafColumn<T>> get _leaves => [
+        for (final node in _headerTree) ...node.subtreeLeaves,
+      ];
+
+  /// 表头最大层级数（1 = 单级表头）
+  int get _headerDepth {
+    var depth = 1;
+    for (final node in _headerTree) {
+      int walk(_HeaderNode<T> n) {
+        if (!n.isGroup) return n.depth + 1;
+        var maxDepth = n.depth + 1;
+        for (final child in n.children) {
+          final childDepth = walk(child);
+          maxDepth = maxDepth > childDepth ? maxDepth : childDepth;
+        }
+        return maxDepth;
+      }
+
+      final nodeDepth = walk(node);
+      depth = depth > nodeDepth ? depth : nodeDepth;
+    }
+    return depth;
+  }
+
+  // ------------------------------------------------------------
+  // 数据处理：筛选 → 排序 → 分页（递归支持树形数据）
+  // ------------------------------------------------------------
+
+  /// 从数据源构建行森林（key 缺省按深度优先序号分配）。
+  List<_RowNode<T>> _buildForest(List<T> records) {
+    var autoKey = 0;
+    _RowNode<T> build(T record, int index, int depth) {
+      final children = widget.childrenOf?.call(record) ?? <T>[];
+      return _RowNode<T>(
+        record: record,
+        index: index,
+        depth: depth,
+        key: widget.rowKey?.call(record) ?? autoKey++,
+        children: [
+          for (var i = 0; i < children.length; i++)
+            build(children[i], i, depth + 1),
+        ],
+      );
+    }
+
+    return [
+      for (var i = 0; i < records.length; i++) build(records[i], i, 0),
+    ];
+  }
+
+  _LeafColumn<T>? _leafOf(int leafIndex) =>
+      leafIndex >= 0 && leafIndex < _leaves.length ? _leaves[leafIndex] : null;
+
+  /// 当前生效的排序方向（受控优先）
+  AntTableSortOrder? _effectiveOrder(_LeafColumn<T> leaf) =>
+      leaf.column.sortOrder ?? _sortStates[leaf.leafIndex];
+
+  /// 当前生效的筛选值（受控优先）
+  Set<Object>? _effectiveFilter(_LeafColumn<T> leaf) {
+    final controlled = leaf.column.filteredValue;
+    if (controlled != null) return Set<Object>.from(controlled);
+    return _filterSelected[leaf.leafIndex];
+  }
+
+  /// 处理后的行森林（筛选 → 排序，分页前；每帧构建时缓存）
+  List<_RowNode<T>> get _processedForest =>
+      _processedCache ??= _computeProcessedForest();
+
+  /// 处理后的顶层行模型（汇总行入参）
+  List<T> get _processedRecords => [
+        for (final node in _processedForest) node.record,
+      ];
+
+  List<_RowNode<T>> _computeProcessedForest() {
+    var forest = _buildForest(widget.dataSource);
+
+    // 筛选（保留命中行或含命中后代的父行）
+    for (final leaf in _leaves) {
+      final selected = _effectiveFilter(leaf);
+      final onFilter = leaf.column.onFilter;
+      if (onFilter == null || selected == null || selected.isEmpty) continue;
+      forest = _filterForest(forest, selected, onFilter);
+    }
+
+    // 排序（单列 / 多列 sortPriority 链 / 自定义比较器）
+    final sortedLeaves = [
+      for (final leaf in _leaves)
+        if (_effectiveOrder(leaf) != null && leaf.column.sorter != null) leaf,
+    ]..sort((a, b) {
+        final pa = a.column.sortPriority;
+        final pb = b.column.sortPriority;
+        if (pa != null && pb != null) return pa.compareTo(pb);
+        if (pa != null) return -1;
+        if (pb != null) return 1;
+        return a.leafIndex.compareTo(b.leafIndex);
+      });
+
+    if (sortedLeaves.isNotEmpty) {
+      int compare(T a, T b) {
+        for (final leaf in sortedLeaves) {
+          final result = leaf.column.sorter!(a, b);
+          if (result != 0) {
+            return _effectiveOrder(leaf) == AntTableSortOrder.descend
+                ? -result
+                : result;
+          }
+        }
+        return 0;
+      }
+
+      forest = _sortForest(forest, compare);
+    }
+
+    return forest;
+  }
+
+  List<_RowNode<T>> _filterForest(
+    List<_RowNode<T>> nodes,
+    Set<Object> selected,
+    AntTableFilterFn<T> onFilter,
+  ) {
+    final kept = <_RowNode<T>>[];
+    for (final node in nodes) {
+      final children = _filterForest(node.children, selected, onFilter);
+      // 父行自身命中，或任一后代命中时保留（不修改用户模型）
+      if (children.isNotEmpty ||
+          selected.any((value) => onFilter(value, node.record))) {
+        kept.add(node.withChildren(children));
+      }
+    }
+    return kept;
+  }
+
+  List<_RowNode<T>> _sortForest(
+    List<_RowNode<T>> nodes,
+    int Function(T a, T b) compare,
+  ) {
+    return [
+      for (final node in nodes)
+        node.withChildren(_sortForest(node.children, compare)),
+    ]..sort((a, b) => compare(a.record, b.record));
+  }
+
+  /// 展平后的展示行（树形行按展开态穿插 children）
+  List<_RowNode<T>> get _displayRows {
+    final paged = _pageRows(_processedForest);
+    final result = <_RowNode<T>>[];
+    void flatten(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        result.add(node);
+        if (_isExpanded(node.key)) flatten(node.children);
+      }
+    }
+
+    flatten(paged);
+    return result;
+  }
+
+  List<_RowNode<T>> _pageRows(List<_RowNode<T>> rows) {
+    if (!widget.pagination || rows.length <= widget.pageSize) return rows;
+    final page = _currentPage.clamp(1, _pageCountOf(rows.length));
+    final start = (page - 1) * widget.pageSize;
+    return rows.skip(start).take(widget.pageSize).toList();
+  }
+
+  int _pageCountOf(int length) =>
+      (length / widget.pageSize).ceil().clamp(1, 1 << 31);
+
+  int get _pageCount => _pageCountOf(_processedForest.length);
+
+  // ------------------------------------------------------------
+  // 展开态（树形 + expandedRowRender）
+  // ------------------------------------------------------------
+
+  Set<Object> get _expandedState => widget.expandedRowKeys != null
+      ? Set<Object>.from(widget.expandedRowKeys!)
+      : _expandedKeys;
+
+  bool _isExpanded(Object? key) => key != null && _expandedState.contains(key);
+
+  void _toggleExpand(Object? key) {
+    if (key == null) return;
+    final next = Set<Object>.from(_expandedState);
+    if (!next.remove(key)) next.add(key);
+    _setExpanded(next);
+  }
+
+  void _setExpanded(Set<Object> next) {
+    setState(() => _expandedKeys = next);
+    widget.onExpandedRowsChange?.call(next.toList());
+  }
+
+  Set<Object> _allTreeKeys(List<_RowNode<T>> nodes) {
+    final keys = <Object>{};
+    void walk(List<_RowNode<T>> rows) {
+      for (final node in rows) {
+        keys.add(node.key);
+        walk(node.children);
+      }
+    }
+
+    walk(nodes);
+    return keys;
+  }
+
+  /// 行节点的后代 key 集合（行选择父子联动用）
+  Set<Object> _descendantKeys(_RowNode<T> node) {
+    final keys = <Object>{};
+    void walk(List<_RowNode<T>> rows) {
+      for (final child in rows) {
+        keys.add(child.key);
+        walk(child.children);
+      }
+    }
+
+    walk(node.children);
+    return keys;
+  }
+
+  // ------------------------------------------------------------
+  // 行选择
+  // ------------------------------------------------------------
+
+  AntTableRowSelection<T>? get _selection => widget.rowSelection;
+
+  Set<Object> get _selectedState => _selection?.selectedRowKeys != null
+      ? Set<Object>.from(_selection!.selectedRowKeys!)
+      : _selectedKeys;
+
+  bool _isRowDisabled(T record) =>
+      _selection?.getCheckboxProps?.call(record).disabled ?? false;
+
+  /// key → 行节点（本帧处理后的森林）
+  Map<Object, _RowNode<T>> get _nodeByKey {
+    final map = <Object, _RowNode<T>>{};
+    void walk(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        map[node.key] = node;
+        walk(node.children);
+      }
+    }
+
+    walk(_processedForest);
+    return map;
+  }
+
+  /// 行是否选中（父子关联模式：全部后代选中即视为选中）
+  bool _isRowChecked(_RowNode<T> node) {
+    final key = node.key;
+    if (!_selectedState.contains(key)) {
+      if (_selection?.checkStrictly ?? false) return false;
+      final descendants = _descendantKeys(node);
+      return descendants.isNotEmpty &&
+          descendants.every(_selectedState.contains);
+    }
+    return true;
+  }
+
+  /// 行是否半选（部分后代选中）
+  bool _isRowIndeterminate(_RowNode<T> node) {
+    if (_selection?.checkStrictly ?? false) return false;
+    if (_isRowChecked(node)) return false;
+    final descendants = _descendantKeys(node);
+    return descendants.any(_selectedState.contains);
+  }
+
+  /// 全部可选（未禁用）行 key
+  Set<Object> get _selectableKeys {
+    final keys = <Object>{};
+    void walk(List<_RowNode<T>> nodes) {
+      for (final node in nodes) {
+        if (!_isRowDisabled(node.record)) keys.add(node.key);
+        walk(node.children);
+      }
+    }
+
+    walk(_processedForest);
+    return keys;
+  }
+
+  void _setSelected(Set<Object> next) {
+    setState(() => _selectedKeys = next);
+    _selection?.onChange?.call(next.toList());
+  }
+
+  void _toggleRowSelection(_RowNode<T> node) {
+    if (_isRowDisabled(node.record)) return;
+    final key = node.key;
+    final next = Set<Object>.from(_selectedState);
+    final checked = _isRowChecked(node);
+    final strictly = _selection?.checkStrictly ?? false;
+    final affected = strictly ? <Object>{key} : {key, ..._descendantKeys(node)};
+    if (checked) {
+      next.removeAll(affected);
+    } else {
+      final nodes = _nodeByKey;
+      for (final k in affected) {
+        final target = nodes[k];
+        if (target == null || !_isRowDisabled(target.record)) next.add(k);
+      }
+    }
+    _setSelected(next);
+  }
+
+  bool get _allSelected {
+    final selectable = _selectableKeys;
+    if (selectable.isEmpty) return false;
+    return selectable.every(_selectedState.contains);
+  }
+
+  bool get _someSelected {
+    final selectable = _selectableKeys;
+    return selectable.any(_selectedState.contains) && !_allSelected;
+  }
+
+  void _toggleSelectAll() {
+    final next = Set<Object>.from(_selectedState);
+    final selectable = _selectableKeys;
+    if (_allSelected) {
+      next.removeAll(selectable);
+    } else {
+      next.addAll(selectable);
+    }
+    _setSelected(next);
+  }
+
+  // ------------------------------------------------------------
+  // 排序交互
+  // ------------------------------------------------------------
+
+  void _handleSortTap(int leafIndex) {
+    final leaf = _leafOf(leafIndex);
+    if (leaf == null) return;
+    final controlled = leaf.column.sortOrder != null;
+    final current = _effectiveOrder(leaf);
+    final directions = leaf.column.sortDirections.isEmpty
+        ? const [AntTableSortOrder.ascend, AntTableSortOrder.descend]
+        : leaf.column.sortDirections;
+
+    AntTableSortOrder? next;
+    if (current == null) {
+      next = directions.first;
+    } else {
+      final idx = directions.indexOf(current);
+      next =
+          idx >= 0 && idx + 1 < directions.length ? directions[idx + 1] : null;
+    }
+
+    if (!controlled) {
+      setState(() {
+        // 单列排序：清除其他列排序态；多列排序（sortPriority）保留
+        if (leaf.column.sortPriority == null) {
+          _sortStates = <int, AntTableSortOrder>{};
+        } else {
+          _sortStates = Map<int, AntTableSortOrder>.from(_sortStates)
+            ..remove(leafIndex);
+        }
+        if (next != null) _sortStates[leafIndex] = next;
+      });
+    }
+    widget.onSortChange?.call(leafIndex, next);
+  }
+
+  // ------------------------------------------------------------
+  // 筛选交互
+  // ------------------------------------------------------------
+
+  void _toggleFilterOverlay(int leafIndex, AntThemeData theme) {
+    if (_filterOverlay != null) {
+      _removeFilterOverlay();
+      return;
+    }
+    _showFilterOverlay(leafIndex, theme);
+  }
+
+  void _showFilterOverlay(int leafIndex, AntThemeData theme) {
+    final link = _filterLinks.putIfAbsent(leafIndex, () => LayerLink());
+    final leaf = _leafOf(leafIndex);
+    if (leaf == null) return;
+    final entry = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            // 点击空白处关闭
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _removeFilterOverlay,
+                child: const SizedBox.expand(),
+              ),
+            ),
+            CompositedTransformFollower(
+              link: link,
+              showWhenUnlinked: false,
+              // 右对齐打开，避免靠近屏幕右缘时面板越界
+              targetAnchor: Alignment.bottomRight,
+              followerAnchor: Alignment.topRight,
+              offset: Offset(0, theme.s(4)),
+              child: _FilterPanel(
+                theme: theme,
+                items: leaf.column.filters ?? const [],
+                initialSelected: _effectiveFilter(leaf) ?? <Object>{},
+                multiple: leaf.column.filterMultiple,
+                onConfirm: (selected) {
+                  _applyFilter(leafIndex, leaf, selected);
+                  _removeFilterOverlay();
+                },
+                onReset: () {
+                  _applyFilter(leafIndex, leaf, const <Object>{});
+                  _removeFilterOverlay();
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    _filterOverlay = entry;
+    Overlay.of(context).insert(entry);
+  }
+
+  void _applyFilter(int leafIndex, _LeafColumn<T> leaf, Set<Object> selected) {
+    final controlled = leaf.column.filteredValue != null;
+    if (!controlled) {
+      setState(() {
+        if (selected.isEmpty) {
+          _filterSelected.remove(leafIndex);
+        } else {
+          _filterSelected[leafIndex] = selected;
+        }
+        _currentPage = 1;
+      });
+    } else {
+      _currentPage = 1;
+    }
+    widget.onFilterChange?.call(
+      leafIndex,
+      selected.isEmpty ? null : selected.toList(),
+    );
+  }
+
+  void _removeFilterOverlay() {
+    _filterOverlay?.remove();
+    _filterOverlay = null;
+  }
+
+  // ------------------------------------------------------------
+  // 自定义选择项下拉
+  // ------------------------------------------------------------
+
+  void _toggleSelectionOverlay(AntThemeData theme) {
+    if (_selectionOverlay != null) {
+      _removeSelectionOverlay();
+      return;
+    }
+    final selections = _selection?.selections;
+    if (selections == null || selections.isEmpty) return;
+    final entry = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _removeSelectionOverlay,
+                child: const SizedBox.expand(),
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _selectionLink,
+              showWhenUnlinked: false,
+              targetAnchor: Alignment.bottomLeft,
+              followerAnchor: Alignment.topLeft,
+              offset: Offset(0, theme.s(4)),
+              child: Material(
+                color: theme.colorBgContainer,
+                elevation: 6,
+                shadowColor: theme.colorText.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                child: Container(
+                  width: theme.s(120),
+                  padding: EdgeInsets.symmetric(vertical: theme.s(8)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                    border: Border.all(color: theme.colorSplit),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final item in selections)
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            _removeSelectionOverlay();
+                            item.onSelect(_selectableKeys);
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: theme.s(12),
+                              vertical: theme.s(6),
+                            ),
+                            child: Text(
+                              item.text,
+                              style: TextStyle(
+                                fontSize: theme.fontSizeSM,
+                                color: theme.colorText,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    _selectionOverlay = entry;
+    Overlay.of(context).insert(entry);
+  }
+
+  void _removeSelectionOverlay() {
+    _selectionOverlay?.remove();
+    _selectionOverlay = null;
+  }
+
+  // ------------------------------------------------------------
+  // 尺寸令牌
+  // ------------------------------------------------------------
+
+  double _cellPaddingV(AntThemeData theme) {
+    switch (widget.size) {
+      case AntTableSize.large:
+        return theme.s(16);
+      case AntTableSize.middle:
+        return theme.s(12);
+      case AntTableSize.small:
+        return theme.s(8);
+    }
+  }
+
+  double _cellFontSize(AntThemeData theme) {
+    switch (widget.size) {
+      case AntTableSize.large:
+        return theme.s(16);
+      case AntTableSize.middle:
+      case AntTableSize.small:
+        return theme.s(14);
+    }
+  }
+
+  /// 表头单行高度（固定高度保证多级表头纵向对齐）
+  double _headerRowHeight(AntThemeData theme) =>
+      _cellPaddingV(theme) * 2 + _cellFontSize(theme) * 1.5;
+
+  /// 解析后的叶子列宽（[leafIndex] → 逻辑像素）。
+  ///
+  /// 表头与表体共用同一套宽度，避免混用 `Expanded` 与固定宽导致列错位。
+  Map<int, double> _leafWidths = const {};
+
+  /// 按可用宽度解析列宽：显式 width 原样使用，其余列均分剩余空间。
+  void _resolveWidths(AntThemeData theme, double maxWidth) {
+    final selection = _selection != null ? _selectionWidth(theme) : 0.0;
+    final border = widget.bordered ? theme.s(1) * 2 : 0.0;
+    final available = maxWidth.isFinite ? (maxWidth - selection - border) : 0.0;
+
+    var fixedSum = 0.0;
+    var flexCount = 0;
+    for (final leaf in _leaves) {
+      final width = leaf.column.width;
+      if (width == null) {
+        flexCount++;
+      } else {
+        fixedSum += theme.s(width);
+      }
+    }
+
+    // scrollX 表示期望的表格宽度：比容器大时收敛到容器宽度（内部横向滚动），
+    // 比容器小时保持该宽度，列内容超出部分同样横向滚动。
+    final desired = _hasScrollX ? theme.s(widget.scrollX!) : available;
+    final tableWidth =
+        _hasScrollX ? (desired < available ? desired : available) : available;
+    final share = flexCount == 0
+        ? 0.0
+        : ((tableWidth - fixedSum) / flexCount)
+            .clamp(theme.s(48), double.infinity);
+
+    final widths = <int, double>{};
+    for (final leaf in _leaves) {
+      widths[leaf.leafIndex] =
+          leaf.column.width == null ? share : theme.s(leaf.column.width!);
+    }
+    _leafWidths = widths;
+    _tableWidth = _hasScrollX ? tableWidth : double.infinity;
+  }
+
+  /// 设置了 scrollX 时表格整体宽度收敛到该值（超出部分在内部横向滚动）。
+  double _tableWidth = double.infinity;
+
+  double _widthOf(_LeafColumn<T> leaf) =>
+      _leafWidths[leaf.leafIndex] ?? _kDefaultColumnWidth;
+
+  bool get _hasScrollX => widget.scrollX != null;
+
+  /// 是否存在可展开内容（树形数据或 expandedRowRender）
+  bool get _hasExpandable {
+    final childrenOf = widget.childrenOf;
+    return widget.expandedRowRender != null ||
+        (childrenOf != null &&
+            widget.dataSource.any((r) => childrenOf(r).isNotEmpty));
+  }
+
+  // ============================================================
+  // build
+  // ============================================================
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    // 每帧刷新处理结果（筛选 / 排序后的行森林，含用户模型引用）
+    _processedCache = _computeProcessedForest();
+    final rows = _displayRows;
+    final summaryCells = widget.summary?.call(_processedRecords);
+
+    final table = LayoutBuilder(
+      builder: (context, constraints) {
+        _resolveWidths(theme, constraints.maxWidth);
+        return ScrollConfiguration(
+          behavior: const _TableScrollBehavior(),
+          child: Listener(
+            onPointerSignal: _handlePointerSignal,
+            child: Container(
+              width: _tableWidth,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: theme.colorBgContainer,
+                borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+                border: widget.bordered
+                    ? Border.all(color: theme.colorSplit)
+                    : null,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(theme),
+                  if (rows.isEmpty)
+                    _buildEmpty(theme)
+                  else
+                    _buildBody(theme, rows),
+                  if (summaryCells != null && summaryCells.isNotEmpty)
+                    _buildSummary(theme, summaryCells),
+                  if (widget.pagination &&
+                      _processedForest.length > widget.pageSize &&
+                      rows.isNotEmpty)
+                    _buildPagination(theme),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!widget.loading) return table;
+
+    // 加载遮罩
+    return Stack(
+      children: [
+        table,
+        Positioned.fill(
+          child: Container(
+            alignment: Alignment.center,
+            color: theme.colorBgContainer.withValues(alpha: 0.45),
+            child: CircularProgressIndicator(
+              color: theme.colorPrimary,
+              strokeWidth: theme.s(3),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 分段骨架（固定列拆分：selection? | left | middle(scroll) | right）
+  // ------------------------------------------------------------
+
+  List<_LeafColumn<T>> get _leftLeaves => [
+        for (final leaf in _leaves)
+          if (leaf.fixed == AntTableFixed.left) leaf,
+      ];
+
+  List<_LeafColumn<T>> get _rightLeaves => [
+        for (final leaf in _leaves)
+          if (leaf.fixed == AntTableFixed.right) leaf,
+      ];
+
+  List<_LeafColumn<T>> get _middleLeaves => [
+        for (final leaf in _leaves)
+          if (leaf.fixed == null) leaf,
+      ];
+
+  List<_HeaderNode<T>> _topNodesOf(AntTableFixed? fixed) => [
+        for (final node in _headerTree)
+          if (node.subtreeLeaves.first.fixed == fixed) node,
+      ];
+
+  double _middleWidth(AntThemeData theme) {
+    var width = 0.0;
+    for (final leaf in _middleLeaves) {
+      width += _widthOf(leaf);
+    }
+    return width;
+  }
+
+  /// 表头（固定表头：表体 scrollY 滚动时表头不随之滚动）
+  Widget _buildHeader(AntThemeData theme) {
+    return Container(
+      key: const ValueKey('ant_table_header'),
+      // antd tableHeaderBg = colorFillAlter
+      color: theme.colorFillAlter,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_selection != null) _buildSelectionHeaderCell(theme),
+          ..._headerSegmentCells(theme, _topNodesOf(AntTableFixed.left)),
+          if (_topNodesOf(AntTableFixed.left).isNotEmpty && _hasScrollX)
+            _buildShadow(theme, isLeft: true),
+          Expanded(
+            child: _hasScrollX
+                ? SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _hController,
+                    child: SizedBox(
+                      width: _middleWidth(theme),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _headerSegmentCells(
+                          theme,
+                          _topNodesOf(null),
+                        ),
+                      ),
+                    ),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _headerSegmentCells(theme, _topNodesOf(null)),
+                  ),
+          ),
+          if (_topNodesOf(AntTableFixed.right).isNotEmpty && _hasScrollX)
+            _buildShadow(theme, isLeft: false),
+          ..._headerSegmentCells(theme, _topNodesOf(AntTableFixed.right)),
+        ],
+      ),
+    );
+  }
+
+  /// 表头分段单元格列表（顶层列 → 递归多级表头）
+  List<Widget> _headerSegmentCells(
+    AntThemeData theme,
+    List<_HeaderNode<T>> nodes,
+  ) {
+    final cells = <Widget>[];
+    for (var i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
+      final cell = _buildHeaderNodeCell(
+        theme,
+        node,
+        showDivider: i < nodes.length - 1,
+      );
+      final subtree = node.subtreeLeaves;
+      cells.add(
+        SizedBox(
+          width: subtree.fold<double>(0, (w, l) => w + _widthOf(l)),
+          child: cell,
+        ),
+      );
+    }
+    return cells;
+  }
+
+  /// 表头节点单元格（分组列：标题 + 子列递归；叶子列：标题 + 排序/筛选）
+  Widget _buildHeaderNodeCell(
+    AntThemeData theme,
+    _HeaderNode<T> node, {
+    bool showDivider = false,
+  }) {
+    if (!node.isGroup) {
+      return _buildHeaderLeafCell(
+        theme,
+        node.leaf!,
+        showDivider: showDivider,
+      );
+    }
+
+    // antd：跨列分组标题一律居中，且非末行分组表头不画底边
+    final title = Padding(
+      padding: EdgeInsets.symmetric(horizontal: theme.s(16)),
+      child: Align(
+        alignment: Alignment.center,
+        child: _cellText(
+          theme,
+          node.column.title,
+          color: theme.colorText,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: _headerRowHeight(theme),
+          child: title,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _headerSegmentCells(theme, node.children),
+        ),
+      ],
+    );
+  }
+
+  /// 表体 / 汇总行骨架：selection 列 + 左固定 | 滚动中段 | 右固定
+  Widget _buildBodySkeletonRow(
+    AntThemeData theme, {
+    required Widget Function(_LeafColumn<T> leaf, int colSpan) cellBuilder,
+    Set<int>? hiddenLeaves,
+    Widget? selectionCell,
+    Map<int, int>? colSpans,
+  }) {
+    final children = <Widget>[
+      // 选择列（始终吸左）
+      if (_selection != null && selectionCell != null) selectionCell,
+
+      // 固定在左侧的列
+      ..._leafSegmentCells(
+        theme,
+        _leftLeaves,
+        cellBuilder,
+        hiddenLeaves: hiddenLeaves,
+        colSpans: colSpans,
+      ),
+      if (_leftLeaves.isNotEmpty && _hasScrollX)
+        _buildShadow(theme, isLeft: true),
+
+      // 中间可横向滚动区域
+      Expanded(
+        child: _hasScrollX
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _hController,
+                child: SizedBox(
+                  width: _middleWidth(theme),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _leafSegmentCells(
+                      theme,
+                      _middleLeaves,
+                      cellBuilder,
+                      hiddenLeaves: hiddenLeaves,
+                      colSpans: colSpans,
+                    ),
+                  ),
+                ),
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _leafSegmentCells(
+                  theme,
+                  _middleLeaves,
+                  cellBuilder,
+                  hiddenLeaves: hiddenLeaves,
+                  colSpans: colSpans,
+                ),
+              ),
+      ),
+
+      // 右侧固定列分隔阴影
+      if (_rightLeaves.isNotEmpty && _hasScrollX)
+        _buildShadow(theme, isLeft: false),
+      // 固定在右侧的列
+      ..._leafSegmentCells(
+        theme,
+        _rightLeaves,
+        cellBuilder,
+        hiddenLeaves: hiddenLeaves,
+        colSpans: colSpans,
+      ),
+    ];
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+  }
+
+  /// 单个分段（一组叶子列）的单元格列表，处理 colSpan 合并消费
+  List<Widget> _leafSegmentCells(
+    AntThemeData theme,
+    List<_LeafColumn<T>> leaves,
+    Widget Function(_LeafColumn<T> leaf, int colSpan) cellBuilder, {
+    Set<int>? hiddenLeaves,
+    Map<int, int>? colSpans,
+  }) {
+    final cells = <Widget>[];
+    final consumed = <int>{};
+    for (var pos = 0; pos < leaves.length; pos++) {
+      final leaf = leaves[pos];
+      if (consumed.contains(leaf.leafIndex)) continue;
+      final width = _widthOf(leaf);
+      if (hiddenLeaves?.contains(leaf.leafIndex) ?? false) {
+        // 被 rowSpan 合并覆盖的列：保留占位，保证后续列不左移。
+        cells.add(SizedBox(width: width));
+        continue;
+      }
+
+      final colSpan = colSpans?[leaf.leafIndex] ?? 1;
+
+      // colSpan 在分段内消费后续叶子列
+      var effective = 1;
+      var widthSum = width;
+      while (effective < colSpan && pos + effective < leaves.length) {
+        final next = leaves[pos + effective];
+        consumed.add(next.leafIndex);
+        widthSum += _widthOf(next);
+        effective++;
+      }
+
+      final cell = cellBuilder(leaf, effective);
+      cells.add(SizedBox(width: widthSum, child: cell));
+    }
+    return cells;
+  }
+
+  // ------------------------------------------------------------
+  // 表体
+  // ------------------------------------------------------------
+
+  Widget _buildBody(AntThemeData theme, List<_RowNode<T>> rows) {
+    final spans = _computeRowSpans(rows);
+
+    // 纵向合并：仅在整行同段（无横向滚动/固定列）时用叠层绘制真正的跨行单元格。
+    final overlayable = spans.merges.isNotEmpty &&
+        !_hasScrollX &&
+        _leftLeaves.isEmpty &&
+        _rightLeaves.isEmpty;
+    final mergeStarts = <int, Set<int>>{};
+    if (overlayable) {
+      for (final merge in spans.merges) {
+        mergeStarts.putIfAbsent(merge.row, () => <int>{}).add(merge.leafIndex);
+      }
+    }
+
+    Widget rowWidget(int index) {
+      final row = rows[index];
+      final key = row.key;
+
+      final rowContent = _buildBodySkeletonRow(
+        theme,
+        selectionCell:
+            _selection != null ? _buildSelectionBodyCell(theme, row) : null,
+        hiddenLeaves: spans.hidden[index],
+        colSpans: spans.colSpans[index],
+        cellBuilder: (leaf, colSpan) {
+          if (overlayable &&
+              (mergeStarts[index]?.contains(leaf.leafIndex) ?? false)) {
+            // 起始行的内容由叠层负责绘制，这里只留占位宽度。
+            return SizedBox(width: _widthOf(leaf));
+          }
+          return _buildBodyCell(theme, leaf, row, colSpan);
+        },
+      );
+
+      // 拉伸行高：选择列等无固有高度的单元格随行高垂直居中（antd 为垂直居中）
+      Widget content = IntrinsicHeight(child: rowContent);
+      if (_hasExpandable) {
+        content = GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.expandRowByClick ? () => _toggleExpand(key) : null,
+          child: content,
+        );
+      }
+
+      final rowBox = Container(
+        key: ValueKey<Object?>('ant_table_row_$key'),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: theme.colorSplit)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            content,
+            if (_isExpanded(key) && widget.expandedRowRender != null)
+              _buildExpandedContent(theme, row.record, index),
+          ],
+        ),
+      );
+      if (!overlayable) return rowBox;
+      // 叠层合并需要测量每行高度：用 GlobalKey 记录，postFrame 回填。
+      return KeyedSubtree(
+        key: _rowKeys.putIfAbsent(key, GlobalKey.new),
+        child: rowBox,
+      );
+    }
+
+    // 虚拟滚动：scrollY 且行数超阈值 → ListView.builder 懒加载
+    if (widget.scrollY != null) {
+      if (rows.length > _kVirtualThreshold) {
+        return SizedBox(
+          height: theme.s(widget.scrollY!),
+          child: ListView.builder(
+            itemCount: rows.length,
+            findChildIndexCallback: (key) {
+              final rowKey = (key as ValueKey<Object?>).value;
+              for (var i = 0; i < rows.length; i++) {
+                if (rows[i].key == rowKey) return i;
+              }
+              return null;
+            },
+            itemBuilder: (context, index) => rowWidget(index),
+          ),
+        );
+      }
+      return SizedBox(
+        height: theme.s(widget.scrollY!),
+        child: ListView(
+          children: [for (var i = 0; i < rows.length; i++) rowWidget(i)],
+        ),
+      );
+    }
+    final body = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [for (var i = 0; i < rows.length; i++) rowWidget(i)],
+    );
+    if (!overlayable) return body;
+    return Stack(
+      children: [
+        body,
+        ..._buildSpanOverlays(theme, rows, spans, overlayable: overlayable),
+      ],
+    );
+  }
+
+  /// 叠层绘制跨行合并单元格（需要各行高度，未测量完成时返回空并触发测量）。
+  List<Widget> _buildSpanOverlays(
+    AntThemeData theme,
+    List<_RowNode<T>> rows,
+    _RowSpanInfo spans, {
+    required bool overlayable,
+  }) {
+    // 未测量完成时先用行高估算，保证首帧就能看到合并单元格，随后按实测高度修正。
+    final estimated = _cellPaddingV(theme) * 2 + _cellFontSize(theme) * 1.5;
+    final heights = <double>[];
+    var needsMeasure = false;
+    for (final row in rows) {
+      final height = _rowHeights[row.key];
+      if (height == null) {
+        needsMeasure = true;
+        heights.add(estimated);
+      } else {
+        heights.add(height);
+      }
+    }
+    if (needsMeasure) _scheduleRowMeasure(rows);
+
+    final offsets = <double>[];
+    var y = 0.0;
+    for (final height in heights) {
+      offsets.add(y);
+      y += height;
+    }
+
+    final overlays = <Widget>[];
+    for (final merge in spans.merges) {
+      final leaf = _leaves.firstWhere(
+        (l) => l.leafIndex == merge.leafIndex,
+      );
+      var left = _selection != null ? _selectionWidth(theme) : 0.0;
+      for (final l in _leaves) {
+        if (l.leafIndex == merge.leafIndex) break;
+        left += _widthOf(l);
+      }
+      final top = offsets[merge.row];
+      final endRow = merge.row + merge.span - 1;
+      final bottom =
+          endRow < rows.length ? offsets[endRow] + heights[endRow] : y;
+      overlays.add(
+        Positioned(
+          left: left,
+          top: top,
+          width: _widthOf(leaf),
+          height: bottom - top,
+          child: Container(
+            color: theme.colorBgContainer,
+            child: _buildBodyCell(theme, leaf, rows[merge.row], 1),
+          ),
+        ),
+      );
+    }
+    return overlays;
+  }
+
+  void _scheduleRowMeasure(List<_RowNode<T>> rows) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      var changed = false;
+      for (final row in rows) {
+        final box = _rowKeys[row.key]?.currentContext?.findRenderObject();
+        if (box is RenderBox && box.hasSize) {
+          final height = box.size.height;
+          if (_rowHeights[row.key] != height) {
+            _rowHeights[row.key] = height;
+            changed = true;
+          }
+        }
+      }
+      if (changed) setState(() {});
+    });
+  }
+
+  /// 展开行内容区
+  Widget _buildExpandedContent(
+    AntThemeData theme,
+    T record,
+    int index,
+  ) {
+    final content = widget.expandedRowRender?.call(context, record, index);
+    if (content == null) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      padding:
+          EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
+      color: theme.colorFillQuaternary.withValues(alpha: 0.35),
+      child: KeyedSubtree(
+        key: ValueKey('ant_table_expanded_$index'),
+        child: content,
+      ),
+    );
+  }
+
+  /// 计算合并单元格的隐藏格与 colSpan 值
+  _RowSpanInfo _computeRowSpans(List<_RowNode<T>> rows) {
+    final hidden = <int, Set<int>>{};
+    final colSpans = <int, Map<int, int>>{};
+    final merges = <_SpanCell>[];
+    final pending = <int, int>{}; // leafIndex → 剩余隐藏行数
+
+    for (var r = 0; r < rows.length; r++) {
+      final record = rows[r].record;
+      final rowHidden = <int>{};
+      final rowSpans = <int, int>{};
+      for (final leaf in _leaves) {
+        final onCell = leaf.column.onCell;
+        if (onCell == null) continue;
+        final pendingLeft = pending[leaf.leafIndex];
+        if (pendingLeft != null && pendingLeft > 0) {
+          rowHidden.add(leaf.leafIndex);
+          pending[leaf.leafIndex] = pendingLeft - 1;
+          continue;
+        }
+        final span = onCell(record, r);
+        if (span == null) continue;
+        final rowSpan = span.rowSpan ?? 1;
+        final colSpan = span.colSpan ?? 1;
+        if (rowSpan == 0) rowHidden.add(leaf.leafIndex);
+        if (rowSpan > 1) {
+          pending[leaf.leafIndex] = rowSpan - 1;
+          merges.add(
+            _SpanCell(row: r, leafIndex: leaf.leafIndex, span: rowSpan),
+          );
+        }
+        if (colSpan > 1) rowSpans[leaf.leafIndex] = colSpan;
+      }
+      if (rowHidden.isNotEmpty) hidden[r] = rowHidden;
+      if (rowSpans.isNotEmpty) colSpans[r] = rowSpans;
+    }
+    return _RowSpanInfo(
+      hidden: hidden,
+      colSpans: colSpans,
+      merges: merges,
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 单元格
+  // ------------------------------------------------------------
+
+  Widget _buildBodyCell(
+    AntThemeData theme,
+    _LeafColumn<T> leaf,
+    _RowNode<T> row,
+    int colSpan,
+  ) {
+    final column = leaf.column;
+    final isTreeParent = row.children.isNotEmpty;
+    final isFirstLeaf = leaf.leafIndex == _leaves.first.leafIndex;
+    final key = row.key;
+
+    Widget content = column.cell?.call(context, row.record, row.index) ??
+        const SizedBox.shrink();
+
+    if (column.ellipsis) {
+      content = DefaultTextStyle.merge(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        child: content,
+      );
+    }
+
+    // 树形缩进 + 展开图标 / expandedRowRender 展开图标（内联行首叶子列）
+    if (isFirstLeaf && _hasExpandable) {
+      content = Row(
+        children: [
+          SizedBox(width: row.depth * theme.s(_kTreeIndentStep)),
+          _ExpandIcon(
+            theme: theme,
+            rowKey: key,
+            expanded: _isExpanded(key),
+            visible: isTreeParent || widget.expandedRowRender != null,
+            onTap: () => _toggleExpand(key),
+          ),
+          Expanded(child: content),
+        ],
+      );
+    } else if (isFirstLeaf && row.depth > 0) {
+      content = Row(
+        children: [
+          SizedBox(width: row.depth * theme.s(_kTreeIndentStep)),
+          Expanded(child: content),
+        ],
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.s(16),
+        vertical: _cellPaddingV(theme),
+      ),
+      decoration: BoxDecoration(
+        border: widget.bordered
+            ? Border(right: BorderSide(color: theme.colorSplit))
+            : null,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [Expanded(child: content)],
+      ),
+    );
+  }
+
+  Widget _cellText(
+    AntThemeData theme,
+    String text, {
+    required Color color,
+    FontWeight? fontWeight,
+  }) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+      style: TextStyle(
+        fontSize: _cellFontSize(theme),
+        color: color,
+        fontWeight: fontWeight,
+        height: 1.5,
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 表头叶子单元格（标题 + 排序 + 筛选 + 层级填充）
+  // ------------------------------------------------------------
+
+  Widget _buildHeaderLeafCell(
+    AntThemeData theme,
+    _LeafColumn<T> leaf, {
+    bool showDivider = false,
+  }) {
+    final column = leaf.column;
+    final fillerRows = (_headerDepth - 1 - leaf.depth).clamp(0, 1 << 31);
+    final alignment = switch (column.align) {
+      AntTableAlign.center => Alignment.center,
+      AntTableAlign.right => Alignment.centerRight,
+      _ => Alignment.centerLeft,
+    };
+
+    Widget title = Align(
+      alignment: alignment,
+      child: _cellText(
+        theme,
+        column.title,
+        color: theme.colorText,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    // antd：th 与 td 同 padding，标题按 align 对齐（默认左对齐）
+    Widget cell = SizedBox(
+      height: _headerRowHeight(theme),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: theme.s(16)),
+        child: title,
+      ),
+    );
+
+    // 排序：整格可点击
+    if (column.sorter != null) {
+      cell = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _handleSortTap(leaf.leafIndex),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(child: cell),
+            _buildSortIcons(theme, leaf),
+            SizedBox(width: theme.s(16)),
+          ],
+        ),
+      );
+    }
+
+    // 筛选：标题旁筛选图标
+    if (column.filters != null && column.filters!.isNotEmpty) {
+      cell = Row(
+        children: [
+          Expanded(child: cell),
+          _buildFilterIcon(theme, leaf),
+          SizedBox(width: theme.s(16)),
+        ],
+      );
+    }
+
+    // 多级表头：叶子列未到底时向下填充
+    if (fillerRows > 0) {
+      cell = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          cell,
+          SizedBox(height: fillerRows * _headerRowHeight(theme)),
+        ],
+      );
+    }
+
+    // antd th：底部 1px 分隔线 + 非末列的 1.6em 竖向分隔线
+    cell = Container(
+      key: ValueKey('ant_table_th_${leaf.leafIndex}'),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: theme.colorSplit)),
+      ),
+      child: Stack(
+        children: [
+          cell,
+          if (showDivider)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  width: 1,
+                  height: _cellFontSize(theme) * 1.6,
+                  color: theme.colorSplit,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    return cell;
+  }
+
+  /// 排序图标（升 / 降两枚，激活态主题色着色）
+  Widget _buildSortIcons(AntThemeData theme, _LeafColumn<T> leaf) {
+    final order = _effectiveOrder(leaf);
+    final activeColor = theme.colorPrimary;
+    final inactiveColor = theme.colorTextQuaternary;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          AntIcons.arrowUpOutlined,
+          size: theme.s(12),
+          color:
+              order == AntTableSortOrder.ascend ? activeColor : inactiveColor,
+        ),
+        Icon(
+          AntIcons.arrowDownOutlined,
+          size: theme.s(12),
+          color:
+              order == AntTableSortOrder.descend ? activeColor : inactiveColor,
+        ),
+      ],
+    );
+  }
+
+  /// 筛选图标（点击弹出筛选菜单）
+  Widget _buildFilterIcon(AntThemeData theme, _LeafColumn<T> leaf) {
+    final link = _filterLinks.putIfAbsent(leaf.leafIndex, () => LayerLink());
+    final active = _effectiveFilter(leaf)?.isNotEmpty ?? false;
+    return CompositedTransformTarget(
+      link: link,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _toggleFilterOverlay(leaf.leafIndex, theme),
+        child: Padding(
+          padding: EdgeInsets.only(left: theme.s(4)),
+          child: Icon(
+            AntIcons.filterOutlined,
+            size: theme.s(14),
+            color: active ? theme.colorPrimary : theme.colorTextQuaternary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 选择列
+  // ------------------------------------------------------------
+
+  Widget _buildSelectionHeaderCell(AntThemeData theme) {
+    final selection = _selection!;
+    final showMenu =
+        selection.selections != null && selection.selections!.isNotEmpty;
+    final width = _selectionWidth(theme);
+
+    return SizedBox(
+      key: const ValueKey('ant_table_th_selection'),
+      width: width,
+      height: _headerRowHeight(theme),
+      // antd：复选框居中，下拉箭头绝对定位于复选框右侧，不参与居中
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (!selection.hideSelectAll)
+            _TableCheckbox(
+              key: const ValueKey('ant_table_checkbox_header'),
+              theme: theme,
+              checked: _allSelected,
+              indeterminate: _someSelected,
+              onTap: _toggleSelectAll,
+            ),
+          if (showMenu)
+            Positioned(
+              left: width / 2 + theme.s(10),
+              child: CompositedTransformTarget(
+                link: _selectionLink,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _toggleSelectionOverlay(theme),
+                  child: Icon(
+                    AntIcons.caretDownOutlined,
+                    size: theme.s(14),
+                    color: theme.colorTextSecondary,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectionBodyCell(
+    AntThemeData theme,
+    _RowNode<T> row,
+  ) {
+    return SizedBox(
+      key: const ValueKey('ant_table_td_selection'),
+      width: _selectionWidth(theme),
+      child: Center(
+        child: _TableCheckbox(
+          key: ValueKey('ant_table_checkbox_row_${row.key}'),
+          theme: theme,
+          checked: _isRowChecked(row),
+          indeterminate: _isRowIndeterminate(row),
+          onTap: () => _toggleRowSelection(row),
+        ),
+      ),
+    );
+  }
+
+  double _selectionWidth(AntThemeData theme) {
+    final width = _selection?.columnWidth ?? _kDefaultSelectionWidth;
+    final base = width > 0 ? width : _kDefaultSelectionWidth;
+    // antd：有自定义选择项下拉时列宽补 fontSizeIcon + padding / 4
+    final hasMenu = _selection?.selections?.isNotEmpty ?? false;
+    return theme.s(base + (hasMenu ? 16 : 0));
+  }
+
+  // ------------------------------------------------------------
+  // 汇总行
+  // ------------------------------------------------------------
+
+  Widget _buildSummary(
+    AntThemeData theme,
+    List<AntTableSummaryCell> cells,
+  ) {
+    final cellByIndex = {for (final c in cells) c.columnIndex: c};
+    return Container(
+      key: const ValueKey('ant_table_summary'),
+      decoration: BoxDecoration(
+        color: theme.colorFillQuaternary.withValues(alpha: 0.35),
+        border: Border(top: BorderSide(color: theme.colorSplit)),
+      ),
+      child: IntrinsicHeight(
+        child: _buildBodySkeletonRow(
+          theme,
+          cellBuilder: (leaf, colSpan) {
+            final cell = cellByIndex[leaf.leafIndex];
+            if (cell == null) return const SizedBox.shrink();
+            return Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.s(16),
+                vertical: _cellPaddingV(theme),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Expanded(child: cell.child)],
+              ),
+            );
+          },
+          colSpans: {
+            for (final entry in cellByIndex.entries)
+              if (entry.value.colSpan > 1) entry.key: entry.value.colSpan,
+          },
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 固定列分隔阴影
+  // ------------------------------------------------------------
+
+  Widget _buildShadow(AntThemeData theme, {required bool isLeft}) {
+    final color = theme.colorText.withValues(alpha: 0.08);
+    return Container(
+      width: theme.s(_kFixedShadowWidth),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+          end: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+          colors: [color, color.withValues(alpha: 0)],
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 空数据占位
+  // ------------------------------------------------------------
+
+  Widget _buildEmpty(AntThemeData theme) {
+    if (widget.empty != null) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: theme.s(32)),
+        child: Center(child: widget.empty!),
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: theme.s(32)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            AntIcons.inboxOutlined,
+            size: theme.s(48),
+            color: theme.colorTextQuaternary,
+          ),
+          SizedBox(height: theme.s(8)),
+          Text(
+            '暂无数据',
+            style: TextStyle(
+              fontSize: _cellFontSize(theme),
+              color: theme.colorTextSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------
+  // 分页
+  // ------------------------------------------------------------
+
+  Widget _buildPagination(AntThemeData theme) {
+    final pageCount = _pageCount;
+    final page = _currentPage.clamp(1, pageCount);
+
+    Widget pageButton(int n) {
+      final isCurrent = n == page;
+      return GestureDetector(
+        onTap: () {
+          setState(() => _currentPage = n);
+          widget.onPageChange?.call(n, widget.pageSize);
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          key: ValueKey('ant_table_page_$n'),
+          margin: EdgeInsets.symmetric(horizontal: theme.s(2)),
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.s(8),
+            vertical: theme.s(2),
+          ),
+          decoration: BoxDecoration(
+            color: isCurrent ? theme.colorPrimaryBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(theme.borderRadiusXS),
+          ),
+          child: Text(
+            '$n',
+            style: TextStyle(
+              fontSize: theme.fontSizeSM,
+              color: isCurrent ? theme.colorPrimary : theme.colorText,
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget arrowButton(
+      IconData icon, {
+      required bool disabled,
+      required VoidCallback onTap,
+    }) {
+      return GestureDetector(
+        onTap: disabled ? null : onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.s(4)),
+          child: Icon(
+            icon,
+            size: theme.s(16),
+            color: disabled ? theme.colorTextQuaternary : theme.colorText,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding:
+          EdgeInsets.symmetric(horizontal: theme.s(16), vertical: theme.s(12)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: theme.colorSplit)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          arrowButton(
+            AntIcons.leftOutlined,
+            disabled: page <= 1,
+            onTap: () {
+              setState(() => _currentPage = page - 1);
+              widget.onPageChange?.call(page - 1, widget.pageSize);
+            },
+          ),
+          for (var n = 1; n <= pageCount; n++) pageButton(n),
+          arrowButton(
+            AntIcons.rightOutlined,
+            disabled: page >= pageCount,
+            onTap: () {
+              setState(() => _currentPage = page + 1);
+              widget.onPageChange?.call(page + 1, widget.pageSize);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// 辅助类型
+// ============================================================
+
+class _RowSpanInfo {
+  const _RowSpanInfo({
+    required this.hidden,
+    required this.colSpans,
+    this.merges = const [],
+  });
+
+  /// 行下标 → 被上方 rowSpan 合并覆盖（不渲染）的叶子列下标
+  final Map<int, Set<int>> hidden;
+
+  /// 行下标 → {叶子列下标: colSpan}（本行需要跨列合并的单元格）
+  final Map<int, Map<int, int>> colSpans;
+
+  /// 起始于某行、横跨多行的单元格（用于表体叠层绘制真正的纵向合并）
+  final List<_SpanCell> merges;
+}
+
+/// 一个跨行合并单元格。
+class _SpanCell {
+  const _SpanCell({
+    required this.row,
+    required this.leafIndex,
+    required this.span,
+  });
+
+  final int row;
+  final int leafIndex;
+  final int span;
+}
+
+// ============================================================
+// _ExpandIcon — 树形 / 展开行图标
+// ============================================================
+
+class _ExpandIcon extends StatelessWidget {
+  const _ExpandIcon({
+    required this.theme,
+    required this.rowKey,
+    required this.expanded,
+    required this.visible,
+    required this.onTap,
+  });
+
+  final AntThemeData theme;
+  final Object? rowKey;
+  final bool expanded;
+  final bool visible;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return const SizedBox.shrink();
+    return GestureDetector(
+      key: ValueKey('ant_table_expand_${rowKey ?? ''}_$expanded'),
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.only(right: theme.s(6)),
+        child: Icon(
+          expanded ? AntIcons.downOutlined : AntIcons.rightOutlined,
+          size: theme.s(_kExpandIconSize),
+          color: theme.colorTextSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _TableCheckbox — 表格行选择复选框（token 自绘）
+// ============================================================
+
+class _TableCheckbox extends StatelessWidget {
+  const _TableCheckbox({
+    super.key,
+    required this.theme,
+    required this.checked,
+    required this.indeterminate,
+    required this.onTap,
+  });
+
+  final AntThemeData theme;
+  final bool checked;
+  final bool indeterminate;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 16.0;
+    final borderColor =
+        checked || indeterminate ? theme.colorPrimary : theme.colorBorder;
+    return GestureDetector(
+      key: key,
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        width: theme.s(size),
+        height: theme.s(size),
+        decoration: BoxDecoration(
+          color: checked || indeterminate ? theme.colorPrimary : null,
+          border: Border.all(color: borderColor, width: theme.s(1)),
+          borderRadius: BorderRadius.circular(theme.borderRadiusXS),
+        ),
+        child: checked || indeterminate
+            ? Icon(
+                indeterminate ? AntIcons.minusOutlined : AntIcons.checkOutlined,
+                size: theme.s(size) * 0.75,
+                color: Colors.white,
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _FilterPanel — 筛选菜单面板
+// ============================================================
+
+class _FilterPanel extends StatefulWidget {
+  const _FilterPanel({
+    required this.theme,
+    required this.items,
+    required this.initialSelected,
+    required this.multiple,
+    required this.onConfirm,
+    required this.onReset,
+  });
+
+  final AntThemeData theme;
+  final List<AntTableFilterItem> items;
+  final Set<Object> initialSelected;
+  final bool multiple;
+  final ValueChanged<Set<Object>> onConfirm;
+  final VoidCallback onReset;
+
+  @override
+  State<_FilterPanel> createState() => _FilterPanelState();
+}
+
+class _FilterPanelState extends State<_FilterPanel> {
+  late final Set<Object> _selected = {...widget.initialSelected};
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = widget.theme;
+    return Material(
+      color: theme.colorBgContainer,
+      elevation: 6,
+      shadowColor: theme.colorText.withValues(alpha: 0.2),
+      borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+      child: Container(
+        width: theme.s(140),
+        padding: EdgeInsets.symmetric(vertical: theme.s(8)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+          border: Border.all(color: theme.colorSplit),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final item in widget.items)
+              GestureDetector(
+                key: ValueKey('ant_table_filter_option_${item.value}'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() {
+                  if (!widget.multiple) {
+                    // 单选模式
+                    _selected
+                      ..clear()
+                      ..add(item.value);
+                    return;
+                  }
+                  if (!_selected.remove(item.value)) {
+                    _selected.add(item.value);
+                  }
+                }),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: theme.s(12)),
+                  child: Row(
+                    children: [
+                      if (widget.multiple)
+                        Icon(
+                          _selected.contains(item.value)
+                              ? AntIcons.checkSquareFilled
+                              : AntIcons.borderOutlined,
+                          size: theme.s(16),
+                          color: _selected.contains(item.value)
+                              ? theme.colorPrimary
+                              : theme.colorBorder,
+                        )
+                      else
+                        _FilterRadio(
+                          selected: _selected.contains(item.value),
+                          size: theme.s(16),
+                          activeColor: theme.colorPrimary,
+                          inactiveColor: theme.colorBorder,
+                        ),
+                      SizedBox(width: theme.s(8)),
+                      Expanded(
+                        child: Text(
+                          item.text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: theme.fontSizeSM,
+                            color: theme.colorText,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            Divider(color: theme.colorSplit, height: theme.s(16)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: theme.s(12)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _filterAction(
+                    theme,
+                    '重置',
+                    widget.onReset,
+                    semanticKey: 'ant_table_filter_reset',
+                  ),
+                  _filterAction(
+                    theme,
+                    '确定',
+                    () => widget.onConfirm(Set<Object>.from(_selected)),
+                    highlight: true,
+                    semanticKey: 'ant_table_filter_confirm',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _filterAction(
+    AntThemeData theme,
+    String label,
+    VoidCallback onTap, {
+    bool highlight = false,
+    String? semanticKey,
+  }) {
+    final color = highlight ? theme.colorPrimary : theme.colorTextSecondary;
+    return GestureDetector(
+      key: semanticKey == null ? null : ValueKey(semanticKey),
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: theme.fontSizeSM,
+          color: color,
+          fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
+        ),
+      ),
+    );
+  }
+}
+
+/// 单选筛选下拉中的圆形单选标记（antd Radio 外观：描边圆 + 选中实心圆点）。
+class _FilterRadio extends StatelessWidget {
+  const _FilterRadio({
+    required this.selected,
+    required this.size,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  final bool selected;
+  final double size;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: selected ? activeColor : inactiveColor),
+      ),
+      child: selected
+          ? Center(
+              child: Container(
+                width: size * 0.5,
+                height: size * 0.5,
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+/// 允许鼠标拖拽横向滚动（桌面端默认只有触控板/滚轮可横向滚动）。
+class _TableScrollBehavior extends MaterialScrollBehavior {
+  const _TableScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => const {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+      };
+}

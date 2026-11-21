@@ -27,8 +27,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'ant_avatar_types.dart';
+import '../../feedback/loading/ant_loading.dart';
 export 'ant_avatar_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntAvatar
@@ -178,7 +180,7 @@ class AntAvatar extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Icon(
-        Icons.person,
+        AntIcons.userOutlined,
         color: theme.colorPrimary,
         size: px * 0.5,
       ),
@@ -230,13 +232,9 @@ class AntAvatar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: theme.colorFillQuaternary),
       alignment: Alignment.center,
-      child: SizedBox(
-        width: spinnerSize,
-        height: spinnerSize,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: theme.colorPrimary,
-        ),
+      child: AntLoading(
+        size: spinnerSize,
+        color: theme.colorPrimary,
       ),
     );
   }

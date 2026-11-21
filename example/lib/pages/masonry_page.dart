@@ -20,7 +20,10 @@ class MasonryPage extends StatelessWidget {
           _ColumnsDemo(),
           _Section(title: '间距', description: 'gutter 列间距，verticalGutter 行间距'),
           _GutterDemo(),
-          _Section(title: '响应式列数', description: 'responsiveColumns 根据容器宽度自动选择列数'),
+          _Section(
+            title: '响应式列数',
+            description: 'responsiveColumns 根据容器宽度自动选择列数',
+          ),
           _ResponsiveDemo(),
         ],
       ),
@@ -42,15 +45,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -85,7 +94,10 @@ class _BasicDemo extends StatelessWidget {
         AntMasonryItem(height: 120, child: _card('A · 120', 120, Colors.blue)),
         AntMasonryItem(height: 180, child: _card('B · 180', 180, Colors.green)),
         AntMasonryItem(height: 90, child: _card('C · 90', 90, Colors.orange)),
-        AntMasonryItem(height: 150, child: _card('D · 150', 150, Colors.purple)),
+        AntMasonryItem(
+          height: 150,
+          child: _card('D · 150', 150, Colors.purple),
+        ),
         AntMasonryItem(height: 110, child: _card('E · 110', 110, Colors.teal)),
         AntMasonryItem(height: 200, child: _card('F · 200', 200, Colors.pink)),
       ],
@@ -101,10 +113,7 @@ class _ColumnsDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 8),
-          child: Text('2 列'),
-        ),
+        const Padding(padding: EdgeInsets.only(bottom: 8), child: Text('2 列')),
         AntMasonry(
           columns: 2,
           gutter: 12,

@@ -1,6 +1,6 @@
 {
-    "name": "antd_theme_example",
-    "short_name": "antd_theme_example",
+    "name": "AntdTheme",
+    "short_name": "AntdTheme",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

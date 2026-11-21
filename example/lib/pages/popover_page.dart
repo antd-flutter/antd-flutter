@@ -14,9 +14,9 @@ class _PopoverPageState extends State<PopoverPage> {
   @override
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
-    final textStyle = TextStyle(fontSize: 14.sp, color: theme.colorText);
+    final textStyle = TextStyle(fontSize: theme.s(14), color: theme.colorText);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,7 +30,7 @@ class _PopoverPageState extends State<PopoverPage> {
               child: AntButton(child: const Text('点击显示气泡')),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '悬停触发',
             theme: theme,
@@ -40,13 +40,13 @@ class _PopoverPageState extends State<PopoverPage> {
               child: AntButton(child: const Text('Hover me')),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '九个方向',
             theme: theme,
             child: Wrap(
-              spacing: 12.w,
-              runSpacing: 12.w,
+              spacing: theme.s(12),
+              runSpacing: theme.s(12),
               children: [
                 AntPopover(
                   trigger: AntPopoverTrigger.click,
@@ -99,7 +99,7 @@ class _PopoverPageState extends State<PopoverPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '箭头显示',
             theme: theme,
@@ -111,7 +111,7 @@ class _PopoverPageState extends State<PopoverPage> {
               child: AntButton(child: const Text('带箭头气泡')),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '受控显示',
             theme: theme,
@@ -119,11 +119,14 @@ class _PopoverPageState extends State<PopoverPage> {
               children: [
                 AntButton(
                   child: Text(_controlledOpen ? '关闭气泡' : '打开气泡'),
-                  onTap: () => setState(() => _controlledOpen = !_controlledOpen),
+                  onTap: () =>
+                      setState(() => _controlledOpen = !_controlledOpen),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: theme.s(12)),
                 AntPopover(
                   open: _controlledOpen,
+                  onOpenChange: (open) =>
+                      setState(() => _controlledOpen = open),
                   title: const Text('受控气泡'),
                   content: const Text('由外部状态控制显示与隐藏'),
                   child: const Text('受控触发元素'),
@@ -131,12 +134,18 @@ class _PopoverPageState extends State<PopoverPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
+          _Section(
+            title: 'Controller 模式',
+            theme: theme,
+            child: _ControllerPopoverDemo(),
+          ),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义背景色',
             theme: theme,
             child: Wrap(
-              spacing: 12.w,
+              spacing: theme.s(12),
               children: [
                 AntPopover(
                   trigger: AntPopoverTrigger.click,
@@ -155,7 +164,7 @@ class _PopoverPageState extends State<PopoverPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '复杂内容',
             theme: theme,
@@ -166,9 +175,9 @@ class _PopoverPageState extends State<PopoverPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('设计阶段：已完成', style: textStyle),
-                  SizedBox(height: 4.w),
+                  SizedBox(height: theme.s(4)),
                   Text('开发阶段：进行中', style: textStyle),
-                  SizedBox(height: 4.w),
+                  SizedBox(height: theme.s(4)),
                   Text('测试阶段：未开始', style: textStyle),
                 ],
               ),
@@ -177,6 +186,37 @@ class _PopoverPageState extends State<PopoverPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Controller 模式示例（R35.2）。
+class _ControllerPopoverDemo extends StatefulWidget {
+  @override
+  State<_ControllerPopoverDemo> createState() => _ControllerPopoverDemoState();
+}
+
+class _ControllerPopoverDemoState extends State<_ControllerPopoverDemo> {
+  final AntPopoverController _controller = AntPopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AntPopover(
+          controller: _controller,
+          trigger: AntPopoverTrigger.click,
+          title: const Text('Controller 气泡'),
+          content: const Text('由 controller 程序化控制'),
+          child: const Text('Controller 触发元素'),
+        ),
+        SizedBox(width: theme.s(12)),
+        AntButton(onTap: () => _controller.show(), child: const Text('show')),
+        SizedBox(width: theme.s(12)),
+        AntButton(onTap: () => _controller.hide(), child: const Text('hide')),
+      ],
     );
   }
 }
@@ -200,12 +240,12 @@ class _Section extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: theme.s(16),
             fontWeight: FontWeight.w600,
             color: theme.colorText,
           ),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: theme.s(12)),
         child,
       ],
     );

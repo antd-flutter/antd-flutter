@@ -1,0 +1,715 @@
+/// AntCalendarPicker — antd-mobile CalendarPicker 日历选择器的 Flutter 实现。
+///
+/// 提供内嵌视图（AntCalendarPickerView）和底部弹窗（AntCalendarPicker）两种形态，
+/// 支持单选和范围选择模式。内嵌视图支持左右滑动手势翻月（antd-mobile 惯例）。
+///
+/// ```dart
+/// AntCalendarPicker(
+///   selectionMode: AntCalendarSelectionMode.range,
+///   onConfirm: (dates) => print(dates),
+///   child: Text('选择日期'),
+/// )
+/// ```
+library;
+
+import 'package:antd_calendar/src/calendar/calendar_core/calendar_locale.dart';
+import 'package:antd_calendar/src/calendar/ant_calendar_types.dart';
+import 'package:antd_flutter_ui/antd_flutter_ui.dart';
+import 'package:antd_theme/antd_theme.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+
+export 'package:antd_calendar/src/calendar/calendar_core/calendar_locale.dart';
+export 'package:antd_calendar/src/calendar/ant_calendar_types.dart'
+    show AntCalendarSelectionMode, AntCalendarWeekStartsOn;
+
+// ============================================================
+// AntCalendarPickerView — 内嵌日历视图
+// ============================================================
+
+/// 内嵌日历选择视图 — 直接渲染日历网格，支持单选/范围选择。
+class AntCalendarPickerView extends StatefulWidget {
+  const AntCalendarPickerView({
+    super.key,
+    this.selectionMode = AntCalendarSelectionMode.single,
+    this.value,
+    this.defaultValue = const [],
+    this.onChange,
+    this.min,
+    this.max,
+    this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
+    this.allowClear = true,
+    this.locale,
+  });
+
+  /// 选择模式。
+  final AntCalendarSelectionMode selectionMode;
+
+  /// 国际化文案；null 时经 [AntCalendarLocaleProvider] 注入读取，回退中文预设。
+  final AntCalendarLocale? locale;
+
+  /// 受控值（单选 0~1 个元素，范围 0~2 个元素）。
+  final List<DateTime>? value;
+
+  /// 非受控初始值。
+  final List<DateTime> defaultValue;
+
+  /// 选择变化回调。
+  final ValueChanged<List<DateTime>>? onChange;
+
+  /// 最小可选日期。
+  final DateTime? min;
+
+  /// 最大可选日期。
+  final DateTime? max;
+
+  /// 周起始日。
+  final AntCalendarWeekStartsOn weekStartsOn;
+
+  /// 点击已选日期是否清除选择。
+  final bool allowClear;
+
+  @override
+  State<AntCalendarPickerView> createState() => _AntCalendarPickerViewState();
+}
+
+class _AntCalendarPickerViewState extends State<AntCalendarPickerView> {
+  List<DateTime> _internalValue = [];
+  late DateTime _currentMonth;
+
+  List<DateTime> get _currentValue => widget.value ?? _internalValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalValue = List<DateTime>.from(widget.defaultValue);
+    final base =
+        _currentValue.isNotEmpty ? _currentValue.first : DateTime.now();
+    _currentMonth = DateTime(base.year, base.month);
+    _clampMonth();
+  }
+
+  @override
+  void didUpdateWidget(covariant AntCalendarPickerView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != null && widget.value != oldWidget.value) {
+      if (widget.value!.isNotEmpty) {
+        final v = widget.value!.first;
+        _currentMonth = DateTime(v.year, v.month);
+      }
+    }
+  }
+
+  void _clampMonth() {
+    if (widget.min != null) {
+      final minMonth = DateTime(widget.min!.year, widget.min!.month);
+      if (_isBeforeMonth(_currentMonth, minMonth)) {
+        _currentMonth = minMonth;
+      }
+    }
+    if (widget.max != null) {
+      final maxMonth = DateTime(widget.max!.year, widget.max!.month);
+      if (_isAfterMonth(_currentMonth, maxMonth)) {
+        _currentMonth = maxMonth;
+      }
+    }
+  }
+
+  bool _isBeforeMonth(DateTime a, DateTime b) =>
+      a.year < b.year || (a.year == b.year && a.month < b.month);
+
+  bool _isAfterMonth(DateTime a, DateTime b) =>
+      a.year > b.year || (a.year == b.year && a.month > b.month);
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  bool _isDisabled(DateTime day) {
+    if (widget.min != null && day.isBefore(_dateOnly(widget.min!))) return true;
+    if (widget.max != null && day.isAfter(_dateOnly(widget.max!))) return true;
+    return false;
+  }
+
+  void _onDayTap(DateTime day) {
+    if (_isDisabled(day)) return;
+    final current = _currentValue;
+    final dayOnly = _dateOnly(day);
+
+    List<DateTime> newValue;
+    if (widget.selectionMode == AntCalendarSelectionMode.single) {
+      if (current.length == 1 && _isSameDay(current.first, dayOnly)) {
+        newValue = widget.allowClear ? [] : [dayOnly];
+      } else {
+        newValue = [dayOnly];
+      }
+    } else {
+      if (current.isEmpty || current.length == 2) {
+        newValue = [dayOnly];
+      } else if (current.length == 1) {
+        if (_isSameDay(current.first, dayOnly)) {
+          newValue = widget.allowClear ? [] : [dayOnly];
+        } else if (dayOnly.isBefore(current.first)) {
+          newValue = [dayOnly, current.first];
+        } else {
+          newValue = [current.first, dayOnly];
+        }
+      } else {
+        newValue = [dayOnly];
+      }
+    }
+
+    if (widget.value == null) {
+      _internalValue = newValue;
+    }
+    widget.onChange?.call(newValue);
+    setState(() {
+      if (newValue.isNotEmpty) {
+        _currentMonth = DateTime(newValue.first.year, newValue.first.month);
+      }
+    });
+  }
+
+  void _goToMonth(int delta) {
+    setState(() {
+      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + delta);
+    });
+  }
+
+  /// 月份网格计算委托 ui 日历网格引擎（紧凑自适应整周行数）。
+  List<DateTime> _getDaysInMonth() => buildCalendarCompactMonthGrid(
+        _currentMonth,
+        weekStartsOnMonday:
+            widget.weekStartsOn == AntCalendarWeekStartsOn.monday,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AntTheme.of(context);
+    final days = _getDaysInMonth();
+    final today = _dateOnly(DateTime.now());
+    final selected = _currentValue.map(_dateOnly).toList();
+
+    final loc = widget.locale ?? AntCalendarLocale.of(context);
+    final weekLabels = loc.weekLabelsFor(
+      weekStartsOnMonday:
+          widget.weekStartsOn == AntCalendarWeekStartsOn.monday,
+    );
+
+    final isRange = widget.selectionMode == AntCalendarSelectionMode.range;
+    final hasRange = isRange && selected.length == 2;
+
+    bool isStart(DateTime d) => isRange && selected.isNotEmpty && _isSameDay(d, selected.first);
+    bool isEnd(DateTime d) => hasRange && _isSameDay(d, selected.last);
+    bool isMiddle(DateTime d) =>
+        hasRange && d.isAfter(selected.first) && d.isBefore(selected.last);
+    bool isSingleSelected(DateTime d) =>
+        !isRange && selected.isNotEmpty && _isSameDay(d, selected.first);
+
+    final canGoPrev = widget.min == null ||
+        !_isBeforeMonth(
+          DateTime(_currentMonth.year, _currentMonth.month - 1),
+          DateTime(widget.min!.year, widget.min!.month),
+        );
+    final canGoNext = widget.max == null ||
+        !_isAfterMonth(
+          DateTime(_currentMonth.year, _currentMonth.month + 1),
+          DateTime(widget.max!.year, widget.max!.month),
+        );
+
+    final grid = Column(
+      children: List.generate(
+        (days.length / 7).ceil(),
+        (row) => Row(
+          children: List.generate(7, (col) {
+            final day = days[row * 7 + col];
+            return Expanded(
+              child: _buildDayCell(t, day, today, isStart, isEnd, isMiddle, isSingleSelected),
+            );
+          }),
+        ),
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 月份导航
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: t.s(8)),
+          child: Row(
+            children: [
+              _buildNavButton(t, canGoPrev, () => _goToMonth(-1), AntIcons.leftOutlined),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    '${_currentMonth.year}年${_currentMonth.month}月',
+                    style: TextStyle(
+                      fontSize: t.fontSizeLG,
+                      fontWeight: FontWeight.w500,
+                      color: t.colorText,
+                    ),
+                  ),
+                ),
+              ),
+              _buildNavButton(t, canGoNext, () => _goToMonth(1), AntIcons.rightOutlined),
+            ],
+          ),
+        ),
+        // 周标签
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: t.s(4)),
+          child: Row(
+            children: weekLabels.map((label) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: t.fontSizeSM,
+                      color: t.colorTextSecondary,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        // 日期网格（支持左右滑动手势翻月）
+        GestureDetector(
+          onHorizontalDragEnd: (details) {
+            final v = details.primaryVelocity ?? 0;
+            if (v < 0) {
+              _goToMonth(1);
+            } else if (v > 0) {
+              _goToMonth(-1);
+            }
+          },
+          child: grid,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavButton(
+    AntThemeData t,
+    bool enabled,
+    VoidCallback onTap,
+    IconData icon,
+  ) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: t.s(8), vertical: t.s(4)),
+        child: Icon(
+          icon,
+          size: t.s(24),
+          color: enabled ? t.colorText : t.colorTextDisabled,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDayCell(
+    AntThemeData t,
+    DateTime day,
+    DateTime today,
+    bool Function(DateTime) isStart,
+    bool Function(DateTime) isEnd,
+    bool Function(DateTime) isMiddle,
+    bool Function(DateTime) isSingleSelected,
+  ) {
+    final dayOnly = _dateOnly(day);
+    final isCurrentMonth = day.month == _currentMonth.month;
+    final isToday = _isSameDay(dayOnly, today);
+    final start = isStart(dayOnly);
+    final end = isEnd(dayOnly);
+    final middle = isMiddle(dayOnly);
+    final singleSelected = isSingleSelected(dayOnly);
+    final disabled = _isDisabled(dayOnly);
+    final selected = start || end || singleSelected;
+
+    Color textColor;
+    Color? bgColor;
+    BorderRadius? borderRadius;
+    EdgeInsets margin = EdgeInsets.symmetric(horizontal: t.s(2), vertical: t.s(1));
+
+    if (disabled) {
+      textColor = t.colorTextDisabled;
+    } else if (selected) {
+      textColor = Colors.white;
+      bgColor = t.colorPrimary;
+      borderRadius = BorderRadius.circular(t.borderRadiusSM);
+    } else if (middle) {
+      textColor = t.colorPrimary;
+      bgColor = t.colorPrimary.withValues(alpha: 0.1);
+      borderRadius = BorderRadius.zero;
+      margin = EdgeInsets.zero;
+    } else if (isToday) {
+      textColor = t.colorPrimary;
+    } else if (!isCurrentMonth) {
+      textColor = t.colorTextQuaternary;
+    } else {
+      textColor = t.colorText;
+    }
+
+    // 范围端点的圆角和边距
+    if (start) {
+      borderRadius = BorderRadius.horizontal(left: Radius.circular(t.borderRadiusSM));
+      margin = EdgeInsets.only(left: t.s(2), top: t.s(1), bottom: t.s(1));
+    } else if (end) {
+      borderRadius = BorderRadius.horizontal(right: Radius.circular(t.borderRadiusSM));
+      margin = EdgeInsets.only(right: t.s(2), top: t.s(1), bottom: t.s(1));
+    }
+
+    return GestureDetector(
+      onTap: disabled ? null : () => _onDayTap(day),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        margin: margin,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: borderRadius,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: TextStyle(
+              fontSize: t.fontSizeSM,
+              color: textColor,
+              fontWeight: selected || isToday ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// AntCalendarPicker — 底部弹窗日历选择器
+// ============================================================
+
+/// 底部弹窗日历选择器 — 点击触发器弹出底部面板，内含日历视图。
+class AntCalendarPicker extends StatefulWidget {
+  const AntCalendarPicker({
+    super.key,
+    this.selectionMode = AntCalendarSelectionMode.single,
+    this.value,
+    this.defaultValue = const [],
+    this.onChange,
+    this.min,
+    this.max,
+    this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
+    this.allowClear = true,
+    this.title,
+    this.confirmText,
+    this.cancelText,
+    this.onConfirm,
+    this.onCancel,
+    this.visible,
+    this.onClose,
+    this.onMaskClick,
+    this.showCloseButton = true,
+    this.closeOnMaskClick = true,
+    this.child,
+    this.locale,
+  });
+
+  /// 选择模式。
+  final AntCalendarSelectionMode selectionMode;
+
+  /// 国际化文案；null 时经 [AntCalendarLocaleProvider] 注入读取，回退中文预设。
+  final AntCalendarLocale? locale;
+
+  /// 受控值。
+  final List<DateTime>? value;
+
+  /// 非受控初始值。
+  final List<DateTime> defaultValue;
+
+  /// 选择变化回调（弹窗内选择时触发）。
+  final ValueChanged<List<DateTime>>? onChange;
+
+  /// 最小可选日期。
+  final DateTime? min;
+
+  /// 最大可选日期。
+  final DateTime? max;
+
+  /// 周起始日。
+  final AntCalendarWeekStartsOn weekStartsOn;
+
+  /// 点击已选日期是否清除选择。
+  final bool allowClear;
+
+  /// 面板标题。
+  final String? title;
+
+  /// 确认按钮文本；null 时取 locale 确认文案。
+  final String? confirmText;
+
+  /// 取消按钮文本；null 时取 locale 取消文案。
+  final String? cancelText;
+
+  /// 确认回调。
+  final ValueChanged<List<DateTime>>? onConfirm;
+
+  /// 取消回调。
+  final VoidCallback? onCancel;
+
+  /// 受控可见性。
+  final bool? visible;
+
+  /// 关闭回调。
+  final VoidCallback? onClose;
+
+  /// 遮罩点击回调（antd-mobile onMaskClick 对齐）：经遮罩关闭面板时
+  /// 触发（onClose 之后）。
+  final VoidCallback? onMaskClick;
+
+  /// 是否展示面板右上角关闭按钮（antd-mobile Popup showCloseButton
+  /// 对齐，默认 true）。
+  final bool showCloseButton;
+
+  /// 点击遮罩是否关闭。
+  final bool closeOnMaskClick;
+
+  /// 触发器组件（点击打开面板）。
+  final Widget? child;
+
+  @override
+  State<AntCalendarPicker> createState() => _AntCalendarPickerState();
+}
+
+class _AntCalendarPickerState extends State<AntCalendarPicker> {
+  List<DateTime>? _lastConfirmed;
+  List<DateTime> _currentValue = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _lastConfirmed = List<DateTime>.from(widget.value ?? widget.defaultValue);
+    _currentValue = List<DateTime>.from(_lastConfirmed!);
+    if (widget.visible == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _open();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AntCalendarPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.visible != oldWidget.visible && widget.visible != null) {
+      if (widget.visible!) _open();
+    }
+    if (widget.value != null && widget.value != oldWidget.value) {
+      _lastConfirmed = List<DateTime>.from(widget.value!);
+      _currentValue = List<DateTime>.from(_lastConfirmed!);
+    }
+  }
+
+  void _open() {
+    final themeData = AntTheme.of(context);
+    final loc = widget.locale ?? AntCalendarLocale.of(context);
+    _currentValue = List<DateTime>.from(_lastConfirmed ?? []);
+    showModalBottomSheet<String>(
+      context: context,
+      isDismissible: widget.closeOnMaskClick,
+      enableDrag: false,
+      backgroundColor: themeData.colorBgContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(themeData.borderRadiusLG),
+        ),
+      ),
+      builder: (sheetContext) {
+        return _CalendarSheet(
+          themeData: themeData,
+          title: widget.title,
+          confirmText: widget.confirmText ?? loc.effectiveConfirmText,
+          cancelText: widget.cancelText ?? loc.effectiveCancelText,
+          selectionMode: widget.selectionMode,
+          value: _currentValue,
+          min: widget.min,
+          max: widget.max,
+          weekStartsOn: widget.weekStartsOn,
+          allowClear: widget.allowClear,
+          showCloseButton: widget.showCloseButton,
+          onCancel: () {
+            Navigator.of(sheetContext).pop('cancel');
+            widget.onCancel?.call();
+          },
+          onConfirm: () {
+            Navigator.of(sheetContext).pop('confirm');
+            _lastConfirmed = List<DateTime>.from(_currentValue);
+            widget.onConfirm?.call(_currentValue);
+          },
+          onCloseButtonTap: () {
+            Navigator.of(sheetContext).pop('close');
+            widget.onClose?.call();
+          },
+          onChange: (dates) {
+            _currentValue = dates;
+            widget.onChange?.call(dates);
+          },
+        );
+      },
+    ).then((result) {
+      // null = 遮罩点击 / 系统返回导致的关闭（antd-mobile onMaskClick 语义）。
+      if (result == null) widget.onMaskClick?.call();
+      widget.onClose?.call();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.child == null) return const SizedBox.shrink();
+    return GestureDetector(
+      onTap: _open,
+      behavior: HitTestBehavior.opaque,
+      child: widget.child,
+    );
+  }
+}
+
+/// 底部面板内容。
+class _CalendarSheet extends StatefulWidget {
+  const _CalendarSheet({
+    required this.themeData,
+    required this.selectionMode,
+    required this.value,
+    this.title,
+    this.confirmText = '确定',
+    this.cancelText = '取消',
+    this.min,
+    this.max,
+    this.weekStartsOn = AntCalendarWeekStartsOn.sunday,
+    this.allowClear = true,
+    this.showCloseButton = false,
+    this.onConfirm,
+    this.onCancel,
+    this.onCloseButtonTap,
+    this.onChange,
+  });
+
+  final AntThemeData themeData;
+  final AntCalendarSelectionMode selectionMode;
+  final List<DateTime> value;
+  final String? title;
+  final String confirmText;
+  final String cancelText;
+  final DateTime? min;
+  final DateTime? max;
+  final AntCalendarWeekStartsOn weekStartsOn;
+  final bool allowClear;
+  final bool showCloseButton;
+  final VoidCallback? onConfirm;
+  final VoidCallback? onCancel;
+  final VoidCallback? onCloseButtonTap;
+  final ValueChanged<List<DateTime>>? onChange;
+
+  @override
+  State<_CalendarSheet> createState() => _CalendarSheetState();
+}
+
+class _CalendarSheetState extends State<_CalendarSheet> {
+  late List<DateTime> _innerValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _innerValue = List<DateTime>.from(widget.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.themeData;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 头部
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: t.s(16), vertical: t.s(10)),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: t.colorSplit, width: 1),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: widget.onCancel,
+                child: Text(
+                  widget.cancelText,
+                  style: TextStyle(fontSize: t.fontSize, color: t.colorText),
+                ),
+              ),
+              if (widget.title != null)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      widget.title!,
+                      style: TextStyle(
+                        fontSize: t.fontSize,
+                        fontWeight: FontWeight.w500,
+                        color: t.colorText,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const Spacer(),
+              GestureDetector(
+                onTap: widget.onConfirm,
+                child: Text(
+                  widget.confirmText,
+                  style: TextStyle(
+                    fontSize: t.fontSize,
+                    color: t.colorPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (widget.showCloseButton)
+                GestureDetector(
+                  onTap: widget.onCloseButtonTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: t.s(12)),
+                    child: Icon(
+                      AntIcons.closeOutlined,
+                      size: t.s(20),
+                      color: t.colorTextSecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // 日历视图
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: t.s(12)),
+          child: AntCalendarPickerView(
+            selectionMode: widget.selectionMode,
+            value: _innerValue,
+            min: widget.min,
+            max: widget.max,
+            weekStartsOn: widget.weekStartsOn,
+            allowClear: widget.allowClear,
+            onChange: (dates) {
+              setState(() {
+                _innerValue = dates;
+              });
+              widget.onChange?.call(dates);
+            },
+          ),
+        ),
+        SizedBox(height: t.s(16)),
+      ],
+    );
+  }
+}

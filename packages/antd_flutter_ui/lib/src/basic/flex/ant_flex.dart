@@ -102,11 +102,14 @@ class AntFlex extends StatelessWidget {
         AntFlexGapSize.middle => theme.margin,
         AntFlexGapSize.large => theme.marginLG,
       };
-      final value = base.w;
+      final value = theme.s(base);
       return (value, value);
     }
 
-    return (gap!.rowValue?.w, gap!.columnValue?.w);
+    return (
+      gap!.rowValue == null ? null : theme.s(gap!.rowValue!),
+      gap!.columnValue == null ? null : theme.s(gap!.columnValue!),
+    );
   }
 
   /// 在子元素间插入间距（非换行模式）。

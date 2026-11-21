@@ -12,30 +12,9 @@ enum AntCardSize {
   small,
 }
 
-/// 卡片封面配置。
-class AntCardCover {
-  const AntCardCover({
-    required this.child,
-    this.height,
-  });
-
-  /// 封面内容（通常为图片）。
-  final Widget child;
-
-  /// 封面高度。
-  final double? height;
-}
-
-/// 卡片操作按钮配置。
-class AntCardAction {
-  const AntCardAction({
-    required this.child,
-    this.onTap,
-  });
-
-  /// 按钮内容。
-  final Widget child;
-
-  /// 点击回调。
-  final VoidCallback? onTap;
-}
+/// 卡片底部操作构建器。
+typedef AntCardActionBuilder<T> = Widget Function(
+  BuildContext context,
+  T action,
+  int index,
+);

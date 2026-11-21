@@ -9,39 +9,29 @@ class InfiniteScrollPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(
-            title: '基础用法（模拟分页加载）',
+            title: '程序化加载（Controller）',
             theme: theme,
-            child: _BasicDemo(),
+            child: const _ControllerDemo(),
           ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '失败重试',
-            theme: theme,
-            child: const _RetryDemo(),
-          ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '自定义文案',
-            theme: theme,
-            child: _CustomTextDemo(),
-          ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '基础用法（模拟分页加载）', theme: theme, child: _BasicDemo()),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '失败重试', theme: theme, child: const _RetryDemo()),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '自定义文案', theme: theme, child: _CustomTextDemo()),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'threshold 提前触发',
             theme: theme,
             child: _ThresholdDemo(),
           ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '没有更多',
-            theme: theme,
-            child: const _NoMoreDemo(),
-          ),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '没有更多', theme: theme, child: const _NoMoreDemo()),
         ],
       ),
     );
@@ -64,7 +54,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -73,15 +63,15 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),
@@ -94,6 +84,85 @@ List<String> _mockPage(int page) =>
     List.generate(5, (i) => '第 ${page + 1} 页 - 第 ${i + 1} 条');
 
 /// 基础用法：模拟分页加载 3 页。
+/// 程序化加载演示：AntInfiniteScrollController.callLoadMore / reset。
+class _ControllerDemo extends StatefulWidget {
+  const _ControllerDemo();
+
+  @override
+  State<_ControllerDemo> createState() => _ControllerDemoState();
+}
+
+class _ControllerDemoState extends State<_ControllerDemo> {
+  final AntInfiniteScrollController _controller = AntInfiniteScrollController();
+  final List<String> _items = _mockPage(0);
+  int _page = 1;
+
+  Future<bool> _loadMore() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    _items.addAll(_mockPage(_page));
+    _page++;
+    setState(() {});
+    return _page < 3;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    return Column(
+      children: [
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: _controller.callLoadMore,
+              child: const Text('callLoadMore()'),
+            ),
+            SizedBox(width: theme.s(12)),
+            ElevatedButton(
+              onPressed: () {
+                _items.clear();
+                _items.addAll(_mockPage(0));
+                _page = 1;
+                setState(() {});
+                _controller.reset();
+              },
+              child: const Text('reset()'),
+            ),
+          ],
+        ),
+        SizedBox(height: theme.s(12)),
+        AntInfiniteScroll(
+          controller: _controller,
+          loadMore: _loadMore,
+          child: SizedBox(
+            height: theme.s(300),
+            child: SingleChildScrollView(
+              child: Column(
+                children: _items
+                    .map(
+                      (item) => Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(theme.s(12)),
+                        margin: EdgeInsets.only(bottom: theme.s(8)),
+                        decoration: BoxDecoration(
+                          color: AntTheme.of(context).colorFillQuaternary,
+                          borderRadius: BorderRadius.circular(theme.s(8)),
+                        ),
+                        child: AntText(
+                          text: item,
+                          style: TextStyle(fontSize: theme.s(14)),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BasicDemo extends StatefulWidget {
   const _BasicDemo();
 
@@ -115,21 +184,33 @@ class _BasicDemoState extends State<_BasicDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
+    // child 必须自带滚动组件（触发只属于自己的包裹对象，对齐 antd-mobile）。
     return AntInfiniteScroll(
       loadMore: _loadMore,
-      child: Column(
-        children: _items
-            .map((item) => Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  margin: EdgeInsets.only(bottom: 8.w),
-                  decoration: BoxDecoration(
-                    color: AntTheme.of(context).colorFillQuaternary,
-                    borderRadius: BorderRadius.circular(8.r),
+      child: SizedBox(
+        height: theme.s(300),
+        child: SingleChildScrollView(
+          child: Column(
+            children: _items
+                .map(
+                  (item) => Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(theme.s(12)),
+                    margin: EdgeInsets.only(bottom: theme.s(8)),
+                    decoration: BoxDecoration(
+                      color: AntTheme.of(context).colorFillQuaternary,
+                      borderRadius: BorderRadius.circular(theme.s(8)),
+                    ),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: theme.s(14)),
+                    ),
                   ),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -146,15 +227,26 @@ class _RetryDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntInfiniteScroll(
       loadMore: _loadMore,
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: theme.s(300),
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: theme.s(8)),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: theme.s(14)),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -176,6 +268,7 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntInfiniteScroll(
       loadMore: _loadMore,
       loadingText: '努力加载中…',
@@ -183,13 +276,23 @@ class _CustomTextDemoState extends State<_CustomTextDemo> {
       noMoreText: '到底啦，没有更多啦',
       loadFailedText: '加载出错了',
       loadFailedRetryText: '重新加载',
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: theme.s(300),
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: theme.s(8)),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: theme.s(14)),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }
@@ -217,18 +320,24 @@ class _ThresholdDemoState extends State<_ThresholdDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntInfiniteScroll(
       threshold: 300,
       loadMore: _loadMore,
       child: SizedBox(
-        height: 300.w,
+        height: theme.s(300),
         child: SingleChildScrollView(
           child: Column(
             children: _items
-                .map((item) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.w),
-                      child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: theme.s(8)),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: theme.s(14)),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -243,15 +352,26 @@ class _NoMoreDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntInfiniteScroll(
       loadMore: () async => false,
-      child: Column(
-        children: _mockPage(0)
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.w),
-                  child: AntText(text: item, style: TextStyle(fontSize: 14.sp)),
-                ))
-            .toList(),
+      child: SizedBox(
+        height: theme.s(300),
+        child: SingleChildScrollView(
+          child: Column(
+            children: _mockPage(0)
+                .map(
+                  (item) => Padding(
+                    padding: EdgeInsets.only(bottom: theme.s(8)),
+                    child: AntText(
+                      text: item,
+                      style: TextStyle(fontSize: theme.s(14)),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }

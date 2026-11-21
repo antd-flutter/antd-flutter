@@ -2,18 +2,17 @@ import 'package:antd_flutter_ui/antd_flutter_ui.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {
@@ -39,9 +38,9 @@ void main() {
 
     testWidgets('child overrides default content', (tester) async {
       await tester.pumpWidget(_wrap(const AntFooter(
-        child: Icon(Icons.vertical_align_top),
+        child: Icon(AntIcons.verticalAlignTopOutlined),
       ),),);
-      expect(find.byIcon(Icons.vertical_align_top), findsOneWidget);
+      expect(find.byIcon(AntIcons.verticalAlignTopOutlined), findsOneWidget);
       expect(find.text('Foot 返回顶部'), findsNothing);
     });
 

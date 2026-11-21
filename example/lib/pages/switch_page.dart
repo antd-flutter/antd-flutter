@@ -20,7 +20,10 @@ class SwitchPage extends StatelessWidget {
           _ControlledDemo(),
           _Section(title: '尺寸', description: 'size: middle / small'),
           _SizeDemo(),
-          _Section(title: '文案', description: 'checkedChildren / unCheckedChildren'),
+          _Section(
+            title: '文案',
+            description: 'checkedChildren / unCheckedChildren',
+          ),
           _TextDemo(),
           _Section(title: '加载中', description: 'loading: true'),
           _LoadingDemo(),
@@ -50,7 +53,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -65,7 +71,11 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AntFlex(wrap: true, gap: const AntFlexGap.all(24), children: children);
+    return AntFlex(
+      wrap: true,
+      gap: const AntFlexGap.all(24),
+      children: children,
+    );
   }
 }
 
@@ -73,10 +83,7 @@ class _BasicDemo extends StatelessWidget {
   const _BasicDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntSwitch(),
-      AntSwitch(defaultChecked: true),
-    ]);
+    return const _Row(children: [AntSwitch(), AntSwitch(defaultChecked: true)]);
   }
 }
 
@@ -91,12 +98,14 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return _Row(children: [
-      AntSwitch(
-        checked: _checked,
-        onChange: (v) => setState(() => _checked = v),
-      ),
-    ]);
+    return _Row(
+      children: [
+        AntSwitch(
+          checked: _checked,
+          onChange: (v) => setState(() => _checked = v),
+        ),
+      ],
+    );
   }
 }
 
@@ -104,10 +113,12 @@ class _SizeDemo extends StatelessWidget {
   const _SizeDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntSwitch(defaultChecked: true),
-      AntSwitch(defaultChecked: true, size: AntSwitchSize.small),
-    ]);
+    return const _Row(
+      children: [
+        AntSwitch(defaultChecked: true),
+        AntSwitch(defaultChecked: true, size: AntSwitchSize.small),
+      ],
+    );
   }
 }
 
@@ -115,18 +126,28 @@ class _TextDemo extends StatelessWidget {
   const _TextDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntSwitch(
-        defaultChecked: true,
-        checkedChildren: Text('开'),
-        unCheckedChildren: Text('关'),
-      ),
-      AntSwitch(
-        defaultChecked: true,
-        checkedChildren: AntdIcon(AntIcons.checkOutlined, size: 12, color: Colors.white),
-        unCheckedChildren: AntdIcon(AntIcons.closeOutlined, size: 12, color: Colors.white),
-      ),
-    ]);
+    return const _Row(
+      children: [
+        AntSwitch(
+          defaultChecked: true,
+          checkedChildren: Text('开'),
+          unCheckedChildren: Text('关'),
+        ),
+        AntSwitch(
+          defaultChecked: true,
+          checkedChildren: AntdIcon(
+            AntIcons.checkOutlined,
+            size: 12,
+            color: Colors.white,
+          ),
+          unCheckedChildren: AntdIcon(
+            AntIcons.closeOutlined,
+            size: 12,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -134,10 +155,12 @@ class _LoadingDemo extends StatelessWidget {
   const _LoadingDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntSwitch(loading: true, defaultChecked: true),
-      AntSwitch(loading: true),
-    ]);
+    return const _Row(
+      children: [
+        AntSwitch(loading: true, defaultChecked: true),
+        AntSwitch(loading: true),
+      ],
+    );
   }
 }
 
@@ -145,9 +168,11 @@ class _DisabledDemo extends StatelessWidget {
   const _DisabledDemo();
   @override
   Widget build(BuildContext context) {
-    return const _Row(children: [
-      AntSwitch(disabled: true),
-      AntSwitch(disabled: true, defaultChecked: true),
-    ]);
+    return const _Row(
+      children: [
+        AntSwitch(disabled: true),
+        AntSwitch(disabled: true, defaultChecked: true),
+      ],
+    );
   }
 }

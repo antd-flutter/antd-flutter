@@ -14,7 +14,7 @@ Ant Design 主题数据 — 完整令牌集。
 
 ## 构造函数
 
-### `AntThemeData._({required this.seed, required this.colors, required this.isDark, required this.font, required this.radius, required this.sizes, required this.controlHeights, required this.motion, required this.shadows, required this.screen})`
+### `AntThemeData._({required this.seed, required this.colors, required this.isDark, required this.font, required this.radius, required this.sizes, required this.controlHeights, required this.motion, required this.shadows, required this.screen, this.scale = AntScale.none})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -28,23 +28,26 @@ Ant Design 主题数据 — 完整令牌集。
 | `motion` | `AntMotionTokens` | 可选 | — |
 | `shadows` | `AntShadowTokens` | 可选 | — |
 | `screen` | `AntScreenTokens` | 可选 | — |
+| `scale` | `AntScale` | = AntScale.none | — |
 
-### `AntThemeData._fromSeed(AntSeedToken seed, {required bool isDark})`
+### `AntThemeData._fromSeed(AntSeedToken seed, {required bool isDark, AntScale scale = AntScale.none})`
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `seed` | `AntSeedToken` | 可选 | — |
 | `isDark` | `bool` | 可选 | — |
+| `scale` | `AntScale` | = AntScale.none | — |
 
-### `AntThemeData.dark([AntSeedToken? seed])`
+### `AntThemeData.dark({AntSeedToken? seed, AntScale scale = AntScale.none})`
 
 从种子生成暗色主题。
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `seed` | `AntSeedToken?` | 可选 | — |
+| `scale` | `AntScale` | = AntScale.none | — |
 
-### `AntThemeData.fromSeed(AntSeedToken seed, {bool isDark = false})`
+### `AntThemeData.fromSeed(AntSeedToken seed, {bool isDark = false, AntScale scale = AntScale.none})`
 
 从种子生成主题（自动判断亮/暗）。
 
@@ -52,14 +55,16 @@ Ant Design 主题数据 — 完整令牌集。
 | --- | --- | --- | --- |
 | `seed` | `AntSeedToken` | 可选 | — |
 | `isDark` | `bool` | = false | — |
+| `scale` | `AntScale` | = AntScale.none | — |
 
-### `AntThemeData.light([AntSeedToken? seed])`
+### `AntThemeData.light({AntSeedToken? seed, AntScale scale = AntScale.none})`
 
 从种子生成亮色主题。
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `seed` | `AntSeedToken?` | 可选 | — |
+| `scale` | `AntScale` | = AntScale.none | — |
 
 ## 字段
 
@@ -71,6 +76,7 @@ Ant Design 主题数据 — 完整令牌集。
 | `isDark` | `bool` | 是否暗色主题 |
 | `motion` | `AntMotionTokens` | 动效令牌 |
 | `radius` | `AntRadiusTokens` | 圆角令牌 |
+| `scale` | `AntScale` | 统一缩放因子（设计值 → 实际值） |
 | `screen` | `AntScreenTokens` | 屏幕断点令牌 |
 | `seed` | `AntSeedToken` | 种子令牌（原始输入） |
 | `shadows` | `AntShadowTokens` | 阴影令牌 |
@@ -309,5 +315,6 @@ Ant Design 主题数据 — 完整令牌集。
 
 | 名称 | 类型 | 说明 |
 | --- | --- | --- |
+| `s` | `double` | 设计值按当前缩放因子换算（组件内零散尺寸唯一入口） |
 | `_parseCubicBezier` | `Curve` | 解析 CSS cubic-bezier 为 Flutter Curve |
 

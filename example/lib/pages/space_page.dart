@@ -18,17 +18,29 @@ class SpacePage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '垂直方向', description: 'direction: vertical，垂直排列子元素'),
           _VerticalDemo(),
-          _Section(title: '间距预设', description: 'size: small(8) / middle(16) / large(24)'),
+          _Section(
+            title: '间距预设',
+            description: 'size: small(8) / middle(16) / large(24)',
+          ),
           _SizePresetDemo(),
-          _Section(title: '自定义间距', description: 'AntSpaceSize.all / AntSpaceSize.only'),
+          _Section(
+            title: '自定义间距',
+            description: 'AntSpaceSize.all / AntSpaceSize.only',
+          ),
           _SizeCustomDemo(),
-          _Section(title: '对齐方式', description: 'align: start / center / end / baseline'),
+          _Section(
+            title: '对齐方式',
+            description: 'align: start / center / end / baseline',
+          ),
           _AlignDemo(),
           _Section(title: '分隔符', description: 'split: 在子元素之间插入分隔符'),
           _SplitDemo(),
           _Section(title: '换行', description: 'wrap: true，子元素溢出后自动换行'),
           _WrapDemo(),
-          _Section(title: '组合用法', description: 'direction + size + align + split 组合'),
+          _Section(
+            title: '组合用法',
+            description: 'direction + size + align + split 组合',
+          ),
           _ComboDemo(),
         ],
       ),
@@ -53,7 +65,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -76,14 +91,18 @@ class _Box extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1677FF).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFF1677FF).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: const Color(0xFF1677FF).withValues(alpha: 0.3),
+        ),
       ),
-      child: Text(label,
-          style: const TextStyle(
-            color: Color(0xFF1677FF),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          )),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF1677FF),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }
@@ -101,11 +120,7 @@ class _BasicDemo extends StatelessWidget {
       ),
       child: const AntSpace(
         size: AntSpaceSize.middle(),
-        children: [
-          _Box('A'),
-          _Box('B'),
-          _Box('C'),
-        ],
+        children: [_Box('A'), _Box('B'), _Box('C')],
       ),
     );
   }
@@ -125,11 +140,7 @@ class _VerticalDemo extends StatelessWidget {
       child: const AntSpace(
         direction: AntSpaceDirection.vertical,
         size: AntSpaceSize.middle(),
-        children: [
-          _Box('A'),
-          _Box('B'),
-          _Box('C'),
-        ],
+        children: [_Box('A'), _Box('B'), _Box('C')],
       ),
     );
   }
@@ -156,7 +167,10 @@ class _SizePresetDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -183,8 +197,10 @@ class _SizeCustomDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('AntSpaceSize.all(32) — 单值',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          'AntSpaceSize.all(32) — 单值',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -199,8 +215,10 @@ class _SizeCustomDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('AntSpaceSize.only(horizontal: 8, vertical: 20) — 分别设置',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          'AntSpaceSize.only(horizontal: 8, vertical: 20) — 分别设置',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -213,8 +231,12 @@ class _SizeCustomDemo extends StatelessWidget {
             wrap: true,
             size: AntSpaceSize.only(horizontal: 8, vertical: 20),
             children: [
-              _Box('A'), _Box('B'), _Box('C'),
-              _Box('D'), _Box('E'), _Box('F'),
+              _Box('A'),
+              _Box('B'),
+              _Box('C'),
+              _Box('D'),
+              _Box('E'),
+              _Box('F'),
             ],
           ),
         ),
@@ -246,7 +268,10 @@ class _AlignDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -324,8 +349,16 @@ class _WrapDemo extends StatelessWidget {
         wrap: true,
         size: AntSpaceSize.small(),
         children: [
-          _Box('1'), _Box('2'), _Box('3'), _Box('4'), _Box('5'),
-          _Box('6'), _Box('7'), _Box('8'), _Box('9'), _Box('10'),
+          _Box('1'),
+          _Box('2'),
+          _Box('3'),
+          _Box('4'),
+          _Box('5'),
+          _Box('6'),
+          _Box('7'),
+          _Box('8'),
+          _Box('9'),
+          _Box('10'),
         ],
       ),
     );
@@ -340,8 +373,10 @@ class _ComboDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('垂直方向 + 大间距 + 分隔线',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          '垂直方向 + 大间距 + 分隔线',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -354,16 +389,14 @@ class _ComboDemo extends StatelessWidget {
             direction: AntSpaceDirection.vertical,
             size: AntSpaceSize.large(),
             split: AntDivider(),
-            children: [
-              Text('Item 1'),
-              Text('Item 2'),
-              Text('Item 3'),
-            ],
+            children: [Text('Item 1'), Text('Item 2'), Text('Item 3')],
           ),
         ),
         const SizedBox(height: 12),
-        const Text('水平方向 + 居中对齐 + 小间距',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          '水平方向 + 居中对齐 + 小间距',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -376,11 +409,7 @@ class _ComboDemo extends StatelessWidget {
           child: const AntSpace(
             align: AntSpaceAlign.center,
             size: AntSpaceSize.small(),
-            children: [
-              _Box('A'),
-              _Box('B'),
-              _Box('C'),
-            ],
+            children: [_Box('A'), _Box('B'), _Box('C')],
           ),
         ),
       ],

@@ -16,34 +16,22 @@ class ImageViewerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Section(
-            title: '单图预览',
-            theme: theme,
-            child: const _SingleDemo(),
-          ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '多图切换',
-            theme: theme,
-            child: const _MultiDemo(),
-          ),
-          SizedBox(height: 16.w),
-          _Section(
-            title: '受控开关',
-            theme: theme,
-            child: const _ControlledDemo(),
-          ),
-          SizedBox(height: 16.w),
+          _Section(title: '单图预览', theme: theme, child: const _SingleDemo()),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '多图切换', theme: theme, child: const _MultiDemo()),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '受控开关', theme: theme, child: const _ControlledDemo()),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义初始页',
             theme: theme,
             child: const _DefaultIndexDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '与其他组件组合（按钮入口）',
             theme: theme,
@@ -71,7 +59,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -80,15 +68,15 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),
@@ -119,9 +107,10 @@ class _SingleDemoState extends State<_SingleDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Wrap(
-      spacing: 8.w,
-      runSpacing: 8.w,
+      spacing: theme.s(8),
+      runSpacing: theme.s(8),
       children: [
         GestureDetector(
           onTap: () => setState(() => _open = true),
@@ -151,12 +140,13 @@ class _MultiDemoState extends State<_MultiDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             for (final src in kDemoImages)
               GestureDetector(
@@ -197,10 +187,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           child: AntText(text: _open ? '关闭预览' : '打开预览'),
           onTap: () => setState(() => _open = !_open),
         ),
-        SizedBox(height: 8.w),
-        AntText(text: 
-          '当前状态：${_open ? '已打开' : '已关闭'}',
-          style: TextStyle(fontSize: 14.sp, color: theme.colorTextSecondary),
+        SizedBox(height: theme.s(8)),
+        AntText(
+          text: '当前状态：${_open ? '已打开' : '已关闭'}',
+          style: TextStyle(fontSize: theme.s(14), color: theme.colorTextSecondary),
         ),
         AntImageViewer(
           images: kDemoImages,
@@ -256,12 +246,13 @@ class _ComboDemoState extends State<_ComboDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.w,
+          spacing: theme.s(8),
+          runSpacing: theme.s(8),
           children: [
             AntImage(
               src: kDemoImages[1],
@@ -271,7 +262,7 @@ class _ComboDemoState extends State<_ComboDemo> {
             ),
           ],
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         AntButton(
           type: AntButtonType.dashed,
           child: const AntText(text: '查看大图'),

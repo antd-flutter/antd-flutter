@@ -1,111 +1,172 @@
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _options = <AntCascaderOption>[
-  AntCascaderOption(value: 'zj', label: '浙江', children: [
-    AntCascaderOption(value: 'hz', label: '杭州', children: [
-      AntCascaderOption(value: 'xh', label: '西湖区'),
-      AntCascaderOption(value: 'yh', label: '余杭区'),
-    ]),
-    AntCascaderOption(value: 'nb', label: '宁波'),
-  ]),
-  AntCascaderOption(value: 'js', label: '江苏', children: [
-    AntCascaderOption(value: 'nj', label: '南京'),
-    AntCascaderOption(value: 'sz', label: '苏州', children: [
-      AntCascaderOption(value: 'gusu', label: '姑苏区'),
-    ]),
-  ]),
-  AntCascaderOption(value: 'gd', label: '广东', children: [
-    AntCascaderOption(value: 'gz', label: '广州', children: [
-      AntCascaderOption(value: 'th', label: '天河区'),
-      AntCascaderOption(value: 'by', label: '白云区'),
-    ]),
-    AntCascaderOption(value: 'sz_gd', label: '深圳'),
-  ]),
+/// 地区业务模型
+class _Region {
+  const _Region(
+    this.code,
+    this.name, {
+    this.children = const [],
+    this.disabled = false,
+  });
+
+  final String code;
+  final String name;
+  final List<_Region> children;
+  final bool disabled;
+}
+
+const _regions = <_Region>[
+  _Region(
+    'zj',
+    '浙江',
+    children: [
+      _Region(
+        'hz',
+        '杭州',
+        children: [_Region('xh', '西湖区'), _Region('yh', '余杭区')],
+      ),
+      _Region('nb', '宁波'),
+    ],
+  ),
+  _Region(
+    'js',
+    '江苏',
+    children: [
+      _Region('nj', '南京'),
+      _Region('sz', '苏州', children: [_Region('gusu', '姑苏区')]),
+    ],
+  ),
+  _Region(
+    'gd',
+    '广东',
+    children: [
+      _Region(
+        'gz',
+        '广州',
+        children: [_Region('th', '天河区'), _Region('by', '白云区')],
+      ),
+      _Region('sz_gd', '深圳'),
+    ],
+  ),
 ];
 
-const _disabledOptions = <AntCascaderOption>[
-  AntCascaderOption(value: 'a', label: '选项 A'),
-  AntCascaderOption(value: 'b', label: '选项 B（禁用）', disabled: true, children: [
-    AntCascaderOption(value: 'b1', label: '子选项 B1'),
-  ]),
-  AntCascaderOption(value: 'c', label: '选项 C'),
+const _disabledRegions = <_Region>[
+  _Region('a', '选项 A'),
+  _Region('b', '选项 B（禁用）', disabled: true, children: [_Region('b1', '子选项 B1')]),
+  _Region('c', '选项 C'),
 ];
+
+Object _keyOf(_Region region) => region.code;
+
+List<_Region> _childrenOf(_Region region) => region.children;
+
+Widget _labelBuilder(BuildContext context, _Region region) => Text(region.name);
+
+bool _disabledOf(_Region region) => region.disabled;
 
 class CascaderViewPage extends StatelessWidget {
   const CascaderViewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(
             title: '基础用法',
-            child: AntCascaderView(
-              options: _options,
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
+              onChange: (value, items) => debugPrint(
+                'onChange: ${value.map((r) => r.name)}, '
+                'items: ${items.map((r) => r?.name)}',
+              ),
+            ),
+          ),
+          SizedBox(height: theme.s(16)),
+          _Section(
+            title: '默认值（key 数组）',
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
+              defaultValue: const ['zj', 'hz'],
               onChange: (value, items) =>
-                  debugPrint('onChange: $value, items: ${items.map((e) => e?.label)}'),
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
-          _Section(
-            title: '默认值',
-            child: AntCascaderView(
-              options: _options,
-              defaultValue: ['zj', 'hz'],
-              onChange: (value, items) => debugPrint('onChange: $value'),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          _Section(
-            title: '受控模式',
-            child: const _ControlledCascaderView(),
-          ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '受控模式', child: const _ControlledCascaderView()),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义占位文本',
-            child: AntCascaderView(
-              options: _options,
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
               placeholder: '请选择地区',
-              onChange: (value, items) => debugPrint('onChange: $value'),
+              onChange: (value, items) =>
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义选中图标',
-            child: AntCascaderView(
-              options: _options,
-              activeIcon: Icon(AntIcons.starFilled, size: 16.sp),
-              onChange: (value, items) => debugPrint('onChange: $value'),
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
+              activeIcon: Icon(AntIcons.starFilled, size: theme.s(16)),
+              onChange: (value, items) =>
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用选项',
-            child: AntCascaderView(
-              options: _disabledOptions,
-              onChange: (value, items) => debugPrint('onChange: $value'),
+            child: AntCascaderView<_Region>(
+              dataSource: _disabledRegions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
+              disabledOf: _disabledOf,
+              onChange: (value, items) =>
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'onTabsChange 回调',
-            child: AntCascaderView(
-              options: _options,
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
               onTabsChange: (index) => debugPrint('onTabsChange: $index'),
-              onChange: (value, items) => debugPrint('onChange: $value'),
+              onChange: (value, items) =>
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义高度',
-            child: AntCascaderView(
-              options: _options,
+            child: AntCascaderView<_Region>(
+              dataSource: _regions,
+              keyOf: _keyOf,
+              childrenOf: _childrenOf,
+              labelBuilder: _labelBuilder,
               height: 200,
-              onChange: (value, items) => debugPrint('onChange: $value'),
+              onChange: (value, items) =>
+                  debugPrint('onChange: ${value.map((r) => r.name)}'),
             ),
           ),
         ],
@@ -123,18 +184,20 @@ class _ControlledCascaderView extends StatefulWidget {
 }
 
 class _ControlledCascaderViewState extends State<_ControlledCascaderView> {
-  List<String>? _value;
+  List<Object>? _value;
 
   @override
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     final label = _value?.isNotEmpty == true
-        ? _value!.map((v) => _findLabel(_options, v)).join(' / ')
+        ? _value!
+              .map((value) => value is _Region ? value.name : '$value')
+              .join(' / ')
         : '未选择';
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(10)),
           decoration: BoxDecoration(
             color: t.colorFillSecondary,
             borderRadius: BorderRadius.circular(t.borderRadius),
@@ -142,30 +205,28 @@ class _ControlledCascaderViewState extends State<_ControlledCascaderView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('当前选择', style: TextStyle(fontSize: 14.sp, color: t.colorText)),
-              Text(label, style: TextStyle(fontSize: 14.sp, color: t.colorPrimary)),
+              Text(
+                '当前选择',
+                style: TextStyle(fontSize: t.s(14), color: t.colorText),
+              ),
+              Text(
+                label,
+                style: TextStyle(fontSize: t.s(14), color: t.colorPrimary),
+              ),
             ],
           ),
         ),
-        SizedBox(height: 8.h),
-        AntCascaderView(
-          options: _options,
+        SizedBox(height: t.s(8)),
+        AntCascaderView<_Region>(
+          dataSource: _regions,
+          keyOf: _keyOf,
+          childrenOf: _childrenOf,
+          labelBuilder: _labelBuilder,
           value: _value,
           onChange: (value, items) => setState(() => _value = value),
         ),
       ],
     );
-  }
-
-  String _findLabel(List<AntCascaderOption> options, String value) {
-    for (final option in options) {
-      if (option.value == value) return option.label;
-      if (option.children != null) {
-        final label = _findLabel(option.children!, value);
-        if (label != value) return label;
-      }
-    }
-    return value;
   }
 }
 
@@ -179,7 +240,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -191,12 +252,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: t.s(14),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

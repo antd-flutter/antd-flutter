@@ -50,8 +50,8 @@ Future<List<FlutterErrorDetails>> pumpDemoPage(
   FlutterError.onError = (details) => errors.add(details);
   try {
     await tester.pumpWidget(
-      AntScreenUtilInit(
-        builder: (context, _) => MaterialApp(
+      AntResponsiveInit(
+        builder: (context, data, child) => MaterialApp(
           home: Scaffold(body: ComponentPage(snakeName: snakeName)),
         ),
       ),
@@ -68,16 +68,14 @@ Future<List<FlutterErrorDetails>> pumpDemoPage(
 
 void main() {
   group('HomePage 响应式布局', () {
-    testWidgets('宽屏 1024×800：Header + 常驻侧栏（无 NavBar/Drawer）',
-        (tester) async {
+    testWidgets('宽屏 1024×800：Header + 常驻侧栏（无 NavBar/Drawer）', (tester) async {
       await pumpApp(tester, const Size(1024, 800));
 
       expect(find.byType(AntLayoutHeader), findsOneWidget);
       expect(find.byType(AntLayoutSider), findsOneWidget);
       expect(find.byType(AntNavBar), findsNothing);
       // 总览页 Hero 标题正常渲染
-      expect(find.text('Ant Design v6 设计规范的 Flutter 组件库'),
-          findsOneWidget);
+      expect(find.text('Ant Design v6 设计规范的 Flutter 组件库'), findsOneWidget);
     });
 
     testWidgets('窄屏 600×800：NavBar + Drawer（无常驻侧栏）', (tester) async {
@@ -117,13 +115,11 @@ void main() {
               .map((e) => e.toString())
               .where((m) => !m.contains('overflowed by'))
               .toList();
-          expect(messages, isEmpty,
-              reason: '${entry.key} 下 $snakeName 页渲染异常');
+          expect(messages, isEmpty, reason: '${entry.key} 下 $snakeName 页渲染异常');
           final overflows = errors
               .where((e) => e.toString().contains('overflowed by'))
               .toList();
-          expect(overflows, isEmpty,
-              reason: '${entry.key} 下 $snakeName 页存在溢出');
+          expect(overflows, isEmpty, reason: '${entry.key} 下 $snakeName 页存在溢出');
         });
       }
     }

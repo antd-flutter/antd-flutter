@@ -10,7 +10,7 @@ class ModalPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -19,7 +19,7 @@ class ModalPage extends StatelessWidget {
             theme: theme,
             child: const _BasicModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '确认风格 showAntModal',
             theme: theme,
@@ -39,84 +39,84 @@ class ModalPage extends StatelessWidget {
               child: const Text('打开确认对话框'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'confirmLoading 加载态',
             theme: theme,
             child: const _LoadingModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 footer',
             theme: theme,
             child: const _CustomFooterModalDemo(),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '遮罩与关闭配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '点击遮罩不关闭',
                       content: const Text('maskClosable = false'),
-                  maskClosable: false,
-                );
-              },
+                      maskClosable: false,
+                    );
+                  },
                   child: const Text('遮罩不可关闭'),
                 ),
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '无右上角关闭',
                       content: const Text('closable = false'),
-                  closable: false,
-                );
-              },
+                      closable: false,
+                    );
+                  },
                   child: const Text('无关闭图标'),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '宽度配置',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '窄对话框',
                       content: const Text('width = 260'),
-                  width: 260,
-                );
-              },
+                      width: 260,
+                    );
+                  },
                   child: const Text('width 260'),
                 ),
                 AntButton(
                   onTap: () {
-                showAntModal(
-                  context,
+                    showAntModal(
+                      context,
                       title: '宽对话框',
                       content: const Text('width = 420'),
-                  width: 420,
-                );
-              },
+                      width: 420,
+                    );
+                  },
                   child: const Text('width 420'),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '居中',
             theme: theme,
@@ -233,8 +233,9 @@ class _CustomFooterModalDemoState extends State<_CustomFooterModalDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Wrap(
-      spacing: 8.w,
+      spacing: theme.s(8),
       children: [
         AntButton(
           onTap: () => setState(() => _open = true),
@@ -254,25 +255,29 @@ class _CustomFooterModalDemoState extends State<_CustomFooterModalDemo> {
             ],
           ),
         ),
-      SizedBox(height: 8.w),
-      AntButton(
-        onTap: () => setState(() => _open2 = true),
-        child: const Text('隐藏底部（footer=null）'),
-      ),
-      AntModal(
-        open: _open2,
-        title: '无底部',
-        content: const Text('footer 传 null 隐藏整个底部。'),
-        footer: null,
-        closable: true,
-      ),
+        SizedBox(height: theme.s(8)),
+        AntButton(
+          onTap: () => setState(() => _open2 = true),
+          child: const Text('隐藏底部（footer=null）'),
+        ),
+        AntModal(
+          open: _open2,
+          title: '无底部',
+          content: const Text('footer 传 null 隐藏整个底部。'),
+          footer: null,
+          closable: true,
+        ),
       ],
     );
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -282,7 +287,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -294,12 +299,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

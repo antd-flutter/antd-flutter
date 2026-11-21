@@ -19,19 +19,16 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Section(
             title: '基础用法（三锚点）',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(20),
-            ),
+            child: _buildPanel(theme, _buildList(20)),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义把手',
             theme: theme,
@@ -39,16 +36,20 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
               theme,
               _buildList(20),
               handle: Container(
-                margin: EdgeInsets.symmetric(vertical: 8.w),
+                margin: EdgeInsets.symmetric(vertical: theme.s(8)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.unfold_more, size: 16.w, color: theme.colorTextQuaternary),
-                    SizedBox(width: 4.w),
-                    AntText(text: 
-                      '拖动调整高度',
+                    Icon(
+                      AntIcons.expandAltOutlined,
+                      size: theme.s(16),
+                      color: theme.colorTextQuaternary,
+                    ),
+                    SizedBox(width: theme.s(4)),
+                    AntText(
+                      text: '拖动调整高度',
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: theme.s(12),
                         color: theme.colorTextQuaternary,
                       ),
                     ),
@@ -57,40 +58,29 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '两锚点',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(20),
-              anchors: const [0.4, 1],
-            ),
+            child: _buildPanel(theme, _buildList(20), anchors: const [0.4, 1]),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '内容滚动列表',
             theme: theme,
-            child: _buildPanel(
-              theme,
-              _buildList(50),
-              contentHeight: 400,
-            ),
+            child: _buildPanel(theme, _buildList(50), contentHeight: 400),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'onHeightChange 回调',
             theme: theme,
             child: Column(
               children: [
-                AntText(text: 
-                  '当前高度比例：${(_heightPercent * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: theme.colorText,
-                  ),
+                AntText(
+                  text: '当前高度比例：${(_heightPercent * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 _buildPanel(
                   theme,
                   _buildList(20),
@@ -116,7 +106,7 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(theme.borderRadiusLG),
       child: Container(
-        height: _kDemoPanelHeight.w,
+        height: theme.s(_kDemoPanelHeight),
         decoration: BoxDecoration(
           color: theme.colorBgLayout,
           border: Border(top: BorderSide(color: theme.colorSplit)),
@@ -133,11 +123,12 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
   }
 
   Widget _buildList(int count) {
+    final theme = AntTheme.of(context);
     return ListView.builder(
       itemCount: count,
       itemBuilder: (_, int index) => ListTile(
         dense: true,
-        leading: AntdIcon(AntIcons.fileTextOutlined, size: 18.w),
+        leading: AntdIcon(AntIcons.fileTextOutlined, size: theme.s(18)),
         title: AntText(text: '内容项 ${index + 1}'),
       ),
     );
@@ -145,7 +136,11 @@ class _FloatingPanelPageState extends State<FloatingPanelPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -155,7 +150,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -164,15 +159,15 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

@@ -9,8 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: AntResponsiveInit(
         builder: (context, data, _) => Scaffold(
           body: AntTheme(
@@ -19,8 +18,7 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 手机尺寸视口（compact / 移动断点，deviceType == phone）。

@@ -20,7 +20,10 @@ class SafeAreaPage extends StatelessWidget {
           _BottomPlaceholderDemo(),
           _Section(title: '包装模式', description: 'child 不为 null 时包装子组件并添加安全区内边距'),
           _WrapDemo(),
-          _Section(title: '键盘适配', description: 'maintainBottomViewPadding=true 时键盘弹出仍保持底部内边距'),
+          _Section(
+            title: '键盘适配',
+            description: 'maintainBottomViewPadding=true 时键盘弹出仍保持底部内边距',
+          ),
           _KeyboardDemo(),
         ],
       ),
@@ -42,15 +45,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -60,11 +69,7 @@ class _Section extends StatelessWidget {
 
 /// 模拟安全区高度的容器
 class _SimulatedDevice extends StatelessWidget {
-  const _SimulatedDevice({
-    required this.child,
-    this.top = 0,
-    this.bottom = 0,
-  });
+  const _SimulatedDevice({required this.child, this.top = 0, this.bottom = 0});
 
   final Widget child;
   final double top;

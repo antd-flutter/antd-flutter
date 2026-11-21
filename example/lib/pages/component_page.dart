@@ -26,11 +26,10 @@ import 'modal_page.dart';
 import 'notification_page.dart';
 import 'popconfirm_page.dart';
 import 'progress_page.dart';
-import 'screen_util_page.dart';
 import 'responsive_page.dart';
-import 'result_page.dart';
 import 'skeleton_page.dart';
 import 'spin_page.dart';
+import 'statistic_page.dart';
 import 'watermark_page.dart';
 import 'ellipsis_page.dart';
 import 'floating_bubble_page.dart';
@@ -50,6 +49,9 @@ import 'tree_page.dart';
 import 'carousel_page.dart';
 import 'image_page.dart';
 import 'popover_page.dart';
+import 'result_page_page.dart';
+import 'error_block_page.dart';
+import 'picker_view_page.dart';
 import 'qr_code_page.dart';
 import 'segmented_page.dart';
 import 'tooltip_page.dart';
@@ -87,6 +89,7 @@ import 'mentions_page.dart';
 import 'menu_page.dart';
 import 'nav_bar_page.dart';
 import 'notice_bar_page.dart';
+import 'keyboard_styles_page.dart';
 import 'number_keyboard_page.dart';
 import 'pagination_page.dart';
 import 'passcode_input_page.dart';
@@ -166,14 +169,15 @@ class ComponentPage extends StatelessWidget {
         return const ProgressPage();
       case 'responsive':
         return const ResponsivePage();
-      case 'screen_util':
-        return const ScreenUtilPage();
       case 'result':
-        return const ResultPage();
+      case 'result_page':
+        return const ResultPagePage();
       case 'skeleton':
         return const SkeletonPage();
       case 'spin':
         return const SpinPage();
+      case 'statistic':
+        return const StatisticPage();
       case 'watermark':
         return const WatermarkPage();
       case 'ellipsis':
@@ -242,6 +246,8 @@ class ComponentPage extends StatelessWidget {
         return const CascaderPage();
       case 'cascader_view':
         return const CascaderViewPage();
+      case 'picker_view':
+        return const PickerViewPage();
       case 'checkbox':
         return const CheckboxPage();
       case 'check_list':
@@ -256,6 +262,8 @@ class ComponentPage extends StatelessWidget {
         return const DropdownPage();
       case 'empty':
         return const EmptyPage();
+      case 'error_block':
+        return const ErrorBlockPage();
       case 'flex':
         return const FlexPage();
       case 'form':
@@ -288,6 +296,8 @@ class ComponentPage extends StatelessWidget {
         return const NavBarPage();
       case 'notice_bar':
         return const NoticeBarPage();
+      case 'keyboard_styles':
+        return const KeyboardStylesPage();
       case 'number_keyboard':
         return const NumberKeyboardPage();
       case 'pagination':

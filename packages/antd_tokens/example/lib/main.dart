@@ -5,6 +5,7 @@ library;
 
 import 'package:antd_tokens/antd_tokens.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 void main() {
   runApp(const AntdTokensExampleApp());
@@ -49,7 +50,7 @@ class _TokensExamplePageState extends State<TokensExamplePage> {
           backgroundColor: colorTokens.colorBgContainer,
           actions: [
             IconButton(
-              icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+              icon: Icon(_isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
               onPressed: () => setState(() => _isDark = !_isDark),
             ),
           ],

@@ -120,11 +120,14 @@ class AntSpace extends StatelessWidget {
         AntSpaceGapSize.middle => theme.margin,
         AntSpaceGapSize.large => theme.marginLG,
       };
-      final value = base.w;
+      final value = theme.s(base);
       return (value, value);
     }
 
-    return (size!.horizontalValue?.w, size!.verticalValue?.w);
+    return (
+      size!.horizontalValue == null ? null : theme.s(size!.horizontalValue!),
+      size!.verticalValue == null ? null : theme.s(size!.verticalValue!),
+    );
   }
 
   /// 在子元素间插入间距（无分隔符模式）。

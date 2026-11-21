@@ -1,0 +1,473 @@
+/// popup_engine 弹层基座 — Overlay 弹出定位 + 边界翻转 + 箭头渲染
+///
+/// 四大弹层组件（AntTooltip / AntPopover / AntPopconfirm / AntDropdown）共用的
+/// 弹层底座：
+/// - 位置决策走 [PopupEngine]（方向翻转 + 滑动夹回，算法吸收自 minikin/popover，MIT）
+/// - 气泡尺寸实测后一帧校正（首帧按估算，post-frame 回调测量）
+/// - 统一出现动画（fade + 朝触发元素方向 scale）
+/// - 统一点击空白 / 外部关闭
+/// - 统一箭头渲染（Positioned 于气泡边缘，tip 位置由引擎 clamp 防撞圆角）
+library;
+
+import 'dart:math' as math;
+
+import 'package:flutter/services.dart'
+    show LogicalKeyboardKey;
+import 'package:material_ui/material_ui.dart';
+
+import 'overlay_shell.dart' show antDeviceSafePadding;
+import 'hotkeys/hotkey_binding.dart';
+import 'hotkeys/hotkey_registry.dart';
+import 'popup_engine.dart';
+
+/// 统一弹层基座。
+///
+/// 由各弹层组件在 OverlayEntry 中构造：
+/// ```dart
+/// AntPopupOverlay(
+///   targetKey: _childKey,
+///   placement: AntPopupPlacement.top,
+///   arrow: true,
+///   arrowColor: bgColor,
+///   arrowKey: const Key('ant_tooltip_arrow'),
+///   onDismiss: () => ...,
+///   child: bubble,
+/// )
+/// ```
+class AntPopupOverlay extends StatefulWidget {
+  const AntPopupOverlay({
+    super.key,
+    required this.targetKey,
+    required this.child,
+    this.placement = AntPopupPlacement.bottom,
+    this.arrow = false,
+    this.arrowColor,
+    this.arrowKey,
+    this.arrowSize,
+    this.gap,
+    this.viewportPadding,
+    this.onDismiss,
+    this.dismissOnTapOutside = true,
+    this.animationDuration = const Duration(milliseconds: 150),
+    this.onBubbleHoverEnter,
+    this.onBubbleHoverExit,
+    this.escToClose = true,
+    this.hotkeys = const <AntHotkeyBinding>[],
+  });
+
+  /// 触发元素的 GlobalKey（用于取全局矩形）。
+  final GlobalKey targetKey;
+
+  /// 气泡内容（不含箭头，箭头由基座渲染）。
+  final Widget child;
+
+  /// 首选弹出位置（边界放不下自动翻转）。
+  final AntPopupPlacement placement;
+
+  /// 是否渲染箭头。
+  final bool arrow;
+
+  /// 箭头颜色。
+  final Color? arrowColor;
+
+  /// 箭头定位 Key（供组件测试）。
+  final Key? arrowKey;
+
+  /// 箭头边长（默认 8 逻辑像素）。
+  final double? arrowSize;
+
+  /// 气泡与触发元素间距（默认 6）。
+  final double? gap;
+
+  /// 视口内边距（safe area 语义，默认 8）。
+  final EdgeInsets? viewportPadding;
+
+  /// 点击空白处回调。
+  final VoidCallback? onDismiss;
+
+  /// 是否启用点击气泡外关闭。
+  final bool dismissOnTapOutside;
+
+  /// 出现动画时长。
+  final Duration animationDuration;
+
+  /// 鼠标进入气泡回调（联合 hover 判定：进入气泡视为未离开弹层）。
+  final VoidCallback? onBubbleHoverEnter;
+
+  /// 鼠标离开气泡回调（联合 hover 判定：与触发元素退出共同决定关闭）。
+  final VoidCallback? onBubbleHoverExit;
+
+  /// R37 打开状态下按 Esc 关闭（默认开启；弹层统一热键语义的基座接线，
+  /// 所有经本基座的弹层——Tooltip/Popover/Popconfirm/Dropdown/Select/
+  /// TreeSelect/Cascader/DatePicker/TimePicker 等——自动获得）。
+  final bool escToClose;
+
+  /// R37 弹层打开期间生效的自定义热键绑定（可选透传，挂载期注册、
+  /// 卸载即注销；临时绑定，参与 LIFO 分发）。
+  final List<AntHotkeyBinding> hotkeys;
+
+  @override
+  State<AntPopupOverlay> createState() => _AntPopupOverlayState();
+}
+
+class _AntPopupOverlayState extends State<AntPopupOverlay>
+    with SingleTickerProviderStateMixin {
+  static const double _defaultArrowSize = 8;
+  static const double _defaultGap = 6;
+
+  /// 箭头旋转后突出气泡边缘的一半长度。
+  static const double _arrowHalf = 4;
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.animationDuration,
+  )..forward();
+  late final CurvedAnimation _curve =
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+
+  final GlobalKey _bubbleKey = GlobalKey();
+  Size? _bubbleSize;
+
+  /// 弹层期热键绑定：Esc 关闭（基座默认绑定）+ 调用方自定义绑定。
+  AntHotkeyBinding? _escBinding;
+  List<AntHotkeyBinding> _customBindings = const <AntHotkeyBinding>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _syncHotkeys();
+  }
+
+  @override
+  void didUpdateWidget(AntPopupOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.escToClose != widget.escToClose ||
+        oldWidget.onDismiss != widget.onDismiss ||
+        !identical(oldWidget.hotkeys, widget.hotkeys)) {
+      _syncHotkeys();
+    }
+  }
+
+  void _syncHotkeys() {
+    final registry = HotkeyRegistry.instance;
+    final esc = _escBinding;
+    if (esc != null) registry.unregister(esc);
+    _escBinding = null;
+    for (final binding in _customBindings) {
+      registry.unregister(binding);
+    }
+    _customBindings = const <AntHotkeyBinding>[];
+    final onDismiss = widget.onDismiss;
+    if (widget.escToClose && onDismiss != null) {
+      _escBinding = AntHotkeyBinding(
+        keys: {LogicalKeyboardKey.escape},
+        // 控制键：气泡内输入框聚焦时仍触发（焦点语义默认只跳过字符类热键）。
+        ignoreWithinEditable: false,
+        transient: true,
+        debugLabel: 'AntPopupOverlay.escClose',
+        onTrigger: onDismiss,
+      );
+      registry.register(_escBinding!);
+    }
+    _customBindings = List.of(widget.hotkeys);
+    for (final binding in _customBindings) {
+      registry.register(binding);
+    }
+  }
+
+  @override
+  void dispose() {
+    final registry = HotkeyRegistry.instance;
+    final esc = _escBinding;
+    if (esc != null) registry.unregister(esc);
+    for (final binding in _customBindings) {
+      registry.unregister(binding);
+    }
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final targetBox =
+        widget.targetKey.currentContext?.findRenderObject() as RenderBox?;
+    if (targetBox == null || !targetBox.hasSize) {
+      return const SizedBox.expand();
+    }
+    final targetRect = targetBox.localToGlobal(Offset.zero) & targetBox.size;
+
+    // R36 安全区：统一读根视图设备真实安全区（antDeviceSafePadding），
+    // 不用 MediaQuery.paddingOf——页面 SafeArea 之下会被消费为 0，
+    // 真机刘海屏上弹层会被状态栏/摄像头遮挡。
+    // 移动端软键盘：视口扣除 viewInsets.bottom——键盘唤起后 Scaffold body
+    // 上移、触发元素移动，若视口仍按全屏计算，引擎会判下方空间充足而把
+    // 面板放进键盘遮挡区（表现为「弹窗消失」）；扣除后引擎自动翻转到
+    // 键盘上方的可用空间。本 State 依赖 MediaQuery.of（全量），键盘
+    // inset 变化会触发本处重建重算。
+    final mediaQuery = MediaQuery.of(context);
+    final padding =
+        widget.viewportPadding ?? const EdgeInsets.all(PopupEngine.defaultMargin);
+    final insets = antDeviceSafePadding() +
+        padding +
+        EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom);
+    final viewport = _viewportRect(insets, mediaQuery.size);
+
+    // 气泡尺寸：首帧用估算，post-frame 实测校正；内容变化（如树节点展开、
+    // 菜单项增删）后每帧复测，尺寸变化即重算位置——否则面板以陈旧尺寸
+    // 定位，内容增长时会溢出/被裁剪（对 Dropdown/Popover/Tooltip 同样生效）。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return;
+      if (_bubbleSize == null || box.size != _bubbleSize) {
+        setState(() => _bubbleSize = box.size);
+      }
+    });
+
+    var bubbleSize = _bubbleSize ?? const Size(240, 80);
+
+    final layout = PopupEngine.solve(
+      targetRect: targetRect,
+      bubbleSize: bubbleSize,
+      viewport: viewport,
+      placement: widget.placement,
+      gap: widget.gap ?? _defaultGap,
+      arrowSize: widget.arrow ? (widget.arrowSize ?? _defaultArrowSize) : 0,
+      margin: PopupEngine.defaultMargin,
+    );
+
+    final arrowLen = widget.arrowSize ?? _defaultArrowSize;
+
+    return Stack(
+      children: [
+        // 点击空白处关闭：围绕触发元素的四块镂空遮挡（antd web 等价语义）。
+        // 触发元素区域不遮挡——同一手势不会既 dismiss 又穿透触发元素
+        // toggle（此前 translucent 全屏遮挡会让关闭点击同时命中按钮/
+        // 触发元素，状态被翻回导致气泡残留）；镂空也保证触发元素上的
+        // MouseRegion 保持 hover 命中（hover 气泡不误关）。
+        if (widget.dismissOnTapOutside)
+          ..._buildDismissBarrier(targetRect, widget.onDismiss),
+        Positioned(
+          left: layout.offset.dx,
+          top: layout.offset.dy,
+          child: Material(
+            color: Colors.transparent,
+            child: FadeTransition(
+              opacity: _curve,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.92, end: 1).animate(_curve),
+                alignment: Alignment(
+                  layout.scaleAlignment.dx,
+                  layout.scaleAlignment.dy,
+                ),
+                child: MouseRegion(
+                  onEnter: widget.onBubbleHoverEnter != null
+                      ? (_) => widget.onBubbleHoverEnter!()
+                      : null,
+                  onExit: widget.onBubbleHoverExit != null
+                      ? (_) => widget.onBubbleHoverExit!()
+                      : null,
+                  child: _buildBubbleWithArrow(layout, arrowLen),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBubbleWithArrow(AntPopupLayout layout, double arrowLen) {
+    final bubble = KeyedSubtree(
+      key: _bubbleKey,
+      child: widget.child,
+    );
+
+    if (!widget.arrow) return bubble;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        bubble,
+        // 箭头按方向贴边：top→下缘 / bottom→上缘 / left→右缘 / right→左缘
+        _positionedArrow(layout, arrowLen),
+      ],
+    );
+  }
+
+  /// 箭头：贴在气泡朝向触发元素的那条边上，tip 位置由引擎 clamp。
+  Widget _positionedArrow(AntPopupLayout layout, double arrowLen) {
+    final crossStart = layout.arrowOffset - _arrowHalf;
+
+    final (left, right, top, bottom) = switch (layout.direction) {
+      AntPopupDirection.top => (crossStart, null, null, -_arrowHalf),
+      AntPopupDirection.bottom => (crossStart, null, -_arrowHalf, null),
+      AntPopupDirection.left => (null, -_arrowHalf, crossStart, null),
+      AntPopupDirection.right => (-_arrowHalf, null, crossStart, null),
+    };
+
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: Transform.rotate(
+        angle: math.pi / 4,
+        child: Container(
+          key: widget.arrowKey,
+          width: arrowLen,
+          height: arrowLen,
+          decoration: BoxDecoration(
+            color: widget.arrowColor,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 受控 open 调度 mixin — show/hide 统一延迟到帧末。
+///
+/// 受控 `open` 切换通常由父级 `setState` 触发，发生在 build 阶段；
+/// 直接调用 `Overlay.insert()` 会在 build 阶段 markNeedsBuild 报错，
+/// 因此受控开关一律经 [schedulePopupOpen] 延迟到帧末执行。
+mixin PopupOpenScheduler<T extends StatefulWidget> on State<T> {
+  /// 帧末执行受控开关的 show/hide。
+  void schedulePopupOpen({
+    required bool open,
+    required VoidCallback show,
+    required VoidCallback hide,
+  }) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (open) {
+        show();
+      } else {
+        hide();
+      }
+    });
+  }
+}
+
+/// 弹层内容刷新 mixin — 原地重建 OverlayEntry（统一沉淀，勿再各自 remove+reinsert）。
+///
+/// 弹层内容变化（树节点展开/勾选、数据异步加载、列表项增删等）时调用
+/// [refreshPopupContent]，对当前 OverlayEntry 执行 `markNeedsBuild()` 原地重建：
+/// - 出现动画（fade + scale）不重放——remove+reinsert 会重建
+///   AntPopupOverlay State，动画从 0 重跑造成可见闪烁；
+/// - 面板内部滚动位置保留（Element/RenderObject 复用）；
+/// - 无基座首帧估算尺寸（默认 240x80）导致的定位跳位。
+///
+/// 用法：组件把弹层 OverlayEntry 赋给 [popupContentEntry]，内容变化时调
+/// [refreshPopupContent]；builder 闭包内读取组件 State 的最新字段即可。
+mixin PopupContentRefresher<T extends StatefulWidget> on State<T> {
+  OverlayEntry? _popupEntry;
+
+  /// 当前弹层 OverlayEntry（组件 show 时赋值，hide 时置 null）。
+  set popupContentEntry(OverlayEntry? entry) => _popupEntry = entry;
+
+  /// 原地重建弹层内容；弹层未展示时为空操作。
+  ///
+  /// 刷新统一延迟到帧末执行：调用方常在 build 阶段（didUpdateWidget /
+  /// didChangeDependencies / 父级 setState 触发重建）调用本方法，直接
+  /// `markNeedsBuild()` 会抛「setState() or markNeedsBuild() called during
+  /// build」并级联触发 InheritedElement 断言——与 [PopupOpenScheduler]
+  /// 同一防时序策略。
+  void refreshPopupContent() {
+    final entry = _popupEntry;
+    if (entry == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!entry.mounted) return;
+      entry.markNeedsBuild();
+    });
+  }
+}
+
+/// 统一触发区域（点击 + 悬停 + 移动端 hover 降级）。
+///
+/// 用 [Listener] 而非 [GestureDetector] 检测点击：Listener 不参与手势竞技场，
+/// 当触发元素是 AntButton 等自带手势识别的组件时，子组件手势仍正常生效，
+/// 同时弹层触发不会被竞技场判负（GestureDetector 会被最内层识别器抢走 tap）。
+///
+/// 平台适配降级：移动端（Android/iOS/ohos）没有 hover 交互，
+/// hover 降级为点击的判定由调用方（组件 State）按平台解析后传入——
+/// [hoverEnabled] 仅在桌面端为 true；移动端 hover 调用方会以 [tapEnabled]
+/// 上报点击触发。区域内部不读取平台，避免重建期接线漂移。
+class AntPopupTriggerRegion extends StatelessWidget {
+  const AntPopupTriggerRegion({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.tapEnabled = false,
+    this.onHoverEnter,
+    this.onHoverExit,
+    this.hoverEnabled = false,
+  });
+
+  /// 触发元素。
+  final Widget child;
+
+  /// 点击（指针抬起）回调。
+  final VoidCallback? onTap;
+
+  /// 是否启用点击触发。
+  final bool tapEnabled;
+
+  /// 鼠标移入回调（仅 [hoverEnabled] 时接线）。
+  final VoidCallback? onHoverEnter;
+
+  /// 鼠标移出回调（仅 [hoverEnabled] 时接线）。
+  final VoidCallback? onHoverExit;
+
+  /// 是否启用悬停触发（调用方已按平台解析：仅桌面端为 true）。
+  final bool hoverEnabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: hoverEnabled && onHoverEnter != null ? (_) => onHoverEnter!() : null,
+      onExit: hoverEnabled && onHoverExit != null ? (_) => onHoverExit!() : null,
+      child: Listener(
+        onPointerUp: tapEnabled && onTap != null ? (_) => onTap!() : null,
+        behavior: HitTestBehavior.opaque,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// 视口矩形：MediaQuery 尺寸扣除 safe area / 额外内边距。
+/// 触发元素镂空的四块点击关闭遮挡（上 / 下 / 左 / 右，互不重叠）。
+List<Widget> _buildDismissBarrier(Rect targetRect, VoidCallback? onDismiss) {
+  final screen =
+      Offset.zero & MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first).size;
+  Rect r(double l, double t, double rt, double b) =>
+      Rect.fromLTRB(l, t, rt, b).intersect(screen);
+  Widget block(Rect rect) => Positioned.fromRect(
+        rect: rect,
+        child: GestureDetector(
+          onTap: onDismiss,
+          behavior: HitTestBehavior.opaque,
+          child: const SizedBox.expand(),
+        ),
+      );
+  return <Widget>[
+    block(r(0, 0, screen.width, targetRect.top)),
+    block(r(0, targetRect.bottom, screen.width, screen.height)),
+    block(r(0, targetRect.top, targetRect.left, targetRect.bottom)),
+    block(
+      r(targetRect.right, targetRect.top, screen.width, targetRect.bottom),
+    ),
+  ];
+}
+
+Rect _viewportRect(EdgeInsets insets, Size mediaSize) {
+  return Rect.fromLTRB(
+    insets.left,
+    insets.top,
+    mediaSize.width - insets.right,
+    mediaSize.height - insets.bottom,
+  );
+}

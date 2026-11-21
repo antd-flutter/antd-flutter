@@ -2,18 +2,17 @@ import 'package:antd_flutter_ui/src/display/tag/ant_tag.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 void main() {
@@ -74,7 +73,7 @@ void main() {
 
     testWidgets('closable shows close icon', (tester) async {
       await tester.pumpWidget(_wrap(const AntTag(child: '可关闭', closable: true)));
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(AntIcons.closeOutlined), findsOneWidget);
     });
 
     testWidgets('tap close removes tag and fires onClose', (tester) async {
@@ -84,7 +83,7 @@ void main() {
         closable: true,
         onClose: () => closed = true,
       ),),);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(AntIcons.closeOutlined));
       await tester.pump();
       expect(closed, isTrue);
       expect(find.text('可关闭'), findsNothing);
@@ -93,9 +92,9 @@ void main() {
     testWidgets('icon renders before text', (tester) async {
       await tester.pumpWidget(_wrap(const AntTag(
         child: '带图标',
-        icon: Icon(Icons.check_circle),
+        icon: Icon(AntIcons.checkCircleFilled),
       ),),);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(AntIcons.checkCircleFilled), findsOneWidget);
       expect(find.text('带图标'), findsOneWidget);
     });
 

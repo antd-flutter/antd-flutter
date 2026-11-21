@@ -8,6 +8,7 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
+  antd_icons_flutter: any
   flutter:
     sdk: flutter
   material_ui: any
@@ -16,9 +17,13 @@ dependencies:
 
 # 本地开发时覆盖传递依赖（antd_tokens → antd_color hosted 约束）
 dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
   antd_color:
     path: ../../antd_color
 
+  antd_tokens:
+    path: ..
 dev_dependencies:
   flutter_test:
     sdk: flutter

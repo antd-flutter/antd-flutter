@@ -1,23 +1,22 @@
 /// AntPopconfirm widget 测试
 library;
 
-import 'package:antd_flutter_plus/src/components/feedback/popconfirm/ant_popconfirm.dart';
-import 'package:antd_flutter_plus/src/components/feedback/popconfirm/ant_popconfirm_types.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm.dart';
+import 'package:antd_flutter_ui/src/display/popover/ant_popconfirm_types.dart';
 import 'package:antd_theme/antd_theme.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 居中放置一个触发元素 + Popconfirm。
@@ -111,7 +110,8 @@ void main() {
 
   testWidgets('点击确认触发 onConfirm 并自动关闭', (tester) async {
     var confirmed = false;
-    await tester.pumpWidget(_host(title: 'A', onConfirm: () => confirmed = true));
+    await tester
+        .pumpWidget(_host(title: 'A', onConfirm: () => confirmed = true));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(kAntPopconfirmOkButtonKey));
@@ -122,7 +122,8 @@ void main() {
 
   testWidgets('点击取消触发 onCancel 并自动关闭', (tester) async {
     var cancelled = false;
-    await tester.pumpWidget(_host(title: 'A', onCancel: () => cancelled = true));
+    await tester
+        .pumpWidget(_host(title: 'A', onCancel: () => cancelled = true));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(kAntPopconfirmCancelButtonKey));
@@ -172,17 +173,20 @@ void main() {
     await tester.pumpWidget(_host(title: 'A'));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.help_outline), findsOneWidget);
+    expect(find.byIcon(AntIcons.questionCircleOutlined), findsOneWidget);
     // 先关闭气泡，避免复用同一位置的 Element 状态
     await tester.tapAt(const Offset(20, 30));
     await tester.pumpAndSettle();
 
     await tester.pumpWidget(
-      _host(title: 'B', icon: const Icon(Icons.delete, key: Key('custom-icon'))),
+      _host(
+        title: 'B',
+        icon: const Icon(AntIcons.deleteOutlined, key: Key('custom-icon')),
+      ),
     );
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.help_outline), findsNothing);
+    expect(find.byIcon(AntIcons.questionCircleOutlined), findsNothing);
     expect(find.byKey(const Key('custom-icon')), findsOneWidget);
   });
 
@@ -226,12 +230,14 @@ void main() {
     await tester.pumpWidget(_host(title: 'A'));
     await tester.tap(find.byKey(const Key('popconfirm-trigger')));
     await tester.pumpAndSettle();
-    final containers = tester.widgetList<Container>(
-      find.descendant(
-        of: find.byKey(kAntPopconfirmBubbleKey),
-        matching: find.byType(Container),
-      ),
-    ).toList();
+    final containers = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byKey(kAntPopconfirmBubbleKey),
+            matching: find.byType(Container),
+          ),
+        )
+        .toList();
     // 气泡根 Container 为最外层（宽度受限且带装饰）
     final container = containers.firstWhere((c) => c.decoration != null);
     final decoration = container.decoration! as BoxDecoration;

@@ -15,7 +15,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -29,7 +29,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
               paragraph: AntSkeletonParagraph(),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '仅头像 + 段落',
             theme: theme,
@@ -40,7 +40,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
               paragraph: AntSkeletonParagraph(rows: 4),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义行数',
             theme: theme,
@@ -49,7 +49,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
               paragraph: AntSkeletonParagraph(rows: 6),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '圆角胶囊条（round）',
             theme: theme,
@@ -60,7 +60,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
               paragraph: AntSkeletonParagraph(rows: 2),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '与内容切换',
             theme: theme,
@@ -73,13 +73,17 @@ class _SkeletonPageState extends State<SkeletonPage> {
                   paragraph: const AntSkeletonParagraph(rows: 2),
                   child: Row(
                     children: [
-                      AntdIcon(AntIcons.userOutlined, size: 40.w, color: theme.colorPrimary),
-                      SizedBox(width: 16.w),
+                      AntdIcon(
+                        AntIcons.userOutlined,
+                        size: theme.s(40),
+                        color: theme.colorPrimary,
+                      ),
+                      SizedBox(width: theme.s(16)),
                       Expanded(
                         child: Text(
                           'Ant Design 是一个致力于提升「用户」和「设计者」体验的设计体系。',
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: theme.s(14),
                             color: theme.colorText,
                           ),
                         ),
@@ -87,7 +91,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntButton(
                   type: AntButtonType.primary,
                   onTap: () => setState(() => _loading = !_loading),
@@ -103,7 +107,11 @@ class _SkeletonPageState extends State<SkeletonPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -113,7 +121,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -125,12 +133,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

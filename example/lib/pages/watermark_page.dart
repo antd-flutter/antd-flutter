@@ -11,7 +11,7 @@ class WatermarkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -23,7 +23,7 @@ class WatermarkPage extends StatelessWidget {
               child: _DemoContent(theme: theme, height: 200),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '多行水印',
             theme: theme,
@@ -32,7 +32,7 @@ class WatermarkPage extends StatelessWidget {
               child: _DemoContent(theme: theme, height: 200),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义字号 / 颜色 / 角度',
             theme: theme,
@@ -44,7 +44,7 @@ class WatermarkPage extends StatelessWidget {
               child: _DemoContent(theme: theme, height: 200),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义间距',
             theme: theme,
@@ -55,7 +55,7 @@ class WatermarkPage extends StatelessWidget {
               child: _DemoContent(theme: theme, height: 200),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '覆盖列表内容',
             theme: theme,
@@ -75,15 +75,12 @@ class WatermarkPage extends StatelessWidget {
                     ),
                     title: Text(
                       '文档条目 ${index + 1}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: theme.colorText,
-                      ),
+                      style: TextStyle(fontSize: theme.s(14), color: theme.colorText),
                     ),
                     subtitle: Text(
                       '2026-11-16 更新',
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: theme.s(12),
                         color: theme.colorTextSecondary,
                       ),
                     ),
@@ -110,17 +107,17 @@ class _DemoContent extends StatelessWidget {
     return Container(
       height: height,
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorFillQuaternary,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
       ),
       child: Center(
         child: Text(
           '这里是覆盖内容\n水印铺满上层且不拦截手势',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: theme.colorTextSecondary,
             height: 1.6,
           ),
@@ -144,10 +141,10 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,12 +152,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorTextHeading,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

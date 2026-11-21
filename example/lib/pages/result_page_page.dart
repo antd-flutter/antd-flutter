@@ -8,7 +8,7 @@ class ResultPagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -21,7 +21,7 @@ class ResultPagePage extends StatelessWidget {
               subTitle: '订单已提交，等待商家发货',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Error 错误',
             theme: theme,
@@ -31,7 +31,7 @@ class ResultPagePage extends StatelessWidget {
               subTitle: '服务器开小差了，请稍后重试',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Warning 警告',
             theme: theme,
@@ -41,7 +41,7 @@ class ResultPagePage extends StatelessWidget {
               subTitle: '当前操作可能影响线上数据，请谨慎操作',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Info 信息',
             theme: theme,
@@ -51,7 +51,7 @@ class ResultPagePage extends StatelessWidget {
               subTitle: '到期后部分功能将不可用',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Waiting 等待',
             theme: theme,
@@ -61,7 +61,7 @@ class ResultPagePage extends StatelessWidget {
               subTitle: '预计 1-3 个工作日内完成审核',
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带 description 明细与按钮',
             theme: theme,
@@ -75,10 +75,7 @@ class ResultPagePage extends StatelessWidget {
                 Text('支付金额：￥199.00'),
               ],
               buttons: [
-                AntButton(
-                  child: const Text('查看订单'),
-                  onTap: () {},
-                ),
+                AntButton(child: const Text('查看订单'), onTap: () {}),
                 AntButton(
                   type: AntButtonType.primary,
                   child: const Text('继续购物'),
@@ -94,7 +91,11 @@ class ResultPagePage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -104,7 +105,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -116,12 +117,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           Center(child: child),
         ],
       ),

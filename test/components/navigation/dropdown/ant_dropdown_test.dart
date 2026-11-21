@@ -4,19 +4,29 @@ library;
 import 'package:antd_flutter_plus/antd_flutter_plus.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
+}
+
+/// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
+/// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
+Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
+  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+  try {
+    await tester.pumpWidget(_wrap(child));
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
 }
 
 void main() {
@@ -157,7 +167,9 @@ void main() {
 
   group('AntDropdown — 悬停触发', () {
     testWidgets('悬停打开，移出关闭', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(
+        tester,
         _wrap(
           const AntDropdown(
             trigger: AntDropdownTrigger.hover,
@@ -166,6 +178,7 @@ void main() {
           ),
         ),
       );
+      debugDefaultTargetPlatformOverride = null;
       expect(find.text('悬停项'), findsNothing);
 
       final gesture = await tester.createGesture(
@@ -304,14 +317,14 @@ void main() {
           const AntDropdown(
             open: true,
             items: [
-              AntDropdownItem(key: '1', label: '图标项', icon: Icons.star),
+              AntDropdownItem(key: '1', label: '图标项', icon: AntIcons.starOutlined),
             ],
             child: Text('触发'),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byIcon(AntIcons.starOutlined), findsOneWidget);
       expect(find.text('图标项'), findsOneWidget);
     });
   });

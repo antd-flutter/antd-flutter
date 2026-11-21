@@ -79,26 +79,18 @@ class _GalleryPageState extends State<GalleryPage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: AntSegmented(
+          child: AntSegmented<String>(
             value: switch (_tabIndex) {
               1 => 'filled',
               2 => 'twotone',
               _ => 'outlined',
             },
-            options: [
-              AntSegmentedItem(
-                value: 'outlined',
-                label: strings.tabOutlined(AntIcons.outlinedIcons.length),
-              ),
-              AntSegmentedItem(
-                value: 'filled',
-                label: strings.tabFilled(AntIcons.filledIcons.length),
-              ),
-              AntSegmentedItem(
-                value: 'twotone',
-                label: strings.tabTwoTone(AntIconsTwotone.twotoneIcons.length),
-              ),
-            ],
+            options: const ['outlined', 'filled', 'twotone'],
+            labelOf: (value) => switch (value) {
+              'filled' => strings.tabFilled(AntIcons.filledIcons.length),
+              'twotone' => strings.tabTwoTone(AntIconsTwotone.twotoneIcons.length),
+              _ => strings.tabOutlined(AntIcons.outlinedIcons.length),
+            },
             onChange: _onTabChanged,
           ),
         ),
@@ -119,13 +111,13 @@ class _GalleryPageState extends State<GalleryPage> {
           ValueListenableBuilder<bool>(
             valueListenable: themeModeController,
             builder: (context, isDark, _) => IconButton(
-              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              icon: Icon(isDark ? AntIcons.sunOutlined : AntIcons.moonOutlined),
               tooltip: isDark ? strings.themeLight : strings.themeDark,
               onPressed: themeModeController.toggle,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.info_outline),
+            icon: const Icon(AntIcons.infoCircleOutlined),
             tooltip: strings.aboutTooltip,
             onPressed: () => _showAboutDialog(context),
           ),
@@ -408,7 +400,7 @@ class _EmptyResult extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.search_off,
+            AntIcons.fileSearchOutlined,
             size: 48,
             color: Theme.of(context).disabledColor,
           ),

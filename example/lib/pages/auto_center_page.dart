@@ -16,7 +16,10 @@ class AutoCenterPage extends StatelessWidget {
         children: const [
           _Section(title: '基本居中', description: '内容在可用空间中水平垂直居中'),
           _BasicDemo(),
-          _Section(title: '弹性布局居中', description: 'expanded=true 时在 Column 中占据剩余空间并居中'),
+          _Section(
+            title: '弹性布局居中',
+            description: 'expanded=true 时在 Column 中占据剩余空间并居中',
+          ),
           _ExpandedDemo(),
           _Section(title: '页面级布局', description: '导航栏 + 居中内容 + 底部栏的典型布局'),
           _PageLayoutDemo(),
@@ -40,14 +43,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorText)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorText,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: TextStyle(fontSize: 12, color: theme.colorTextTertiary)),
+              child: Text(
+                description!,
+                style: TextStyle(fontSize: 12, color: theme.colorTextTertiary),
+              ),
             ),
         ],
       ),
@@ -71,10 +81,7 @@ class _BasicDemo extends StatelessWidget {
         child: AntSpace(
           direction: AntSpaceDirection.vertical,
           align: AntSpaceAlign.center,
-          children: [
-            Icon(AntIcons.aimOutlined, size: 48),
-            Text('居中内容'),
-          ],
+          children: [Icon(AntIcons.aimOutlined, size: 48), Text('居中内容')],
         ),
       ),
     );
@@ -95,10 +102,7 @@ class _ExpandedDemo extends StatelessWidget {
       ),
       child: const Column(
         children: [
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: Text('顶部区域'),
-          ),
+          Padding(padding: EdgeInsets.all(12), child: Text('顶部区域')),
           AntAutoCenter(
             expanded: true,
             child: AntSpace(
@@ -110,10 +114,7 @@ class _ExpandedDemo extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: Text('底部区域'),
-          ),
+          Padding(padding: EdgeInsets.all(12), child: Text('底部区域')),
         ],
       ),
     );
@@ -141,7 +142,14 @@ class _PageLayoutDemo extends StatelessWidget {
               children: [
                 const Icon(AntIcons.leftOutlined, size: 20),
                 const SizedBox(width: 8),
-                Text('NavBar 导航栏', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: theme.colorTextHeading)),
+                Text(
+                  'NavBar 导航栏',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorTextHeading,
+                  ),
+                ),
               ],
             ),
           ),
@@ -154,8 +162,7 @@ class _PageLayoutDemo extends StatelessWidget {
               children: [
                 Icon(AntIcons.mobileOutlined, size: 64),
                 Text('页面主内容', style: TextStyle(fontSize: 18)),
-                Text('在导航栏与底部栏之间自动居中',
-                    style: TextStyle(fontSize: 12)),
+                Text('在导航栏与底部栏之间自动居中', style: TextStyle(fontSize: 12)),
               ],
             ),
           ),

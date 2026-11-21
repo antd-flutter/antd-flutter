@@ -15,6 +15,8 @@ import 'package:flutter/painting.dart';
 
 import 'package:antd_tokens/antd_tokens.dart';
 
+import 'ant_scale.dart';
+
 import 'types/ant_theme_sub_tokens.dart';
 
 /// Ant Design 主题数据 — 完整令牌集。
@@ -32,6 +34,7 @@ class AntThemeData {
     required this.motion,
     required this.shadows,
     required this.screen,
+    this.scale = AntScale.none,
   });
 
   /// 种子令牌（原始输入）。
@@ -63,6 +66,14 @@ class AntThemeData {
 
   /// 屏幕断点令牌。
   final AntScreenTokens screen;
+
+  /// 统一缩放因子（设计值 → 实际值）。
+  final AntScale scale;
+
+  /// 设计值按当前缩放因子换算（组件内零散尺寸唯一入口）。
+  ///
+  /// 例如 `padding: EdgeInsets.all(t.s(12))`。
+  double s(num designValue) => designValue * scale.factor;
 
   // ============================================================
   // 便捷颜色访问器（转发到 colors）
@@ -353,30 +364,61 @@ class AntThemeData {
   // ============================================================
 
   /// 从种子生成亮色主题。
-  factory AntThemeData.light([AntSeedToken? seed]) {
-    return AntThemeData._fromSeed(seed ?? const AntSeedToken(), isDark: false);
+  factory AntThemeData.light({
+    AntSeedToken? seed,
+    AntScale scale = AntScale.none,
+  }) {
+    return AntThemeData._fromSeed(
+      seed ?? const AntSeedToken(),
+      isDark: false,
+      scale: scale,
+    );
   }
 
   /// 从种子生成暗色主题。
-  factory AntThemeData.dark([AntSeedToken? seed]) {
+  factory AntThemeData.dark({
+    AntSeedToken? seed,
+    AntScale scale = AntScale.none,
+  }) {
     return AntThemeData._fromSeed(
       seed ?? AntSeedToken.dark(),
       isDark: true,
+      scale: scale,
     );
   }
 
   /// 从种子生成主题（自动判断亮/暗）。
-  factory AntThemeData.fromSeed(AntSeedToken seed, {bool isDark = false}) {
-    return AntThemeData._fromSeed(seed, isDark: isDark);
+  factory AntThemeData.fromSeed(
+    AntSeedToken seed, {
+    bool isDark = false,
+    AntScale scale = AntScale.none,
+  }) {
+    return AntThemeData._fromSeed(seed, isDark: isDark, scale: scale);
   }
 
-  factory AntThemeData._fromSeed(AntSeedToken seed, {required bool isDark}) {
+  factory AntThemeData._fromSeed(
+    AntSeedToken seed, {
+    required bool isDark,
+    AntScale scale = AntScale.none,
+  }) {
+    // 统一缩放：只乘尺寸类种子，颜色/动效不缩放。
+    final f = scale.factor;
+    final scaledSeed = f == 1
+        ? seed
+        : seed.copyWith(
+            fontSize: seed.fontSize * f,
+            controlHeight: seed.controlHeight * f,
+            borderRadius: seed.borderRadius * f,
+            // size = sizeUnit * sizeStep，只缩放 sizeUnit，避免二次放大。
+            sizeUnit: seed.sizeUnit * f,
+            sizePopupArrow: seed.sizePopupArrow * f,
+          );
     // ---- 颜色 ----
     final colors =
         isDark ? AntColorTokens.dark(seed) : AntColorTokens.light(seed);
 
     // ---- 字体 ----
-    final fontMap = antGenFontMapToken(seed.fontSize);
+    final fontMap = antGenFontMapToken(scaledSeed.fontSize);
     final font = AntFontTokens(
       fontSizeSM: fontMap.fontSizeSM,
       fontSize: fontMap.fontSize,
@@ -403,7 +445,7 @@ class AntThemeData {
     );
 
     // ---- 圆角 ----
-    final radiusMap = antGenRadius(seed.borderRadius);
+    final radiusMap = antGenRadius(scaledSeed.borderRadius);
     final radius = AntRadiusTokens(
       borderRadius: radiusMap.borderRadius,
       borderRadiusXS: radiusMap.borderRadiusXS,
@@ -414,8 +456,8 @@ class AntThemeData {
 
     // ---- 尺寸 ----
     final sizeMap = antGenSizeMapToken(
-      sizeUnit: seed.sizeUnit,
-      sizeStep: seed.sizeStep,
+      sizeUnit: scaledSeed.sizeUnit,
+      sizeStep: scaledSeed.sizeStep,
     );
     final sizes = AntSizeTokens(
       sizeXXS: sizeMap.sizeXXS,
@@ -430,12 +472,12 @@ class AntThemeData {
     );
 
     // ---- 控件高度 ----
-    final heightMap = antGenControlHeight(seed.controlHeight);
+    final heightMap = antGenControlHeight(scaledSeed.controlHeight);
     final controlHeights = AntControlHeightTokens(
       controlHeightSM: heightMap.controlHeightSM,
       controlHeightXS: heightMap.controlHeightXS,
       controlHeightLG: heightMap.controlHeightLG,
-      controlInteractiveSize: seed.controlHeight / 2,
+      controlInteractiveSize: scaledSeed.controlHeight / 2,
     );
 
     // ---- 动效 ----
@@ -465,7 +507,7 @@ class AntThemeData {
     const screen = AntScreenTokens();
 
     return AntThemeData._(
-      seed: seed,
+      seed: scaledSeed,
       colors: colors,
       isDark: isDark,
       font: font,
@@ -475,6 +517,7 @@ class AntThemeData {
       motion: motion,
       shadows: shadows,
       screen: screen,
+      scale: scale,
     );
   }
 

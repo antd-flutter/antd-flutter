@@ -6,8 +6,9 @@ class UploadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,7 +19,7 @@ class UploadPage extends StatelessWidget {
               onChange: (file, list) => debugPrint('onChange: ${file.name}'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '默认文件列表',
             child: const AntUpload(
@@ -33,7 +34,7 @@ class UploadPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '图片列表',
             child: AntUpload(
@@ -48,7 +49,7 @@ class UploadPage extends StatelessWidget {
               onSelectFiles: () async => _mockFiles(1, prefix: '照片'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '图片卡片',
             child: AntUpload(
@@ -63,7 +64,7 @@ class UploadPage extends StatelessWidget {
               onSelectFiles: () async => _mockFiles(1, prefix: '卡片'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义上传',
             child: AntUpload(
@@ -73,15 +74,19 @@ class UploadPage extends StatelessWidget {
                 // 模拟上传进度
                 for (var i = 0; i <= 100; i += 25) {
                   await Future.delayed(const Duration(milliseconds: 200));
-                  update(file.copyWith(
-                    status: i >= 100 ? AntUploadStatus.done : AntUploadStatus.uploading,
-                    percent: i,
-                  ));
+                  update(
+                    file.copyWith(
+                      status: i >= 100
+                          ? AntUploadStatus.done
+                          : AntUploadStatus.uploading,
+                      percent: i,
+                    ),
+                  );
                 }
               },
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '最大数量限制',
             child: AntUpload(
@@ -91,17 +96,15 @@ class UploadPage extends StatelessWidget {
               onSelectFiles: () async => _mockFiles(1),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用状态',
             child: const AntUpload(
               disabled: true,
-              defaultFileList: [
-                AntUploadFile(uid: '1', name: '只读文件.txt'),
-              ],
+              defaultFileList: [AntUploadFile(uid: '1', name: '只读文件.txt')],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '隐藏文件列表',
             child: AntUpload(
@@ -134,10 +137,10 @@ class _Section extends StatelessWidget {
     final t = AntTheme.of(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(t.s(16)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
-        borderRadius: BorderRadius.circular(t.borderRadiusLG.r),
+        borderRadius: BorderRadius.circular(t.borderRadiusLG),
         border: Border.all(color: t.colorSplit),
       ),
       child: Column(
@@ -146,12 +149,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: t.s(16),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

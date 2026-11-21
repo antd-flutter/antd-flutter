@@ -31,7 +31,7 @@ class ToastPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,47 +43,44 @@ class ToastPage extends StatelessWidget {
               child: const Text('纯文字提示'),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带图标',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '操作成功',
-                    icon: AntToastIconType.success,
-                  ),
+                  onTap: () =>
+                      _show(context, '操作成功', icon: AntToastIconType.success),
                   child: const Text('Success'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '操作失败',
-                    icon: AntToastIconType.fail,
-                  ),
+                  onTap: () =>
+                      _show(context, '操作失败', icon: AntToastIconType.fail),
                   child: const Text('Fail'),
                 ),
                 AntButton(
                   onTap: () => _show(
                     context,
                     '自定义图标',
-                    icon: const AntdIcon(AntIcons.heartOutlined, color: Colors.pink),
+                    icon: const AntdIcon(
+                      AntIcons.heartOutlined,
+                      color: Colors.pink,
+                    ),
                   ),
                   child: const Text('自定义图标'),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Loading 手动关闭',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
                   onTap: () {
@@ -110,54 +107,42 @@ class ToastPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '位置三档',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
-              runSpacing: 8.w,
+              spacing: theme.s(8),
+              runSpacing: theme.s(8),
               children: [
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '顶部提示',
-                    position: AntToastPosition.top,
-                  ),
+                  onTap: () =>
+                      _show(context, '顶部提示', position: AntToastPosition.top),
                   child: const Text('顶部'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '中央提示',
-                    position: AntToastPosition.center,
-                  ),
+                  onTap: () =>
+                      _show(context, '中央提示', position: AntToastPosition.center),
                   child: const Text('中央'),
                 ),
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '底部提示',
-                    position: AntToastPosition.bottom,
-                  ),
+                  onTap: () =>
+                      _show(context, '底部提示', position: AntToastPosition.bottom),
                   child: const Text('底部'),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '遮罩不可穿透',
             theme: theme,
             child: Wrap(
-              spacing: 8.w,
+              spacing: theme.s(8),
               children: [
                 AntButton(
-                  onTap: () => _show(
-                    context,
-                    '点击遮罩可关闭（拦截下层）',
-                    maskClickable: false,
-                  ),
+                  onTap: () =>
+                      _show(context, '点击遮罩可关闭（拦截下层）', maskClickable: false),
                   child: const Text('拦截遮罩'),
                 ),
                 AntButton(
@@ -165,9 +150,8 @@ class ToastPage extends StatelessWidget {
                     context,
                     '关闭后弹出提示',
                     onClose: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('提示已关闭')),
-                      );
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text('提示已关闭')));
                     },
                   ),
                   child: const Text('带 onClose 回调'),
@@ -182,7 +166,11 @@ class ToastPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -192,7 +180,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -204,12 +192,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

@@ -18,7 +18,10 @@ class DividerPage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '带标题', description: 'child 作为标题，orientation 控制位置'),
           _TitleDemo(),
-          _Section(title: '标题位置', description: 'orientation: left / center / right'),
+          _Section(
+            title: '标题位置',
+            description: 'orientation: left / center / right',
+          ),
           _OrientationDemo(),
           _Section(title: '标题边距', description: 'orientationMargin 设置标题与边缘距离'),
           _MarginDemo(),
@@ -30,7 +33,10 @@ class DividerPage extends StatelessWidget {
           _DottedDemo(),
           _Section(title: '普通文本标题', description: 'plain: true，文字更小更淡'),
           _PlainDemo(),
-          _Section(title: '自定义样式', description: 'color / thickness / spacing / indent'),
+          _Section(
+            title: '自定义样式',
+            description: 'color / thickness / spacing / indent',
+          ),
           _CustomDemo(),
         ],
       ),
@@ -52,15 +58,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),

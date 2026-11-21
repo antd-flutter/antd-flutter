@@ -6,8 +6,9 @@ class VirtualInputPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -21,7 +22,7 @@ class VirtualInputPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '可清空',
             child: const AntVirtualInput(
@@ -30,7 +31,7 @@ class VirtualInputPage extends StatelessWidget {
               defaultValue: '100',
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '带确认键',
             child: AntVirtualInput(
@@ -42,7 +43,7 @@ class VirtualInputPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '自定义按键',
             child: const AntVirtualInput(
@@ -51,7 +52,7 @@ class VirtualInputPage extends StatelessWidget {
               confirmText: '确定',
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '禁用',
             child: const AntVirtualInput(
@@ -60,7 +61,7 @@ class VirtualInputPage extends StatelessWidget {
               defaultValue: '123',
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '自动聚焦',
             child: const AntVirtualInput(
@@ -68,11 +69,8 @@ class VirtualInputPage extends StatelessWidget {
               autoFocus: true,
             ),
           ),
-          SizedBox(height: 12.w),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          SizedBox(height: theme.s(12)),
+          _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );
@@ -89,6 +87,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -98,11 +97,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           clearable: true,
           onChange: (v) => setState(() => _value = v),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前值: $_value',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -121,11 +120,11 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-        border: Border.all(color: theme.colorSplit, width: 1.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+        border: Border.all(color: theme.colorSplit, width: theme.s(1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,12 +132,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: theme.s(15),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

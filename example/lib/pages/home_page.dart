@@ -132,7 +132,8 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 16, 4),
                   child: AntText(
-                    text: group.title,
+                    // 分组标题带迁移进度，如 "数据展示 (9/10 ·1 待验证)"
+                    text: _groupProgressLabel(group),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.outline,
                       fontWeight: FontWeight.w600,
@@ -140,7 +141,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 for (final item in group.items)
-                  _buildNavItem(theme, item, closeOnTap: closeOnTap),
+                  if (item.visible)
+                    _buildNavItem(theme, item, closeOnTap: closeOnTap),
               ],
             ],
           ),
@@ -148,6 +150,9 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
+
+  /// 分组标题（开发阶段的验收进度标记已随正式版移除）
+  String _groupProgressLabel(NavGroup group) => group.title;
 
   /// 单个导航项
   Widget _buildNavItem(
@@ -167,8 +172,11 @@ class _HomePageState extends State<HomePage> {
             : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: AntText(
-            text: item.label,
+          child: Text(
+            item.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: selected
                   ? theme.colorScheme.onPrimaryContainer
@@ -218,7 +226,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             AntText(
-              text: '共 ${navGroups.length} 大分类 · $count 个组件规划中',
+              text: '共 ${navGroups.length} 大分类 · $count 个组件',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.outline,
               ),

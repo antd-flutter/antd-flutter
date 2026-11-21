@@ -15,7 +15,7 @@ class _SpinPageState extends State<SpinPage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -24,7 +24,7 @@ class _SpinPageState extends State<SpinPage> {
             theme: theme,
             child: const Center(child: AntSpin()),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种尺寸',
             theme: theme,
@@ -37,7 +37,7 @@ class _SpinPageState extends State<SpinPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带文案（tip）',
             theme: theme,
@@ -51,7 +51,7 @@ class _SpinPageState extends State<SpinPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '包裹模式（容器遮罩）',
             theme: theme,
@@ -65,14 +65,11 @@ class _SpinPageState extends State<SpinPage> {
                     alignment: Alignment.center,
                     child: Text(
                       '列表内容区域',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: theme.colorText,
-                      ),
+                      style: TextStyle(fontSize: theme.s(16), color: theme.colorText),
                     ),
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 AntButton(
                   type: AntButtonType.primary,
                   onTap: () => setState(() => _spinning = !_spinning),
@@ -81,16 +78,14 @@ class _SpinPageState extends State<SpinPage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义指示器',
             theme: theme,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                AntSpin(
-                  indicator: AntdIcon(AntIcons.syncOutlined, size: 28),
-                ),
+                AntSpin(indicator: AntdIcon(AntIcons.syncOutlined, size: 28)),
                 AntSpin(
                   indicator: SizedBox(
                     width: 28,
@@ -108,7 +103,11 @@ class _SpinPageState extends State<SpinPage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -118,7 +117,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -130,12 +129,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

@@ -50,7 +50,7 @@ class AntFooter extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: theme.s(12), vertical: theme.s(16)),
       decoration: style ??
           BoxDecoration(color: theme.colorBgLayout),
       child: child ??

@@ -16,7 +16,7 @@ class _QRCodePageState extends State<QRCodePage> {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -25,21 +25,21 @@ class _QRCodePageState extends State<QRCodePage> {
             theme: theme,
             child: const AntQRCode(value: 'https://example.com'),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义尺寸',
             theme: theme,
             child: Row(
               children: [
                 const AntQRCode(value: 'size-100', size: 100),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 const AntQRCode(value: 'size-160', size: 160),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 const AntQRCode(value: 'size-200', size: 200),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '纠错等级',
             theme: theme,
@@ -47,39 +47,55 @@ class _QRCodePageState extends State<QRCodePage> {
               children: [
                 Column(
                   children: [
-                    const AntQRCode(value: 'L', size: 100, errorLevel: AntQRCodeErrorLevel.l),
-                    SizedBox(height: 8.w),
+                    const AntQRCode(
+                      value: 'L',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.l,
+                    ),
+                    SizedBox(height: theme.s(8)),
                     const Text('L'),
                   ],
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 Column(
                   children: [
-                    const AntQRCode(value: 'M', size: 100, errorLevel: AntQRCodeErrorLevel.m),
-                    SizedBox(height: 8.w),
+                    const AntQRCode(
+                      value: 'M',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.m,
+                    ),
+                    SizedBox(height: theme.s(8)),
                     const Text('M'),
                   ],
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 Column(
                   children: [
-                    const AntQRCode(value: 'Q', size: 100, errorLevel: AntQRCodeErrorLevel.q),
-                    SizedBox(height: 8.w),
+                    const AntQRCode(
+                      value: 'Q',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.q,
+                    ),
+                    SizedBox(height: theme.s(8)),
                     const Text('Q'),
                   ],
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 Column(
                   children: [
-                    const AntQRCode(value: 'H', size: 100, errorLevel: AntQRCodeErrorLevel.h),
-                    SizedBox(height: 8.w),
+                    const AntQRCode(
+                      value: 'H',
+                      size: 100,
+                      errorLevel: AntQRCodeErrorLevel.h,
+                    ),
+                    SizedBox(height: theme.s(8)),
                     const Text('H'),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义颜色',
             theme: theme,
@@ -90,7 +106,7 @@ class _QRCodePageState extends State<QRCodePage> {
                   color: Colors.red,
                   bgColor: Color(0xFFFFF5F5),
                 ),
-                SizedBox(width: 24.w),
+                SizedBox(width: theme.s(24)),
                 const AntQRCode(
                   value: 'color-green',
                   color: Colors.green,
@@ -99,13 +115,13 @@ class _QRCodePageState extends State<QRCodePage> {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '无边框',
             theme: theme,
             child: const AntQRCode(value: 'no-border', bordered: false),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '过期与刷新（点击覆盖层刷新，已刷新 $_refreshCount 次）',
             theme: theme,
@@ -119,7 +135,7 @@ class _QRCodePageState extends State<QRCodePage> {
                   )
                 : AntQRCode(value: 'fresh-$_refreshCount'),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '已扫描',
             theme: theme,
@@ -128,13 +144,13 @@ class _QRCodePageState extends State<QRCodePage> {
               status: AntQRCodeStatus.scanned,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带图标',
             theme: theme,
             child: const AntQRCode(value: 'with-icon', icon: true),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           Align(
             alignment: Alignment.centerRight,
             child: AntButton(
@@ -150,7 +166,11 @@ class _QRCodePageState extends State<QRCodePage> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -160,7 +180,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -172,12 +192,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

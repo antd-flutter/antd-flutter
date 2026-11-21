@@ -1,0 +1,5 @@
+# 本地开发用：包尚未发布到 pub.dev 时走仓库内路径。
+# 该文件不会被 pub publish 发布，发布时使用 pubspec.yaml 中的版本约束。
+dependency_overrides:
+  antd_theme:
+    path: ../antd_theme

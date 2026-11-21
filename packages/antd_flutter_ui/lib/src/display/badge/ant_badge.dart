@@ -13,7 +13,7 @@
 ///
 /// ```dart
 /// AntBadge(count: 5, child: AntButton(child: Text('消息')))
-/// AntBadge(dot: true, child: Icon(Icons.notifications))
+/// AntBadge(dot: true, child: Icon(AntIcons.bellOutlined))
 /// AntBadge(status: AntBadgeStatus.success, text: '成功')
 /// ```
 library;

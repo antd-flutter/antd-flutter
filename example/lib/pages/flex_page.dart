@@ -18,13 +18,25 @@ class FlexPage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '垂直排列', description: 'vertical: true，主轴为垂直方向'),
           _VerticalDemo(),
-          _Section(title: '主轴对齐', description: 'justify: start / center / end / spaceBetween'),
+          _Section(
+            title: '主轴对齐',
+            description: 'justify: start / center / end / spaceBetween',
+          ),
           _JustifyDemo(),
-          _Section(title: '交叉轴对齐', description: 'align: start / center / end / stretch'),
+          _Section(
+            title: '交叉轴对齐',
+            description: 'align: start / center / end / stretch',
+          ),
           _AlignDemo(),
-          _Section(title: '间距预设', description: 'gap: small(8) / middle(16) / large(24)'),
+          _Section(
+            title: '间距预设',
+            description: 'gap: small(8) / middle(16) / large(24)',
+          ),
           _GapPresetDemo(),
-          _Section(title: '自定义间距', description: 'AntFlexGap.all / AntFlexGap.only'),
+          _Section(
+            title: '自定义间距',
+            description: 'AntFlexGap.all / AntFlexGap.only',
+          ),
           _GapCustomDemo(),
           _Section(title: '换行', description: 'wrap: true，子元素溢出后自动换行'),
           _WrapDemo(),
@@ -50,15 +62,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          AntText(
+            text: title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: AntText(
+                text: description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -81,14 +99,18 @@ class _Box extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1677FF).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFF1677FF).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: const Color(0xFF1677FF).withValues(alpha: 0.3),
+        ),
       ),
-      child: AntText(text: label,
-          style: const TextStyle(
-            color: Color(0xFF1677FF),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          )),
+      child: AntText(
+        text: label,
+        style: const TextStyle(
+          color: Color(0xFF1677FF),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }
@@ -104,13 +126,7 @@ class _BasicDemo extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const AntFlex(
-        children: [
-          _Box('A'),
-          _Box('B'),
-          _Box('C'),
-        ],
-      ),
+      child: const AntFlex(children: [_Box('A'), _Box('B'), _Box('C')]),
     );
   }
 }
@@ -128,11 +144,7 @@ class _VerticalDemo extends StatelessWidget {
       ),
       child: const AntFlex(
         vertical: true,
-        children: [
-          _Box('A'),
-          _Box('B'),
-          _Box('C'),
-        ],
+        children: [_Box('A'), _Box('B'), _Box('C')],
       ),
     );
   }
@@ -161,7 +173,10 @@ class _JustifyDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -203,7 +218,10 @@ class _AlignDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -221,7 +239,15 @@ class _AlignDemo extends StatelessWidget {
               SizedBox(
                 width: 48,
                 height: 56,
-                child: Center(child: AntText(text: 'B', style: TextStyle(color: Color(0xFF1677FF), fontWeight: FontWeight.w500))),
+                child: Center(
+                  child: AntText(
+                    text: 'B',
+                    style: TextStyle(
+                      color: Color(0xFF1677FF),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
               _Box('C'),
             ],
@@ -253,7 +279,10 @@ class _GapPresetDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        AntText(
+          text: label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -280,8 +309,10 @@ class _GapCustomDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AntText(text: 'AntFlexGap.all(32) — 单值',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(
+          text: 'AntFlexGap.all(32) — 单值',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -296,8 +327,10 @@ class _GapCustomDemo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const AntText(text: 'AntFlexGap.only(row: 8, column: 20) — 行列分别',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const AntText(
+          text: 'AntFlexGap.only(row: 8, column: 20) — 行列分别',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
@@ -310,8 +343,12 @@ class _GapCustomDemo extends StatelessWidget {
             wrap: true,
             gap: AntFlexGap.only(row: 8, column: 20),
             children: [
-              _Box('A'), _Box('B'), _Box('C'),
-              _Box('D'), _Box('E'), _Box('F'),
+              _Box('A'),
+              _Box('B'),
+              _Box('C'),
+              _Box('D'),
+              _Box('E'),
+              _Box('F'),
             ],
           ),
         ),
@@ -336,8 +373,16 @@ class _WrapDemo extends StatelessWidget {
         wrap: true,
         gap: AntFlexGap.small(),
         children: [
-          _Box('1'), _Box('2'), _Box('3'), _Box('4'), _Box('5'),
-          _Box('6'), _Box('7'), _Box('8'), _Box('9'), _Box('10'),
+          _Box('1'),
+          _Box('2'),
+          _Box('3'),
+          _Box('4'),
+          _Box('5'),
+          _Box('6'),
+          _Box('7'),
+          _Box('8'),
+          _Box('9'),
+          _Box('10'),
         ],
       ),
     );
@@ -361,11 +406,7 @@ class _ComboDemo extends StatelessWidget {
         justify: AntFlexJustify.center,
         align: AntFlexAlign.center,
         gap: AntFlexGap.middle(),
-        children: [
-          _Box('A'),
-          _Box('B'),
-          _Box('C'),
-        ],
+        children: [_Box('A'), _Box('B'), _Box('C')],
       ),
     );
   }

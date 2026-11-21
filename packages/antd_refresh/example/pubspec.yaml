@@ -1,0 +1,34 @@
+name: antd_refresh_example
+description: Ant Design v6 Refresh for Flutter - component demo gallery.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  antd_icons_flutter: any
+  flutter:
+    sdk: flutter
+  antd_refresh:
+    path: ../
+  antd_theme:
+    path: ../../antd_theme
+  material_ui: ^1.11.0
+
+dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
+  antd_theme:
+    path: ../../antd_theme
+
+  antd_refresh:
+    path: ..
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

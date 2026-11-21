@@ -12,8 +12,9 @@ class CalendarPickerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -23,24 +24,30 @@ class CalendarPickerPage extends StatelessWidget {
               defaultValue: [DateTime(2024, 6, 15)],
               onChange: (dates) {
                 if (dates.isNotEmpty) {
-                  _showSnackbar(context, '选中: ${dates.first.year}-${dates.first.month}-${dates.first.day}');
+                  _showSnackbar(
+                    context,
+                    '选中: ${dates.first.year}-${dates.first.month}-${dates.first.day}',
+                  );
                 }
               },
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '范围选择',
             child: AntCalendarPickerView(
               selectionMode: AntCalendarSelectionMode.range,
               onChange: (dates) {
                 if (dates.length == 2) {
-                  _showSnackbar(context, '范围: ${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}');
+                  _showSnackbar(
+                    context,
+                    '范围: ${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}',
+                  );
                 }
               },
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '周一起始',
             child: AntCalendarPickerView(
@@ -48,7 +55,7 @@ class CalendarPickerPage extends StatelessWidget {
               defaultValue: [DateTime(2024, 6, 15)],
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '限定范围',
             child: AntCalendarPickerView(
@@ -56,7 +63,7 @@ class CalendarPickerPage extends StatelessWidget {
               max: DateTime(2024, 6, 25),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '禁用清除',
             child: AntCalendarPickerView(
@@ -64,11 +71,11 @@ class CalendarPickerPage extends StatelessWidget {
               allowClear: false,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           const _PopupDemo(),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           const _RangePopupDemo(),
-          SizedBox(height: 12.h),
+          SizedBox(height: theme.s(12)),
           const _ControlledDemo(),
         ],
       ),
@@ -98,14 +105,15 @@ class _PopupDemoState extends State<_PopupDemo> {
         onConfirm: (dates) {
           setState(() {
             if (dates.isNotEmpty) {
-              _selected = '${dates.first.year}-${dates.first.month}-${dates.first.day}';
+              _selected =
+                  '${dates.first.year}-${dates.first.month}-${dates.first.day}';
             } else {
               _selected = '未选择';
             }
           });
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(8)),
           decoration: BoxDecoration(
             border: Border.all(color: t.colorBorder),
             borderRadius: BorderRadius.circular(t.borderRadius),
@@ -113,9 +121,16 @@ class _PopupDemoState extends State<_PopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
-              SizedBox(width: 8.w),
-              Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
+              Icon(
+                AntIcons.calendarOutlined,
+                size: t.s(16),
+                color: t.colorTextSecondary,
+              ),
+              SizedBox(width: t.s(8)),
+              Text(
+                _selected,
+                style: TextStyle(fontSize: t.fontSize, color: t.colorText),
+              ),
             ],
           ),
         ),
@@ -147,14 +162,15 @@ class _RangePopupDemoState extends State<_RangePopupDemo> {
         onConfirm: (dates) {
           setState(() {
             if (dates.length == 2) {
-              _selected = '${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}';
+              _selected =
+                  '${dates.first.month}/${dates.first.day} - ${dates.last.month}/${dates.last.day}';
             } else {
               _selected = '未选择';
             }
           });
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: t.s(12), vertical: t.s(8)),
           decoration: BoxDecoration(
             border: Border.all(color: t.colorBorder),
             borderRadius: BorderRadius.circular(t.borderRadius),
@@ -162,9 +178,16 @@ class _RangePopupDemoState extends State<_RangePopupDemo> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AntIcons.calendarOutlined, size: 16.w, color: t.colorTextSecondary),
-              SizedBox(width: 8.w),
-              Text(_selected, style: TextStyle(fontSize: t.fontSize, color: t.colorText)),
+              Icon(
+                AntIcons.calendarOutlined,
+                size: t.s(16),
+                color: t.colorTextSecondary,
+              ),
+              SizedBox(width: t.s(8)),
+              Text(
+                _selected,
+                style: TextStyle(fontSize: t.fontSize, color: t.colorText),
+              ),
             ],
           ),
         ),
@@ -192,12 +215,15 @@ class _ControlledDemoState extends State<_ControlledDemo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               _value.isNotEmpty
                   ? '当前值: ${_value.first.year}-${_value.first.month}-${_value.first.day}'
                   : '当前值: 无',
-              style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+              style: TextStyle(
+                fontSize: t.fontSizeSM,
+                color: t.colorTextSecondary,
+              ),
             ),
           ),
           AntCalendarPickerView(
@@ -208,7 +234,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
               });
             },
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: t.s(8)),
           AntButton(
             size: AntButtonSize.small,
             onTap: () {
@@ -234,7 +260,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -244,7 +270,7 @@ class _Section extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               title,
               style: TextStyle(

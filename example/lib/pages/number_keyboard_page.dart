@@ -6,45 +6,25 @@ class NumberKeyboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _Section(
-            title: '基础用法',
-            child: _BasicDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '带确认键',
-            child: _ConfirmDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '带自定义键',
-            child: _CustomKeyDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '乱序键盘',
-            child: _RandomDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '限制长度',
-            child: _MaxLengthDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '带标题',
-            child: _TitleDemo(),
-          ),
-          SizedBox(height: 12.h),
-          const _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          const _Section(title: '基础用法', child: _BasicDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '带确认键', child: _ConfirmDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '带自定义键', child: _CustomKeyDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '乱序键盘', child: _RandomDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '限制长度', child: _MaxLengthDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '带标题', child: _TitleDemo()),
+          SizedBox(height: theme.s(12)),
+          const _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );
@@ -67,15 +47,16 @@ class _BasicDemoState extends State<_BasicDemo> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.only(bottom: t.s(8)),
           child: Text(
             '当前值: ${_value.isEmpty ? '无' : _value}',
-            style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+            style: TextStyle(
+              fontSize: t.fontSizeSM,
+              color: t.colorTextSecondary,
+            ),
           ),
         ),
-        AntNumberKeyboard(
-          onChange: (v) => setState(() => _value = v),
-        ),
+        AntNumberKeyboard(onChange: (v) => setState(() => _value = v)),
       ],
     );
   }
@@ -98,10 +79,13 @@ class _ConfirmDemoState extends State<_ConfirmDemo> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.only(bottom: t.s(8)),
           child: Text(
             '当前值: ${_value.isEmpty ? '无' : _value} / 已确认: ${_confirmed.isEmpty ? '无' : _confirmed}',
-            style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+            style: TextStyle(
+              fontSize: t.fontSizeSM,
+              color: t.colorTextSecondary,
+            ),
           ),
         ),
         AntNumberKeyboard(
@@ -110,7 +94,10 @@ class _ConfirmDemoState extends State<_ConfirmDemo> {
           onConfirm: () {
             setState(() => _confirmed = _value);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('确认: $_value'), duration: const Duration(seconds: 1)),
+              SnackBar(
+                content: Text('确认: $_value'),
+                duration: const Duration(seconds: 1),
+              ),
             );
           },
         ),
@@ -135,10 +122,13 @@ class _CustomKeyDemoState extends State<_CustomKeyDemo> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.only(bottom: t.s(8)),
           child: Text(
             '当前值: ${_value.isEmpty ? '无' : _value}',
-            style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+            style: TextStyle(
+              fontSize: t.fontSizeSM,
+              color: t.colorTextSecondary,
+            ),
           ),
         ),
         AntNumberKeyboard(
@@ -175,10 +165,13 @@ class _MaxLengthDemoState extends State<_MaxLengthDemo> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.only(bottom: t.s(8)),
           child: Text(
             '当前值: ${_value.isEmpty ? '无' : _value}（最多4位）',
-            style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+            style: TextStyle(
+              fontSize: t.fontSizeSM,
+              color: t.colorTextSecondary,
+            ),
           ),
         ),
         AntNumberKeyboard(
@@ -215,19 +208,25 @@ class _ControlledDemoState extends State<_ControlledDemo> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.only(bottom: t.s(8)),
           child: Row(
             children: [
               Text(
                 '当前值: $_value',
-                style: TextStyle(fontSize: t.fontSizeSM, color: t.colorTextSecondary),
+                style: TextStyle(
+                  fontSize: t.fontSizeSM,
+                  color: t.colorTextSecondary,
+                ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: () => setState(() => _value = ''),
                 child: Text(
                   '清空',
-                  style: TextStyle(fontSize: t.fontSizeSM, color: t.colorPrimary),
+                  style: TextStyle(
+                    fontSize: t.fontSizeSM,
+                    color: t.colorPrimary,
+                  ),
                 ),
               ),
             ],
@@ -252,7 +251,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -262,7 +261,7 @@ class _Section extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: t.s(8)),
             child: Text(
               title,
               style: TextStyle(

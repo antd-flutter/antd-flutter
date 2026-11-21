@@ -1,0 +1,39 @@
+name: antd_transfer_example
+description: "Ant Design Transfer for Flutter - component demo gallery."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  antd_icons_flutter: any
+  flutter:
+    sdk: flutter
+  antd_transfer:
+    path: ../
+  antd_theme:
+    path: ../../antd_theme
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
+  material_ui: ^1.11.0
+
+dependency_overrides:
+  antd_icons_flutter:
+    path: ../../antd_icons_flutter
+  antd_theme:
+    path: ../../antd_theme
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
+
+  cupertino_icons: ^1.0.8
+
+  antd_transfer:
+    path: ..
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

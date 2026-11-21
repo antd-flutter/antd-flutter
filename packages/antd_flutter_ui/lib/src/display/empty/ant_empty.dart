@@ -8,7 +8,7 @@
 ///
 /// ```dart
 /// AntEmpty(description: '暂无数据')
-/// AntEmpty(description: '自定义', imageWidget: Icon(Icons.inbox))
+/// AntEmpty(description: '自定义', imageWidget: Icon(AntIcons.inboxOutlined))
 /// ```
 library;
 
@@ -17,6 +17,7 @@ import 'package:antd_theme/antd_theme.dart';
 import 'ant_empty_types.dart';
 export 'ant_empty_types.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 // ============================================================
 // AntEmpty
@@ -62,7 +63,7 @@ class AntEmpty extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         imageContent,
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         if (description != null)
           Text(
             description!,
@@ -72,7 +73,7 @@ class AntEmpty extends StatelessWidget {
             ),
           ),
         if (child != null) ...[
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           child!,
         ],
       ],
@@ -83,8 +84,8 @@ class AntEmpty extends StatelessWidget {
     switch (image) {
       case AntEmptyImage.standard:
         return SizedBox(
-          width: 64.w,
-          height: 41.w,
+          width: theme.s(64),
+          height: theme.s(41),
           child: CustomPaint(
             painter: _EmptyPainter(
               borderColor: theme.colorSplit,
@@ -95,15 +96,15 @@ class AntEmpty extends StatelessWidget {
         );
       case AntEmptyImage.simple:
         return Container(
-          width: 64.w,
-          height: 41.w,
+          width: theme.s(64),
+          height: theme.s(41),
           decoration: BoxDecoration(
             color: theme.colorFillSecondary,
             borderRadius: BorderRadius.circular(theme.borderRadius),
           ),
           child: Icon(
-            Icons.inbox_outlined,
-            size: 24.w,
+            AntIcons.inboxOutlined,
+            size: theme.s(24),
             color: theme.colorTextQuaternary,
           ),
         );

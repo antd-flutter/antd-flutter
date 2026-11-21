@@ -49,7 +49,10 @@ class _Section extends StatelessWidget {
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: AntText(text: description!, type: AntTypographyType.secondary),
+              child: AntText(
+                text: description!,
+                type: AntTypographyType.secondary,
+              ),
             ),
         ],
       ),
@@ -184,9 +187,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
                   size: _sizeA,
                   child: _panelContent('受控面板 A', Colors.blue),
                 ),
-                AntSplitterPanel(
-                  child: _panelContent('自适应面板 B', Colors.green),
-                ),
+                AntSplitterPanel(child: _panelContent('自适应面板 B', Colors.green)),
               ],
             ),
           ),

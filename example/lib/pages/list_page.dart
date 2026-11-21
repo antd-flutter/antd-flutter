@@ -8,7 +8,7 @@ class ListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -16,88 +16,97 @@ class ListPage extends StatelessWidget {
             title: '基础用法',
             theme: theme,
             child: SizedBox(
-              height: 260.w,
+              height: theme.s(260),
               child: AntList<String>(
-                dataSource: const ['条目一', '条目二', '条目三'],
-                itemKey: (item, _) => item,
-                renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                items: const ['条目一', '条目二', '条目三'],
+                keyOf: (item) => item,
+                itemBuilder: (context, item, index) =>
+                    AntListItem(content: AntText(text: item)),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '尺寸',
             theme: theme,
             child: Column(
               children: [
                 SizedBox(
-                  height: 180.w,
+                  height: theme.s(180),
                   child: AntList<String>(
                     size: AntListSize.large,
                     header: const AntText(text: '大尺寸'),
-                    dataSource: const ['大尺寸条目一', '大尺寸条目二'],
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: const ['大尺寸条目一', '大尺寸条目二'],
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  height: 160.w,
+                  height: theme.s(160),
                   child: AntList<String>(
                     size: AntListSize.small,
                     header: const AntText(text: '小尺寸'),
-                    dataSource: const ['小尺寸条目一', '小尺寸条目二'],
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: const ['小尺寸条目一', '小尺寸条目二'],
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '边框与分割线',
             theme: theme,
             child: Column(
               children: [
                 SizedBox(
-                  height: 180.w,
+                  height: theme.s(180),
                   child: AntList<String>(
                     bordered: true,
                     header: const AntText(text: '有边框'),
-                    dataSource: const ['条目一', '条目二'],
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: const ['条目一', '条目二'],
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  height: 160.w,
+                  height: theme.s(160),
                   child: AntList<String>(
                     split: false,
-                    dataSource: const ['无分割线条目一', '无分割线条目二'],
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: const ['无分割线条目一', '无分割线条目二'],
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'actions 与 extra',
             theme: theme,
             child: SizedBox(
-              height: 200.w,
+              height: theme.s(200),
               child: AntList<String>(
                 bordered: true,
-                dataSource: const ['文章标题一', '文章标题二'],
-                itemKey: (item, _) => item,
-                renderItem: (item, _) => AntListItem(
+                items: const ['文章标题一', '文章标题二'],
+                keyOf: (item) => item,
+                itemBuilder: (context, item, index) => AntListItem(
                   content: AntText(text: item),
-                  extra: AntText(text: '2026-01-01',
-                      style: TextStyle(
-                          fontSize: 12.sp, color: theme.colorTextSecondary)),
+                  extra: AntText(
+                    text: '2026-01-01',
+                    style: TextStyle(
+                      fontSize: theme.s(12),
+                      color: theme.colorTextSecondary,
+                    ),
+                  ),
                   actions: const [
                     AntListAction(child: AntText(text: '编辑')),
                     AntListAction(child: AntText(text: '删除')),
@@ -106,44 +115,47 @@ class ListPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '空状态',
             theme: theme,
             child: SizedBox(
-              height: 240.w,
+              height: theme.s(240),
               child: AntList<String>(
                 bordered: true,
-                dataSource: const [],
-                itemKey: (item, _) => item,
-                renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                items: const [],
+                keyOf: (item) => item,
+                itemBuilder: (context, item, index) =>
+                    AntListItem(content: AntText(text: item)),
               ),
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '加载态与长列表分页',
             theme: theme,
             child: Column(
               children: [
                 SizedBox(
-                  height: 180.w,
+                  height: theme.s(180),
                   child: AntList<String>(
                     loading: true,
-                    dataSource: const ['条目一'],
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: const ['条目一'],
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
-                SizedBox(height: 12.w),
+                SizedBox(height: theme.s(12)),
                 SizedBox(
-                  height: 300.w,
+                  height: theme.s(300),
                   child: AntList<String>(
                     bordered: true,
                     pageSize: 5,
-                    dataSource: List.generate(20, (i) => '长列表条目${i + 1}'),
-                    itemKey: (item, _) => item,
-                    renderItem: (item, _) => AntListItem(content: AntText(text: item)),
+                    items: List.generate(20, (i) => '长列表条目${i + 1}'),
+                    keyOf: (item) => item,
+                    itemBuilder: (context, item, index) =>
+                        AntListItem(content: AntText(text: item)),
                   ),
                 ),
               ],
@@ -156,7 +168,11 @@ class ListPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -166,7 +182,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -175,15 +191,15 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

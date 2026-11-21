@@ -1,0 +1,34 @@
+name: antd_transfer
+description: Ant Design (antd-mobile) Transfer component for Flutter. Double-panel transfer with multi-select, controlled mode, search filter, one-way mode and multi-level TreeTransfer (parent-child check linkage, half-checked state, tree shuttle), aligned with antd Transfer / TreeTransfer API.
+version: 1.0.0
+homepage: https://flutter-open.github.io/antd-flutter/
+repository: https://github.com/flutter-open/antd-flutter
+issue_tracker: https://github.com/flutter-open/antd-flutter/issues
+
+topics:
+  - ui
+  - components
+  - design-system
+  - ant-design
+  - transfer
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  antd_theme: ^1.0.0
+  antd_icons_flutter: ^1.0.0
+  # AntCheckbox（indeterminate 半选状态）为 ui 共享基础组件，留 ui 不迁，
+  # 本包经 ui barrel 引用（依赖核对结论：AntCheckbox 依赖无法解除，保留）
+  antd_flutter_ui: ^1.0.0
+  material_ui: ^1.11.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

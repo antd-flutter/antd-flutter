@@ -1,0 +1,45 @@
+# 本地开发用：包尚未发布到 pub.dev 时走仓库内路径。
+# 该文件不会被 pub publish 发布，发布时使用 pubspec.yaml 中的版本约束。
+dependency_overrides:
+  antd_color:
+    path: packages/antd_color
+  antd_tokens:
+    path: packages/antd_tokens
+  antd_theme:
+    path: packages/antd_theme
+  antd_icons_flutter:
+    path: packages/antd_icons_flutter
+  antd_flutter_ui:
+    path: packages/antd_flutter_ui
+  antd_qrcode:
+    path: packages/antd_qrcode
+  antd_refresh:
+    path: packages/antd_refresh
+  antd_swipe_action:
+    path: packages/antd_swipe_action
+  antd_calendar:
+    path: packages/antd_calendar
+  antd_splitter:
+    path: packages/antd_splitter
+  antd_image_viewer:
+    path: packages/antd_image_viewer
+  antd_upload:
+    path: packages/antd_upload
+  antd_picker:
+    path: packages/antd_picker
+  antd_form:
+    path: packages/antd_form
+  antd_tree:
+    path: packages/antd_tree
+  antd_carousel:
+    path: packages/antd_carousel
+  antd_masonry:
+    path: packages/antd_masonry
+  antd_floating:
+    path: packages/antd_floating
+  antd_keyboard:
+    path: packages/antd_keyboard
+  antd_table:
+    path: packages/antd_table
+  antd_transfer:
+    path: packages/antd_transfer

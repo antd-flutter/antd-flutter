@@ -6,16 +6,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: AntTheme(
           data: AntThemeData.light(),
           child: Material(child: child),
         ),
       ),
-    ),
-  );
+    );
 }
 
 /// 获取 AntMasonry 内部 Expanded 的数量（即列数）。
@@ -23,7 +21,9 @@ int _columnCount(WidgetTester tester) {
   return tester
       .widgetList<Expanded>(
         find.descendant(
-            of: find.byType(AntMasonry), matching: find.byType(Expanded),),
+          of: find.byType(AntMasonry),
+          matching: find.byType(Expanded),
+        ),
       )
       .length;
 }
@@ -145,7 +145,9 @@ void main() {
       );
       final column = tester.widget<Column>(
         find.descendant(
-            of: find.byType(AntMasonry), matching: find.byType(Column),),
+          of: find.byType(AntMasonry),
+          matching: find.byType(Column),
+        ),
       );
       // itemA, SizedBox(20), itemB
       expect(column.children.length, 3);
@@ -168,7 +170,9 @@ void main() {
       );
       final column = tester.widget<Column>(
         find.descendant(
-            of: find.byType(AntMasonry), matching: find.byType(Column),),
+          of: find.byType(AntMasonry),
+          matching: find.byType(Column),
+        ),
       );
       expect(column.children.length, 3);
       expect((column.children[1] as SizedBox).height, 12);
@@ -225,13 +229,25 @@ void main() {
             columns: 3,
             children: [
               AntMasonryItem(
-                  key: ValueKey('a'), height: 100, child: Text('A'),),
+                key: ValueKey('a'),
+                height: 100,
+                child: Text('A'),
+              ),
               AntMasonryItem(
-                  key: ValueKey('b'), height: 150, child: Text('B'),),
+                key: ValueKey('b'),
+                height: 150,
+                child: Text('B'),
+              ),
               AntMasonryItem(
-                  key: ValueKey('c'), height: 80, child: Text('C'),),
+                key: ValueKey('c'),
+                height: 80,
+                child: Text('C'),
+              ),
               AntMasonryItem(
-                  key: ValueKey('d'), height: 50, child: Text('D'),),
+                key: ValueKey('d'),
+                height: 50,
+                child: Text('D'),
+              ),
             ],
           ),
         ),

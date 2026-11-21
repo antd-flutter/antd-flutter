@@ -6,8 +6,9 @@ class SearchBarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -19,7 +20,7 @@ class SearchBarPage extends StatelessWidget {
               onSearch: (v) => debugPrint('onSearch: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '带取消按钮（聚焦时显示）',
             child: AntSearchBar(
@@ -29,7 +30,7 @@ class SearchBarPage extends StatelessWidget {
               onSearch: (v) => debugPrint('onSearch: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '始终显示取消按钮',
             child: AntSearchBar(
@@ -39,7 +40,7 @@ class SearchBarPage extends StatelessWidget {
               onCancel: () => debugPrint('onCancel'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义取消文本',
             child: AntSearchBar(
@@ -49,7 +50,7 @@ class SearchBarPage extends StatelessWidget {
               onCancel: () => debugPrint('onCancel'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '仅聚焦时显示清除',
             child: AntSearchBar(
@@ -59,7 +60,7 @@ class SearchBarPage extends StatelessWidget {
               onClear: () => debugPrint('onClear'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁止清除',
             child: const AntSearchBar(
@@ -68,7 +69,7 @@ class SearchBarPage extends StatelessWidget {
               clearable: false,
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '最大长度限制',
             child: AntSearchBar(
@@ -77,23 +78,17 @@ class SearchBarPage extends StatelessWidget {
               onChange: (v) => debugPrint('onChange: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义搜索图标',
             child: AntSearchBar(
               placeholder: '搜索',
-              searchIcon: Icon(
-                AntIcons.searchOutlined,
-                size: 18.sp,
-              ),
+              searchIcon: Icon(AntIcons.searchOutlined, size: theme.s(18)),
               onSearch: (v) => debugPrint('onSearch: $v'),
             ),
           ),
-          SizedBox(height: 16.h),
-          _Section(
-            title: '受控模式',
-            child: const _ControlledSearchBar(),
-          ),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '受控模式', child: const _ControlledSearchBar()),
         ],
       ),
     );
@@ -112,6 +107,7 @@ class _ControlledSearchBarState extends State<_ControlledSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -121,11 +117,11 @@ class _ControlledSearchBarState extends State<_ControlledSearchBar> {
           onChange: (v) => setState(() => _value = v),
           onSearch: (v) => debugPrint('onSearch: $v'),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前值: $_value',
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: theme.s(12),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -144,7 +140,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(t.s(12)),
       decoration: BoxDecoration(
         color: t.colorBgContainer,
         borderRadius: BorderRadius.circular(t.borderRadiusLG),
@@ -156,12 +152,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: t.s(14),
               fontWeight: FontWeight.w600,
               color: t.colorText,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: t.s(12)),
           child,
         ],
       ),

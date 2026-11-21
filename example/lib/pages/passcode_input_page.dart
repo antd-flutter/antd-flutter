@@ -6,8 +6,9 @@ class PasscodeInputPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -20,17 +21,11 @@ class PasscodeInputPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
-          _Section(
-            title: '明文展示',
-            child: AntPasscodeInput(plain: true),
-          ),
-          SizedBox(height: 12.w),
-          _Section(
-            title: '格子分离',
-            child: AntPasscodeInput(separated: true),
-          ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
+          _Section(title: '明文展示', child: AntPasscodeInput(plain: true)),
+          SizedBox(height: theme.s(12)),
+          _Section(title: '格子分离', child: AntPasscodeInput(separated: true)),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '4 位验证码',
             child: AntPasscodeInput(
@@ -42,7 +37,7 @@ class PasscodeInputPage extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           _Section(
             title: '错误状态',
             child: AntPasscodeInput(
@@ -51,16 +46,10 @@ class PasscodeInputPage extends StatelessWidget {
               plain: true,
             ),
           ),
-          SizedBox(height: 12.w),
-          _Section(
-            title: '自动聚焦',
-            child: AntPasscodeInput(autofocus: true),
-          ),
-          SizedBox(height: 12.w),
-          _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
+          SizedBox(height: theme.s(12)),
+          _Section(title: '自动聚焦', child: AntPasscodeInput(autofocus: true)),
+          SizedBox(height: theme.s(12)),
+          _Section(title: '受控模式', child: _ControlledDemo()),
         ],
       ),
     );
@@ -77,6 +66,7 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -85,11 +75,11 @@ class _ControlledDemoState extends State<_ControlledDemo> {
           plain: true,
           onChange: (v) => setState(() => _value = v),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         Text(
           '当前值: $_value',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: theme.s(14),
             color: AntTheme.of(context).colorTextSecondary,
           ),
         ),
@@ -108,11 +98,11 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadiusLG.w),
-        border: Border.all(color: theme.colorSplit, width: 1.w),
+        borderRadius: BorderRadius.circular(theme.borderRadiusLG),
+        border: Border.all(color: theme.colorSplit, width: theme.s(1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,12 +110,12 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: theme.s(15),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),

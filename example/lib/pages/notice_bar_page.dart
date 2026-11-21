@@ -16,7 +16,10 @@ class NoticeBarPage extends StatelessWidget {
         children: const [
           _Section(title: '基本用法', description: '默认 normal 颜色，超长文本自动横向滚动'),
           _BasicDemo(),
-          _Section(title: '语义颜色', description: 'color: normal / alert / error / info / success'),
+          _Section(
+            title: '语义颜色',
+            description: 'color: normal / alert / error / info / success',
+          ),
           _ColorDemo(),
           _Section(title: '可关闭', description: 'closeable: true，点击关闭按钮隐藏通告栏'),
           _CloseableDemo(),
@@ -56,15 +59,21 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           if (description != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline)),
+              child: Text(
+                description!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
             ),
         ],
       ),
@@ -78,7 +87,8 @@ class _BasicDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const AntNoticeBar(
-      content: '这是一段超长的通告内容，超出宽度后将自动开始横向滚动，'
+      content:
+          '这是一段超长的通告内容，超出宽度后将自动开始横向滚动，'
           '滚动到末尾后会从右侧重新进入并循环播放。',
     );
   }
@@ -99,7 +109,10 @@ class _ColorDemo extends StatelessWidget {
         SizedBox(height: 12),
         AntNoticeBar(content: 'info：信息类通告', color: AntNoticeBarColor.info),
         SizedBox(height: 12),
-        AntNoticeBar(content: 'success：成功类通告', color: AntNoticeBarColor.success),
+        AntNoticeBar(
+          content: 'success：成功类通告',
+          color: AntNoticeBarColor.success,
+        ),
       ],
     );
   }
@@ -124,7 +137,8 @@ class _WrapDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const AntNoticeBar(
-      content: '适用于当前页面内信息的通知，是一种较醒目的页面内通知方式。'
+      content:
+          '适用于当前页面内信息的通知，是一种较醒目的页面内通知方式。'
           '开启 wrap 后超长文本不再滚动，而是自动换行展示全部内容。',
       wrap: true,
     );

@@ -6,8 +6,9 @@ class FormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
@@ -37,8 +38,8 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AntText(text: 
-          title,
+        AntText(
+          text: title,
           style: TextStyle(
             fontSize: t.fontSizeLG,
             fontWeight: FontWeight.w600,
@@ -46,16 +47,16 @@ class _Section extends StatelessWidget {
           ),
         ),
         if (description != null) ...[
-          SizedBox(height: 4.h),
-          AntText(text: 
-            description!,
+          SizedBox(height: t.s(4)),
+          AntText(
+            text: description!,
             style: TextStyle(
               fontSize: t.fontSizeSM,
               color: t.colorTextTertiary,
             ),
           ),
         ],
-        SizedBox(height: 12.h),
+        SizedBox(height: t.s(12)),
         child,
       ],
     );
@@ -67,6 +68,7 @@ class _BasicFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final controller = AntFormController();
     return _Section(
       title: '基础表单',
@@ -96,7 +98,7 @@ class _BasicFormSection extends StatelessWidget {
               placeholder: '请输入备注',
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: theme.s(8)),
           AntButton(
             type: AntButtonType.primary,
             onTap: () => controller.submit(),
@@ -113,6 +115,7 @@ class _HorizontalFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final controller = AntFormController();
     return _Section(
       title: '水平布局',
@@ -120,7 +123,7 @@ class _HorizontalFormSection extends StatelessWidget {
       child: AntForm(
         controller: controller,
         layout: AntFormLayout.horizontal,
-        labelWidth: 80.w,
+        labelWidth: theme.s(80),
         onFinish: (values) {
           debugPrint('水平表单提交: $values');
         },
@@ -143,7 +146,7 @@ class _HorizontalFormSection extends StatelessWidget {
               placeholder: '请输入手机号',
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: theme.s(8)),
           AntButton(
             type: AntButtonType.primary,
             onTap: () => controller.submit(),
@@ -160,6 +163,7 @@ class _ValidationFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     final controller = AntFormController();
     return _Section(
       title: '表单校验',
@@ -177,9 +181,7 @@ class _ValidationFormSection extends StatelessWidget {
             name: 'username',
             label: '用户名',
             required: true,
-            rules: [
-              AntFormFieldRule(minLength: 3, message: '用户名至少3个字符'),
-            ],
+            rules: [AntFormFieldRule(minLength: 3, message: '用户名至少3个字符')],
             builder: (field) => AntInput(
               value: field.value ?? '',
               onChange: field.didChange,
@@ -222,7 +224,7 @@ class _ValidationFormSection extends StatelessWidget {
               placeholder: '请输入年龄',
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: theme.s(8)),
           Row(
             children: [
               AntButton(
@@ -230,7 +232,7 @@ class _ValidationFormSection extends StatelessWidget {
                 onTap: () => controller.submit(),
                 child: const AntText(text: '提交'),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: theme.s(12)),
               AntButton(
                 onTap: () => controller.reset(),
                 child: const AntText(text: '重置'),

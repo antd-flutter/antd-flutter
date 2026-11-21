@@ -74,7 +74,7 @@ class _InfoCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadius.r),
+        borderRadius: BorderRadius.circular(theme.borderRadius),
         border: Border.all(color: theme.colorBorderSecondary),
       ),
       child: Column(
@@ -169,7 +169,7 @@ class _BreakpointOnlyPanel extends StatelessWidget {
                   color: active
                       ? theme.colorPrimaryBg
                       : theme.colorFillQuaternary,
-                  borderRadius: BorderRadius.circular(theme.borderRadiusXS.r),
+                  borderRadius: BorderRadius.circular(theme.borderRadiusXS),
                   border: Border.all(
                     color: active
                         ? theme.colorPrimaryBorder
@@ -267,7 +267,7 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
-        borderRadius: BorderRadius.circular(theme.borderRadius.r),
+        borderRadius: BorderRadius.circular(theme.borderRadius),
         border: Border.all(color: theme.colorBorderSecondary),
       ),
       child: Column(

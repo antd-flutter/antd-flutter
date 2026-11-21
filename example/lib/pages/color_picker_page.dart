@@ -6,8 +6,9 @@ class ColorPickerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,7 +19,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '显示颜色文本',
             child: AntColorPicker(
@@ -27,31 +28,24 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
+          _Section(title: '受控模式', child: _ControlledDemo()),
+          SizedBox(height: theme.s(16)),
           _Section(
-            title: '受控模式',
-            child: _ControlledDemo(),
-          ),
-          SizedBox(height: 16.h),
-          _Section(
-            title: '预设颜色',
-            child: AntColorPicker(
+            title: '预设颜色（自定义模型）',
+            child: AntColorPicker<_Palette>(
               defaultValue: '#1677ff',
               presets: const [
-                AntColorPreset(
-                  label: '推荐颜色',
-                  colors: ['#1677ff', '#52c41a', '#faad14', '#f5222d'],
-                ),
-                AntColorPreset(
-                  label: '中性色',
-                  colors: ['#000000', '#666666', '#999999', '#cccccc'],
-                ),
+                _Palette('推荐颜色', ['#1677ff', '#52c41a', '#faad14', '#f5222d']),
+                _Palette('中性色', ['#000000', '#666666', '#999999', '#cccccc']),
               ],
+              presetLabelOf: (palette) => palette.name,
+              presetColorsOf: (palette) => palette.colors,
               showText: true,
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'RGB 格式',
             child: AntColorPicker(
@@ -61,7 +55,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'HSL 格式',
             child: AntColorPicker(
@@ -71,7 +65,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'HSB 格式',
             child: AntColorPicker(
@@ -81,7 +75,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用透明度',
             child: AntColorPicker(
@@ -91,7 +85,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '允许清空',
             child: AntColorPicker(
@@ -101,7 +95,7 @@ class ColorPickerPage extends StatelessWidget {
               onChange: (color) => debugPrint('onChange: $color'),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '三种尺寸',
             child: AntSpace(
@@ -125,7 +119,7 @@ class ColorPickerPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '禁用状态',
             child: AntColorPicker(
@@ -151,9 +145,10 @@ class _ControlledDemoState extends State<_ControlledDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AntTheme.of(context);
     return AntFlex(
       vertical: true,
-      gap: AntFlexGap.all(12.w),
+      gap: AntFlexGap.all(theme.s(12)),
       children: [
         AntColorPicker(
           value: _color,
@@ -181,7 +176,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(theme.s(12)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -190,11 +185,25 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: theme.fontSizeLG, fontWeight: FontWeight.w600)),
-          SizedBox(height: 12.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: theme.fontSizeLG,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: theme.s(12)),
           child,
         ],
       ),
     );
   }
+}
+
+/// 自定义模型：色板分组（业务里常带 id/主题等字段）。
+class _Palette {
+  const _Palette(this.name, this.colors);
+
+  final String name;
+  final List<String> colors;
 }

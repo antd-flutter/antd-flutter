@@ -29,7 +29,6 @@ import 'package:flutter/foundation.dart'
     show ValueListenable;
 import 'package:flutter/widgets.dart';
 
-import 'ant_screen_util.dart';
 import 'enum/ant_breakpoint_type.dart';
 import 'enum/ant_responsive_type.dart';
 import 'types/ant_layout_types.dart';
@@ -260,8 +259,8 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
     final data = AntLayoutData.fromMediaQuery(
       mq,
       foldState: widget.foldStateProvider?.call(),
-      // 桌面超宽等比缩放因子（AntScreenUtilInit 计算，非放大恒 1.0）。
-      scaleFactor: AntScreenUtilInit.scaleFactorNotifier.value,
+      // 统一缩放因子（AntScale 时代恒为 1.0；组件内按 AntTheme.scale 缩放）。
+      scaleFactor: 1.0,
     );
     // 通知去重：值相等不发通知。
     if (_notifier.value != data) {
@@ -277,8 +276,8 @@ class _AntResponsiveInitState extends State<AntResponsiveInit>
     final data = AntLayoutData.fromMediaQuery(
       mq,
       foldState: widget.foldStateProvider?.call(),
-      // 桌面超宽等比缩放因子（AntScreenUtilInit 计算，非放大恒 1.0）。
-      scaleFactor: AntScreenUtilInit.scaleFactorNotifier.value,
+      // 统一缩放因子（AntScale 时代恒为 1.0；组件内按 AntTheme.scale 缩放）。
+      scaleFactor: 1.0,
     );
     if (_notifier.value != data) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _sync());

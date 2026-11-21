@@ -1,90 +1,264 @@
-# 执行计划（内部，不对外公开）
+# antd-flutter 执行计划（内部交接文档）
 
-> 约定：
-> - 子任务文件放在 `docs/plan/tasks/`，完成后**删除对应文件并移除下方引用**
-> - 全部完成后，执行最后一个任务：发布 1.0.0 版本，然后本计划目录整体删除
-> - 状态标记：`[ ]` 未开始 / `[~]` 进行中 / `[!]` 受阻
+> **本文件是新会话接手的唯一入口**：先读「现状快照」与「接手指南」，再按「剩余队列」串行执行。全部规则 R1-R34 在下方，派发子任务时把「子任务强制清单」原样写入子代理提示。
+>
+> - 子任务文件放在 `docs/plan/tasks/`，完成后**删除对应文件并移除索引引用**
+> - 全部完成后：发布 1.0.0 版本（CHANGELOG 正式化/去 beta 后缀/tag/发布），然后本计划目录整体删除
+> - 状态标记：`[ ]` 未开始 / `[~]` 进行中 / `[x]` 完成（完成后删任务文件与索引）
 
-## 总任务
+---
 
-- [ ] 发布 1.0.0 版本
-  - 前置：以下所有子任务全部完成并删除
-  - 步骤：更新 CHANGELOG（仅正式内容）/ 版本号 → 构建验证 → 打 tag → 发布
+## 一、现状快照（2026-11-21）
 
-## 通用规则（后续任务创建时遵循）
+### 仓库与分支
+- 仓库：github.com/flutter-open/antd-flutter（单远程 GitHub，SSH；Gitee/GitCode 双推已取消）
+- **当前分支：`develop`**（P08 已合并，`task/p08-split` 按 R2 删除；`master` 待 1.0.0 发布时合并）
+- Flutter：fvm 3.50.0 stable；pub.dev 凭证已缓存（曾成功发布子包）
+- 无进行中子代理；工作区干净，最后提交 `306591c`（2026-11-20，仓库组织迁移 URL 同步）
 
-### 分支规则
-- R1 同一任务组的多个子任务共用**一个任务分支**，避免任务分支过多；分支名按任务组命名（如 `task/p01-p02-dual-remote-gitcode`、`task/p03-theme-bridge`），新任务若属于已有任务组则复用该分支
-- R2 任务分支从 `master` 拉出，完成后本地验证通过（R18）即合并回 `master` 并删除任务分支；**不等待 CI**，CI 失败事后修复
-- R3 临时/实验分支不推送远程；任务分支推送时遵循双地址推送规则（P01 完成后）
+### 组件总量与进度
+- 全库 107 个组件（含族内合并实现）；迁移状态清单：**已验收 ✅ 82 项 / 待验收 ⏱ 25 项**（详见 `docs/plan/tasks/P08-验收状态表.md`）
+- 批次 0（基础组件迁 ui）✅ 全部完成；批次 1/2（独立包拆分）✅ 全部完成，`packages/` 现为 **基础层 4 + ui + 独立包 16**
+- 批次 3：组件自举替换 ✅ / R37 全局热键 ✅ / 伞包 README ✅；剩余 select-like 核查、Calendar 双端打磨、全量回归、3b 终态固化
+- 验收清单已于 2026-11-21 按状态表归位（`example/lib/data/migration_status.dart`：修正 14 项误挂待验证、16 项误标已验收、6 项重复）
+- 测试基线：根包 analyze 归零 + 98 测试；antd_flutter_ui 1469 测试、antd_calendar 92、antd_keyboard 81、antd_picker 62 全过（11-19 全量回归留档，发布前重跑）
 
-### CHANGELOG 规则
-- R4 CHANGELOG 中**不放入 beta 更新内容**；已有的 beta 条目全部删除
-- R5 仅在**正式发布**时才向 CHANGELOG 添加内容；beta 期间的变更记录保留在任务文档（`docs/plan/tasks/`）中，不进 CHANGELOG
+### 包结构现状
+```
+packages/
+├── antd_color / antd_tokens / antd_theme / antd_icons_flutter   （已发布 1.0.0/1.0.1 stable）
+├── antd_flutter_ui        （基础库：批次 0 全部组件 + engines/ 滚轮/键盘/热键等）
+├── 独立组件包（16 个）：
+│   antd_calendar / antd_carousel / antd_floating / antd_form / antd_image_viewer /
+│   antd_keyboard / antd_masonry / antd_picker / antd_qrcode / antd_refresh /
+│   antd_splitter / antd_swipe_action / antd_table / antd_transfer / antd_tree / antd_upload
+│   （均 0.1.0-beta.1，待发布 1.0.0；antd_pull_to_refresh 已并入 antd_refresh）
+主包 antd_flutter_plus      ← 伞包：re-export 全部 packages（1.0.0-beta.2）
+```
 
-### 版本规则
-- R6 版本号规则：预发布阶段统一为 **`1.0.0-beta.xxx`**（每次预发布 beta 序号 +1，如 1.0.0-beta.1 → 1.0.0-beta.2）；**beta 后缀消失（即 `1.0.0`）的那一刻就是正式发布**，不设其他中间版本形态
+### 关键环境事实
+- material_ui 迁移已完成（R24：全库禁 flutter/material.dart import）
+- iOS 模拟器无需证书；iPhone Duo 折叠模拟器 UDID `5E6064EC-2C07-4150-9DF7-941C74669629`（Xcode 26 模拟器界面在 DeviceHub.app）
+- macOS example 验收窗口已固定 1728×1080（example/macos/Runner/MainFlutterWindow.swift）
+- pub.dev 已发布：antd_color/antd_tokens/antd_theme 1.0.0、antd_icons_flutter 1.0.1、antd_flutter_plus 1.0.0-beta.2（伞包停用声明页 README，待拆分完成后按新结构重新发布）
+- example 亮暗/命名规范脚本：scripts/setup_example_identity.sh（R32.2）
+- 文档生成：scripts/gen_docs.sh（R20/R28，8 包 api-index 全绿）
 
-### 质量规则
-- R7 每个任务完成前：`flutter analyze` 零问题 + 相关 `flutter test` 全量通过
-- R8 新增功能必须附带单元测试/Widget 测试
-- R9 遵循最小改动原则，不做扩散性变更
+---
 
-### 任务文档规则
-- R10 每个子任务一个文件，命名 `P<n>-<标题>.md`，含：目标 / 前置依赖 / 步骤 / 验收标准
-- R11 任务完成后：更新 CHANGELOG 的动作留给正式发布时统一执行，任务内只记录变更点
+## 二、新会话接手指南
 
-### 组件库设计规则
-- R12 平台判断必须有统一入口且下沉到 antd_theme 包（现状 `AntPlatform` 在主工程，需迁移并保持 API 向后兼容）；**严禁使用 `Platform.isOhos`**（Flutter SDK 无此属性）
-- R13 布局/主题等全局状态变化必须走**局部刷新**通知（InheritedWidget 依赖 / ValueNotifier 订阅），禁止让用户整页 setState；通知前做值相等去重，值不变不通知
-- R14 所有 example 页面按「正式形态」要求打磨：国际化（至少中英文）+ 明暗模式切换 + 支持嵌入模式（URL 参数关闭宿主 UI、可传主题参数）
-- R15 example 内可用组件尽量自举替换为 antd-flutter 组件（对齐根 example 自举约定）
-- R16 三方 SDK/平台 API 必须经中间层隔离（如 `AntOhosChannel` 抽象接口），业务代码不直接触碰 SDK 语义
+1. 读本文件全文 + `docs/plan/tasks/P08-验收状态表.md`（逐组件验收 ✅ 跟踪）
+2. `git branch --show-current` 确认分支；`git status` 检查进行中子代理是否残留未提交文件（有则按其任务文档裁决收尾）
+3. 按「剩余队列」**串行**派发子代理（R27），每个子代理提示必须原样包含下方「子任务强制清单」
+4. 每个子任务完成：定向 add 提交推送 → 更新验收状态表 ✅ → 用户验收 → 下一项
+5. 全部完成后执行「发布 1.0.0」总任务，最后删除本计划目录
 
-### Dart 文件拆分规则
-- R25 组件 dart 文件必须**细粒度拆分**，便于 skill/工具按文件读取与检索：一个组件目录内按职责分层放置——`config/`（组件配置类，如 ButtonConfig）、`enum/`（枚举与形态定义，如 button_type/text_button 等各占一个文件）、组件主体（ant_button.dart）、回调/数据类型必要时单独 types 文件；**禁止把配置/枚举/组件主体堆在一个文件里**
-- R26 每个组件目录通过一个统一的 `index.dart`（或同名聚合文件）对外 export 全部公开文件，消费方与 barrel 只引 index.dart；新增/移动文件必须同步维护 index.dart
+---
 
-### 文档规则
-- R20 **文档单轨脚本生成（2026-11-17 用户指示，替代原双轨方案）**：所有文档由 gen-docs 命令从源码 `///` 注释自动生成（API 签名/参数表/文档全文），**不设人工文档**；人工只维护代码内的 `///` 注释（Effective Dart 规范），文档更新=改注释+跑命令
-- R21 静态页面产出：人工文档 + dart doc 整合为静态页面，供用户网页查看；预留与站点发布（P02）及未来官网整合
-- R22 文档随代码走：生成产物放各包 `docs/`（gitignore 与否由生成物稳定性决定，api-index.md 纳入版本控制）；改组件 API = 改 /// 注释 + 跑 gen-docs，一次提交完成
-- R29 **编码基类沉淀**
-- R30 **实现前先查轮子（用户指定）**：实现某功能前，先到 pub.dev 搜索是否已有成熟包实现（读其文档/源码/示例），优先「下载源码研究 → 按需改造吸收进自己代码」，避免从零重造；引入三方依赖需评估维护活跃度与依赖面（R16 中间件隔离仍适用）；改造吸收（拷源码改写）优于直接依赖（减少依赖树），版权/License 合规（MIT/Apache 可，需在文件头注明来源）
-- R31 **样式实现优先级（用户指定，迁移/新代码直接执行）**：① 能继承 Flutter 系统组件的优先继承系统实现（适配层形态，如 AntSafeArea extends SafeArea / AntSliverAppBar extends SliverAppBar）；② 系统组件无法满足的，优先去 pub.dev 查找**高星级**开源轮子研究其实现方式后改造吸收（按 R30）；③ 都不适用才自研自绘。三档优先级在组件迁移与新组件开发时**直接执行**，无需逐次确认
-- R28 **文档命令化生成（单轨落地）**：gen-docs 命令承担全部文档产出；既有的人工 md（antd_color/antd_tokens/antd_icons_flutter 的 color/palette/parse/seed-token 等）属于历史遗留，由 P14 迁移为生成产物后删除
-- R23 **禁用 golden（图像快照）测试**（用户确认：token/积分成本高，跨平台字体渲染易 flaky）：组件默认参数值用普通单测断言；视觉效果由用户在 example 页人工抽查验收
-- R24 **import 统一用 `package:material_ui/material_ui.dart` 替代 `flutter/material.dart`**（官方迁移方向，防止 material.dart 遗弃问题；cupertino 同理用 cupertino_ui）；所有子包/主包/example/测试文件一律遵守，新代码禁止出现 `flutter/material.dart` import
+## 三、通用规则（R1-R38，全部有效）
 
-### 任务执行规则
-- R17 任务修改按**子任务模式**执行：一次执行**一个完整子任务**（该任务文件的全部步骤连续做完），**中途不询问**；全部子任务完成后整体验证
-- R18 验证策略（2026-11-17 更新，用户确认：**本地环境已可用，恢复本地验证**）：子任务完成 → 本地 `flutter analyze` 零问题 + 相关 `flutter test` 全量通过（R7）→ 提交推送；**推送后不等 CI**，直接继续下一子任务；CI 仅作事后验证，失败时由主窗口整理修复任务优先处理；提交信息仅描述修改内容本身，不带任务编号/步骤
-- R19 子任务完成并提交后：勾掉 PLAN.md 索引 → **删除任务文件并移除索引行**（按计划约定）
-### P08 进行中状态（2026-11-18 暂停，用户休息）
-- 已完成迁移并合并：ui 建库 + 引擎上移（滚轮/键盘）→ 基础层 10/10（Button/Typography/Flex/Space/Grid/Layout/Divider/SafeArea/AutoCenter/Footer，全部经用户逐组件验收）→ 通用展示 6/26（Empty/Avatar/Badge/Tag/Card）
-- 用户已裁决：争议组件 Carousel/Masonry/ColorPicker/Select/Transfer 独立成包
-- 续接点：分支 task/p08-split（已合并删除）；下一子任务=通用展示组继续（Statistic → NoticeBar → Segmented → Watermark → Ellipsis → Carousel(antd_carousel) → PageIndicator → InfiniteScroll → Image → Popover/Tooltip（随 P15 弹层底座）→ …）
-- 用户反馈待办：MacOS demo 页部分 RenderFlex 溢出（遗留问题已登记）；AntTooltip 箭头异常（记入 P15）
-- GitCode 相关全部取消（2026-11-18 用户确认）：P02 遗留的流水线内测申请与 Pages 开通待办不再需要，双推已回退 GitHub 单远程
+### 分支与提交
+- R1 同组子任务共用一个任务分支（如 task/p08-split）；R2 本地验证通过即合并 **develop** 删分支（不等 CI）；develop 在里程碑/发布时合并 master；R3 实验分支不推远程
+- R17 子任务模式：一次一个完整子任务，中途不询问；R27 所有子任务派子代理执行、同一时间只跑一个、新任务排队等待
 
-- R27 **子任务代理化执行**：所有子任务一律派发子代理执行，不占用主任务窗口交互；**同一时间只允许一个子任务在跑**，完成后才下发下一个；主窗口收到新任务时若上一子任务仍在进行，将新任务整理成任务文件加入计划**排队等待**，不并行派发
+### 验证与质量
+- R7 analyze 零问题 + test 全过；R8 新功能带测试；R9 最小改动
+- R18 验证策略：本地 analyze/test 通过即提交推送，**推送后不等 CI**；CI 失败由主窗口整理修复任务优先处理
+- R23 禁用 golden 图像快照测试（视觉由用户 example 页人工抽查）；默认参数值用普通单测断言
 
-## 子任务索引
+### 版本与 CHANGELOG
+- R4/R5 CHANGELOG 只在正式发布时写正式内容（beta 记录在任务文档）
+- R6 预发布统一 `1.0.0-beta.xxx` 递增；beta 后缀消失即正式发布
 
-- [x] [P14-全量文档生成与人工文档迁移](tasks/P14-全量文档生成与人工文档迁移.md)
-- [ ] [P15-统一弹层底座](tasks/P15-统一弹层底座.md)（排队：P08 迁移任务之后）
-- [ ] [P08-组件库拆分基础库与独立组件](tasks/P08-组件库拆分基础库与独立组件.md)（**挂起：计划已细化待评审，用户明确说「执行」才开工；合并执行项：AntTabs/AntSteps 无界高度 Expanded 问题修复（P09 记录）**）
+### 任务文档
+- R10 子任务文件 `P<n>-<标题>.md`；R19 完成后删文件移索引；R11 CHANGELOG 留正式发布统一执行
 
-## 执行顺序（用户已确认）
-P05 → P11 → P07 → P02 → P06 → P09 → P14 → P08（**与原 P11 一键 antd 化扩展合并执行**：重构时同步实现 `.antd` 扩展 + Flutter 别名层；涉及 pub.dev 账号授权时会停下交回用户；P08 仍需用户明确下令才开工）；逐个派发子代理执行，同一时间只跑一个子任务（避免 git 提交冲突），每个完成后汇报；**完成的条目直接从本行删除，不保留/不移动位置**
+### 组件库设计
+- R12 平台判断统一入口在 antd_theme（AntPlatform 已下沉）；严禁 `Platform.isOhos`
+- R13 全局状态变化走局部刷新通知（值相等去重）
+- R14 example 正式形态：国际化中英文 + 明暗切换 + 嵌入模式（URL 参数）
+- R15 example 自举替换 antd 组件；R16 三方 SDK 经中间层隔离（AntOhosChannel 模式）
+- R25/R26 dart 文件细粒度拆分（config//enum/ 分层）+ index.dart 统一导出
+- R29 编码基类沉淀（重复逻辑抽取基类，禁复制粘贴式实现）
+- R33 sliver 家族判定：滚动集合类组件必须提供 sliver 支持（Masonry→AntSliverMasonry；Grid/List 经 adapt 层）；overlay/包裹/固定布局类不需要
 
-## 待明确问题
-- P05/P06：device_preview 折叠屏支持已查证（P09 文件内）；暂无其他待明确项
-- **遗留问题登记**（用户确认重构前即存在，非迁移引入，待 demo 适配批次统一处理）：example demo 页间距观感异常（macOS 桌面端桌面模式缩放因子=1，demo 页混用 const EdgeInsets 与 .w 两种间距来源导致密度不一致）
+### 文档
+- R20/R28 文档单轨脚本生成（gen-docs 从 /// 注释生成，不设人工文档；人工只维护 /// 注释）
+- R21/R22 静态页面产出、文档随代码走、改 API 同提交更新文档
+- R34 独立组件包文案国际化：内建 locale 机制，默认中文，常用语言全集内置（zh/en/ja/ko/fr/de/es/ru/pt/it/ar），已有包 antd_refresh 已落地
+- R35 **Flutter Controller 模式规范（用户指定）**：受控/可编程操作的组件必须遵循 Flutter 编码惯例——暴露 **Controller 类**（如 ScrollController/EasyRefreshController 模式），通过 controller 调用开启/关闭/刷新等操作，不依赖 GlobalKey hack 或内部状态直改；**性能**：局部刷新用 ListenableBuilder/ValueListenableBuilder 等（对应 R13），禁止整页 setState
+- R35.1 **已实现组件统一排查改造（用户指定，一次性）**：P08 当前子任务完成后，对所有已实现组件统一排查一轮——不符合 Controller 模式/局部刷新规范的逐个修正；后续新组件开发直接按 R35 实现
+  - 排查/改造组件清单：AntPullToRefresh（现 GlobalKey State.callRefresh → AntRefreshController 类 R35.2 化）、AntInfiniteScroll、AntCalendar/AntCalendarPicker（受控 visible/value）、AntSegmented（受控 value）、AntTooltip/AntPopover/AntPopconfirm/AntDropdown（p15-ctrl 四弹层 Controller 改造已覆盖）、AntFloatingPanel/AntFloatingBubble、AntDropdown 等——逐个对照 Flutter Controller 惯例修正
+- R35.2 **Controller 优先，减少 key/state 引用（用户指定）**：受控模式的操作入口优先使用 **Controller 类**（如 AntTooltipController.show()/hide()），减少 GlobalKey 与外部 state 引用（除非必要）；已实现组件统一排查改造一轮（Tooltip/Popover/Popconfirm/Dropdown 受控模式首批）
+- R35.3 **独立包 example 运行验证（用户指定）**：每个独立包 example 创建后，必须执行一次 `flutter run -d macos` 真机验证（正常启动、页面渲染、交互无报错），验证通过后退出自身启动的进程再收尾；「不要 flutter run」纪律针对的是用户正在跑的会话，独立包 example 的启动验证不受此限（跑完即退，不占用户会话）
+- R35.4 **独立包 example 多平台 UI 适配（用户指定）**：独立包 example 不只是创建目录——demo UI 必须做多平台适配（AntResponsive 断点：desktop 宽屏布局 / phone 窄屏布局自适应、暗色切换、窗口缩放无溢出），验证覆盖 macOS + 移动端形态
+- R37 **全局热键系统（用户指定，底层基础设施）**：热键系统是**底层能力**——**任何控件都应该可以挂接热键**，让用户可以基于热键操作控件。落地形态：
+  - ui 层提供通用热键基础设施：`AntHotkeys` 包裹 widget / `HotkeyRegistry` 注册中心（KeyboardEvent 监听 + 热键绑定 → 触发控件动作/回调），开发者可对**任意控件**绑定任意快捷键组合
+  - 组件内建默认绑定示例：弹层类 Esc 关闭（Tooltip/Popover/Popconfirm/Dropdown/Dialog/Drawer/Modal/Toast/Message/Notification/ActionSheet/TreeSelect/Cascader/CalendarPicker 等，关闭操作最常见优先）
+  - 其余控件按语义提供可选热键入口；桌面端优先
+- R38 **双端样式分平台适配（用户指定，适用于所有控件）**：同一控件在桌面端与移动端样式不同时，必须分别遵循两端上游实现——桌面对齐 **antd v6**（参考 `.temp/ant-design`），移动端对齐 **antd-mobile v5**（参考 `.temp/ant-design-mobile`），禁止用一套样式糊两端。落地要求：
+  - 以 `AntPlatform.isMobile`（iOS/Android）与桌面（macOS/Windows/Linux）分支，分别定义尺寸、字号、间距、圆角、指示条、交互反馈等差异，并对两端各自断言
+  - 首个落地样例 Tab line：桌面字号 14 / 标签间距 32 / 指示条 2px 直角 / 内容 padding 16；移动字号 17 / 间距 24 / 指示条 2px 圆角 / 内容 padding 12；两端激活态均只变色不加粗
+  - 已有双端差异的控件（Calendar card 布局、Picker 滚轮/下拉等）按同一原则复核
+- R39 **图标统一使用 antd_icons_flutter（用户指定，适用于所有 UI）**：组件代码、示例与测试中的图标一律使用 `antd_icons_flutter` 的 `AntIcons.*` / `AntdIcon`，不得再使用 Material `Icons.*`；antd 图标集无对应语义时选择最接近的 antd 图标并在提交说明中记录；非图标语义的图形标记（如 Radio 圆点、Checkbox 方块）按 antd 外观自绘，不借 Material 图标凑形状。新增组件同样遵守。
+
+- R40 **数据参数泛型化（用户指定，适用于所有数据组件）**：组件类带 `<T>`，数据集合一律 `List<T> dataSource` / `List<T> items`，值为 `T value`；组件不得要求使用者先构造本库的 `Ant*Item/Option` 或 `Map` 行。
+  - 结构取数只靠回调：`keyOf`（缺省 index）、`childrenOf`（树/级联/菜单/分组）、`disabledOf`、`valueExtractor` 等；
+  - 渲染一律 builder：`labelBuilder(context,T)`、`titleBuilder`、`descriptionBuilder`、`contentBuilder`、`itemBuilder(context,T,int)`、`dotBuilder` 等，字符串标题仅作缺省回退；
+  - 禁止字符串取值：不再有 `dataIndex`；排序/筛选用 `Comparator<T>`/`bool Function(T,T)` 等类型回调；
+  - 1.0 发布前允许破坏性变更；旧 `Ant*Item` 数据类可保留 `@Deprecated` 过渡，但组件必须已走泛型；
+  - 每个组件至少一条「用户自定义模型」测试，示例页统一用业务模型（如 `_Person`/`_Region`），不用字符串 Map；
+  - 约定细节见 `docs/plan/tasks/data-model-generic-convention.md`，审计清单见 `docs/plan/tasks/data-model-audit.md`。
+
+- R41 **尺寸统一走 AntScale，移除 flutter_screenutil（用户指定，适用于所有包与示例）**：设计稿数值一律包 `theme.s(n)`，主题 token（fontSize/controlHeight/padding/margin/borderRadius/sizeUnit 等）已随因子缩放，**不得再叠加 `.s()`**；禁止 `.w/.h/.sp/.r` 扩展与 `flutter_screenutil` 依赖/导入。
+  - 全局缩放只由 `AntThemeData(scale: AntScale(...))` 决定：默认 `AntScale.none`（1.0），移动端可显式 `AntScale.auto(context)`（短边 375，clamp 0.9–1.2）；桌面不做超宽自动放大。
+  - 新增/修改组件时尺寸写 `t.s(设计值)` 或直接用 token；字号随因子缩放并叠加系统 `MediaQuery.textScaler`。
+  - 方案与迁移记录见 `docs/plan/tasks/screenutil-exit-and-ant-scale.md`。
+
+### 轮子与实现优先级
+- R30 实现前先查轮子（pub.dev 搜索成熟实现，源码研究改造吸收优于直接依赖；License 合规注明）
+- R30.1 轮子参考清单（实现对应组件时必须先研究该轮子源码）：
+  - AntTable → pluto_grid / syncfusion_flutter_datagrid
+  - AntImageViewer → photo_view
+  - AntCarousel（antd_carousel 独立包）→ carousel_slider
+  - AntMasonry（antd_masonry 独立包）→ flutter_staggered_grid_view（含 SliverMasonryGrid，R33 联动）
+  - AntInfiniteScroll → infinite_scroll_pagination（已在 antd_refresh 落地）
+  - AntTour → tutorial_coach_mark
+  - AntCalendar（antd_calendar 独立包）→ table_calendar（已确认吸收，task-p08-calendar2 执行中）
+  - AntPullToRefresh → pull_to_refresh_flutter3（✅ 已改造完成）
+  - AntSwipeAction → flutter_swipe_action_cell（✅ 已改造完成，Apache-2.0）
+  - AntNumberKeyboard 虚拟键盘 → flutter_onscreen_keyboard（布局/按键行为/长按连续删除参考，用户指定）
+  - 弹层底座 → popover（P15 立项吸收）
+  - Picker 族滚轮引擎 → 系统 CupertinoPicker 继承评估（R31 第一优先级）
+- R30.2 迁移时直接改造吸收，一步到位（禁止先搬家再二次改造）
+- R30.3 有轮子优先**完全仿造轮子实现**（完整移植复刻+类名前缀改造），验证后在其上实现 antd 封装（antd_refresh 模式）；部分吸收仅作次选
+- R31 样式实现优先级：① 继承 Flutter 系统组件（适配层 extends 模式）② pub.dev 高星轮子改造吸收 ③ 自研自绘——迁移直接执行
+- R32 独立包自建 example 全平台（iOS/Android/macOS/Windows/Linux/Web + CI）；R32.1 README 只写功能介绍/安装/用法/文档链接（不含部署构建）；R32.2 图标统一 SVG 生成 + 名称大驼峰不含 example；统一脚本 scripts/setup_example_identity.sh
+
+### example 与文案
+- R34 独立组件包文案国际化：内建 locale 机制默认中文，常用语言全集（zh/en/ja/ko/fr/de/es/ru/pt/it/ar）；antd_refresh 已落地，后续独立包按此实现
+- R24 import 统一 `package:material_ui/material_ui.dart`（禁 flutter/material.dart；cupertino 同理 cupertino_ui）
+
+### git 纪律（双向）
+- 子任务只 add 自己的文件，严禁 `git add -A`/`git add .`；提交前 `git status --short` 逐项核对
+- lead 在子代理运行期间同样只定向 add；严禁 pkill 用户的 flutter 会话
+
+---
+
+## 四、子任务强制清单（派发子代理时原样写入提示）
+
+1. **example 同步三件套**：① nav_data 恢复/新增该组件 NavItem ② migration_status.dart 加入 kPendingVerify ③ demo 页渲染确认（历史教训：五次漏入口）
+2. 验证范围：目标包 analyze/test + example analyze/build web；不验证根包（最终统一回归兜底）
+3. 验证平台：macOS + iOS 模拟器，不用 web；双实现组件开双端
+4. flutter 命令限制：禁止 flutter run；严禁 pkill 用户会话；锁冲突等待 1-2 分钟重试
+5. 验收流转：验收状态表标 ✅ + kPendingVerify 移入 kMigratedVerified（两处同步）
+6. R29-R33 全部适用
+7. git add 纪律双向：严禁 add -A，定向 add + 逐项核对
+8. R30.2 迁移即改造：R30.1 清单组件迁移时同步完成轮子改造吸收
+
+---
+
+## 五、进行中任务
+
+### [x] P08 批次 3 收尾 ✅（2026-11-21，已合并 develop `cc7ef4d`）
+- 组件自举替换（d56b5a1）、R37 全局热键（ad35e69 / 93a5526）、伞包 README（2e233b7）
+- 验收清单归位（`migration_status.dart` ✅ 82 / ⏱ 25）
+- select-like 底座核查：Tree/Cascader/ColorPicker/AutoComplete/Mentions 均接 AntPopupOverlay
+- Calendar 双端打磨（card 字号回退修复 + 单元格 44 高）
+- 全量回归全绿（21 包 + 根包 analyze/test、example web build）
+- example 身份统一 `com.antd.*`（9 个补齐）+ gen-docs 全量重跑（缺失/多余/残留 0）
+
+### [ ] 下一阶段：集中验收 → 发布 1.0.0
+- 用户验收剩余 27 项 ⏱（macOS 桌面 + iOS 移动双端）
+- 验收通过后：CHANGELOG 正式化 → 版本 18 包/根包去 beta → 合并 `master` → tag → 发布
+
+### 验收状态表
+docs/plan/tasks/P08-验收状态表.md（逐组件 ✅ 跟踪，用户验收后更新）
+
+---
+
+## 六、剩余队列（批次制——用户指示：ui 归属基础组件先行迁移，独立包拆分靠后）
+
+> **组件去向规则（严格遵守）**：最终归属 ui 的组件先迁入 ui；最终去向为独立包的组件不经过 ui 中转，轮到时直接从主包拆独立包。**批次 0（ui 基础组件迁移）全部完成并验收后，才开始批次 1 起的独立包拆分。**
+
+> **验收流程调整（用户指定）**：子任务完成后**不再逐批等待用户验收**，lead 按队列自动继续推进；**所有验收集中放在发布 1.0.0 前**统一进行（验收状态表照常维护 ⏱ 标记，批次 0 的「验收后才开始」语义调整为「迁移完成后」）
+> **Calendar 双端拆分（用户 2026-11-21 更新指令）**：Calendar 按各自平台实现一套 UI，功能分别对齐 antd v6（桌面）与 antd-mobile v5（移动），能整合的抽共享核心、不能整合的分平台渲染；**等全部任务完成后再开始**，分阶段任务见 `docs/plan/tasks/P09-calendar-platform-split.md`（C0–C6，约 9–11 天）
+
+### 批次 0：plus 剩余基础组件迁入 ui（用户指示先行，约 55+ 组件，8 小批串行）
+> 主包 lib/src/components/ 尚有 feedback 17 / data_entry 24 / data_display 6 / navigation 12 / misc+general 5 未迁，全部 ui 归属。每小批：git mv → barrel/re-export → 三件套（nav ⏱ + demo 接线）→ analyze/test/build 全绿再下一批：
+> - 0-1 反馈非弹层族：alert / error_block / loading / mask / progress / result / result_page / skeleton / spin
+> - 0-2 反馈弹层族：dialog / drawer / modal / popup / action_sheet / toast / message / notification（弹层接 popup_engine 基座）
+> - 0-3 录入简单族：checkbox / radio / rate / slider / switch / stepper / input / input_number / search_bar / check_list / selector / number_keyboard / passcode_input / virtual_input / image_uploader
+> - 0-4 select-like 族：select / color_picker / auto_complete / mentions（统一接 popup_engine 底座——已立项估算项在此落地）
+> - 0-5 数据展示残余：collapse / descriptions / list / timeline
+> - 0-6 导航族：tabs / capsule_tabs / tab_bar / steps / jumbo_tabs / side_bar / menu / nav_bar / pagination / anchor / breadcrumb / index_bar（含 AntTabs/AntSteps 无界高度 bug 修复）
+> - 0-7 misc/general：affix / app / config_provider / border_beam / float_button
+> - 0-8 压轴：form / transfer / table（复杂表单与表格引擎）
+
+### 批次 1：antd_picker 独立包 ✅ 已完成
+### 批次 2 前插（用户指定，优先级最高）：antd_keyboard 独立包
+键盘族功能增强后功能强大（通用 AntKeyboard 引擎 + 全布局吸收 + 桌面形态），**单独成包**：packages/antd_keyboard/——从 ui 迁出（通用键盘引擎 + AntNumberKeyboard/PasscodeInput/VirtualInput 三组件；引擎随包走不入 ui engines），标准五件套（example R35.4 多平台适配 + R32.2 AntdKeyboard + CI + re-export 链调整 + R33 判定 + R35.3 macos 验证）。**批次 0-3 迁移任务（a23）完成后立即执行（同文件域串行）**，其后才继续批次 2 其余项。
+
+### 批次 2：独立包直接从主包拆分（逐个串行）✅ 全部完成
+1. **antd_tree** ✅（Tree/TreeSelect）
+2. **antd_carousel** ✅
+3. **antd_masonry** ✅（含 AntSliverMasonry sliver 变体 R33）
+4. **antd_floating** ✅（FloatingPanel/FloatingBubble，Controller 化验收通过）
+5. **antd_form** ✅（从 ui 拆出；ui 本体 Form 已验收，包级 example 待验收）
+5b. **antd_transfer** ✅（从 ui 拆出，标准五件套 + R32.2 AntdTransfer）
+6. **antd_table** ✅（压轴，从 ui 拆出；自包含零 ui 依赖）
+
+> 批次 2 期间另新增：antd_keyboard / antd_image_viewer / antd_picker / antd_splitter / antd_upload（共 16 独立包）
+
+### 批次 3：收尾（进行中）
+0. ✅ **组件自举替换**（d56b5a1：24 处替换 / 14 处登记保留）
+1. ✅ **R37 全局热键系统**（ad35e69：AntHotkeys 基础设施 + 弹层 Esc 关闭统一；image_viewer 本地 Esc 93a5526）
+2. ✅ select-like 族 popup_engine 底座核查（TreeSelect / Cascader / ColorPicker / AutoComplete / Mentions 均接 AntPopupOverlay）
+2. ✅ Calendar 双端打磨（修复强制 card 下字号回退 fullscreen 的 bug；card 单元格 32→44 对齐 antd-mobile），待集中验收
+3. ✅ 伞包 README（2e233b7）+ 全量回归留档（21 包 + 根包 analyze/test、example web build 全绿，见 `.temp/regress_result.txt`）
+3b. ✅ **example 身份脚本终跑 + gen-docs 全量重跑**：9 个 example 补齐 `com.antd.*`（carousel/color/floating/masonry/picker/theme/tokens/tree/upload），全部 21 个 example 身份一致；文档页面缺失/多余/人工残留均为 0
+
+### 批次 4：P09 Calendar 双端各自实现 —— ✅ 已完成（2026-11-21）
+> 用户 2026-11-21 指定：**所有任务完成后**再开始；先产出/细化任务书 `docs/plan/tasks/P09-calendar-platform-split.md`，按 C0 调研矩阵 → C1 抽共享核心 → C2 桌面（antd v6）→ C3 移动（antd-mobile v5）→ C4 兼容与整合判定 → C5 双端示例与视觉验收 → C6 收口 逐阶段执行，每阶段独立提交可验收。
+> 关键约束：逻辑共享、渲染分平台（禁止在渲染代码里 `if (isMobile)` 打补丁）；现有 week/twoWeeks/multiSelect 等非 antd 增强收敛为扩展能力；桌面无 CalendarPicker。
+
+### 批次 4：发布 1.0.0 —— 准备完成，待用户决定发布
+- 版本：21 包 `1.0.0`（`antd_icons_flutter` 1.0.1），根伞包 `1.0.0`；依赖约束统一 `^1.0.0`
+- 文档：21 包双语 README + 英文 CHANGELOG；`gen_docs` 全量通过（缺失 0/多余 0/人工残留 0）
+- 可发布性：每包补 LICENSE、`.pubignore`（排除 build/doc/example 产物），`publish_to: none` 仅保留在 example；`dependency_overrides` 迁至 `pubspec_overrides.yaml`（不入发布包）
+- 校验：22 个包 analyze 全绿、测试全绿；22 个包 `dart pub publish --dry-run` 无阻断项
+- 待办：合并 develop → master、CI 全绿后由用户决定是否 `pub publish`
+
+
+## 七、遗留问题登记
+- example demo 页间距观感异常（macOS 桌面模式因子=1，const EdgeInsets 与 .w 混用密度不一致）——待 demo 适配批次统一处理
+- AntTabs/AntSteps 无界高度 Expanded bug——已并入 P08 合并执行范围
+- device_preview 3.0.0 与 Flutter 3.50 不兼容（PreviewPlatformDispatcher 未实现 resetInternalState），当前用 1.3.1，待上游适配升级
+
+---
+
+## 八、关键文件与脚本索引
+- 验收状态表：docs/plan/tasks/P08-验收状态表.md
+- P08 审计与清单：docs/plan/tasks/P08-audit-依赖审计与拆分清单.md
+- P08 执行规则与强制清单：docs/plan/tasks/P08-组件库拆分基础库与独立组件.md
+- P15 弹层底座：docs/plan/tasks/P15-统一弹层底座.md
+- 脚本：scripts/gen_docs.sh（文档生成，--pkg 参数）、scripts/setup_example_identity.sh（example 图标/命名）、scripts/build_site.sh（站点合并）
+- 轮子源码参考：.temp/easy_refresh_src/（easy_refresh 3.5.1）、.temp/ant-design/（antd v6）、.temp/ant-design-mobile/（antd-mobile v5）
+- 迁移状态驱动：example/lib/data/migration_status.dart（kPendingVerify/kMigratedVerified 清单）
 
 ## 变更记录
 | 日期 | 变更 |
 |---|---|
+| 2026-11-22 | **1.0.0 发布准备**：文档体系重写（21 包双语 README、英文 CHANGELOG、API 仅链到本包 docs/api-index.md、去除测试/注意事项章节、补咖啡段）；版本统一 1.0.0；补 LICENSE 与 .pubignore；`dependency_overrides` 迁至 `pubspec_overrides.yaml`；gitignore 忽略 pubspec.lock；example 去开发状态标；gen_docs 全绿；22 包 analyze/test 全绿、publish dry-run 无阻断 |
+| 2026-11-21 | **移除 flutter_screenutil，改用 AntScale 统一缩放因子**：新增 `AntScale`/`AntThemeData.s()`，seed 尺寸 token 随因子缩放；全库 2323 处 `.w/.h/.sp/.r` 清零（components/examples/tests），删除 `flutter_screenutil` 依赖与 `AntScreenUtilInit` 实际逻辑（保留 deprecated 直通包装），删除 ScreenUtil 演示页；新增规则 R41。ui 1540、root example 59、21 包与 20 个示例 analyze/test 全绿 |
+| 2026-11-21 | **P09 Calendar 双端拆分立项（排队）**：用户要求按平台各实现一套 UI、功能分别对齐 antd v6 / antd-mobile v5，等全部任务完成后开始；任务书 `P09-calendar-platform-split.md`（C0–C6 分阶段） |
+| 2026-11-21 | **数据参数全面泛型化（破坏性）**：Table/Tree/TreeSelect/Transfer/Picker/Cascader/PickerView/Upload/Select/Radio/Checkbox/CheckList/Selector/Segmented/AutoComplete/Mentions/Slider/ColorPicker/ImageUploader/Tabs 家族/SideBar/IndexBar/Menu/Steps/Anchor/Breadcrumb/List/Timeline/Descriptions/Collapse/Tour/Card 改为 `<T>` + builder 数据源，删除 dataIndex/Ant*Item 强约束；新增规则 R40 与两份任务文档；ui 测试 1540、root example 59、各独立包全绿 |
+| 2026-11-21 | **全库图标迁移 antd_icons_flutter**：58 个库文件 + 53 个测试文件 + 主示例 4 处 Material `Icons.*` 全部替换为 `AntIcons.*`，Table 单选筛选改为自绘圆点，新增规则 R39；11 个依赖图标包的独立包补充 `antd_icons_flutter` 依赖 |
+| 2026-11-21 | **批次 3 收尾完成并合并 develop**（cc7ef4d）：select-like 核查 / Calendar 双端打磨 / 全量回归 / example 身份 + gen-docs 终态；删除 task/p08-split，当前分支 develop |
+| 2026-11-21 | **交接状态刷新**：快照更新至批次 2 全部完成（16 独立包）；验收清单按状态表归位（`migration_status.dart` 修正 14 误挂/16 误标/6 重复 → 78 ✅ / 29 ⏱）；进行中任务改为批次 3 收尾；标记 R37/自举/README 完成 |
+| 2026-11-18 | **本文件重写为独立交接文档**：现状快照/接手指南/规则汇总（R1-R34 去重）/剩余队列/强制清单/文件索引；P08 进行中状态（calendar2）与剩余队列整理；GitCode 待办取消 |
+| 2026-11-18 | 独立包拆分标准流程补充：example 创建完善（R32 全平台）+ CI 静态部署集成（deploy.yml/build_site.sh 已通用化，随包追加）
 | 2026-11-17 | P08 争议组件裁决：Carousel/Masonry/ColorPicker/Select/Transfer 独立成包，Ellipsis 留 ui
 | 2026-11-17 | 双远程由 GitCode 改为 Gitee；随后 **Gitee Pages 无法开通，整体回退为 GitHub 单远程**（移除 .workflow/publish 脚本/双推技能，P02 站点方案回归 GitHub Pages）
 | 2026-11-17 | 文档规则改单轨脚本生成（R20/R22/R28 重写），人工文档废除；P14 排队（全量文档生成能力）

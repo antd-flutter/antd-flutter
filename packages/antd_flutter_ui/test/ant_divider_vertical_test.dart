@@ -10,9 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('垂直分割线在 Row 内有可见高度（回归：0.9em 默认高度）', (tester) async {
     await tester.pumpWidget(
-      AntScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (_, __) => AntTheme(
+      AntTheme(
           data: AntThemeData.light(),
           child: const MaterialApp(
             home: Scaffold(
@@ -26,7 +24,6 @@ void main() {
             ),
           ),
         ),
-      ),
     );
     await tester.pumpAndSettle();
 

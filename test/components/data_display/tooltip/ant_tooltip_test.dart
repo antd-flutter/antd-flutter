@@ -6,7 +6,9 @@ import 'package:antd_flutter_plus/src/components/data_display/tooltip/ant_toolti
 import 'package:antd_theme/antd_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:antd_icons_flutter/antd_icons_flutter.dart';
 
 /// 气泡内容定位辅助。
 Finder findBubble(String text) => find.descendant(
@@ -18,8 +20,7 @@ Finder findBubble(String text) => find.descendant(
 Finder findTrigger(String text) => find.text(text);
 
 Widget _wrap(Widget child) {
-  return AntScreenUtilInit(
-    builder: (context, _) => MaterialApp(
+  return MaterialApp(
       home: Scaffold(
         body: Center(
           child: AntTheme(
@@ -28,8 +29,18 @@ Widget _wrap(Widget child) {
           ),
         ),
       ),
-    ),
-  );
+    );
+}
+
+/// 桌面 hover 用例辅助：显式切到 macOS 平台（flutter_test 默认 android，
+/// 会被平台降级逻辑判定为移动端），仅在 pumpWidget 期间生效。
+Future<void> _pumpDesktop(WidgetTester tester, Widget child) async {
+  debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+  try {
+    await tester.pumpWidget(_wrap(child));
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
 }
 
 void main() {
@@ -68,7 +79,7 @@ void main() {
             defaultOpen: true,
             tooltip: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [Icon(Icons.info), Text('带图标提示')],
+              children: [Icon(AntIcons.infoCircleOutlined), Text('带图标提示')],
             ),
             child: Text('触发'),
           ),
@@ -76,7 +87,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(findBubble('带图标提示'), findsOneWidget);
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(find.byIcon(AntIcons.infoCircleOutlined), findsOneWidget);
     });
 
     testWidgets('点击空白处关闭气泡', (tester) async {
@@ -314,7 +325,9 @@ void main() {
     });
 
     testWidgets('hover 触发悬停打开，移出关闭', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(
+        tester,
         _wrap(
           const AntTooltip(
             trigger: AntTooltipTrigger.hover,
@@ -325,6 +338,7 @@ void main() {
           ),
         ),
       );
+      debugDefaultTargetPlatformOverride = null;
       expect(findBubble('悬停提示'), findsNothing);
 
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -338,7 +352,9 @@ void main() {
     });
 
     testWidgets('hover 延迟生效（mouseEnterDelay 内不显示）', (tester) async {
-      await tester.pumpWidget(
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await _pumpDesktop(
+        tester,
         _wrap(
           const AntTooltip(
             trigger: AntTooltipTrigger.hover,
@@ -349,6 +365,7 @@ void main() {
           ),
         ),
       );
+      debugDefaultTargetPlatformOverride = null;
 
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: tester.getCenter(findTrigger('触发')));
@@ -465,10 +482,12 @@ void main() {
       );
       await tester.pumpAndSettle();
       final defaultStyle = tester.widget<DefaultTextStyle>(
-        find.ancestor(
-          of: findBubble('黄色气泡'),
-          matching: find.byType(DefaultTextStyle),
-        ).first,
+        find
+            .ancestor(
+              of: findBubble('黄色气泡'),
+              matching: find.byType(DefaultTextStyle),
+            )
+            .first,
       );
       // 浅色背景上文字应为深色
       expect(defaultStyle.style.color, const Color(0xFF141414));

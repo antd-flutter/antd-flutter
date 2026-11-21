@@ -8,7 +8,7 @@ class ErrorBlockPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -19,13 +19,13 @@ class ErrorBlockPage extends StatelessWidget {
               status: AntErrorBlockStatus.defaultStatus,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Empty 暂无数据',
             theme: theme,
             child: const AntErrorBlock(status: AntErrorBlockStatus.empty),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Disconnected 断网',
             theme: theme,
@@ -33,13 +33,13 @@ class ErrorBlockPage extends StatelessWidget {
               status: AntErrorBlockStatus.disconnected,
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: 'Busy 系统繁忙',
             theme: theme,
             child: const AntErrorBlock(status: AntErrorBlockStatus.busy),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义 children 操作区',
             theme: theme,
@@ -48,7 +48,7 @@ class ErrorBlockPage extends StatelessWidget {
               title: '网络不给力',
               description: '请检查网络设置后重试',
               children: Wrap(
-                spacing: 8.w,
+                spacing: theme.s(8),
                 children: [
                   AntButton(
                     child: const AntText(text: '点击刷新'),
@@ -70,7 +70,11 @@ class ErrorBlockPage extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -80,7 +84,7 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       decoration: BoxDecoration(
         color: theme.colorBgContainer,
         borderRadius: BorderRadius.circular(theme.borderRadiusLG),
@@ -89,15 +93,15 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AntText(text: 
-            title,
+          AntText(
+            text: title,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: theme.s(16),
               fontWeight: FontWeight.w600,
               color: theme.colorText,
             ),
           ),
-          SizedBox(height: 12.w),
+          SizedBox(height: theme.s(12)),
           Center(child: child),
         ],
       ),

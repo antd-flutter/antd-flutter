@@ -8,7 +8,7 @@ class AlertPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AntTheme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(theme.s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -18,16 +18,16 @@ class AlertPage extends StatelessWidget {
             child: Column(
               children: [
                 const AntAlert(message: '成功提示', type: AntAlertType.success),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 const AntAlert(message: '信息提示', type: AntAlertType.info),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 const AntAlert(message: '警告提示', type: AntAlertType.warning),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 const AntAlert(message: '错误提示', type: AntAlertType.error),
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '可关闭的警告提示',
             theme: theme,
@@ -39,7 +39,7 @@ class AlertPage extends StatelessWidget {
                   closable: true,
                   onClose: () => _showMsg(context, '提示已关闭'),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntAlert(
                   message: '带描述的可关闭提示',
                   type: AntAlertType.warning,
@@ -50,7 +50,7 @@ class AlertPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '图标与描述',
             theme: theme,
@@ -62,7 +62,7 @@ class AlertPage extends StatelessWidget {
                   showIcon: true,
                   description: '带图标的成功提示，包含详细描述信息。',
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntAlert(
                   message: '错误提示',
                   type: AntAlertType.error,
@@ -72,7 +72,7 @@ class AlertPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '自定义图标',
             theme: theme,
@@ -87,7 +87,7 @@ class AlertPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '操作区',
             theme: theme,
@@ -107,7 +107,7 @@ class AlertPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 16.w),
+          SizedBox(height: theme.s(16)),
           _Section(
             title: '顶部公告 banner',
             theme: theme,
@@ -118,7 +118,7 @@ class AlertPage extends StatelessWidget {
                   type: AntAlertType.warning,
                   banner: true,
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: theme.s(8)),
                 AntAlert(
                   message: '欢迎使用新版组件库',
                   type: AntAlertType.info,
@@ -133,14 +133,16 @@ class AlertPage extends StatelessWidget {
   }
 
   void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.theme, required this.child});
+  const _Section({
+    required this.title,
+    required this.theme,
+    required this.child,
+  });
 
   final String title;
   final AntThemeData theme;
@@ -159,7 +161,7 @@ class _Section extends StatelessWidget {
             color: theme.colorTextHeading,
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: theme.s(8)),
         child,
       ],
     );

@@ -23,14 +23,48 @@ dependencies:
   cupertino_ui: any
 
 dependency_overrides:
+  antd_refresh:
+    path: ../../../packages/antd_refresh
+  antd_swipe_action:
+    path: ../../../packages/antd_swipe_action
+  antd_flutter_ui:
+    path: ../../antd_flutter_ui
   antd_color:
     path: ../../antd_color
+  antd_image_viewer:
+    path: ../../../packages/antd_image_viewer
+  antd_calendar:
+    path: ../../../packages/antd_calendar
+  antd_splitter:
+    path: ../../../packages/antd_splitter
+  antd_transfer:
+    path: ../../../packages/antd_transfer
   antd_tokens:
     path: ../../antd_tokens
   antd_theme:
     path: ../../antd_theme
   antd_icons_flutter:
     path: ../
+  antd_qrcode:
+    path: ../../antd_qrcode
+  antd_carousel:
+    path: ../../../packages/antd_carousel
+  antd_floating:
+    path: ../../../packages/antd_floating
+  antd_form:
+    path: ../../../packages/antd_form
+  antd_keyboard:
+    path: ../../../packages/antd_keyboard
+  antd_masonry:
+    path: ../../../packages/antd_masonry
+  antd_picker:
+    path: ../../../packages/antd_picker
+  antd_table:
+    path: ../../../packages/antd_table
+  antd_tree:
+    path: ../../../packages/antd_tree
+  antd_upload:
+    path: ../../../packages/antd_upload
 dev_dependencies:
   flutter_test:
     sdk: flutter
