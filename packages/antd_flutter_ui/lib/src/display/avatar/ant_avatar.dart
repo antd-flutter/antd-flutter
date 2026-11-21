@@ -23,14 +23,13 @@
 library;
 
 import 'package:antd_theme/antd_theme.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'ant_avatar_types.dart';
 import '../../feedback/loading/ant_loading.dart';
 export 'ant_avatar_types.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import '../image/network_image_loader.dart';
 
 // ============================================================
 // AntAvatar
@@ -91,7 +90,7 @@ class AntAvatar extends StatelessWidget {
 
   /// 网络图缓存管理器，默认使用 cached_network_image 内置缓存；
   /// 可注入自定义缓存策略（如单测注入错误缓存源）。
-  final BaseCacheManager? cacheManager;
+  final Object? cacheManager;
 
   /// 解析实际尺寸。
   double _resolveSize() {
@@ -196,7 +195,7 @@ class AntAvatar extends StatelessWidget {
   ) {
     final theme = AntTheme.of(context);
     if (src.startsWith(_networkSrcPrefix)) {
-      return _cachedNetworkImage(
+      return _networkImage(
         url: src,
         width: px,
         height: px,
@@ -249,17 +248,17 @@ const String _networkSrcPrefix = 'http';
 
 /// cached_network_image 中间件封装：AntAvatar 所有的 SDK 调用
 /// 集中在此一处，组件代码只使用该封装。
-Widget _cachedNetworkImage({
+Widget _networkImage({
   required String url,
   required BoxFit fit,
   double? width,
   double? height,
-  BaseCacheManager? cacheManager,
+  Object? cacheManager,
   Widget Function(BuildContext context, String url)? placeholder,
   Widget Function(BuildContext context, String url, Object error)? errorWidget,
 }) {
-  return CachedNetworkImage(
-    imageUrl: url,
+  return buildAntNetworkImage(
+    url: url,
     width: width,
     height: height,
     fit: fit,

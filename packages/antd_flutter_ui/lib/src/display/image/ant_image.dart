@@ -24,10 +24,10 @@ export 'package:antd_flutter_ui/src/display/image/ant_image_types.dart';
 
 import 'package:antd_theme/antd_theme.dart';
 
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:antd_icons_flutter/antd_icons_flutter.dart';
+import 'network_image_loader.dart';
 
 // ============================================================
 // AntImage
@@ -105,7 +105,7 @@ class _AntImageState extends State<AntImage> {
     required AntThemeData theme,
     required BoxFit fit,
   }) {
-    return _cachedNetworkImage(
+    return _networkImage(
       url: url,
       fit: fit,
       width: widget.width == null ? null : theme.s(widget.width!),
@@ -135,7 +135,7 @@ class _AntImageState extends State<AntImage> {
     final fit = widget.fit ?? BoxFit.cover;
     if (AntImageDefaults.isNetworkSrc(src)) {
       // 占位图自身不再嵌套失败回退，避免递归。
-      return _cachedNetworkImage(
+      return _networkImage(
         url: src,
         fit: fit,
         width: widget.width == null ? null : theme.s(widget.width!),
@@ -394,7 +394,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
     final theme = AntTheme.of(context);
     final src = widget.sources[_index];
     if (AntImageDefaults.isNetworkSrc(src)) {
-      return _cachedNetworkImage(
+      return _networkImage(
         url: src,
         fit: widget.fit,
         placeholder: (_, __) => AntImageDefaults.defaultPlaceholder(theme),
@@ -436,7 +436,7 @@ class _AntImagePreviewOverlayState extends State<_AntImagePreviewOverlay> {
 
 /// cached_network_image 中间件封装：AntImage 所有的 SDK 调用
 /// 集中在此一处，业务代码只使用该封装。
-Widget _cachedNetworkImage({
+Widget _networkImage({
   required String url,
   required BoxFit fit,
   double? width,
@@ -444,8 +444,8 @@ Widget _cachedNetworkImage({
   Widget Function(BuildContext context, String url)? placeholder,
   Widget Function(BuildContext context, String url, Object error)? errorWidget,
 }) {
-  return CachedNetworkImage(
-    imageUrl: url,
+  return buildAntNetworkImage(
+    url: url,
     width: width,
     height: height,
     fit: fit,

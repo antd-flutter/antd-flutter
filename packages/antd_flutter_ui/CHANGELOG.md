@@ -3,6 +3,7 @@
 ## 1.0.2
 
 - Added an example application so pub.dev can render live usage.
+- Added Web platform support: network images now go through a conditional loader (`Image.network` on Web, `cached_network_image` on IO), so the package compiles and runs on all six platforms.
 - Republished with corrected pubspec metadata for pub.dev scoring.
 
 

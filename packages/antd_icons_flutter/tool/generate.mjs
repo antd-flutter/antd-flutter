@@ -38,6 +38,98 @@ const OUT_ANT_ICONS_TWOTONE = path.join(PKG_ROOT, 'lib', 'src', 'ant_icons_twoto
 
 const NPM_REGISTRY = getArg('--registry') || 'https://registry.npmjs.org';
 const PKG_NAME = '@ant-design/icons-svg';
+
+const ANT_ICONS_CLASS_DOC = [
+  "/// Ant Design 图标集（TTF 字体模式）。",
+  "///",
+  "/// 覆盖 Outlined（线框，447 个）与 Filled（实心，251 个）两种风格，共 698 个",
+  "/// [IconData] 常量，源 [`@ant-design/icons-svg`](https://github.com/ant-design/ant-design-icons)。",
+  "///",
+  "/// ## 命名规则",
+  "///",
+  "/// 与 antd React 版对齐（camelCase + 风格后缀）：",
+  "/// - `<CheckOutlined />` → [AntIcons.checkOutlined]",
+  "/// - `<CheckCircleFilled />` → [AntIcons.checkCircleFilled]",
+  "///",
+  "/// 同名图标若两种风格均有，则后缀不同、基础名一致（如 `heartOutlined` / `heartFilled`）。",
+  "///",
+  "/// ## 字体资产加载",
+  "///",
+  "/// 全部 Outlined/Filled 图标打包在单一字体文件 `fonts/AntIcons.ttf` 中，",
+  "/// 已在包内 `pubspec.yaml` 注册为字体族 `AntIcons`（`fontPackage: 'antd_icons_flutter'`）。",
+  "/// 常量通过 `fontFamily` + PUA（私用区）码点引用字形，宿主应用引入本包后",
+  "/// 无需任何额外配置，Flutter 引擎会在首次渲染时按需加载字体。",
+  "///",
+  "/// ## Tree-shaking 说明",
+  "///",
+  "/// 与 Material Icons 不同，**本字体不做按码点 tree-shaking**：字体文件整体",
+  "/// 打入应用（约数百 KB 级）。若对包体积敏感，可考虑：",
+  "/// - 仅使用 [AntIconsTwotone]（SVG 资产，按文件粒度打包）；",
+  "/// - 自行使用 `flutter icon_font` 类工具裁剪字体。",
+  "///",
+  "/// 但无论使用其中多少个常量，字体均以整文件形式随应用发布，未引用的码点",
+  "/// 不会额外占用运行时内存，仅占用安装包体积。",
+  "///",
+  "/// ## 用法",
+  "///",
+  "/// 直接用于 Flutter [Icon] 组件，或经由统一组件 [AntdIcon]：",
+  "///",
+  "/// ```dart",
+  "/// Icon(AntIcons.checkOutlined)",
+  "/// Icon(AntIcons.searchOutlined, size: 24, color: Colors.blue)",
+  "/// AntdIcon(AntIcons.checkCircleFilled, size: 32, color: Colors.green)",
+  "/// ```",
+  "///",
+  "/// 枚举辅助列表（用于图标选择器等场景）：",
+  "///",
+  "/// ```dart",
+  "/// for (final (name, icon) in AntIcons.outlinedIcons) { /* ... */ }",
+  "/// ```",
+];
+
+const TWOTONE_CLASS_DOC = [
+  "/// Ant Design TwoTone 双色图标集（SVG 资产路径）。",
+  "///",
+  "/// 共 150 个双色图标，源 [`@ant-design/icons-svg`](https://github.com/ant-design/ant-design-icons)。",
+  "///",
+  "/// ## 命名规则",
+  "///",
+  "/// 与 antd React 版对齐（camelCase + `TwoTone` 后缀）：",
+  "/// - `<CheckCircleTwoTone />` → [AntIconsTwotone.checkCircleTwoTone]",
+  "///",
+  "/// ## 渲染方式",
+  "///",
+  "/// 常量值为包内 SVG 资产路径（如 `assets/twotone/check-circle.svg`），",
+  "/// 经由 [AntdIcon] 组件渲染（内部使用 `flutter_svg` + 运行时双色替换）：",
+  "///",
+  "/// ```dart",
+  "/// AntdIcon(AntIconsTwotone.checkCircleTwoTone)",
+  "/// AntdIcon(AntIconsTwotone.heartTwoTone,",
+  "///     twoToneColor: Colors.red)",
+  "/// ```",
+  "///",
+  "/// 也可不经过 [AntdIcon]，用 `flutter_svg` 的 `SvgPicture.asset` 直接加载",
+  "/// （注意传入 `package: 'antd_icons_flutter'`）：",
+  "///",
+  "/// ```dart",
+  "/// SvgPicture.asset(",
+  "///   AntIconsTwotone.checkCircleTwoTone,",
+  "///   package: 'antd_icons_flutter',",
+  "/// )",
+  "/// ```",
+  "///",
+  "/// ## 资产加载说明",
+  "///",
+  "/// SVG 文件随包内 `pubspec.yaml` 的 `assets` 声明整体打包，通过",
+  "/// `rootBundle` 按需异步加载；自定义 [AntdIcon.twoToneColor] 时首次渲染",
+  "/// 有一帧异步等待，且替换结果会按「路径 + 主色 + 次色」缓存。",
+  "///",
+  "/// ## Tree-shaking 说明",
+  "///",
+  "/// 与 [AntIcons]（TTF 整字体打包）不同，SVG 资产按文件粒度进入安装包；",
+  "/// 但由于资产以目录形式声明，当前版本为全量打包，不做按引用裁剪。",
+];
+
 const FONT_FAMILY = 'AntIcons';
 const PACKAGE_NAME = 'antd_icons_flutter';
 const CODEPOINT_START = 0xe001;
@@ -205,18 +297,7 @@ function generateAntIconsDart(allIcons, categories, version) {
   lines.push('');
   lines.push("import 'package:flutter/widgets.dart';");
   lines.push('');
-  lines.push('/// Ant Design 图标集（TTF 字体模式）。');
-  lines.push('///');
-  lines.push('/// 命名规则与 antd React 版对齐（camelCase + Outlined/Filled 后缀）：');
-  lines.push('/// - `<CheckOutlined />` → [AntIcons.checkOutlined]');
-  lines.push('/// - `<CheckCircleFilled />` → [AntIcons.checkCircleFilled]');
-  lines.push('///');
-  lines.push('/// 直接用于 Flutter [Icon] 组件：');
-  lines.push('///');
-  lines.push('/// ```dart');
-  lines.push('/// Icon(AntIcons.checkOutlined)');
-  lines.push('/// Icon(AntIcons.searchOutlined, size: 24, color: Colors.blue)');
-  lines.push('/// ```');
+  lines.push(...ANT_ICONS_CLASS_DOC);
   lines.push('abstract final class AntIcons {');
 
   for (const cat of categories) {
@@ -227,6 +308,8 @@ function generateAntIconsDart(allIcons, categories, version) {
     for (const icon of icons) {
       const hex = '0x' + icon.codepoint.toString(16);
       lines.push('');
+      lines.push(`  /// Ant Design \`${icon.baseName}\` icon (${icon.cat}).`);
+      lines.push('  ///');
       lines.push(`  /// <img src="https://api.iconify.design/ant-design/${icon.baseName}.svg?color=%23888" width="16" height="16" alt="${icon.baseName}" />`);
       lines.push('  ///');
       lines.push(`  /// antd React: \`${icon.dartName}\``);
@@ -261,18 +344,7 @@ function generateTwotoneDart(names, version) {
   lines.push('// 本文件由 tool/generate.mjs 自动生成，请勿手动修改。');
   lines.push(`// 源: @ant-design/icons-svg@${version}`);
   lines.push('');
-  lines.push('/// Ant Design TwoTone 双色图标集（SVG 资产路径）。');
-  lines.push('///');
-  lines.push('/// 命名规则与 antd React 版对齐（camelCase + TwoTone 后缀）：');
-  lines.push('/// - `<CheckCircleTwoTone />` → [AntIconsTwotone.checkCircleTwoTone]');
-  lines.push('///');
-  lines.push('/// 通过 [AntdIcon] 组件渲染（内部使用 flutter_svg + 动态双色替换）：');
-  lines.push('///');
-  lines.push('/// ```dart');
-  lines.push('/// AntdIcon(AntIconsTwotone.checkCircleTwoTone)');
-  lines.push('/// AntdIcon(AntIconsTwotone.heartTwoTone,');
-  lines.push('///     twoToneColor: Colors.red)');
-  lines.push('/// ```');
+  lines.push(...TWOTONE_CLASS_DOC);
   lines.push('abstract final class AntIconsTwotone {');
 
   lines.push('');
@@ -280,6 +352,8 @@ function generateTwotoneDart(names, version) {
   for (const name of names) {
     const dartName = kebabToCamel(name) + 'TwoTone';
     lines.push('');
+    lines.push(`  /// Ant Design \`${name}\` icon (twotone).`);
+    lines.push('  ///');
     lines.push(`  /// <img src="https://api.iconify.design/ant-design/${name}-twotone.svg?color=%23888" width="16" height="16" alt="${name}" />`);
     lines.push('  ///');
     lines.push(`  /// antd React: \`${dartName}\``);
