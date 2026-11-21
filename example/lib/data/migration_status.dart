@@ -41,7 +41,6 @@ const kPendingVerify = <String>[
   'breadcrumb',
   'index_bar',
   // 批次 0-7 misc/general 族
-  'config_provider',
   // 批次 0-8 / 独立包压轴（transfer/table 已从 ui 拆出为独立包）
   'transfer',
   'table',
@@ -51,6 +50,7 @@ const kMigratedVerified = <String>[
   'mentions',
   'affix',
   'app',
+  'config_provider',
   'capsule_tabs',
   // 基础层
   'button',
