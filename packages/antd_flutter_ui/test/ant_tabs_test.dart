@@ -179,16 +179,74 @@ void main() {
       expect((after.dy - before.dy).abs(), lessThan(0.5));
     });
 
-    testWidgets('card type content has border', (tester) async {
+    testWidgets('card type renders bordered tabs with 2px gutter', (tester) async {
       await tester.pumpWidget(
         _wrap(AntTabs(type: AntTabsType.card, items: _sampleItems())),
       );
-      // card 类型的内容区域有 Container + BoxDecoration
-      final containers = find.descendant(
-        of: find.byType(AntTabs),
-        matching: find.byType(Container),
+      final first = tester.getRect(
+        find.ancestor(of: find.text('Tab 1'), matching: find.byType(Container)).first,
       );
-      expect(containers, findsWidgets);
+      final second = tester.getRect(
+        find.ancestor(of: find.text('Tab 2'), matching: find.byType(Container)).first,
+      );
+      // antd cardGutter = marginXXS / 2 = 2
+      expect(second.left - first.right, closeTo(2, 0.01));
+      final decoration = tester
+          .widgetList<Container>(
+            find.ancestor(
+              of: find.text('Tab 1'),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((c) => c.decoration)
+          .whereType<BoxDecoration>()
+          .firstWhere((d) => d.border != null);
+      expect(decoration.color, isNotNull);
+    });
+
+    testWidgets('outlined type renders one outer frame with segmented tabs',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(AntTabs(type: AntTabsType.outlined, items: _sampleItems())),
+      );
+      // 整组一枚外框
+      final outer = tester
+          .widgetList<Container>(
+            find.descendant(
+              of: find.byType(AntTabs),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((c) => c.decoration)
+          .whereType<BoxDecoration>()
+          .where((d) => d.border != null && d.border!.top.color == Color(0xFFD9D9D9))
+          .toList();
+      expect(outer, isNotEmpty);
+
+      // 选中段：主色描边
+      final active = tester
+          .widgetList<Container>(
+            find.ancestor(
+              of: find.text('Tab 1'),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((c) => c.decoration)
+          .whereType<BoxDecoration>()
+          .firstWhere((d) => d.border != null && d.border!.top.color == Color(0xFF1677FF));
+      expect(active.borderRadius, BorderRadius.circular(6));
+
+      // 非选中段之间由 1px 分隔线切分
+      final first = tester.getRect(
+        find.ancestor(of: find.text('Tab 1'), matching: find.byType(Container)).first,
+      );
+      final second = tester.getRect(
+        find.ancestor(of: find.text('Tab 2'), matching: find.byType(Container)).first,
+      );
+      expect(second.left, closeTo(first.right, 0.01));
+
+      // 高度 32
+      expect(first.height, closeTo(32, 0.01));
     });
 
     testWidgets('editableCard shows add button', (tester) async {

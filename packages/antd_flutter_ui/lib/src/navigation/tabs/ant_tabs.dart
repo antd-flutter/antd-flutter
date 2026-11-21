@@ -311,12 +311,14 @@ class _AntTabsState extends State<AntTabs> {
     Widget result;
     if (_isHorizontal) {
       result = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: widget.tabPosition == AntTabPosition.top
             ? [tabBar, content]
             : [content, tabBar],
       );
     } else {
       result = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: widget.tabPosition == AntTabPosition.left
             ? [tabBar, content]
             : [content, tabBar],
@@ -349,14 +351,20 @@ class _AntTabsState extends State<AntTabs> {
     final theme = AntTheme.of(context);
     final tabs = <Widget>[];
 
+    final isCard = widget.type == AntTabsType.card ||
+        widget.type == AntTabsType.editableCard;
+    // antd cardGutter = marginXXS / 2 = 2，卡片之间保留 2px 缝隙，避免边框重叠。
+    final gutter = widget.tabBarGutter ?? (isCard ? 2.0 : null);
+    final isOutlined = widget.type == AntTabsType.outlined;
+
     for (var i = 0; i < widget.items.length; i++) {
       final item = widget.items[i];
       tabs.add(_buildTabItem(context, theme, item, i));
-      if (i < widget.items.length - 1 && widget.tabBarGutter != null) {
+      if (i < widget.items.length - 1 && gutter != null) {
         if (_isHorizontal) {
-          tabs.add(SizedBox(width: widget.tabBarGutter));
+          tabs.add(SizedBox(width: gutter));
         } else {
-          tabs.add(SizedBox(height: widget.tabBarGutter));
+          tabs.add(SizedBox(height: gutter));
         }
       }
     }
@@ -440,6 +448,24 @@ class _AntTabsState extends State<AntTabs> {
       }
     }
 
+    if (isOutlined) {
+      // 外框只包住标签本身（与 antd Radio.Button 分组一致），不撑满整行。
+      bar = Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: IntrinsicWidth(
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorBgContainer,
+              border: Border.all(color: theme.colorBorder),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: bar,
+          ),
+        ),
+      );
+    }
+
     return bar;
   }
 
@@ -452,6 +478,7 @@ class _AntTabsState extends State<AntTabs> {
     final isActive = item.key == _currentKey;
     final isCard = widget.type == AntTabsType.card ||
         widget.type == AntTabsType.editableCard;
+    final isOutlined = widget.type == AntTabsType.outlined;
 
     // 标签内容
     final labelWidgets = <Widget>[];
@@ -528,29 +555,63 @@ class _AntTabsState extends State<AntTabs> {
       );
     }
 
-    // 卡片样式
+    // 外边框分段样式：段与段之间以 1px 分隔线切分，选中段覆盖主色描边。
+    BoxDecoration? outlinedDecoration;
+    if (isOutlined) {
+      outlinedDecoration = isActive
+          ? BoxDecoration(
+              color: theme.colorBgContainer,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: theme.colorPrimary),
+            )
+          : BoxDecoration(
+              border: Border(
+                left: index == 0
+                    ? BorderSide.none
+                    : BorderSide(color: theme.colorBorder),
+              ),
+            );
+    }
+
+    // 卡片样式：每项一枚带边框的卡片，活动项底色与内容区连通。
     BoxDecoration? cardDecoration;
     if (isCard) {
+      final borderSide = BorderSide(color: theme.colorBorderSecondary);
+      const radiusLg = 8.0;
+      final radius = _isHorizontal
+          ? BorderRadius.vertical(
+              top: widget.tabPosition == AntTabPosition.top
+                  ? const Radius.circular(radiusLg)
+                  : Radius.zero,
+              bottom: widget.tabPosition == AntTabPosition.bottom
+                  ? const Radius.circular(radiusLg)
+                  : Radius.zero,
+            )
+          : BorderRadius.horizontal(
+              left: widget.tabPosition == AntTabPosition.left
+                  ? const Radius.circular(radiusLg)
+                  : Radius.zero,
+              right: widget.tabPosition == AntTabPosition.right
+                  ? const Radius.circular(radiusLg)
+                  : Radius.zero,
+            );
       cardDecoration = BoxDecoration(
-        color: isActive ? theme.colorBgContainer : theme.colorBgLayout,
-        border: Border.all(color: theme.colorSplit),
-        borderRadius: _isHorizontal
-            ? BorderRadius.vertical(
-                top: widget.tabPosition == AntTabPosition.top
-                    ? const Radius.circular(6)
-                    : Radius.zero,
-                bottom: widget.tabPosition == AntTabPosition.bottom
-                    ? const Radius.circular(6)
-                    : Radius.zero,
-              )
-            : BorderRadius.horizontal(
-                left: widget.tabPosition == AntTabPosition.left
-                    ? const Radius.circular(6)
-                    : Radius.zero,
-                right: widget.tabPosition == AntTabPosition.right
-                    ? const Radius.circular(6)
-                    : Radius.zero,
-              ),
+        color: isActive ? theme.colorBgContainer : theme.colorFillAlter,
+        borderRadius: radius,
+        border: Border(
+          top: isActive && widget.tabPosition == AntTabPosition.bottom
+              ? BorderSide.none
+              : borderSide,
+          bottom: isActive && widget.tabPosition == AntTabPosition.top
+              ? BorderSide.none
+              : borderSide,
+          left: isActive && widget.tabPosition == AntTabPosition.right
+              ? BorderSide.none
+              : borderSide,
+          right: isActive && widget.tabPosition == AntTabPosition.left
+              ? BorderSide.none
+              : borderSide,
+        ),
       );
     }
 
@@ -565,9 +626,11 @@ class _AntTabsState extends State<AntTabs> {
               : SystemMouseCursors.click,
           child: Container(
             key: _tabKeys[index],
-            height: _tabHeight,
-            padding: EdgeInsets.symmetric(horizontal: _horizontalTabPadding),
-            decoration: cardDecoration,
+            height: isOutlined ? 32 : _tabHeight,
+            padding: EdgeInsets.symmetric(
+              horizontal: isOutlined ? 16 : _horizontalTabPadding,
+            ),
+            decoration: outlinedDecoration ?? cardDecoration,
             alignment: Alignment.center,
             child: tabContent,
           ),
@@ -642,27 +705,38 @@ class _AntTabsState extends State<AntTabs> {
     if (widget.animated) {
       content = AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
+        // 默认 Stack(center) 会把内容缩成文字宽度并居中；改为左上对齐，
+        // 并让子节点撑满可用宽度，内容才会与标签栏左对齐。
+        layoutBuilder: (currentChild, previousChildren) => Stack(
+          alignment: Alignment.topLeft,
+          children: [
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        ),
         child: KeyedSubtree(
           key: ValueKey(_currentKey),
-          child: content,
+          child: SizedBox(width: double.infinity, child: content),
         ),
       );
+    } else {
+      content = SizedBox(width: double.infinity, child: content);
     }
 
     final contentPadding = EdgeInsets.all(_isMobileStyle ? 12 : 16);
 
-    if (isCard) {
+    if (isCard && !_isHorizontal) {
+      // 垂直卡片：内容区与卡片之间保留一条分隔线（antd body-holder border）。
       content = Container(
         padding: contentPadding,
         decoration: BoxDecoration(
-          border: Border.all(color: theme.colorSplit),
-          borderRadius: BorderRadius.vertical(
-            top: widget.tabPosition == AntTabPosition.bottom
-                ? const Radius.circular(6)
-                : Radius.zero,
-            bottom: widget.tabPosition == AntTabPosition.top
-                ? const Radius.circular(6)
-                : Radius.zero,
+          border: Border(
+            left: widget.tabPosition == AntTabPosition.left
+                ? BorderSide(color: theme.colorBorderSecondary)
+                : BorderSide.none,
+            right: widget.tabPosition == AntTabPosition.right
+                ? BorderSide(color: theme.colorBorderSecondary)
+                : BorderSide.none,
           ),
         ),
         child: content,

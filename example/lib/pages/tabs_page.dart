@@ -18,6 +18,8 @@ class TabsPage extends StatelessWidget {
           _BasicDemo(),
           _Section(title: '卡片样式', description: 'type=card，标签以卡片形式展示'),
           _CardDemo(),
+          _Section(title: '外边框分段', description: 'type=outlined，整组一枚圆角外框、内部等分，选中段主色描边'),
+          _OutlinedDemo(),
           _Section(title: '可编辑卡片', description: 'type=editableCard，支持增删选项卡'),
           _EditableDemo(),
           _Section(title: '位置', description: 'tabPosition=left/right/bottom'),
@@ -100,6 +102,31 @@ class _CardDemo extends StatelessWidget {
           AntTabsItem(key: '1', label: 'Tab 1', child: Text('Card content 1')),
           AntTabsItem(key: '2', label: 'Tab 2', child: Text('Card content 2')),
           AntTabsItem(key: '3', label: 'Tab 3', child: Text('Card content 3')),
+        ],
+      ),
+    );
+  }
+}
+
+// ------------------------------------------------------------
+// 外边框分段
+// ------------------------------------------------------------
+
+class _OutlinedDemo extends StatelessWidget {
+  const _OutlinedDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 200,
+      width: double.infinity,
+      child: AntTabs(
+        type: AntTabsType.outlined,
+        size: AntTabsSize.small,
+        items: [
+          AntTabsItem(key: 's', label: 'Small', child: Text('Small size tab content')),
+          AntTabsItem(key: 'm', label: 'Medium', child: Text('Medium size tab content')),
+          AntTabsItem(key: 'l', label: 'Large', child: Text('Large size tab content')),
         ],
       ),
     );
