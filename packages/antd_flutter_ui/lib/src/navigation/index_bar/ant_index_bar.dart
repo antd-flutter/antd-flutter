@@ -1,16 +1,35 @@
 /// AntIndexBar — antd-mobile IndexBar 索引栏的 Flutter 实现
 ///
-/// API 与 antd-mobile IndexBar 对齐：
-/// - [items] — 分组项列表（key 作为索引字母）
-/// - [onChange] — 索引切换回调
+/// 对齐 antd-mobile v5：
+/// - 分组标题 [AntIndexBarItem.title]，吸顶时固定在顶部（`sticky`）；
+/// - 右侧竖排索引字母，点击/拖动跳转到对应分组；
+/// - 交互时在字母左侧显示当前字母气泡；
+/// - 滚动内容时自动切换当前索引并回调 `onChange`。
 library;
 
-import 'dart:async';
-
 import 'package:antd_theme/antd_theme.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ant_index_bar_types.dart';
+
+// ============================================================
+// AntIndexBarController
+// ============================================================
+
+/// [AntIndexBar] 的控制器，用于编程式滚动到指定索引。
+class AntIndexBarController {
+  _AntIndexBarState? _state;
+
+  /// 滚动到 [index] 对应的分组。
+  void scrollTo(String index) => _state?.scrollTo(index);
+
+  void _attach(_AntIndexBarState state) => _state = state;
+
+  void _detach(_AntIndexBarState state) {
+    if (identical(_state, state)) _state = null;
+  }
+}
 
 // ============================================================
 // AntIndexBar
@@ -18,29 +37,39 @@ import 'ant_index_bar_types.dart';
 
 /// 索引栏 — 通讯录式字母索引导航。
 ///
-/// 对齐 antd-mobile IndexBar 组件，右侧竖排索引字母，
-/// 支持点击与垂直拖动选择，选中时中央显示字母提示气泡。
+/// 需要外层给定高度（内部自管理滚动区域）。
 ///
 /// ```dart
-/// AntIndexBar(
-///   items: [
-///     AntIndexBarItem(key: 'A', child: Text('A 组内容')),
-///     AntIndexBarItem(key: 'B', child: Text('B 组内容')),
-///   ],
-///   onChange: (key) => print(key),
+/// SizedBox(
+///   height: 400,
+///   child: AntIndexBar(
+///     items: [
+///       AntIndexBarItem(index: 'A', child: Text('A 组内容')),
+///       AntIndexBarItem(index: 'B', child: Text('B 组内容')),
+///     ],
+///     onChange: (index) => print(index),
+///   ),
 /// )
 /// ```
 class AntIndexBar extends StatefulWidget {
   const AntIndexBar({
     super.key,
     required this.items,
+    this.sticky = true,
+    this.controller,
     this.onChange,
   });
 
   /// 分组项列表。
   final List<AntIndexBarItem> items;
 
-  /// 索引切换回调。
+  /// 分组标题是否吸顶。默认 true。
+  final bool sticky;
+
+  /// 控制器，可调用 [AntIndexBarController.scrollTo] 跳转分组。
+  final AntIndexBarController? controller;
+
+  /// 当前索引变化回调（点击、拖动或滚动均会触发）。
   final ValueChanged<String>? onChange;
 
   @override
@@ -48,223 +77,335 @@ class AntIndexBar extends StatefulWidget {
 }
 
 class _AntIndexBarState extends State<AntIndexBar> {
-  /// 当前选中索引（null = 无选中）。
-  int? _activeIndex;
+  static const double _headerHeight = 35;
+  static const double _rowHeight = 16;
+  static const double _rowWidth = 40;
+  static const double _bubbleSize = 47;
 
-  /// 是否显示中央提示气泡。
-  bool _showBubble = false;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _rootKey = GlobalKey();
+  final Map<String, GlobalKey> _panelKeys = <String, GlobalKey>{};
+  final List<GlobalKey> _rowKeys = <GlobalKey>[];
 
-  /// 气泡自动隐藏定时器。
-  Timer? _bubbleTimer;
-
-  /// 每个索引字母的 GlobalKey，用于精确命中检测。
-  final List<GlobalKey> _letterKeys = [];
+  String? _activeIndex;
+  bool _interacting = false;
+  bool _pinned = false;
 
   @override
-  void dispose() {
-    _bubbleTimer?.cancel();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _activeIndex = widget.items.isEmpty ? null : widget.items.first.index;
+    widget.controller?._attach(this);
+    _scrollController.addListener(_handleScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _handleScroll();
+    });
   }
 
   @override
   void didUpdateWidget(covariant AntIndexBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.items.length != widget.items.length) {
-      _letterKeys.clear();
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._detach(this);
+      widget.controller?._attach(this);
     }
-  }
-
-  GlobalKey _keyFor(int index) {
-    while (_letterKeys.length <= index) {
-      _letterKeys.add(GlobalKey());
-    }
-    return _letterKeys[index];
-  }
-
-  void _select(int index) {
-    if (index < 0 || index >= widget.items.length) return;
-    if (index == _activeIndex && _showBubble) return;
-
-    setState(() {
-      _activeIndex = index;
-      _showBubble = true;
-    });
-    widget.onChange?.call(widget.items[index].key);
-
-    _bubbleTimer?.cancel();
-    _bubbleTimer = Timer(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        setState(() => _showBubble = false);
-      }
-    });
-  }
-
-  /// 根据全局 y 坐标，遍历字母 RenderBox 找到命中索引。
-  int _indexFromGlobalY(double globalY) {
-    for (int i = 0; i < widget.items.length && i < _letterKeys.length; i++) {
-      final box =
-          _letterKeys[i].currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      final pos = box.localToGlobal(Offset.zero);
-      if (globalY >= pos.dy - 4 && globalY < pos.dy + box.size.height + 4) {
-        return i;
+    if (oldWidget.items != widget.items) {
+      final valid = widget.items.any((item) => item.index == _activeIndex);
+      if (!valid) {
+        _activeIndex = widget.items.isEmpty ? null : widget.items.first.index;
+        _pinned = false;
       }
     }
-    // 未命中：找最近的
-    int? nearest;
-    double minDist = double.infinity;
-    for (int i = 0; i < widget.items.length && i < _letterKeys.length; i++) {
-      final box =
-          _letterKeys[i].currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      final pos = box.localToGlobal(Offset.zero);
-      final center = pos.dy + box.size.height / 2;
-      final dist = (globalY - center).abs();
-      if (dist < minDist) {
-        minDist = dist;
-        nearest = i;
-      }
-    }
-    return nearest ?? _activeIndex ?? 0;
   }
 
   @override
+  void dispose() {
+    widget.controller?._detach(this);
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // ------------------------------------------------------------
+  // 对外
+  // ------------------------------------------------------------
+
+  /// 滚动到指定索引分组。
+  void scrollTo(String index) {
+    final offset = _panelOffset(index);
+    if (offset == null) return;
+    if (_scrollController.hasClients) {
+      final position = _scrollController.position;
+      _scrollController.jumpTo(
+        offset.clamp(position.minScrollExtent, position.maxScrollExtent),
+      );
+    }
+    _setActive(index);
+  }
+
+  // ------------------------------------------------------------
+  // 内部
+  // ------------------------------------------------------------
+
+  GlobalKey _panelKeyFor(String index) =>
+      _panelKeys.putIfAbsent(index, GlobalKey.new);
+
+  GlobalKey _rowKeyFor(int i) {
+    while (_rowKeys.length <= i) {
+      _rowKeys.add(GlobalKey());
+    }
+    return _rowKeys[i];
+  }
+
+  AntIndexBarItem? _itemByIndex(String? index) {
+    if (index == null) return null;
+    for (final item in widget.items) {
+      if (item.index == index) return item;
+    }
+    return null;
+  }
+
+  /// 分组顶部在滚动内容坐标系中的偏移。
+  double? _panelOffset(String index) {
+    final renderObject =
+        _panelKeys[index]?.currentContext?.findRenderObject();
+    if (renderObject == null) return null;
+    final viewport = RenderAbstractViewport.maybeOf(renderObject);
+    if (viewport == null) return null;
+    return viewport.getOffsetToReveal(renderObject, 0).offset;
+  }
+
+  void _handleScroll() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final offset = _scrollController.offset;
+
+    String? active;
+    for (final item in widget.items) {
+      final top = _panelOffset(item.index);
+      if (top == null) continue;
+      if (top <= offset + 0.5) active = item.index;
+    }
+    active ??= widget.items.isEmpty ? null : widget.items.first.index;
+    if (active != null) _setActive(active);
+
+    final activeTop = active == null ? null : _panelOffset(active);
+    final pinned =
+        activeTop != null && offset > activeTop + 0.5 && widget.sticky;
+    if (pinned != _pinned) setState(() => _pinned = pinned);
+  }
+
+  void _setActive(String index) {
+    if (_activeIndex == index) return;
+    setState(() => _activeIndex = index);
+    widget.onChange?.call(index);
+  }
+
+  void _startInteraction(double globalY) {
+    setState(() => _interacting = true);
+    _activateAt(globalY);
+  }
+
+  void _endInteraction() {
+    if (!_interacting) return;
+    setState(() => _interacting = false);
+  }
+
+  void _activateAt(double globalY) {
+    final index = _indexFromGlobalY(globalY);
+    if (index == null) return;
+    scrollTo(widget.items[index].index);
+  }
+
+  int? _indexFromGlobalY(double globalY) {
+    int? nearest;
+    var minDistance = double.infinity;
+    for (var i = 0; i < widget.items.length && i < _rowKeys.length; i++) {
+      final box =
+          _rowKeys[i].currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) continue;
+      final top = box.localToGlobal(Offset.zero).dy;
+      if (globalY >= top && globalY < top + box.size.height) return i;
+      final center = top + box.size.height / 2;
+      final distance = (globalY - center).abs();
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = i;
+      }
+    }
+    return nearest;
+  }
+
+  double? _activeRowCenterY() {
+    final index = _activeIndex;
+    if (index == null) return null;
+    final i = widget.items.indexWhere((item) => item.index == index);
+    if (i < 0 || i >= _rowKeys.length) return null;
+    final rowBox = _rowKeys[i].currentContext?.findRenderObject() as RenderBox?;
+    final rootBox =
+        _rootKey.currentContext?.findRenderObject() as RenderBox?;
+    if (rowBox == null || rootBox == null || !rowBox.hasSize) return null;
+    final rowTop = rowBox.localToGlobal(Offset.zero).dy;
+    final rootTop = rootBox.localToGlobal(Offset.zero).dy;
+    return rowTop - rootTop + rowBox.size.height / 2;
+  }
+
+  // ------------------------------------------------------------
+  // 构建
+  // ------------------------------------------------------------
+
+  @override
   Widget build(BuildContext context) {
-    final t = AntTheme.of(context);
+    final theme = AntTheme.of(context);
+    final items = widget.items;
 
     return Stack(
+      key: _rootKey,
       children: [
-        // 左侧分组内容
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final item in widget.items) ...[
-              if (item.title != null || item.key.isNotEmpty)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.w,
-                  ),
-                  color: t.colorBgLayout,
-                  child: Text(
-                    item.title ?? item.key,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: t.colorTextSecondary,
-                    ),
-                  ),
-                ),
-              if (item.child != null) item.child!,
-            ],
-          ],
-        ),
-
-        // 右侧索引条
-        Positioned(
-          right: 2.w,
-          top: 0,
-          bottom: 0,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapDown: (details) {
-              _select(_indexFromGlobalY(details.globalPosition.dy));
-            },
-            onVerticalDragStart: (details) {
-              _select(_indexFromGlobalY(details.globalPosition.dy));
-            },
-            onVerticalDragUpdate: (details) {
-              _select(_indexFromGlobalY(details.globalPosition.dy));
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 4.w),
-              decoration: BoxDecoration(
-                color: t.colorBgContainer.withValues(alpha: 0.85),
-                borderRadius: BorderRadius.circular(10.w),
-              ),
+        Positioned.fill(
+          child: ColoredBox(
+            color: theme.colorBgContainer,
+            child: SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int i = 0; i < widget.items.length; i++)
-                    _IndexLetter(
-                      key: _keyFor(i),
-                      letter: widget.items[i].key,
-                      active: i == _activeIndex,
-                      colorPrimary: t.colorPrimary,
-                      colorTextSecondary: t.colorTextSecondary,
+                  for (final item in items)
+                    Column(
+                      key: _panelKeyFor(item.index),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(theme, item.headerTitle),
+                        if (item.child != null) item.child!,
+                      ],
                     ),
                 ],
               ),
             ),
           ),
         ),
-
-        // 中央提示气泡
-        if (_showBubble && _activeIndex != null)
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: Container(
-                width: 60.w,
-                height: 60.w,
-                decoration: BoxDecoration(
-                  color: t.colorBgContainer.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(8.w),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  widget.items[_activeIndex!].key,
-                  style: TextStyle(
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.w600,
-                    color: t.colorPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        if (widget.sticky && _pinned) _buildStickyHeader(theme),
+        _buildSidebar(theme),
+        if (_interacting && _activeIndex != null) _buildBubble(theme),
       ],
     );
   }
-}
 
-// ============================================================
-// 内部：索引字母
-// ============================================================
-
-class _IndexLetter extends StatelessWidget {
-  const _IndexLetter({
-    super.key,
-    required this.letter,
-    required this.active,
-    required this.colorPrimary,
-    required this.colorTextSecondary,
-  });
-
-  final String letter;
-  final bool active;
-  final Color colorPrimary;
-  final Color colorTextSecondary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.w),
+  Widget _buildHeader(AntThemeData theme, String title) {
+    return Container(
+      height: _headerHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      alignment: Alignment.centerLeft,
+      color: Color.alphaBlend(theme.colorFillContent, theme.colorBgContainer),
       child: Text(
-        letter,
+        title,
         style: TextStyle(
-          fontSize: 10.sp,
-          fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-          color: active ? colorPrimary : colorTextSecondary,
+          fontSize: 13,
+          height: 1,
+          color: theme.colorTextTertiary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStickyHeader(AntThemeData theme) {
+    final item = _itemByIndex(_activeIndex);
+    if (item == null) return const SizedBox.shrink();
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: _buildHeader(theme, item.headerTitle),
+      ),
+    );
+  }
+
+  Widget _buildSidebar(AntThemeData theme) {
+    final items = widget.items;
+    return Positioned(
+      right: 0,
+      top: 0,
+      bottom: 0,
+      child: Center(
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: (event) => _startInteraction(event.position.dy),
+          onPointerMove: (event) {
+            if (_interacting) _activateAt(event.position.dy);
+          },
+          onPointerUp: (_) => _endInteraction(),
+          onPointerCancel: (_) => _endInteraction(),
+          child: SizedBox(
+            width: _rowWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  _buildSidebarRow(theme, items[i], i),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarRow(AntThemeData theme, AntIndexBarItem item, int i) {
+    final active = item.index == _activeIndex;
+    return SizedBox(
+      key: _rowKeyFor(i),
+      width: _rowWidth,
+      height: _rowHeight,
+      child: Center(
+        child: Container(
+          width: 16,
+          height: 16,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: active ? theme.colorPrimary : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: item.briefWidget ??
+              Text(
+                item.briefText,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1,
+                  color: active
+                      ? theme.colorTextLightSolid
+                      : theme.colorTextTertiary,
+                ),
+              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBubble(AntThemeData theme) {
+    final item = _itemByIndex(_activeIndex);
+    final centerY = _activeRowCenterY();
+    if (item == null || centerY == null) return const SizedBox.shrink();
+    return Positioned(
+      right: 60,
+      top: centerY - _bubbleSize / 2,
+      child: IgnorePointer(
+        child: Container(
+          width: _bubbleSize,
+          height: _bubbleSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: theme.colorBorder,
+            shape: BoxShape.circle,
+          ),
+          child: item.briefWidget ??
+              Text(
+                item.briefText,
+                style: TextStyle(
+                  fontSize: 25,
+                  height: 1,
+                  color: theme.colorTextLightSolid,
+                ),
+              ),
         ),
       ),
     );
