@@ -25,7 +25,6 @@ const kPendingVerify = <String>[
   'passcode_input',
   'virtual_input',
   // 批次 0-4 select-like 族（弹层统一 popup_engine 基座）
-  'auto_complete',
   // 批次 0-5 数据展示残余
   // 批次 0-6 导航族
   'tabs',
@@ -51,6 +50,7 @@ const kMigratedVerified = <String>[
   'collapse',
   'descriptions',
   'timeline',
+  'auto_complete',
   'capsule_tabs',
   // 基础层
   'button',
