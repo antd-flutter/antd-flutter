@@ -20,6 +20,7 @@ export 'src/ant_theme.dart';
 export 'src/ant_material_bridge.dart';
 export 'src/ant_breakpoint.dart';
 export 'src/ant_platform.dart';
+export 'src/ant_ohos_channel.dart';
 export 'src/ant_responsive.dart';
 export 'src/ant_scale.dart';
 export 'src/ant_overlay_material.dart';
